@@ -1,0 +1,42 @@
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: #0f6e56;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+
+  &__brand {
+    font-weight: 700;
+    font-size: 1.25rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 32px;
+  }
+
+  &__nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__link {
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: background 0.15s ease;
+
+    &:hover {
+      background: #1a9470;
+      color: #fff;
+    }
+
+    &--active {
+      background: #1a9470;
+      color: #fff;
+      font-weight: 600;
+    }
+  }
+}

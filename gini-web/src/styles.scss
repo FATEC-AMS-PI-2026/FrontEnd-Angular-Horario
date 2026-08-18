@@ -1,0 +1,32 @@
+/* Estilos globais e tokens de identidade visual do GINI (ver briefing, seção 8.3) */
+
+:root {
+  --color-primary: #0f6e56;
+  --color-primary-hover: #1a9470;
+  --color-primary-light: #4dbfa0;
+  --color-primary-pale: #e0f5ee;
+  --color-danger: #c8102e;
+
+  --color-status-free: #3b6d11;
+  --color-status-busy: #e24b4a;
+  --color-status-maintenance: #ef9f27;
+
+  --color-bg: #f5f7f6;
+  --color-text: #1a1a1a;
+
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'DM Mono', 'Courier New', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background: var(--color-bg);
+}
