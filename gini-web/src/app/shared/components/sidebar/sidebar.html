@@ -1,0 +1,15 @@
+<aside class="sidebar">
+  <div class="sidebar__brand">GINI</div>
+
+  <nav class="sidebar__nav">
+    @for (link of links; track link.path) {
+      <a
+        class="sidebar__link"
+        [routerLink]="link.path"
+        routerLinkActive="sidebar__link--active"
+      >
+        {{ link.label }}
+      </a>
+    }
+  </nav>
+</aside>
