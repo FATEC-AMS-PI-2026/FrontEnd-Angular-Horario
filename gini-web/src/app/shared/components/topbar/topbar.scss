@@ -1,0 +1,13 @@
+.topbar {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  background: #fff;
+  border-bottom: 1px solid #e0f5ee;
+
+  &__title {
+    font-weight: 600;
+    color: #0f6e56;
+  }
+}
