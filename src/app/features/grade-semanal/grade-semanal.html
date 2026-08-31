@@ -1,0 +1,51 @@
+<div class="grade-container">
+    <div class="schedule-card">
+        <h2 class="card-title">Horários da semana</h2>
+
+        <div class="table-grid">
+            <!-- Cabeçalho -->
+            <div class="grid-header">
+                <div>Horário</div>
+                <div>Segunda</div>
+                <div>Terça Feira</div>
+                <div>Quarta</div>
+                <div>Quinta</div>
+                <div>Sexta</div>
+            </div>
+
+            <!-- Loop pelas 6 aulas reais -->
+            @for (linha of grade; track $index; let idxAula = $index) {
+
+            <!-- Cálculo dinâmico para pular o índice do horário quando houver intervalo -->
+            @let idxHorario = idxAula >= 4 ? idxAula + 2 : (idxAula >= 2 ? idxAula + 1 : idxAula);
+
+            <!-- Linha da Aula Normal -->
+            <div class="grid-row">
+                <div class="time-column">
+                    <span>{{ formatarHorario(horarios[idxHorario])[0] }}</span>
+                    <span>{{ formatarHorario(horarios[idxHorario])[1] }}</span>
+                </div>
+
+                @for (celula of linha; track $index) {
+                <div class="cell-wrapper">
+                    <div [ngClass]="obterClasseCor(celula.cor)" class="subject-tag">
+                        {{ celula.materia }}
+                    </div>
+                </div>
+                }
+            </div>
+
+            <!-- Injeção Automática do Intervalo -->
+            @if (idxAula === 1 || idxAula === 3) {
+            <div class="grid-row row-intervalo">
+                <div class="time-column">
+                    <span>{{ formatarHorario(horarios[idxHorario + 1])[0] }}</span>
+                    <span>{{ formatarHorario(horarios[idxHorario + 1])[1] }}</span>
+                </div>
+            </div>
+            }
+
+            }
+        </div>
+    </div>
+</div>

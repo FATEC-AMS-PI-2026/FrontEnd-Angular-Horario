@@ -1,11 +1,15 @@
 .sidebar {
   width: 240px;
+  height: 100vh;
+  box-sizing: border-box;
   flex-shrink: 0;
   background: #0f6e56;
   color: #fff;
   display: flex;
   flex-direction: column;
   padding: 24px 16px;
+  position: sticky;
+  top: 0;
 
   &__brand {
     font-weight: 700;
@@ -37,6 +41,11 @@
       background: #1a9470;
       color: #fff;
       font-weight: 600;
+    }
+
+    &__footer {
+      margin-top: auto;
+      padding-top: 16px;
     }
   }
 }

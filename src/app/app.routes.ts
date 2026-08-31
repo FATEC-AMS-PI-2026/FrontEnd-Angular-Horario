@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { Layout } from './shared/components/layout/layout';
 import { Login } from './features/auth/login/login';
 import { Dashboard } from './features/dashboard/dashboard/dashboard';
+import { GradeSemanal } from './features/grade-semanal/grade-semanal';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -13,6 +14,7 @@ export const routes: Routes = [
     children: [
       { path: 'dashboard', component: Dashboard },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'grade-semanal', component: GradeSemanal },
     ],
   },
   { path: '**', redirectTo: 'login' },
