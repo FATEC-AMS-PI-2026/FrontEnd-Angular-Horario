@@ -10,7 +10,7 @@ import {
   selector: 'app-cadastro',
   imports: [ReactiveFormsModule],
   templateUrl: './cadastro.html',
-  styleUrl: './cadastro.css'
+  styleUrl: './cadastro.scss'
 })
 export class Cadastro {
 
