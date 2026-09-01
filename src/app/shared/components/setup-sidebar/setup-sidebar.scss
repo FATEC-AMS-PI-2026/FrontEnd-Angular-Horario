@@ -1,0 +1,140 @@
+.setup-sidebar {
+    width: 240px;
+    height: 100vh;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    background: #0f6e56;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 16px;
+    position: sticky;
+    top: 0;
+    overflow: hidden;
+
+    &__circle {
+        position: absolute;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.04);
+        z-index: 1;
+        pointer-events: none;
+
+        &--top {
+            width: 350px;
+            height: 350px;
+            top: -150px;
+            left: -100px;
+        }
+
+        &--middle {
+            width: 250px;
+            height: 250px;
+            top: 100px;
+            right: -120px;
+        }
+
+        &--bottom {
+            width: 400px;
+            height: 400px;
+            bottom: -200px;
+            left: -150px;
+        }
+    }
+
+    &__content {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    &__brand {
+        margin-bottom: 32px;
+    }
+
+    &__logo {
+        font-weight: 800;
+        font-size: 1.5rem;
+        color: #b00000;
+        background: #ffffff;
+        padding: 2px 8px;
+        border-radius: 6px;
+        display: inline-block;
+    }
+
+    &__header {
+        margin-bottom: 32px;
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 12px;
+        }
+
+        p {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.4;
+        }
+    }
+
+    &__steps {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    &__step {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        &-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+            box-sizing: border-box;
+        }
+
+        &-label {
+            font-size: 0.95rem;
+        }
+
+        &--completed,
+        &--active {
+            .setup-sidebar__step-icon {
+                background: #ffffff;
+                color: #0f6e56;
+            }
+        }
+
+        &--completed {
+            .setup-sidebar__step-label {
+                font-weight: 500;
+            }
+        }
+
+        &--active {
+            .setup-sidebar__step-label {
+                font-weight: 700;
+            }
+        }
+
+        &--disabled {
+            opacity: 0.6;
+
+            .setup-sidebar__step-icon {
+                border: 2px solid #ffffff;
+                color: #ffffff;
+                background: transparent;
+            }
+        }
+    }
+}
