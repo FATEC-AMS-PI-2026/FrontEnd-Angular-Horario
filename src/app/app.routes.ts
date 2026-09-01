@@ -5,6 +5,13 @@ import { Dashboard } from './features/dashboard/dashboard/dashboard';
 import { GradeSemanal } from './features/grade-semanal/grade-semanal';
 export const routes: Routes = [
   { path: 'login', component: Login },
+  
+  {
+    path: 'cadastro',
+    loadComponent: () =>
+      import('./features/cadastro/cadastro').then((m) => m.Cadastro),
+  },
+
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   {
     path: 'esqueci-senha',
