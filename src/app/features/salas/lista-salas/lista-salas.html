@@ -1,7 +1,18 @@
 <section class="lista-salas" aria-labelledby="titulo-lista-salas">
   <h1 id="titulo-lista-salas">Salas</h1>
+  <div class="lista-salas__busca">
+    <input
+      type="search"
+      class="lista-salas__campo-busca"
+      placeholder="Buscar sala pelo nome..."
+      aria-label="Buscar sala pelo nome"
+      autocomplete="off"
+      [value]="termoBusca()"
+      (input)="onBuscar($event)"
+    />
+  </div>
   <ul class="grade-salas">
-    @for (sala of salas(); track sala.id) {
+    @for (sala of salasFiltradas(); track sala.id) {
       <li>
         <a class="card-sala" [routerLink]="['/salas', sala.id]">
           <div class="card-sala__cabecalho">
@@ -13,7 +24,13 @@
         </a>
       </li>
     } @empty {
-      <li class="lista-salas__vazio">Nenhuma sala encontrada.</li>
+      <li class="lista-salas__vazio">
+        @if (termoBusca().trim()) {
+          Nenhuma sala encontrada para "{{ termoBusca().trim() }}".
+        } @else {
+          Nenhuma sala encontrada.
+        }
+      </li>
     }
   </ul>
 </section>
