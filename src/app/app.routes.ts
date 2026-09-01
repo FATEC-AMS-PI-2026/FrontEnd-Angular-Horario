@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { Layout } from './shared/components/layout/layout';
 import { Login } from './features/auth/login/login';
-import { Dashboard } from './features/dashboard/dashboard/dashboard';
+import { Dashboard } from './features/dashboard/dashboard';
 import { GradeSemanal } from './features/grade-semanal/grade-semanal';
 export const routes: Routes = [
   { path: 'login', component: Login },
