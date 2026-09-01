@@ -7,7 +7,7 @@
     <h1>GINI</h1>
     <p>Sistema Integrado de Gestão de Horários Acadêmicos</p>
 
-    <form class="login__form">
+    <form class="login__form" (submit)="onLogin($event)">
       <label>
         E-mail institucional
         <input type="email" name="email" autocomplete="email" />
