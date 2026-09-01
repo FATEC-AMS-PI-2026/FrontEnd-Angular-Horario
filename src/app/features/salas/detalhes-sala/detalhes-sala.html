@@ -1,0 +1,38 @@
+@if (sala(); as salaEncontrada) {
+  <section class="detalhes-sala">
+    <a class="botao-voltar" routerLink="/salas">← Voltar para a lista de salas</a>
+    <header class="detalhes-sala__cabecalho">
+      <h1>{{ salaEncontrada.nome }}</h1>
+      <app-status-sala-badge [status]="salaEncontrada.status" />
+    </header>
+    <dl class="detalhes-sala__info">
+      <div>
+        <dt>Prédio</dt>
+        <dd>{{ salaEncontrada.predio }}</dd>
+      </div>
+      <div>
+        <dt>Andar</dt>
+        <dd>{{ salaEncontrada.andar }}º</dd>
+      </div>
+      <div>
+        <dt>Tipo</dt>
+        <dd>{{ salaEncontrada.tipo }}</dd>
+      </div>
+      <div>
+        <dt>Capacidade</dt>
+        <dd>{{ salaEncontrada.capacidade }} pessoas</dd>
+      </div>
+    </dl>
+    <h2>Recursos</h2>
+    <ul class="detalhes-sala__recursos">
+      @for (recurso of salaEncontrada.recursos; track recurso) {
+        <li>{{ recurso }}</li>
+      }
+    </ul>
+  </section>
+} @else {
+  <section class="detalhes-sala detalhes-sala--nao-encontrada">
+    <p>Sala não encontrada.</p>
+    <a routerLink="/salas">Voltar para a lista de salas</a>
+  </section>
+}
