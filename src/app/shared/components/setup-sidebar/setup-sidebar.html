@@ -1,0 +1,60 @@
+<aside class="setup-sidebar">
+    <!-- Círculos Decorativos do Fundo -->
+    <div class="setup-sidebar__circle setup-sidebar__circle--top"></div>
+    <div class="setup-sidebar__circle setup-sidebar__circle--middle"></div>
+    <div class="setup-sidebar__circle setup-sidebar__circle--bottom"></div>
+
+    <div class="setup-sidebar__content">
+
+        <div class="setup-sidebar__brand">
+            <span class="setup-sidebar__logo">cps</span>
+        </div>
+
+        <div class="setup-sidebar__header">
+            <h1>Configure seu perfil</h1>
+            <p>
+                @if (currentStep === 2) {
+                Escolha seu curso e períodos para personalizar seus horários
+                } @else {
+                Último passo — escolha em qual período você está cursando.
+                }
+            </p>
+        </div>
+
+        <div class="setup-sidebar__steps">
+            <!-- Step 1 -->
+            <div class="setup-sidebar__step setup-sidebar__step--completed">
+                <div class="setup-sidebar__step-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </div>
+                <span class="setup-sidebar__step-label">Perfil de acesso</span>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="setup-sidebar__step" [class.setup-sidebar__step--active]="currentStep === 2"
+                [class.setup-sidebar__step--completed]="currentStep > 2">
+                <div class="setup-sidebar__step-icon">
+                    @if (currentStep > 2) {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    } @else {
+                    2
+                    }
+                </div>
+                <span class="setup-sidebar__step-label">Escolher curso</span>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="setup-sidebar__step" [class.setup-sidebar__step--active]="currentStep === 3"
+                [class.setup-sidebar__step--disabled]="currentStep < 3">
+                <div class="setup-sidebar__step-icon setup-sidebar__step-icon--outline">3</div>
+                <span class="setup-sidebar__step-label">Escolher período</span>
+            </div>
+        </div>
+    </div>
+</aside>
