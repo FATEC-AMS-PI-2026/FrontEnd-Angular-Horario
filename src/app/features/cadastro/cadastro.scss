@@ -4,175 +4,135 @@
 
 .pagina-cadastro {
   width: 100%;
-  min-height: 100vh;
-
+  /* Mudamos para height em vez de min-height para travar a tela e evitar scroll */
+  height: 100vh;
   display: flex;
-
   background-color: #000;
-}
-
-
-/* LADO DA IMAGEM */
-
-.lado-imagem {
-  width: 39%;
-  min-height: 100vh;
-
   overflow: hidden;
-}
-
-.lado-imagem img {
-  width: 100%;
-  height: 100%;
-
-  object-fit: cover;
-
-  display: block;
-}
-
-
-/* LADO DO FORMULÁRIO */
-
-.lado-formulario {
-  width: 61%;
-  min-height: 100vh;
-
-  background-color: #fff;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-}
-
-
-/* CONTAINER */
-
-.formulario-container {
-  width: 70%;
-  max-width: 500px;
-}
-
-
-/* TÍTULO */
-
-h1 {
-  margin: 0;
-
-  text-align: center;
-
-  font-family: Arial, sans-serif;
-
-  font-size: 25px;
-
-  font-weight: 700;
-
-  color: #000;
-}
-
-.subtitulo {
-  margin-top: 3px;
-
-  margin-bottom: 30px;
-
-  text-align: center;
-
-  font-family: Arial, sans-serif;
-
-  font-size: 14px;
-
-  color: #999;
-}
-
-
-/* CAMPOS */
-
-.campo {
-  width: 100%;
-
-  margin-bottom: 28px;
-}
-
-.campo label {
-  display: block;
-
-  margin-bottom: 5px;
-
-  font-family: Arial, sans-serif;
-
-  font-size: 13px;
-
-  color: #222;
-}
-
-.campo input {
-  width: 100%;
-
-  height: 36px;
-
-  padding: 0 12px;
-
-  border: 1px solid #777;
-
-  border-radius: 6px;
-
-  outline: none;
-
-  font-family: Arial, sans-serif;
-
-  font-size: 12px;
-
-  color: #333;
-}
-
-.campo input:focus {
-  border-color: #0d7745;
-}
-
-.campo input::placeholder {
-  color: #aaa;
-}
-
-
-/* BOTÃO */
-
-.botao {
-  width: 100%;
-
-  height: 44px;
-
-  margin-top: -20px;
-
-  border: none;
-
-  border-radius: 0 0 14px 14px;
-
-  background-color: #08783f;
-
-  color: white;
-
-  font-family: Arial, sans-serif;
-
-  font-size: 16px;
-
-  font-weight: bold;
-
-  cursor: pointer;
-}
-
-.botao:hover {
-  background-color: #066535;
-}
-
-
-/* ERROS */
-
-.erro {
-  display: block;
-
-  margin-top: 5px;
-
-  color: #d32f2f;
-
-  font-size: 11px;
+  /* Garante que nada vaze */
+
+  /* LADO DA IMAGEM */
+  .lado-imagem {
+    width: 39%;
+    height: 100%;
+    /* Força a imagem a respeitar a altura do pai */
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+  }
+
+  /* LADO DO FORMULÁRIO */
+  .lado-formulario {
+    width: 61%;
+    height: 100%;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    /* Centraliza verticalmente */
+    justify-content: center;
+    /* Centraliza horizontalmente */
+
+    /* Se a tela for muito baixa, permitimos apenas esse lado rolar internamente */
+    overflow-y: auto;
+
+    .formulario-container {
+      width: 70%;
+      max-width: 450px;
+      /* Reduzido levemente para o botão não esmagar as bordas */
+      padding: 2rem 0;
+      /* Dá um respiro em cima e embaixo */
+    }
+
+    h1 {
+      margin: 0;
+      text-align: center;
+      font-family: Arial, sans-serif;
+      font-size: 25px;
+      font-weight: 700;
+      color: #000;
+    }
+
+    .subtitulo {
+      margin-top: 5px;
+      margin-bottom: 25px;
+      /* Reduzido um pouco o respiro para caber melhor */
+      text-align: center;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      color: #999;
+    }
+
+    .campo {
+      width: 100%;
+      margin-bottom: 20px;
+      /* Reduzido de 28 para 20 para deixar mais compacto verticalmente */
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-family: Arial, sans-serif;
+        font-size: 13px;
+        color: #222;
+        font-weight: 600;
+        /* Deixa o label mais legível */
+      }
+
+      input {
+        width: 100%;
+        height: 40px;
+        /* Aumentado levemente para melhor área de clique */
+        padding: 0 12px;
+        border: 1px solid #ccc;
+        /* Clareado um pouco o border default */
+        border-radius: 6px;
+        outline: none;
+        font-family: Arial, sans-serif;
+        font-size: 13px;
+        /* Aumentado um pontinho pra melhor leitura */
+        color: #333;
+        transition: border-color 0.2s;
+
+        &:focus {
+          border-color: #0d7745;
+        }
+
+        &::placeholder {
+          color: #aaa;
+        }
+      }
+
+      .erro {
+        display: block;
+        margin-top: 5px;
+        color: #d32f2f;
+        font-size: 11.5px;
+      }
+    }
+
+    .botao {
+      width: 100%;
+      height: 46px;
+      /* Aumentado para dar peso ao botão primário */
+      margin-top: 10px;
+      /* Removido o margin-top negativo bizarro que tinha */
+      border: none;
+      border-radius: 8px;
+      /* Arredondado igual os inputs */
+      background-color: #08783f;
+      color: white;
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: #066535;
+      }
+    }
+  }
 }
