@@ -1,0 +1,19 @@
+<section class="lista-salas" aria-labelledby="titulo-lista-salas">
+  <h1 id="titulo-lista-salas">Salas</h1>
+  <ul class="grade-salas">
+    @for (sala of salas(); track sala.id) {
+      <li>
+        <a class="card-sala" [routerLink]="['/salas', sala.id]">
+          <div class="card-sala__cabecalho">
+            <h2>{{ sala.nome }}</h2>
+            <app-status-sala-badge [status]="sala.status" />
+          </div>
+          <p class="card-sala__local">{{ sala.predio }} · {{ sala.andar }}º andar</p>
+          <p class="card-sala__info">{{ sala.tipo }} · {{ sala.capacidade }} lugares</p>
+        </a>
+      </li>
+    } @empty {
+      <li class="lista-salas__vazio">Nenhuma sala encontrada.</li>
+    }
+  </ul>
+</section>
