@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SalasService } from '../services/salas';
-import { StatusSalaBadge } from './status-sala-badge/status-sala-badge';
+import { StatusSalaBadge } from '../status-sala-badge/status-sala-badge';
 /**
  * Página de listagem de salas. Cada card leva para a página de detalhes
  * (issue #67 — navegação entre lista e detalhes).
