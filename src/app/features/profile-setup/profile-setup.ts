@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { SetupSidebar } from '../../shared/components/setup-sidebar/setup-sidebar';
+import { SetupSidebar } from './components/setup-sidebar/setup-sidebar';
 import { Topbar } from '../../shared/components/topbar/topbar';
 import { filter } from 'rxjs/operators';
 

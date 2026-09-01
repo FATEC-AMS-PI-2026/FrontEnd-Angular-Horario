@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-
 @Component({
   selector: 'app-sidebar',
   imports: [RouterLink, RouterLinkActive],
@@ -11,7 +10,8 @@ export class Sidebar {
   protected readonly links = [
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Grade Semanal', path: '/grade-semanal' },
-    // demais itens (Professores, Cursos/Turmas, Salas, Cronograma...) entram
+    { label: 'Salas', path: '/salas' },
+    // demais itens (Professores, Cursos/Turmas, Cronograma...) entram
     // conforme os módulos administrativos forem implementados (Fase 3)
   ];
 }

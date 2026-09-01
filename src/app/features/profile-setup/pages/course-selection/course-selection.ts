@@ -2,7 +2,7 @@ import { Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Course } from '../../../../core/models/course.model';
+import { Course } from '../../models/course.model';
 
 @Component({
   selector: 'app-course-selection',
