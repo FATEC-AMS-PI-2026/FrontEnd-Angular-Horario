@@ -6,6 +6,13 @@ import { GradeSemanal } from './features/grade-semanal/grade-semanal';
 export const routes: Routes = [
   { path: 'login', component: Login },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
+  {
+    path: 'esqueci-senha',
+    loadComponent: () =>
+      import('./features/forgot-password/forgot-password').then(
+        (m) => m.ForgotPasswordComponent
+      ),
+  },
 
   // Rotas de configuração de perfil
   {
