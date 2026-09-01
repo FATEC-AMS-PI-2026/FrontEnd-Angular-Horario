@@ -15,7 +15,7 @@ export const routes: Routes = [
   {
     path: 'esqueci-senha',
     loadComponent: () =>
-      import('./features/forgot-password/forgot-password').then((m) => m.ForgotPassword),
+      import('./features/auth/pages/forgot-password/forgot-password').then((m) => m.ForgotPassword),
   },
 
   { path: '', redirectTo: 'login', pathMatch: 'full' },
