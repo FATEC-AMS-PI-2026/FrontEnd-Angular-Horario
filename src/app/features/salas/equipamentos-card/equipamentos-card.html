@@ -1,0 +1,22 @@
+<section class="equipamentos-card">
+  <h2 class="equipamentos-card__titulo">Equipamentos</h2>
+
+  <ul class="equipamentos-card__lista">
+    @for (equipamento of equipamentos(); track equipamento.tipo) {
+      <li
+        class="equipamento"
+        [class.equipamento--indisponivel]="equipamento.quantidadeDisponivel === 0"
+      >
+        <span class="equipamento__nome">{{ equipamento.tipo }}</span>
+        <span class="equipamento__quantidade">
+          {{ equipamento.quantidadeDisponivel }} de {{ equipamento.quantidadeTotal }} disponíveis
+        </span>
+        @if (equipamento.quantidadeDisponivel === 0) {
+          <span class="equipamento__tag">Indisponível</span>
+        }
+      </li>
+    } @empty {
+      <li class="equipamentos-card__vazio">Nenhum equipamento cadastrado nesta sala.</li>
+    }
+  </ul>
+</section>
