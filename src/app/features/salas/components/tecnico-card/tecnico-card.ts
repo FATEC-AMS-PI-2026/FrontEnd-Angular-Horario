@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { Tecnico } from '../models/tecnico';
+import { Tecnico } from '../../models/tecnico';
 /**
  * Card com as informações do técnico responsável pela sala. Cobre os
  * critérios de aceite da issue #49: nome, função, horário e dias de
