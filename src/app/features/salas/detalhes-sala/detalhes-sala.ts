@@ -4,14 +4,17 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { SalasService } from '../services/salas';
 import { StatusSalaBadge } from '../status-sala-badge/status-sala-badge';
+import { TecnicoCard } from '../tecnico-card/tecnico-card';
 /**
  * Página de detalhes de uma sala. Cobre a issue #67: chegar aqui a partir da
  * lista, exibir os dados da sala selecionada e voltar para a lista sem
  * perder o estado da aplicação (navegação via Router, sem reload de página).
+ * Também cobre a issue #49: exibir o card do técnico responsável quando a
+ * sala tiver um cadastrado.
  */
 @Component({
   selector: 'app-detalhes-sala',
-  imports: [RouterLink, StatusSalaBadge],
+  imports: [RouterLink, StatusSalaBadge, TecnicoCard],
   templateUrl: './detalhes-sala.html',
   styleUrl: './detalhes-sala.scss',
 })

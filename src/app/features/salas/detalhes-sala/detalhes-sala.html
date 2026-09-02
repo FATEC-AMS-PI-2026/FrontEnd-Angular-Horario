@@ -29,6 +29,9 @@
         <li>{{ recurso }}</li>
       }
     </ul>
+    @if (salaEncontrada.tecnicoResponsavel; as tecnico) {
+      <app-tecnico-card [tecnico]="tecnico" />
+    }
   </section>
 } @else {
   <section class="detalhes-sala detalhes-sala--nao-encontrada">
