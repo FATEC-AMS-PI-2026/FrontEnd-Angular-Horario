@@ -1,138 +1,183 @@
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
-.pagina-cadastro {
-  width: 100%;
-  /* Mudamos para height em vez de min-height para travar a tela e evitar scroll */
-  height: 100vh;
-  display: flex;
-  background-color: #000;
-  overflow: hidden;
-  /* Garante que nada vaze */
-
-  /* LADO DA IMAGEM */
-  .lado-imagem {
-    width: 39%;
-    height: 100%;
-    /* Força a imagem a respeitar a altura do pai */
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-  }
-
-  /* LADO DO FORMULÁRIO */
-  .lado-formulario {
-    width: 61%;
-    height: 100%;
+.auth-container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
     background-color: #fff;
+    overflow: hidden;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* LADO DA IMAGEM E LOGOS */
+.auth-image-side {
+    position: relative;
+    width: 40%;
+    height: 100%;
+    background-color: #000;
+
+    .bg-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        opacity: 0.9;
+    }
+
+    .cps-logo {
+        position: absolute;
+        top: 2rem;
+        left: 2.5rem;
+        height: 65px;
+        filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.4));
+    }
+}
+
+/* LADO DO FORMULÁRIO */
+.auth-form-side {
+    width: 60%;
+    height: 100%;
     display: flex;
     align-items: center;
-    /* Centraliza verticalmente */
     justify-content: center;
-    /* Centraliza horizontalmente */
-
-    /* Se a tela for muito baixa, permitimos apenas esse lado rolar internamente */
     overflow-y: auto;
+    background-color: #fff;
 
-    .formulario-container {
-      width: 70%;
-      max-width: 450px;
-      /* Reduzido levemente para o botão não esmagar as bordas */
-      padding: 2rem 0;
-      /* Dá um respiro em cima e embaixo */
-    }
-
-    h1 {
-      margin: 0;
-      text-align: center;
-      font-family: Arial, sans-serif;
-      font-size: 25px;
-      font-weight: 700;
-      color: #000;
-    }
-
-    .subtitulo {
-      margin-top: 5px;
-      margin-bottom: 25px;
-      /* Reduzido um pouco o respiro para caber melhor */
-      text-align: center;
-      font-family: Arial, sans-serif;
-      font-size: 14px;
-      color: #999;
-    }
-
-    .campo {
-      width: 100%;
-      margin-bottom: 20px;
-      /* Reduzido de 28 para 20 para deixar mais compacto verticalmente */
-
-      label {
-        display: block;
-        margin-bottom: 5px;
-        font-family: Arial, sans-serif;
-        font-size: 13px;
-        color: #222;
-        font-weight: 600;
-        /* Deixa o label mais legível */
-      }
-
-      input {
+    .form-wrapper {
         width: 100%;
-        height: 40px;
-        /* Aumentado levemente para melhor área de clique */
-        padding: 0 12px;
-        border: 1px solid #ccc;
-        /* Clareado um pouco o border default */
-        border-radius: 6px;
-        outline: none;
-        font-family: Arial, sans-serif;
-        font-size: 13px;
-        /* Aumentado um pontinho pra melhor leitura */
-        color: #333;
-        transition: border-color 0.2s;
-
-        &:focus {
-          border-color: #0d7745;
-        }
-
-        &::placeholder {
-          color: #aaa;
-        }
-      }
-
-      .erro {
-        display: block;
-        margin-top: 5px;
-        color: #d32f2f;
-        font-size: 11.5px;
-      }
+        max-width: 620px;
+        padding: 2rem;
     }
 
-    .botao {
-      width: 100%;
-      height: 46px;
-      /* Aumentado para dar peso ao botão primário */
-      margin-top: 10px;
-      /* Removido o margin-top negativo bizarro que tinha */
-      border: none;
-      border-radius: 8px;
-      /* Arredondado igual os inputs */
-      background-color: #08783f;
-      color: white;
-      font-family: Arial, sans-serif;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background-color 0.2s;
-
-      &:hover {
-        background-color: #066535;
-      }
+    .title {
+        margin: 0 0 8px;
+        font-size: 2.4rem;
+        font-weight: 700;
+        color: #111827;
+        text-align: center;
     }
-  }
+
+    .subtitle {
+        margin: 0 0 32px;
+        font-size: 1.45rem;
+        font-weight: 600;
+        color: #6b7280;
+        text-align: center;
+    }
+
+    /* CAMPOS DE INPUT */
+    .field {
+        margin-bottom: 26px;
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.15rem;
+            color: #374151;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 16px 18px;
+            font-size: 1.2rem;
+            color: #111827;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+
+            &:focus {
+                border-color: #0f6b3f;
+                box-shadow: 0 0 0 3px rgba(15, 107, 63, 0.15);
+            }
+
+            &.input-error {
+                border-color: #dc2626;
+            }
+
+            &::placeholder {
+                color: #9ca3af;
+            }
+        }
+
+        .error-msg {
+            display: block;
+            margin-top: 6px;
+            font-size: 0.85rem;
+            color: #dc2626;
+        }
+    }
+
+    /* BOTÃO PRINCIPAL */
+    .btn-submit {
+        width: 100%;
+        padding: 16px;
+        margin-top: 8px;
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: #fff;
+        background: #0f6b3f;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.1s;
+
+        &:hover:not(:disabled) {
+            background: #0c5a34;
+        }
+
+        &:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+
+        &:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+    }
+
+    /* MENSAGENS DE SUCESSO/ERRO GERAIS */
+    .alert-msg {
+        margin-top: 16px;
+        font-size: 0.95rem;
+        text-align: center;
+        font-weight: 600;
+
+        &.success {
+            color: #0f6b3f;
+        }
+
+        &.error {
+            color: #dc2626;
+        }
+    }
+}
+
+/* RESPONSIVIDADE PARA CELULARES */
+@media (max-width: 768px) {
+    .auth-container {
+        flex-direction: column;
+    }
+
+    .auth-image-side {
+        width: 100%;
+        height: 200px;
+        flex-shrink: 0;
+
+        .cps-logo {
+            top: 1rem;
+            left: 1rem;
+            height: 50px;
+        }
+    }
+
+    .auth-form-side {
+        width: 100%;
+        height: auto;
+        padding: 2rem 0;
+    }
 }
