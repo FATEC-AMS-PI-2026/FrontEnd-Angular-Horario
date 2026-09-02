@@ -8,6 +8,7 @@ import {
 
 @Component({
   selector: 'app-cadastro',
+  standalone: true,
   imports: [ReactiveFormsModule],
   templateUrl: './cadastro.html',
   styleUrl: './cadastro.scss'
