@@ -15,6 +15,12 @@ const SALAS_MOCK: Sala[] = [
     tipo: 'Sala de aula',
     status: 'Livre',
     recursos: ['Projetor', 'Ar-condicionado'],
+    tecnicoResponsavel: {
+      nome: 'Marcos Silva',
+      funcao: 'Técnico de manutenção predial',
+      horarioAtendimento: '08h às 17h',
+      diasAtendimento: 'Segunda a sexta',
+    },
   },
   {
     id: 2,
@@ -25,6 +31,12 @@ const SALAS_MOCK: Sala[] = [
     tipo: 'Laboratório de informática',
     status: 'Em uso',
     recursos: ['30 computadores', 'Projetor', 'Quadro branco'],
+    tecnicoResponsavel: {
+      nome: 'Fernanda Alves',
+      funcao: 'Técnica de laboratório de informática',
+      horarioAtendimento: '13h às 22h',
+      diasAtendimento: 'Segunda a sábado',
+    },
   },
   {
     id: 3,

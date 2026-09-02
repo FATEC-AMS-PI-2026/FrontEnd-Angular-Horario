@@ -1,3 +1,4 @@
+import { Tecnico } from './tecnico';
 /**
  * Status possíveis de uma sala, conforme critério de aceite da issue
  * "WEB: Status da sala (Livre, Em uso e Manutenção)" (#59).
@@ -12,4 +13,6 @@ export interface Sala {
   tipo: string;
   status: StatusSala;
   recursos: string[];
+  /** Técnico responsável pela sala, quando houver (issue #49). */
+  tecnicoResponsavel?: Tecnico;
 }
