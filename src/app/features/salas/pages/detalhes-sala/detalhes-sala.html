@@ -1,10 +1,12 @@
 @if (sala(); as salaEncontrada) {
 <section class="detalhes-sala">
   <a class="botao-voltar" routerLink="/salas">← Voltar para a lista de salas</a>
+
   <header class="detalhes-sala__cabecalho">
     <h1>{{ salaEncontrada.nome }}</h1>
     <app-status-sala-badge [status]="salaEncontrada.status" />
   </header>
+
   <dl class="detalhes-sala__info">
     <div>
       <dt>Prédio</dt>
@@ -23,12 +25,9 @@
       <dd>{{ salaEncontrada.capacidade }} pessoas</dd>
     </div>
   </dl>
-  <h2>Recursos</h2>
-  <ul class="detalhes-sala__recursos">
-    @for (recurso of salaEncontrada.recursos; track recurso) {
-    <li>{{ recurso }}</li>
-    }
-  </ul>
+
+  <app-equipamentos-card [equipamentos]="salaEncontrada.equipamentos" />
+
   @if (salaEncontrada.tecnicoResponsavel; as tecnico) {
   <app-tecnico-card [tecnico]="tecnico" />
   }
