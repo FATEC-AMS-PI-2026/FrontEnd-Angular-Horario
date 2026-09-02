@@ -1,6 +1,7 @@
 <section class="lista-salas" aria-labelledby="titulo-lista-salas">
   <h1 id="titulo-lista-salas">Salas</h1>
-  <div class="lista-salas__busca">
+
+  <div class="lista-salas__filtros">
     <input
       type="search"
       class="lista-salas__campo-busca"
@@ -10,7 +11,18 @@
       [value]="termoBusca()"
       (input)="onBuscar($event)"
     />
+    <select
+      class="lista-salas__filtro-predio"
+      aria-label="Filtrar por prédio"
+      (change)="onFiltrarPredio($event)"
+    >
+      <option value="">Todos os prédios</option>
+      @for (predio of predios(); track predio) {
+        <option [value]="predio" [selected]="predioSelecionado() === predio">{{ predio }}</option>
+      }
+    </select>
   </div>
+
   <ul class="grade-salas">
     @for (sala of salasFiltradas(); track sala.id) {
       <li>
@@ -24,13 +36,7 @@
         </a>
       </li>
     } @empty {
-      <li class="lista-salas__vazio">
-        @if (termoBusca().trim()) {
-          Nenhuma sala encontrada para "{{ termoBusca().trim() }}".
-        } @else {
-          Nenhuma sala encontrada.
-        }
-      </li>
+      <li class="lista-salas__vazio">{{ mensagemVazia() }}</li>
     }
   </ul>
 </section>
