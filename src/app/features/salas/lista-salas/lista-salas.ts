@@ -15,26 +15,67 @@ import { StatusSalaBadge } from '../status-sala-badge/status-sala-badge';
 export class ListaSalas {
   private readonly salasService = inject(SalasService);
   protected readonly salas = this.salasService.salas;
+
   /** Termo digitado no campo de busca (nome da sala). */
   protected readonly termoBusca = signal('');
+
+  /** Prédio selecionado no filtro. `null` significa "todos os prédios". */
+  protected readonly predioSelecionado = signal<string | null>(null);
+
+  /** Lista de prédios distintos, derivada das salas cadastradas, para popular o filtro. */
+  protected readonly predios = computed(() => {
+    const nomes = this.salas().map((sala) => sala.predio);
+    return Array.from(new Set(nomes)).sort((a, b) => a.localeCompare(b));
+  });
+
   /**
-   * Lista de salas já filtrada pelo termo de busca.
+   * Lista de salas já filtrada pelo termo de busca e pelo prédio selecionado.
    *
-   * Mantido como um `computed` separado (em vez de embutir a lógica de
-   * busca direto no template) para que outros critérios de filtragem —
-   * por exemplo, o filtro por prédio da issue #46 — possam ser compostos
-   * aqui no futuro sem precisar reescrever a busca já existente.
+   * Mantido como um `computed` separado (em vez de embutir a lógica no
+   * template) para que busca e filtro por prédio componham naturalmente
+   * entre si — e para que outros filtros futuros possam se juntar aqui
+   * sem precisar reescrever o que já existe.
    */
   protected readonly salasFiltradas = computed(() => {
     const termo = this.termoBusca().trim().toLowerCase();
-    const salas = this.salas();
-    if (!termo) {
-      return salas;
+    const predio = this.predioSelecionado();
+    let salas = this.salas();
+
+    if (predio) {
+      salas = salas.filter((sala) => sala.predio === predio);
     }
-    return salas.filter((sala) => sala.nome.toLowerCase().includes(termo));
+
+    if (termo) {
+      salas = salas.filter((sala) => sala.nome.toLowerCase().includes(termo));
+    }
+
+    return salas;
   });
+
+  /** Mensagem exibida quando a combinação de busca + filtro não encontra nenhuma sala. */
+  protected readonly mensagemVazia = computed(() => {
+    const termo = this.termoBusca().trim();
+    const predio = this.predioSelecionado();
+
+    if (termo && predio) {
+      return `Nenhuma sala encontrada para "${termo}" em ${predio}.`;
+    }
+    if (termo) {
+      return `Nenhuma sala encontrada para "${termo}".`;
+    }
+    if (predio) {
+      return `Nenhuma sala encontrada em ${predio}.`;
+    }
+    return 'Nenhuma sala encontrada.';
+  });
+
   protected onBuscar(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.termoBusca.set(input.value);
+  }
+
+  protected onFiltrarPredio(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.predioSelecionado.set(select.value || null);
   }
 }
