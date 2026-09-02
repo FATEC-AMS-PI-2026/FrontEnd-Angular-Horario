@@ -2,9 +2,9 @@ import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
-import { SalasService } from '../services/salas';
-import { StatusSalaBadge } from '../status-sala-badge/status-sala-badge';
-import { TecnicoCard } from '../tecnico-card/tecnico-card';
+import { SalasService } from '../../services/salas';
+import { StatusSalaBadge } from '../../components/status-sala-badge';
+import { TecnicoCard } from '../../components/tecnico-card/tecnico-card';
 /**
  * Página de detalhes de uma sala. Cobre a issue #67: chegar aqui a partir da
  * lista, exibir os dados da sala selecionada e voltar para a lista sem
@@ -14,6 +14,7 @@ import { TecnicoCard } from '../tecnico-card/tecnico-card';
  */
 @Component({
   selector: 'app-detalhes-sala',
+  standalone: true,
   imports: [RouterLink, StatusSalaBadge, TecnicoCard],
   templateUrl: './detalhes-sala.html',
   styleUrl: './detalhes-sala.scss',
