@@ -1,127 +1,68 @@
-<div class="pagina-cadastro">
+<div class="auth-container">
 
-    <!-- IMAGEM DA FATEC -->
-    <div class="lado-imagem">
-        <img src="/auth/fatec.png" alt="Fachada da Fatec" class="card__image-img" />
-        <img src="/auth/cps-logo.png" alt="Centro Paula Souza" class="card__logo" />
+    <!-- LADO DA IMAGEM -->
+    <div class="auth-image-side">
+        <img src="/auth/fatec.png" alt="Fachada da Fatec" class="bg-img" />
+        <img src="/auth/cps-logo.png" alt="Centro Paula Souza" class="cps-logo" />
     </div>
 
+    <!-- LADO DO FORMULÁRIO -->
+    <div class="auth-form-side">
+        <div class="form-wrapper">
 
-    <!-- FORMULÁRIO -->
-    <div class="lado-formulario">
-
-        <div class="formulario-container">
-
-            <h1>Criar a Conta</h1>
-
-            <p class="subtitulo">
-                Insira seus dados para se cadastrar
-            </p>
-
+            <h1 class="title">Criar a Conta</h1>
+            <p class="subtitle">Insira seus dados para se cadastrar</p>
 
             <form [formGroup]="cadastroForm" (ngSubmit)="cadastrar()">
 
                 <!-- NOME -->
-                <div class="campo">
-
-                    <label for="nome">
-                        Nome Completo
-                    </label>
-
-                    <input id="nome" type="text" formControlName="nome" placeholder="Fulano Da Silva">
-
-                    @if (
-                    cadastroForm.get('nome')?.touched &&
-                    cadastroForm.get('nome')?.invalid
-                    ) {
-
-                    <small class="erro">
-                        Informe seu nome completo.
-                    </small>
-
+                <div class="field">
+                    <label for="nome">Nome Completo</label>
+                    <input id="nome" type="text" formControlName="nome" placeholder="Ex: Fulano Da Silva"
+                        [class.input-error]="cadastroForm.get('nome')?.touched && cadastroForm.get('nome')?.invalid">
+                    @if (cadastroForm.get('nome')?.touched && cadastroForm.get('nome')?.invalid) {
+                    <small class="error-msg">Informe seu nome completo.</small>
                     }
-
                 </div>
-
 
                 <!-- EMAIL -->
-                <div class="campo">
-
-                    <label for="email">
-                        Email Institucional
-                    </label>
-
-                    <input id="email" type="email" formControlName="email" placeholder="seuemail@aluno.cps.sp.gov.br">
-
-                    @if (
-                    cadastroForm.get('email')?.touched &&
-                    cadastroForm.get('email')?.invalid
-                    ) {
-
-                    <small class="erro">
-                        Informe um email válido.
-                    </small>
-
+                <div class="field">
+                    <label for="email">Email Institucional</label>
+                    <input id="email" type="email" formControlName="email" placeholder="seuemail@aluno.cps.sp.gov.br"
+                        [class.input-error]="cadastroForm.get('email')?.touched && cadastroForm.get('email')?.invalid">
+                    @if (cadastroForm.get('email')?.touched && cadastroForm.get('email')?.invalid) {
+                    <small class="error-msg">Informe um email válido.</small>
                     }
-
                 </div>
-
 
                 <!-- SENHA -->
-                <div class="campo">
-
-                    <label for="senha">
-                        Senha
-                    </label>
-
-                    <input id="senha" type="password" formControlName="senha" placeholder="********">
-
-                    @if (
-                    cadastroForm.get('senha')?.touched &&
-                    cadastroForm.get('senha')?.invalid
-                    ) {
-
-                    <small class="erro">
-                        A senha deve possuir pelo menos 8 caracteres.
-                    </small>
-
+                <div class="field">
+                    <label for="senha">Senha</label>
+                    <input id="senha" type="password" formControlName="senha" placeholder="••••••••"
+                        [class.input-error]="cadastroForm.get('senha')?.touched && cadastroForm.get('senha')?.invalid">
+                    @if (cadastroForm.get('senha')?.touched && cadastroForm.get('senha')?.invalid) {
+                    <small class="error-msg">A senha deve possuir pelo menos 8 caracteres.</small>
                     }
-
                 </div>
-
 
                 <!-- CONFIRMAR SENHA -->
-                <div class="campo">
-
-                    <label for="confirmarSenha">
-                        Confirmar Senha
-                    </label>
-
-                    <input id="confirmarSenha" type="password" formControlName="confirmarSenha" placeholder="********">
-
-                    @if (
-                    cadastroForm.get('confirmarSenha')?.touched &&
-                    cadastroForm.get('confirmarSenha')?.invalid
-                    ) {
-
-                    <small class="erro">
-                        Confirme sua senha.
-                    </small>
-
+                <div class="field">
+                    <label for="confirmarSenha">Confirmar Senha</label>
+                    <input id="confirmarSenha" type="password" formControlName="confirmarSenha" placeholder="••••••••"
+                        [class.input-error]="cadastroForm.get('confirmarSenha')?.touched && cadastroForm.get('confirmarSenha')?.invalid">
+                    @if (cadastroForm.get('confirmarSenha')?.touched && cadastroForm.get('confirmarSenha')?.invalid) {
+                    <small class="error-msg">Confirme sua senha.</small>
                     }
-
                 </div>
 
-
                 <!-- BOTÃO -->
-                <button type="submit" class="botao">
+                <button type="submit" class="btn-submit">
                     Entrar
                 </button>
 
             </form>
 
         </div>
-
     </div>
 
 </div>
