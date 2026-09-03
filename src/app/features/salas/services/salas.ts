@@ -19,6 +19,7 @@ const SALAS_MOCK: Sala[] = [
       { tipo: 'Wi-Fi', quantidadeTotal: 1, quantidadeDisponivel: 1 },
       { tipo: 'Televisão', quantidadeTotal: 1, quantidadeDisponivel: 1 },
       { tipo: 'Cadeira', quantidadeTotal: 40, quantidadeDisponivel: 40 },
+      { tipo: 'Ar-condicionado', quantidadeTotal: 2, quantidadeDisponivel: 2 },
     ],
     proximosHorarios: [
       { inicio: '08:00', termino: '09:40', atividade: 'Cálculo I', professor: 'Prof. Ricardo Nunes' },
@@ -39,6 +40,7 @@ const SALAS_MOCK: Sala[] = [
       { tipo: 'Computador', quantidadeTotal: 30, quantidadeDisponivel: 27 },
       { tipo: 'Televisão', quantidadeTotal: 1, quantidadeDisponivel: 0 },
       { tipo: 'Cadeira', quantidadeTotal: 30, quantidadeDisponivel: 30 },
+      { tipo: 'Ar-condicionado', quantidadeTotal: 1, quantidadeDisponivel: 0 },
     ],
     tecnicoResponsavel: {
       nome: 'Carlos Souza',

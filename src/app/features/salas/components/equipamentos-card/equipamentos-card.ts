@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { Equipamento } from '../models/equipamento';
+import { DisponibilidadeEquipamento, Equipamento } from '../../models/equipamento';
 
 /**
  * Card responsável por organizar e apresentar os equipamentos de uma sala.
@@ -9,6 +9,9 @@ import { Equipamento } from '../models/equipamento';
  *
  * Os dados exibidos (quantidade disponível/total, destaque de equipamentos
  * indisponíveis) seguem os mesmos critérios definidos na issue #61.
+ *
+ * O destaque por cor (verde/amarelo/vermelho conforme a disponibilidade) e o
+ * contador "disponível/total" seguem o critério de aceite da issue #8.
  */
 @Component({
   selector: 'app-equipamentos-card',
@@ -19,4 +22,20 @@ import { Equipamento } from '../models/equipamento';
 export class EquipamentosCard {
   /** Lista de equipamentos a serem exibidos no card. */
   readonly equipamentos = input.required<Equipamento[]>();
+
+  /**
+   * Nível de disponibilidade do equipamento: `total` quando todos estão
+   * disponíveis (destaque verde), `parcial` quando parte está disponível
+   * (destaque amarelo) ou `indisponivel` quando nenhum está (destaque
+   * vermelho).
+   */
+  protected disponibilidade(equipamento: Equipamento): DisponibilidadeEquipamento {
+    if (equipamento.quantidadeDisponivel <= 0) {
+      return 'indisponivel';
+    }
+    if (equipamento.quantidadeDisponivel >= equipamento.quantidadeTotal) {
+      return 'total';
+    }
+    return 'parcial';
+  }
 }
