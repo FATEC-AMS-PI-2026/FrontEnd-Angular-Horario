@@ -1,5 +1,6 @@
 import { Tecnico } from './tecnico';
 import { Equipamento } from './equipamento';
+import { ProximoHorario } from './proximo-horario';
 
 /**
  * Status possíveis de uma sala, conforme critério de aceite da issue
@@ -22,4 +23,9 @@ export interface Sala {
   equipamentos: Equipamento[];
   /** Técnico responsável pela sala, quando houver (issue #49). */
   tecnicoResponsavel?: Tecnico;
+  /**
+   * Próximos horários de utilização da sala, em ordem cronológica. Cobre a
+   * issue "WEB: Lista de próximos horários da sala" (#44).
+   */
+  proximosHorarios: ProximoHorario[];
 }

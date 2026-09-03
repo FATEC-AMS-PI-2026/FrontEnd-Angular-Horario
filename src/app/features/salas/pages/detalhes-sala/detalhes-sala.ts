@@ -6,6 +6,7 @@ import { SalasService } from '../../services/salas';
 import { StatusSalaBadge } from '../../components/status-sala-badge';
 import { TecnicoCard } from '../../components/tecnico-card/tecnico-card';
 import { EquipamentosCard } from '../../equipamentos-card/equipamentos-card';
+import { ProximosHorariosCard } from '../../components/proximos-horarios-card/proximos-horarios-card';
 
 /**
  * Página de detalhes de uma sala. Cobre a issue #67: chegar aqui a partir da
@@ -17,11 +18,14 @@ import { EquipamentosCard } from '../../equipamentos-card/equipamentos-card';
  *
  * A exibição dos equipamentos (issues #61 e #69) foi extraída para o
  * componente `EquipamentosCard`, reutilizável em outras telas.
+ *
+ * Também cobre a issue #44: exibir os próximos horários de utilização da
+ * sala, em ordem cronológica.
  */
 @Component({
   selector: 'app-detalhes-sala',
   standalone: true,
-  imports: [RouterLink, StatusSalaBadge, TecnicoCard, EquipamentosCard],
+  imports: [RouterLink, StatusSalaBadge, TecnicoCard, EquipamentosCard, ProximosHorariosCard],
   templateUrl: './detalhes-sala.html',
   styleUrl: './detalhes-sala.scss',
 })
