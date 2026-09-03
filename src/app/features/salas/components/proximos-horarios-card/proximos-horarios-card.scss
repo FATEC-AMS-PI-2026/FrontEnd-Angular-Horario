@@ -1,0 +1,48 @@
+.proximos-horarios-card {
+  max-width: 720px;
+}
+
+.proximos-horarios-card__titulo {
+  margin: 0 0 0.75rem;
+  font-size: 1.15rem;
+}
+
+.proximos-horarios-card__lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+.proximos-horarios-card__vazio {
+  color: #777;
+  font-size: 0.9rem;
+}
+
+.proximo-horario {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid #e2e2e2;
+  border-radius: 8px;
+  background: #fff;
+  flex-wrap: wrap;
+
+  &__horario {
+    font-weight: 600;
+    min-width: 110px;
+    color: var(--color-primary, #1e7d32);
+  }
+
+  &__atividade {
+    color: #333;
+  }
+
+  &__professor {
+    margin-left: auto;
+    color: #777;
+    font-size: 0.85rem;
+  }
+}
