@@ -3,16 +3,15 @@
 
   <ul class="equipamentos-card__lista">
     @for (equipamento of equipamentos(); track equipamento.tipo) {
-      <li
-        class="equipamento"
-        [class.equipamento--indisponivel]="equipamento.quantidadeDisponivel === 0"
-      >
+      <li class="equipamento" [class]="'equipamento--' + disponibilidade(equipamento)">
         <span class="equipamento__nome">{{ equipamento.tipo }}</span>
         <span class="equipamento__quantidade">
           {{ equipamento.quantidadeDisponivel }} de {{ equipamento.quantidadeTotal }} disponíveis
         </span>
-        @if (equipamento.quantidadeDisponivel === 0) {
+        @if (disponibilidade(equipamento) === 'indisponivel') {
           <span class="equipamento__tag">Indisponível</span>
+        } @else if (disponibilidade(equipamento) === 'parcial') {
+          <span class="equipamento__tag equipamento__tag--parcial">Parcial</span>
         }
       </li>
     } @empty {
