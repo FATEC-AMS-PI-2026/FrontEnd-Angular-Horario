@@ -20,6 +20,11 @@ const SALAS_MOCK: Sala[] = [
       { tipo: 'Televisão', quantidadeTotal: 1, quantidadeDisponivel: 1 },
       { tipo: 'Cadeira', quantidadeTotal: 40, quantidadeDisponivel: 40 },
     ],
+    proximosHorarios: [
+      { inicio: '08:00', termino: '09:40', atividade: 'Cálculo I', professor: 'Prof. Ricardo Nunes' },
+      { inicio: '10:00', termino: '11:40', atividade: 'Algoritmos e Programação' },
+      { inicio: '14:00', termino: '15:40', atividade: 'Física Geral', professor: 'Profa. Ana Beatriz' },
+    ],
   },
   {
     id: 2,
@@ -41,6 +46,10 @@ const SALAS_MOCK: Sala[] = [
       horarioAtendimento: '08h às 17h',
       diasAtendimento: 'Segunda a sexta',
     },
+    proximosHorarios: [
+      { inicio: '09:00', termino: '10:40', atividade: 'Banco de Dados', professor: 'Prof. Marcelo Tadeu' },
+      { inicio: '13:00', termino: '14:40', atividade: 'Redes de Computadores', professor: 'Prof. João Pedro' },
+    ],
   },
   {
     id: 3,
@@ -54,6 +63,9 @@ const SALAS_MOCK: Sala[] = [
       { tipo: 'Wi-Fi', quantidadeTotal: 1, quantidadeDisponivel: 0 },
       { tipo: 'Cadeira', quantidadeTotal: 25, quantidadeDisponivel: 25 },
     ],
+    // Sala em manutenção: sem horários agendados, testa o estado vazio do
+    // card de próximos horários.
+    proximosHorarios: [],
   },
 ];
 
