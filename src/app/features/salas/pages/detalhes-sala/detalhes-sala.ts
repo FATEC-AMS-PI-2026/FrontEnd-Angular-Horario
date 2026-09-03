@@ -5,7 +5,7 @@ import { map } from 'rxjs';
 import { SalasService } from '../../services/salas';
 import { StatusSalaBadge } from '../../components/status-sala-badge';
 import { TecnicoCard } from '../../components/tecnico-card/tecnico-card';
-import { EquipamentosCard } from '../../equipamentos-card/equipamentos-card';
+import { EquipamentosCard } from '../../components/equipamentos-card/equipamentos-card';
 import { ProximosHorariosCard } from '../../components/proximos-horarios-card/proximos-horarios-card';
 
 /**
