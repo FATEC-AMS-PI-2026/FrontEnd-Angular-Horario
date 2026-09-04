@@ -1,24 +1,62 @@
-<div class="login">
-  <div class="login__banner">
-    <!-- TODO: foto/identidade visual da FATEC -->
+<div class="auth-container">
+
+  <!-- LADO DA IMAGEM -->
+  <div class="auth-image-side">
+    <img src="/auth/fatec.png" alt="Fachada da Fatec" class="bg-img" />
+    <img src="/auth/cps-logo.png" alt="Centro Paula Souza" class="cps-logo" />
   </div>
 
-  <div class="login__form-wrapper">
-    <h1>GINI</h1>
-    <p>Sistema Integrado de Gestão de Horários Acadêmicos</p>
+  <!-- LADO DO FORMULÁRIO -->
+  <div class="auth-form-side">
+    <div class="form-wrapper">
 
-    <form class="login__form" (submit)="onLogin($event)">
-      <label>
-        E-mail institucional
-        <input type="email" name="email" autocomplete="email" />
-      </label>
+      <h1 class="title">GINI</h1>
+      <p class="subtitle">Acesse sua conta para continuar</p>
 
-      <label>
-        Senha
-        <input type="password" name="password" autocomplete="current-password" />
-      </label>
+      <form [formGroup]="form" (ngSubmit)="onLogin()" novalidate>
 
-      <button type="submit">Entrar</button>
-    </form>
+        <div class="field">
+          <label for="identificador">E-mail ou Matrícula</label>
+          <input
+            id="identificador"
+            type="text"
+            placeholder="seuemail@aluno.cps.sp.gov.br ou matrícula"
+            formControlName="identificador"
+            autocomplete="username"
+            [class.input-error]="submitted && identificador!.invalid"
+          />
+          @if (submitted && identificador!.invalid) {
+            <small class="error-msg">Informe seu e-mail ou matrícula.</small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="senha">Senha</label>
+          <input
+            id="senha"
+            type="password"
+            placeholder="••••••••"
+            formControlName="senha"
+            autocomplete="current-password"
+            [class.input-error]="submitted && senha!.invalid"
+          />
+          @if (submitted && senha!.invalid) {
+            <small class="error-msg">Informe sua senha.</small>
+          }
+        </div>
+
+        <a class="forgot-password-link" routerLink="/esqueci-senha">Esqueci minha senha</a>
+
+        <button type="submit" class="btn-submit" [disabled]="loading">
+          {{ loading ? 'Entrando...' : 'Entrar' }}
+        </button>
+
+        @if (errorMessage) {
+          <p class="alert-msg error">{{ errorMessage }}</p>
+        }
+      </form>
+
+    </div>
   </div>
+
 </div>
