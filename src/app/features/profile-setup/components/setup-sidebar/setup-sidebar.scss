@@ -4,12 +4,10 @@
     box-sizing: border-box;
     flex-shrink: 0;
     background: #0f6b3f;
-    /* Cor original de volta! */
     color: #fff;
     display: flex;
     flex-direction: column;
     padding: 24px 16px;
-    /* O padding base que ditou a regra */
     position: sticky;
     top: 0;
     overflow: hidden;
@@ -126,7 +124,6 @@
             .setup-sidebar__step-icon {
                 background: #ffffff;
                 color: #0f6b3f;
-                /* Cor original de volta! */
             }
         }
 
