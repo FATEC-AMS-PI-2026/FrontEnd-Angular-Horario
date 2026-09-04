@@ -1,5 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ProfileSetupService } from '../../services/profile-setup.service';
 
 @Component({
   selector: 'app-setup-sidebar',
@@ -9,5 +10,6 @@ import { CommonModule } from '@angular/common';
   styleUrl: './setup-sidebar.scss'
 })
 export class SetupSidebar {
-  @Input() currentStep = 1;
+  // Injetando o serviço para usar o Signal no HTML
+  public setupService = inject(ProfileSetupService);
 }

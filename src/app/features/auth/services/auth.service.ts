@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, delay, of, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 
 export interface RecuperarSenhaResponse {
@@ -21,23 +21,38 @@ export interface LoginResponse {
 export class AuthService {
   private readonly baseUrl = `${environment.apiUrl}/auth`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  /**
-   * Autentica o usuário com e-mail/matrícula e senha. Cobre o critério de
-   * aceite "Ação de Autenticação: Envio das credenciais via API e
-   * direcionamento em caso de sucesso" da issue #93.
-   */
-  login(identificador: string, senha: string): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.baseUrl}/login`, {
-      identificador,
-      senha
-    });
+  // Quando o Spring Boot estiver pronto, trocar isso por um this.http.post(...)
+  login(identificador: string, senha: string): Observable<boolean> {
+
+    // Credenciais de teste:
+    const mockEmail = 'aluno@cps.sp.gov.br';
+    const mockSenha = '123';
+
+    if (identificador === mockEmail && senha === mockSenha) {
+      // Simula o salvamento do Token JWT no navegador
+      localStorage.setItem('gini_token', 'token_falso_gerado_pelo_angular');
+
+      // Retorna sucesso após 1 segundo (simulando a lentidão da internet)
+      return of(true).pipe(delay(1000));
+    } else {
+      // Retorna erro se a senha estiver errada
+      return throwError(() => new Error('Credenciais inválidas')).pipe(delay(1000));
+    }
   }
 
   recuperarSenha(email: string): Observable<RecuperarSenhaResponse> {
     return this.http.post<RecuperarSenhaResponse>(`${this.baseUrl}/recuperar-senha`, {
       email
     });
+  }
+
+  logout() {
+    localStorage.removeItem('gini_token');
+  }
+
+  isLoggedIn(): boolean {
+    return !!localStorage.getItem('gini_token');
   }
 }

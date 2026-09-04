@@ -23,9 +23,9 @@
             placeholder="seuemail@aluno.cps.sp.gov.br ou matrícula"
             formControlName="identificador"
             autocomplete="username"
-            [class.input-error]="submitted && identificador!.invalid"
+            [class.input-error]="submitted && identificador?.invalid"
           />
-          @if (submitted && identificador!.invalid) {
+          @if (submitted && identificador?.invalid) {
             <small class="error-msg">Informe seu e-mail ou matrícula.</small>
           }
         </div>
@@ -38,9 +38,9 @@
             placeholder="••••••••"
             formControlName="senha"
             autocomplete="current-password"
-            [class.input-error]="submitted && senha!.invalid"
+            [class.input-error]="submitted && senha?.invalid"
           />
-          @if (submitted && senha!.invalid) {
+          @if (submitted && senha?.invalid) {
             <small class="error-msg">Informe sua senha.</small>
           }
         </div>

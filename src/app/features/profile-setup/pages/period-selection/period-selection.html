@@ -1,18 +1,29 @@
 <div class="period-selection-container">
 
-    <!-- Botões de Seleção de Período -->
-    <div class="period-grid">
-        @for (period of periods; track period) {
-        <button class="period-card" [class.active]="selectedPeriod() === period" (click)="selectPeriod(period)">
-            {{ period }}º
-        </button>
-        }
+    <div class="page-header">
+        <h2>Selecione o período desejado</h2>
     </div>
 
-    <!-- Card de Informações do Curso -->
+    <!-- Period Selection Buttons -->
+    <div class="period-grid">
+        <div class="period-card" [class.active]="setupService.selectedPeriod() === 'Manhã'"
+            (click)="selecionar('Manhã')">
+            1º
+        </div>
+        <div class="period-card" [class.active]="setupService.selectedPeriod() === 'Tarde'"
+            (click)="selecionar('Tarde')">
+            2º
+        </div>
+        <div class="period-card" [class.active]="setupService.selectedPeriod() === 'Noite'"
+            (click)="selecionar('Noite')">
+            3º
+        </div>
+    </div>
+
+    <!-- Course Information Card -->
     <div class="course-info-card">
         <div class="info-header">
-            Sobre o curso &mdash; <strong>{{ courseInfo.name }}</strong>
+            Sobre o curso &mdash; <strong>{{ setupService.selectedCourse() }}</strong>
         </div>
 
         <ul class="info-list">
@@ -22,7 +33,7 @@
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                 </svg>
-                <span>Carga horária: {{ courseInfo.workload }}</span>
+                <span>Carga horária: 2400h</span>
             </li>
             <li>
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
@@ -32,7 +43,7 @@
                     <line x1="8" y1="2" x2="8" y2="6"></line>
                     <line x1="3" y1="10" x2="21" y2="10"></line>
                 </svg>
-                <span>Duração: {{ courseInfo.duration }}</span>
+                <span>Duração: 6 Semestres</span>
             </li>
             <li>
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
@@ -40,7 +51,7 @@
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                     <circle cx="12" cy="10" r="3"></circle>
                 </svg>
-                <span>{{ courseInfo.location }}</span>
+                <span>Local: Fatec Itu</span>
             </li>
             <li>
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
@@ -50,17 +61,17 @@
                     <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                     <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                 </svg>
-                <span>Coordenador: {{ courseInfo.coordinator }}</span>
+                <span>Coordenador(a): Não definido</span>
             </li>
         </ul>
     </div>
 
-    <!-- Rodapé com os botões de ação -->
-    <footer class="footer-actions">
-        <button class="btn-back" (click)="goBack()">Voltar</button>
-        <button class="btn-primary" [disabled]="!selectedPeriod()" (click)="finishSetup()">
+    <!-- Footer Actions -->
+    <div class="footer-actions">
+        <button class="btn-back" (click)="voltar()">Voltar</button>
+
+        <button class="btn-primary" [disabled]="!setupService.isSetupComplete()" (click)="concluir()">
             Entrar no sistema
         </button>
-    </footer>
-
+    </div>
 </div>

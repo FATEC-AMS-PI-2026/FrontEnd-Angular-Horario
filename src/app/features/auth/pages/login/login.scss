@@ -6,83 +6,83 @@
     width: 100%;
     height: 100vh;
     display: flex;
-    background-color: #fff;
-    overflow: hidden;
+    background-color: #ffffff;
+    overflow: hidden; /* Prevents body scrolling */
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* LADO DA IMAGEM E LOGOS */
+/* IMAGE SIDE */
 .auth-image-side {
     position: relative;
     width: 40%;
     height: 100%;
-    background-color: #000;
+    background-color: #111827; 
 
     .bg-img {
         width: 100%;
         height: 100%;
         object-fit: cover;
         display: block;
-        opacity: 0.9;
+        opacity: 0.85; 
     }
 
     .cps-logo {
         position: absolute;
-        top: 2rem;
-        left: 2.5rem;
-        height: 65px;
-        filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.4));
+        top: 2rem; 
+        left: 2rem;
+        height: 55px; /* Slightly smaller logo */
+        filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.35));
     }
 }
 
-/* LADO DO FORMULÁRIO */
+/* FORM SIDE */
 .auth-form-side {
     width: 60%;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow-y: auto;
-    background-color: #fff;
+    overflow-y: auto; /* Allows scrolling if content exceeds height (e.g., small screens) */
+    background-color: #ffffff;
 
     .form-wrapper {
         width: 100%;
-        max-width: 620px;
-        padding: 2rem;
+        max-width: 460px; /* Reduced max-width for a more compact form */
+        padding: 1.5rem;  /* Reduced padding */
     }
 
     .title {
-        margin: 0 0 8px;
-        font-size: 2.4rem;
-        font-weight: 700;
+        margin: 0 0 4px;
+        font-size: 2.2rem; /* Slightly smaller title */
+        font-weight: 800;
         color: #111827;
         text-align: center;
     }
 
     .subtitle {
-        margin: 0 0 32px;
-        font-size: 1.45rem;
-        font-weight: 600;
+        margin: 0 0 24px; /* Reduced margin */
+        font-size: 1.05rem; /* Slightly smaller subtitle */
+        font-weight: 500;
         color: #6b7280;
         text-align: center;
     }
 
-    /* CAMPOS DE INPUT */
+    /* INPUT FIELDS */
     .field {
-        margin-bottom: 26px;
+        margin-bottom: 20px; /* Reduced margin */
 
         label {
             display: block;
-            margin-bottom: 8px;
-            font-size: 1.15rem;
+            margin-bottom: 6px;
+            font-size: 0.95rem; /* Slightly smaller label */
             color: #374151;
             font-weight: 600;
         }
 
         input {
             width: 100%;
-            padding: 16px 18px;
-            font-size: 1.2rem;
+            padding: 12px 14px; /* Reduced padding */
+            font-size: 1rem;    /* Reduced font size */
             color: #111827;
             border: 1px solid #d1d5db;
             border-radius: 8px;
@@ -96,7 +96,7 @@
             }
 
             &.input-error {
-                border-color: #dc2626;
+                border-color: #ef4444; 
             }
 
             &::placeholder {
@@ -106,34 +106,40 @@
 
         .error-msg {
             display: block;
-            margin-top: 6px;
-            font-size: 0.85rem;
-            color: #dc2626;
+            margin-top: 4px;
+            font-size: 0.8rem; /* Slightly smaller error message */
+            color: #ef4444;
         }
     }
 
-    /* LINK "ESQUECI MINHA SENHA" */
-    .forgot-password-link {
+    /* LINKS */
+    .forgot-password-link, .auth-link {
         display: block;
-        margin: -10px 0 22px;
-        font-size: 0.95rem;
+        margin: -8px 0 20px; /* Adjusted margins */
+        font-size: 0.9rem;  /* Slightly smaller link text */
         color: #0f6b3f;
         text-align: right;
         text-decoration: none;
+        font-weight: 600;
 
         &:hover {
             text-decoration: underline;
         }
+        
+        &.center {
+            text-align: center;
+            margin-top: 20px;
+        }
     }
 
-    /* BOTÃO PRINCIPAL */
+    /* PRIMARY BUTTON */
     .btn-submit {
         width: 100%;
-        padding: 16px;
-        margin-top: 8px;
-        font-size: 1.35rem;
+        padding: 14px; /* Reduced padding */
+        margin-top: 4px;
+        font-size: 1.1rem; /* Slightly smaller text */
         font-weight: 700;
-        color: #fff;
+        color: #ffffff;
         background: #0f6b3f;
         border: none;
         border-radius: 8px;
@@ -141,7 +147,7 @@
         transition: background 0.2s, transform 0.1s;
 
         &:hover:not(:disabled) {
-            background: #0c5a34;
+            background: #0b502f;
         }
 
         &:active:not(:disabled) {
@@ -149,49 +155,39 @@
         }
 
         &:disabled {
-            opacity: 0.7;
+            opacity: 0.6;
             cursor: not-allowed;
         }
     }
 
-    /* MENSAGENS DE SUCESSO/ERRO GERAIS */
     .alert-msg {
-        margin-top: 16px;
-        font-size: 0.95rem;
+        margin-top: 12px;
+        font-size: 0.9rem;
         text-align: center;
         font-weight: 600;
 
-        &.success {
-            color: #0f6b3f;
-        }
-
-        &.error {
-            color: #dc2626;
-        }
+        &.success { color: #0f6b3f; }
+        &.error { color: #ef4444; }
     }
 }
 
-/* RESPONSIVIDADE PARA CELULARES */
 @media (max-width: 768px) {
-    .auth-container {
-        flex-direction: column;
-    }
-
+    .auth-container { flex-direction: column; }
     .auth-image-side {
         width: 100%;
-        height: 200px;
+        height: 140px; /* Even smaller for mobile */
         flex-shrink: 0;
 
         .cps-logo {
             top: 1rem;
             left: 1rem;
-            height: 50px;
+            height: 40px;
         }
     }
-
     .auth-form-side {
         width: 100%;
         height: auto;
-        padding: 2rem 0;
+        padding: 1.5rem 0;
+        align-items: flex-start;
     }
 }
