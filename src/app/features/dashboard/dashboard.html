@@ -1,4 +1,117 @@
-<section class="dashboard">
-  <h1>Dashboard</h1>
-  <p>Painel administrativo — em construção (Fase 3 do roadmap).</p>
-</section>
+<div class="dashboard-container">
+
+  <!-- BANNER PRINCIPAL -->
+  <section class="banner">
+    <div class="banner__left">
+      <h2>Olá, {{ userName }}! 👋</h2>
+      <p>Você tem 6 aulas hoje - {{ currentDay }} - {{ courseInfo }}</p>
+    </div>
+    <div class="banner__right">
+      <h2 class="time">{{ currentTime }}</h2>
+      <p>Próxima: {{ nextClass }}</p>
+    </div>
+  </section>
+
+  <!-- CARDS DE ESTATÍSTICAS -->
+  <section class="stats-grid">
+    @for (stat of stats; track stat.title) {
+    <div class="stat-card">
+      <span class="stat-card__title">{{ stat.title }}</span>
+      <strong class="stat-card__value">{{ stat.value }}</strong>
+      <span class="stat-card__subtitle">{{ stat.subtitle }}</span>
+    </div>
+    }
+  </section>
+
+  <!-- CONTEÚDO PRINCIPAL (2 COLUNAS) -->
+  <section class="content-grid">
+
+    <!-- COLUNA ESQUERDA: Horários -->
+    <div class="card card--schedule">
+      <div class="card__header">
+        <div>
+          <h3>Horários de hoje</h3>
+          <span class="subtitle">{{ currentDay }}</span>
+        </div>
+        <a href="/grade-semanal" class="link-more">Ver todos &rarr;</a>
+      </div>
+
+      <div class="schedule-list">
+        @for (item of schedule; track $index) {
+
+        @if (item.type === 'class') {
+        <div class="schedule-item schedule-item--class">
+          <div class="time-block">
+            <span>{{ item.start }}</span>
+            <span>{{ item.end }}</span>
+          </div>
+          <div class="info-block">
+            <strong>{{ item.subject }}</strong>
+            <span>{{ item.prof }}</span>
+          </div>
+        </div>
+        } @else {
+        <div class="schedule-item schedule-item--interval">
+          <span>{{ item.label }}</span>
+        </div>
+        }
+
+        }
+      </div>
+    </div>
+
+    <!-- COLUNA DIREITA: Salas -->
+    <div class="right-column">
+
+      <!-- STATUS DAS SALAS -->
+      <div class="card card--rooms">
+        <div class="card__header">
+          <h3>Status das salas</h3>
+        </div>
+        <div class="room-status-list">
+          @for (room of roomStatus; track room.room) {
+          <div class="room-status-item" [ngClass]="'status-' + room.status">
+            <div class="room-info">
+              <strong>{{ room.room }}</strong>
+              <span>{{ room.prof }}</span>
+            </div>
+            <div class="badge">{{ room.label }}</div>
+          </div>
+          }
+        </div>
+      </div>
+
+      <!-- SALAS DE HOJE -->
+      <div class="card card--today-rooms">
+        <div class="card__header">
+          <h3>Salas de hoje</h3>
+          <a href="#" class="link-more">Ver todos &rarr;</a>
+        </div>
+        <div class="today-rooms-list">
+          @for (room of todayRooms; track room.subject) {
+          <div class="today-room-item">
+            <div class="icon-wrapper">
+              <!-- Ícone genérico de laboratório/frasco -->
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 2v7.31"></path>
+                <path d="M14 9.3V1.99"></path>
+                <path d="M8.5 2h7"></path>
+                <path d="M14 9.3a6.5 6.5 0 1 1-4 0"></path>
+                <path d="M5.52 16h12.96"></path>
+              </svg>
+            </div>
+            <div class="room-info">
+              <strong>{{ room.location }}</strong>
+              <span>{{ room.subject }}</span>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+</div>
