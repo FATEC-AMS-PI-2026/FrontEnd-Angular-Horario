@@ -20,8 +20,8 @@ export class PeriodSelection {
 
   voltar() {
     this.setupService.goBack();
-    // Verifique se essa é a rota exata no seu app.routes.ts
-    this.router.navigate(['/setup/curso']);
+    // Fix: Using the correct path from app.routes.ts
+    this.router.navigate(['/setup/course-selection']);
   }
 
   concluir() {
