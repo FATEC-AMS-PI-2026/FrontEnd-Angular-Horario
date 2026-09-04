@@ -1,13 +1,15 @@
 .topbar {
-  height: 64px;
+  height: 80px;
   display: flex;
   align-items: center;
-  padding: 0 24px;
+  padding: 0 32px;
   background: #fff;
-  border-bottom: 1px solid #e0f5ee;
+  border-bottom: 1px solid #e5e7eb;
 
   &__title {
-    font-weight: 600;
-    color: #0f6e56;
+    font-weight: 700;
+    font-size: 1.8rem;
+    color: #111827;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   }
 }
