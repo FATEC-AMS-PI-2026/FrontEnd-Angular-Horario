@@ -1,9 +1,9 @@
 .dashboard-container {
     padding: 2rem;
-    background-color: #e5e7eb;
-    /* Cor de fundo cinza da imagem */
-    min-height: calc(100vh - 64px);
-    /* Altura total menos a Topbar */
+    background-color: #f3f4f6;
+    min-height: calc(100vh - 80px);
+    width: 100%;
+    box-sizing: border-box;
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     display: flex;
     flex-direction: column;
@@ -13,7 +13,6 @@
 /* BANNER */
 .banner {
     background-color: #0f6b3f;
-    /* Verde GINI */
     border-radius: 16px;
     padding: 1.5rem 2rem;
     color: #fff;
@@ -51,6 +50,7 @@
 
     .stat-card {
         background-color: #fff;
+        border: 1px solid #e5e7eb;
         border-radius: 12px;
         padding: 1.25rem;
         display: flex;
@@ -88,9 +88,8 @@
 /* ESTILO GERAL DOS CARDS BRANCOS */
 .card {
     background-color: #fff;
-    border-radius: 16px;
+    border: 1px solid #e5e7eb;
     padding: 1.5rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 
     &__header {
         display: flex;

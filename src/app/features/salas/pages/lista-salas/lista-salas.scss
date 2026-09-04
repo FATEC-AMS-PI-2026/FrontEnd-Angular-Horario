@@ -1,83 +1,112 @@
 .lista-salas {
-  max-width: 960px;
+  padding: 2rem;
+  background-color: #f3f4f6;
+  min-height: calc(100vh - 80px);
+  width: 100%;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
+
 .lista-salas__filtros {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 1rem;
+  gap: 1rem;
+  align-items: center;
+
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
+
 .lista-salas__campo-busca,
 .lista-salas__filtro-predio {
-  padding: 0.6rem 0.9rem;
-  border: 1px solid #e0e0e0;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
   border-radius: 8px;
   font-size: 0.95rem;
   font-family: inherit;
-  color: var(--color-text);
+  color: #111827;
   background: #fff;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
   &:focus,
   &:focus-visible {
     outline: none;
-    border-color: var(--color-primary);
+    border-color: #0f6b3f;
+    box-shadow: 0 0 0 3px rgba(15, 107, 63, 0.15);
   }
 }
+
 .lista-salas__campo-busca {
   flex: 1 1 240px;
-  max-width: 360px;
+  max-width: none;
+
   &::placeholder {
-    color: #999;
+    color: #9ca3af;
   }
 }
+
 .lista-salas__filtro-predio {
-  flex: 0 1 200px;
+  flex: 0 0 220px;
+  margin-left: auto;
   cursor: pointer;
 }
+
 .grade-salas {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  /* Aumentado para usar melhor a tela */
+  gap: 1.5rem;
   list-style: none;
-  margin: 1.5rem 0 0;
+  margin: 0;
   padding: 0;
 }
+
 .card-sala {
   display: block;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  padding: 1.5rem;
   text-decoration: none;
   color: inherit;
   background: #fff;
-  transition:
-    box-shadow 0.2s ease,
-    border-color 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
   &:hover,
   &:focus-visible {
-    border-color: var(--color-primary);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
+
   &__cabecalho {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem;
+
     h2 {
-      font-size: 1.05rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #111827;
       margin: 0;
     }
   }
+
   &__local,
   &__info {
-    margin: 0.35rem 0 0;
-    font-size: 0.9rem;
-    color: #555;
+    margin: 0.5rem 0 0;
+    font-size: 0.95rem;
+    color: #6b7280;
   }
 }
+
 .lista-salas__vazio {
   grid-column: 1 / -1;
-  color: #777;
+  color: #6b7280;
   text-align: center;
-  padding: 2rem 0;
+  padding: 3rem 0;
+  font-size: 1.1rem;
 }
