@@ -1,17 +1,23 @@
-.setup-container {
+.profile-setup-container {
     display: flex;
-    min-height: 100vh;
+    flex-direction: row;
+    height: 100vh;
+    /* Changed from min-height to height to restrict the container size */
     background-color: #f3f4f6;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    /* Hide overflow on the main container */
 }
 
-.setup-content-wrapper {
+.profile-setup-content {
     flex: 1;
+    padding: 2.5rem;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
-}
-
-.main-content {
-    flex: 1;
-    padding: 2rem 2.5rem;
     overflow-y: auto;
+    /* Enable vertical scroll ONLY on the content area */
+    height: 100%;
+    /* Ensure content area takes full height */
 }
