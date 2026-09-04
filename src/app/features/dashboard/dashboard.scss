@@ -1,0 +1,316 @@
+.dashboard-container {
+    padding: 2rem;
+    background-color: #e5e7eb;
+    /* Cor de fundo cinza da imagem */
+    min-height: calc(100vh - 64px);
+    /* Altura total menos a Topbar */
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* BANNER */
+.banner {
+    background-color: #0f6b3f;
+    /* Verde GINI */
+    border-radius: 16px;
+    padding: 1.5rem 2rem;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+    h2 {
+        margin: 0 0 0.5rem;
+        font-size: 1.8rem;
+        font-weight: 700;
+    }
+
+    p {
+        margin: 0;
+        font-size: 1rem;
+        opacity: 0.9;
+    }
+
+    &__right {
+        text-align: right;
+
+        .time {
+            font-size: 2.2rem;
+        }
+    }
+}
+
+/* STATS GRID */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+
+    .stat-card {
+        background-color: #fff;
+        border-radius: 12px;
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+        &__title {
+            font-size: 0.9rem;
+            color: #4b5563;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        &__value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #111827;
+            margin-bottom: 0.25rem;
+        }
+
+        &__subtitle {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+    }
+}
+
+/* CONTENT GRID (Esquerda / Direita) */
+.content-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 1.5rem;
+}
+
+/* ESTILO GERAL DOS CARDS BRANCOS */
+.card {
+    background-color: #fff;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+
+        h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #111827;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 0.85rem;
+            color: #6b7280;
+            display: block;
+            margin-top: 0.25rem;
+        }
+
+        .link-more {
+            font-size: 0.9rem;
+            color: #0f6b3f;
+            text-decoration: none;
+            font-weight: 600;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+}
+
+/* COLUNA ESQUERDA: HORÁRIOS */
+.schedule-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    .schedule-item {
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        display: flex;
+        font-size: 0.95rem;
+
+        &--class {
+            background-color: #e0e7ff;
+            /* Azul claro */
+            border: 1.5px solid #6366f1;
+            /* Borda Azul */
+            color: #3730a3;
+            gap: 1.5rem;
+
+            .time-block {
+                display: flex;
+                flex-direction: column;
+                font-weight: 600;
+            }
+
+            .info-block {
+                display: flex;
+                flex-direction: column;
+
+                strong {
+                    font-weight: 700;
+                    margin-bottom: 0.2rem;
+                }
+            }
+        }
+
+        &--interval {
+            background-color: #fef9c3;
+            /* Amarelo claro */
+            border: 1.5px solid #eab308;
+            /* Borda amarela */
+            color: #854d0e;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 0.4rem;
+        }
+    }
+}
+
+/* COLUNA DIREITA: SALAS */
+.right-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.room-status-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    .room-status-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        border-radius: 50px;
+        /* Estilo pílula da imagem */
+        border: 1px solid transparent;
+
+        .room-info {
+            display: flex;
+            flex-direction: column;
+
+            strong {
+                font-size: 0.95rem;
+                color: #111827;
+            }
+
+            span {
+                font-size: 0.75rem;
+                color: #6b7280;
+            }
+        }
+
+        .badge {
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+        }
+
+        /* Cores dos Status */
+        &.status-livre {
+            background-color: #dcfce7;
+            border-color: #86efac;
+
+            .badge {
+                color: #166534;
+            }
+        }
+
+        &.status-em_uso {
+            background-color: #fee2e2;
+            border-color: #fca5a5;
+
+            .badge {
+                color: #991b1b;
+            }
+        }
+
+        &.status-manutencao {
+            background-color: #fef9c3;
+            border-color: #fde047;
+
+            .badge {
+                color: #854d0e;
+            }
+        }
+    }
+}
+
+.today-rooms-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+
+    .today-room-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        .icon-wrapper {
+            width: 48px;
+            height: 48px;
+            background-color: #dcfce7;
+            color: #0f6b3f;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .room-info {
+            display: flex;
+            flex-direction: column;
+
+            strong {
+                font-size: 0.95rem;
+                color: #111827;
+                margin-bottom: 0.2rem;
+            }
+
+            span {
+                font-size: 0.85rem;
+                color: #6b7280;
+            }
+        }
+    }
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 1024px) {
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .banner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+
+        &__right {
+            text-align: left;
+        }
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
