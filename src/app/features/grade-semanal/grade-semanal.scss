@@ -1,22 +1,26 @@
 .grade-container {
     padding: 2rem;
     background-color: #f3f4f6;
-    min-height: 100vh;
+    min-height: calc(100vh - 80px);
     width: 100%;
     box-sizing: border-box;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 
     .schedule-card {
         background-color: #ffffff;
-        border-radius: 1rem;
+        border-radius: 16px;
         padding: 1.5rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        border: 1px border #e5e7eb;
-        max-width: 1024px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border: none;
+        width: 100%;
 
         .card-title {
             font-size: 1.5rem;
             font-weight: 700;
-            color: #000000;
+            color: #111827;
             margin-bottom: 1.5rem;
         }
     }
@@ -25,13 +29,15 @@
         border: 1px solid #d1d5db;
         border-radius: 0.75rem;
         overflow: hidden;
-        background-color: #f9fafb;
+        background-color: #fff;
+        /* Ajustado para branco puro */
 
         .grid-header {
             display: grid;
             grid-template-columns: repeat(6, minmax(0, 1fr));
             border-bottom: 1px solid #d1d5db;
-            background-color: #e5e7eb;
+            background-color: #f3f4f6;
+            /* Cor sutil para o cabeçalho */
             text-align: center;
             padding: 1rem 0;
             color: #374151;
@@ -92,7 +98,6 @@
             box-sizing: border-box;
             transition: transform 0.15s ease, box-shadow 0.15s ease;
 
-            // Classes de cores customizadas
             &.cor-pi {
                 background-color: #d1fae5;
                 color: #065f46;
@@ -134,7 +139,7 @@
             }
 
             .row-intervalo {
-                background-color: #f3f4f6 !important;   
+                background-color: #f3f4f6 !important;
             }
         }
     }

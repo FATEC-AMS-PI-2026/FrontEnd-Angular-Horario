@@ -1,9 +1,9 @@
 .setup-sidebar {
-    width: 240px;
+    width: 250px;
     height: 100vh;
     box-sizing: border-box;
     flex-shrink: 0;
-    background: #0f6e56;
+    background: #0f6b3f;
     color: #fff;
     display: flex;
     flex-direction: column;
@@ -50,17 +50,29 @@
     }
 
     &__brand {
-        margin-bottom: 32px;
-    }
+        margin-bottom: 28px;
 
-    &__logo {
-        font-weight: 800;
-        font-size: 1.5rem;
-        color: #b00000;
-        background: #ffffff;
-        padding: 2px 8px;
-        border-radius: 6px;
-        display: inline-block;
+        .logo-box {
+            background: transparent;
+            width: 100%;
+            max-width: 130px;
+            height: auto;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            transition: transform 0.3s ease;
+
+            &:hover {
+                transform: translateY(-2px);
+            }
+
+            img {
+                width: 100%;
+                height: auto;
+                object-fit: contain;
+                filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.35));
+            }
+        }
     }
 
     &__header {
@@ -111,7 +123,7 @@
         &--active {
             .setup-sidebar__step-icon {
                 background: #ffffff;
-                color: #0f6e56;
+                color: #0f6b3f;
             }
         }
 
