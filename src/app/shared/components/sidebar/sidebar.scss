@@ -4,7 +4,6 @@
   box-sizing: border-box;
   flex-shrink: 0;
   background: #0f6b3f;
-  /* Cor original de volta! */
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -14,7 +13,6 @@
 
   &__header {
     padding: 24px 16px;
-    /* Padronizado com o setup-sidebar (16px na lateral) */
 
     .logo-box {
       background: transparent;
@@ -41,7 +39,6 @@
 
   &__profile {
     padding: 24px 16px;
-    /* Alinhando com a logo */
     display: flex;
     align-items: center;
     gap: 12px;
@@ -52,7 +49,6 @@
       height: 48px;
       background-color: #fff;
       color: #0f6b3f;
-      /* Cor original */
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -91,7 +87,6 @@
     color: #fff;
     text-decoration: none;
     padding: 20px 16px;
-    /* Alinhando com a logo e perfil */
     font-size: 1rem;
     font-weight: 600;
     border-bottom: 1px solid rgba(255, 255, 255, 0.15);
@@ -117,7 +112,6 @@
       background: rgba(255, 255, 255, 0.15);
       border-left: 4px solid #fff;
       padding-left: 12px;
-      /* Compensa os 4px da borda para não empurrar o texto */
     }
 
     &--logout {
