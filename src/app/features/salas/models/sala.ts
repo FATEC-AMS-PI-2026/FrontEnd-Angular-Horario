@@ -1,6 +1,7 @@
 import { Tecnico } from './tecnico';
 import { Equipamento } from './equipamento';
 import { ProximoHorario } from './proximo-horario';
+import { ProblemaEquipamento } from './problema-equipamento';
 
 /**
  * Status possíveis de uma sala, conforme critério de aceite da issue
@@ -28,4 +29,11 @@ export interface Sala {
    * issue "WEB: Lista de próximos horários da sala" (#44).
    */
   proximosHorarios: ProximoHorario[];
+  /**
+   * Problemas reportados em equipamentos da sala (indisponibilidade ou
+   * defeito). Normalmente vazio — cobre a issue "WEB: Alertas de
+   * equipamento indisponível" (#9): os banners de alerta somem
+   * automaticamente quando esta lista está vazia.
+   */
+  problemasEquipamentos: ProblemaEquipamento[];
 }
