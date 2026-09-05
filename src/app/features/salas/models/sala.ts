@@ -2,6 +2,7 @@ import { Tecnico } from './tecnico';
 import { Equipamento } from './equipamento';
 import { ProximoHorario } from './proximo-horario';
 import { AulaDoDia } from './aula-do-dia';
+import { Alerta } from './alerta';
 
 /**
  * Status possíveis de uma sala, conforme critério de aceite da issue
@@ -35,4 +36,10 @@ export interface Sala {
    * sala" (#12).
    */
   aulasDoDia: AulaDoDia[];
+  /**
+   * Alertas ativos ou já resolvidos da sala (equipamentos, manutenção,
+   * etc.), exibidos no modal da issue "WEB: Modal/página de alertas da
+   * sala" (#13).
+   */
+  alertas: Alerta[];
 }

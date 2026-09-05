@@ -4,15 +4,36 @@
   <ul class="equipamentos-card__lista">
     @for (equipamento of equipamentos(); track equipamento.tipo) {
       <li class="equipamento" [class]="'equipamento--' + disponibilidade(equipamento)">
-        <span class="equipamento__nome">{{ equipamento.tipo }}</span>
-        <span class="equipamento__quantidade">
-          {{ equipamento.quantidadeDisponivel }} de {{ equipamento.quantidadeTotal }} disponíveis
-        </span>
-        @if (disponibilidade(equipamento) === 'indisponivel') {
-          <span class="equipamento__tag">Indisponível</span>
-        } @else if (disponibilidade(equipamento) === 'parcial') {
-          <span class="equipamento__tag equipamento__tag--parcial">Parcial</span>
-        }
+        <div class="equipamento__linha">
+          <span class="equipamento__nome">{{ equipamento.tipo }}</span>
+          <span class="equipamento__quantidade">
+            {{ equipamento.quantidadeDisponivel }} de {{ equipamento.quantidadeTotal }} disponíveis
+          </span>
+          @if (disponibilidade(equipamento) === 'total') {
+            <span class="equipamento__tag equipamento__tag--total">Disponível</span>
+          } @else if (disponibilidade(equipamento) === 'parcial') {
+            <span class="equipamento__tag equipamento__tag--parcial">Parcial</span>
+          } @else {
+            <span class="equipamento__tag">Indisponível</span>
+          }
+        </div>
+
+        <div
+          class="equipamento__indicador"
+          role="progressbar"
+          [attr.aria-valuenow]="proporcao(equipamento)"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          [attr.aria-label]="
+            'Disponibilidade de ' + equipamento.tipo + ': ' + equipamento.quantidadeDisponivel +
+            ' de ' + equipamento.quantidadeTotal
+          "
+        >
+          <div
+            class="equipamento__indicador-preenchido"
+            [style.width.%]="proporcao(equipamento)"
+          ></div>
+        </div>
       </li>
     } @empty {
       <li class="equipamentos-card__vazio">Nenhum equipamento cadastrado nesta sala.</li>
