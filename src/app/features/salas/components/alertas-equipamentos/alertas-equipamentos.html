@@ -1,0 +1,12 @@
+@if (equipamentosComProblema().length > 0) {
+<ul class="alertas-equipamentos" aria-label="Alertas de equipamentos indisponíveis">
+  @for (equipamento of equipamentosComProblema(); track equipamento.tipo) {
+  <li class="alerta-equipamento">
+    <span class="alerta-equipamento__icone" aria-hidden="true">⚠</span>
+    <span class="alerta-equipamento__texto">
+      Equipamento indisponível: <strong>{{ equipamento.tipo }}</strong>
+    </span>
+  </li>
+  }
+</ul>
+}
