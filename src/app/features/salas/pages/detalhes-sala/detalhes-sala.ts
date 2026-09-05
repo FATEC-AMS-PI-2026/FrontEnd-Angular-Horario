@@ -6,6 +6,7 @@ import { SalasService } from '../../services/salas';
 import { TecnicoCard } from '../../components/tecnico-card/tecnico-card';
 import { EquipamentosCard } from '../../components/equipamentos-card/equipamentos-card';
 import { ProximosHorariosCard } from '../../components/proximos-horarios-card/proximos-horarios-card';
+import { AulasDoDiaCard } from '../../components/aulas-do-dia-card/aulas-do-dia-card';
 import { CabecalhoSala } from '../../components/cabecalho-sala/cabecalho-sala';
 import { AlertasModal } from '../../components/alertas-modal/alertas-modal';
 
@@ -23,6 +24,8 @@ import { AlertasModal } from '../../components/alertas-modal/alertas-modal';
  * Também cobre a issue #44: exibir os próximos horários de utilização da
  * sala, em ordem cronológica.
  *
+ * Também cobre a issue #12: exibir todas as aulas do dia atual na sala,
+ * destacando a que está em andamento.
  * Também cobre a issue #7: o cabeçalho (breadcrumb, nome, badges, botão de
  * voltar e botão "Ver alertas") foi extraído para `CabecalhoSala`.
  *
@@ -36,7 +39,15 @@ import { AlertasModal } from '../../components/alertas-modal/alertas-modal';
 @Component({
   selector: 'app-detalhes-sala',
   standalone: true,
-  imports: [RouterLink, CabecalhoSala, TecnicoCard, EquipamentosCard, ProximosHorariosCard, AlertasModal],
+  imports: [
+    RouterLink,
+    StatusSalaBadge,
+    TecnicoCard,
+    EquipamentosCard,
+    ProximosHorariosCard,
+    AlertasModal,
+    AulasDoDiaCard,
+  ],
   templateUrl: './detalhes-sala.html',
   styleUrl: './detalhes-sala.scss',
 })
