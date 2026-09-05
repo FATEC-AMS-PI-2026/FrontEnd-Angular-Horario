@@ -26,6 +26,11 @@ const SALAS_MOCK: Sala[] = [
       { inicio: '10:00', termino: '11:40', atividade: 'Algoritmos e Programação' },
       { inicio: '14:00', termino: '15:40', atividade: 'Física Geral', professor: 'Profa. Ana Beatriz' },
     ],
+    aulasDoDia: [
+      { inicio: '08:00', termino: '09:40', disciplina: 'Cálculo I', professor: 'Prof. Ricardo Nunes', turma: 'ADS 2º sem.' },
+      { inicio: '10:00', termino: '11:40', disciplina: 'Algoritmos e Programação', turma: 'ADS 1º sem.' },
+      { inicio: '13:00', termino: '17:40', disciplina: 'Física Geral', professor: 'Profa. Ana Beatriz', turma: 'ADS 2º sem.' },
+    ],
   },
   {
     id: 2,
@@ -52,6 +57,11 @@ const SALAS_MOCK: Sala[] = [
       { inicio: '09:00', termino: '10:40', atividade: 'Banco de Dados', professor: 'Prof. Marcelo Tadeu' },
       { inicio: '13:00', termino: '14:40', atividade: 'Redes de Computadores', professor: 'Prof. João Pedro' },
     ],
+    aulasDoDia: [
+      { inicio: '09:00', termino: '10:40', disciplina: 'Banco de Dados', professor: 'Prof. Marcelo Tadeu', turma: 'ADS 3º sem.' },
+      { inicio: '13:00', termino: '17:40', disciplina: 'Redes de Computadores', professor: 'Prof. João Pedro', turma: 'ADS 3º sem.' },
+      { inicio: '19:00', termino: '22:20', disciplina: 'Engenharia de Software', professor: 'Prof. Ricardo Nunes', turma: 'ADS 4º sem. (noturno)' },
+    ],
   },
   {
     id: 3,
@@ -66,8 +76,9 @@ const SALAS_MOCK: Sala[] = [
       { tipo: 'Cadeira', quantidadeTotal: 25, quantidadeDisponivel: 25 },
     ],
     // Sala em manutenção: sem horários agendados, testa o estado vazio do
-    // card de próximos horários.
+    // card de próximos horários (e também do de aulas do dia).
     proximosHorarios: [],
+    aulasDoDia: [],
   },
 ];
 
