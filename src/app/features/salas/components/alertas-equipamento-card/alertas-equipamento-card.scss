@@ -1,0 +1,81 @@
+.alertas-equipamento {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-width: 720px;
+  margin-bottom: 1rem;
+}
+
+.alerta {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &__cabecalho {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  &__severidade {
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  &__equipamento {
+    font-weight: 600;
+  }
+
+  &__icone {
+    margin-left: auto;
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  &__detalhe {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgb(0 0 0 / 10%);
+    font-size: 0.85rem;
+  }
+
+  &__data {
+    opacity: 0.85;
+    font-size: 0.8rem;
+  }
+
+  // Indisponível: vermelho (critério de aceite da issue #9).
+  &--indisponivel {
+    border-color: #f3c6c2;
+    background: #fdecea;
+    color: #8c1d13;
+
+    &:hover {
+      background: #fbdedb;
+    }
+  }
+
+  // Defeito: amarelo (critério de aceite da issue #9).
+  &--defeito {
+    border-color: #f0dfa3;
+    background: #fff4d6;
+    color: #6b4700;
+
+    &:hover {
+      background: #ffedbb;
+    }
+  }
+}
