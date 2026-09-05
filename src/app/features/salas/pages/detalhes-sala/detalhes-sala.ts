@@ -37,46 +37,46 @@ import { AlertasModal } from '../../components/alertas-modal/alertas-modal';
  * topo da página, antes dos demais dados da sala.
  */
 @Component({
-  selector: 'app-detalhes-sala',
-  standalone: true,
-  imports: [
-    RouterLink,
-    StatusSalaBadge,
-    TecnicoCard,
-    EquipamentosCard,
-    ProximosHorariosCard,
-    AlertasModal,
-    AulasDoDiaCard,
-  ],
-  templateUrl: './detalhes-sala.html',
-  styleUrl: './detalhes-sala.scss',
+    selector: 'app-detalhes-sala',
+    standalone: true,
+    imports: [
+        RouterLink,
+        CabecalhoSala,
+        TecnicoCard,
+        EquipamentosCard,
+        ProximosHorariosCard,
+        AlertasModal,
+        AulasDoDiaCard,
+    ],
+    templateUrl: './detalhes-sala.html',
+    styleUrl: './detalhes-sala.scss',
 })
 export class DetalhesSala {
-  private readonly route = inject(ActivatedRoute);
-  private readonly salasService = inject(SalasService);
+    private readonly route = inject(ActivatedRoute);
+    private readonly salasService = inject(SalasService);
 
-  private readonly id = toSignal(
-    this.route.paramMap.pipe(map((params) => Number(params.get('id')))),
-    { initialValue: NaN },
-  );
+    private readonly id = toSignal(
+        this.route.paramMap.pipe(map((params) => Number(params.get('id')))),
+        { initialValue: NaN },
+    );
 
-  protected readonly sala = computed(() => this.salasService.obterSalaPorId(this.id()));
+    protected readonly sala = computed(() => this.salasService.obterSalaPorId(this.id()));
 
-  /** Controla a visibilidade do `AlertasModal` (issue #13). */
-  protected readonly alertasAbertos = signal(false);
+    /** Controla a visibilidade do `AlertasModal` (issue #13). */
+    protected readonly alertasAbertos = signal(false);
 
-  protected abrirAlertas(): void {
-    this.alertasAbertos.set(true);
-  }
-
-  protected fecharAlertas(): void {
-    this.alertasAbertos.set(false);
-  }
-
-  protected resolverAlerta(alertaId: number): void {
-    const salaAtual = this.sala();
-    if (salaAtual) {
-      this.salasService.marcarAlertaComoResolvido(salaAtual.id, alertaId);
+    protected abrirAlertas(): void {
+        this.alertasAbertos.set(true);
     }
-  }
+
+    protected fecharAlertas(): void {
+        this.alertasAbertos.set(false);
+    }
+
+    protected resolverAlerta(alertaId: number): void {
+        const salaAtual = this.sala();
+        if (salaAtual) {
+            this.salasService.marcarAlertaComoResolvido(salaAtual.id, alertaId);
+        }
+    }
 }
