@@ -1,6 +1,7 @@
 import { Tecnico } from './tecnico';
 import { Equipamento } from './equipamento';
 import { ProximoHorario } from './proximo-horario';
+import { AulaDoDia } from './aula-do-dia';
 
 /**
  * Status possíveis de uma sala, conforme critério de aceite da issue
@@ -28,4 +29,10 @@ export interface Sala {
    * issue "WEB: Lista de próximos horários da sala" (#44).
    */
   proximosHorarios: ProximoHorario[];
+  /**
+   * Todas as aulas agendadas na sala para o dia atual (passadas, em
+   * andamento e futuras). Cobre a issue "WEB: Lista de aulas do dia na
+   * sala" (#12).
+   */
+  aulasDoDia: AulaDoDia[];
 }

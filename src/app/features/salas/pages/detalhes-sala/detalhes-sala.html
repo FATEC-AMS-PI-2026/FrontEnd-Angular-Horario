@@ -30,6 +30,8 @@
 
   <app-proximos-horarios-card [horarios]="salaEncontrada.proximosHorarios" />
 
+  <app-aulas-do-dia-card [aulas]="salaEncontrada.aulasDoDia" />
+
   @if (salaEncontrada.tecnicoResponsavel; as tecnico) {
   <app-tecnico-card [tecnico]="tecnico" />
   }
