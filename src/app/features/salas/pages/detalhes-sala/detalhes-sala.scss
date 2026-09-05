@@ -20,59 +20,6 @@
   max-width: 800px;
 }
 
-.botao-voltar {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  color: #0f6b3f;
-  text-decoration: none;
-  font-size: 0.95rem;
-  font-weight: 600;
-
-  &:hover,
-  &:focus-visible {
-    text-decoration: underline;
-  }
-}
-
-.detalhes-sala__cabecalho {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 1rem;
-
-  h1 {
-    margin: 0;
-    font-size: 1.8rem;
-    color: #111827;
-    font-weight: 700;
-  }
-}
-
-.detalhes-sala__info {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 1.5rem;
-  margin: 1.5rem 0;
-
-  dt {
-    font-size: 0.85rem;
-    color: #6b7280;
-    margin-bottom: 0.25rem;
-  }
-
-  dd {
-    margin: 0;
-    font-size: 1.05rem;
-    color: #111827;
-    font-weight: 600;
-  }
-}
-
 .detalhes-sala--nao-encontrada {
   text-align: center;
   color: #6b7280;

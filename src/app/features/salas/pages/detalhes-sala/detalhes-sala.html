@@ -1,30 +1,6 @@
 @if (sala(); as salaEncontrada) {
 <section class="detalhes-sala">
-  <a class="botao-voltar" routerLink="/salas">← Voltar para a lista de salas</a>
-
-  <header class="detalhes-sala__cabecalho">
-    <h1>{{ salaEncontrada.nome }}</h1>
-    <app-status-sala-badge [status]="salaEncontrada.status" />
-  </header>
-
-  <dl class="detalhes-sala__info">
-    <div>
-      <dt>Prédio</dt>
-      <dd>{{ salaEncontrada.predio }}</dd>
-    </div>
-    <div>
-      <dt>Andar</dt>
-      <dd>{{ salaEncontrada.andar }}º</dd>
-    </div>
-    <div>
-      <dt>Tipo</dt>
-      <dd>{{ salaEncontrada.tipo }}</dd>
-    </div>
-    <div>
-      <dt>Capacidade</dt>
-      <dd>{{ salaEncontrada.capacidade }} pessoas</dd>
-    </div>
-  </dl>
+  <app-cabecalho-sala [sala]="salaEncontrada" (verAlertas)="abrirAlertas()" />
 
   <app-equipamentos-card [equipamentos]="salaEncontrada.equipamentos" />
 
@@ -33,6 +9,13 @@
   @if (salaEncontrada.tecnicoResponsavel; as tecnico) {
   <app-tecnico-card [tecnico]="tecnico" />
   }
+
+  <app-alertas-modal
+    [aberto]="alertasAbertos()"
+    [alertas]="salaEncontrada.alertas"
+    (fechar)="fecharAlertas()"
+    (resolver)="resolverAlerta($event)"
+  />
 </section>
 } @else {
 <section class="detalhes-sala detalhes-sala--nao-encontrada">

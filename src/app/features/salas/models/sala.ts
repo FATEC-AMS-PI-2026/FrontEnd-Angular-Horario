@@ -1,6 +1,7 @@
 import { Tecnico } from './tecnico';
 import { Equipamento } from './equipamento';
 import { ProximoHorario } from './proximo-horario';
+import { Alerta } from './alerta';
 
 /**
  * Status possíveis de uma sala, conforme critério de aceite da issue
@@ -28,4 +29,10 @@ export interface Sala {
    * issue "WEB: Lista de próximos horários da sala" (#44).
    */
   proximosHorarios: ProximoHorario[];
+  /**
+   * Alertas ativos ou já resolvidos da sala (equipamentos, manutenção,
+   * etc.), exibidos no modal da issue "WEB: Modal/página de alertas da
+   * sala" (#13).
+   */
+  alertas: Alerta[];
 }
