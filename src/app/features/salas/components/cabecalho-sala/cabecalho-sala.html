@@ -1,0 +1,34 @@
+<a class="cabecalho-sala__voltar" routerLink="/salas">← Voltar para a lista de salas</a>
+
+<nav class="cabecalho-sala__breadcrumb" aria-label="Você está em">
+  <a routerLink="/salas">Salas</a>
+  <span aria-hidden="true">/</span>
+  <span>{{ sala().nome }}</span>
+</nav>
+
+<div class="cabecalho-sala__topo">
+  <h1>{{ sala().nome }}</h1>
+  <button type="button" class="cabecalho-sala__ver-alertas" (click)="verAlertas.emit()">
+    Ver alertas
+  </button>
+</div>
+
+<div class="cabecalho-sala__badges">
+  <app-status-sala-badge [status]="sala().status" />
+  <span class="cabecalho-sala__badge">{{ sala().predio }}</span>
+  <span class="cabecalho-sala__badge">{{ sala().andar }}º andar</span>
+  <span class="cabecalho-sala__badge">{{ sala().tipo }}</span>
+</div>
+
+<dl class="cabecalho-sala__resumo">
+  <div>
+    <dt>Capacidade</dt>
+    <dd>{{ sala().capacidade }} pessoas</dd>
+  </div>
+  @if (sala().tecnicoResponsavel; as tecnico) {
+  <div>
+    <dt>Técnico responsável</dt>
+    <dd>{{ tecnico.nome }}</dd>
+  </div>
+  }
+</dl>
