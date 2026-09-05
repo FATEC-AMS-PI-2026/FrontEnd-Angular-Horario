@@ -29,6 +29,9 @@ import { AlertasModal } from '../../components/alertas-modal/alertas-modal';
  * Também cobre a issue #13: o botão "Ver alertas" do cabeçalho abre o
  * `AlertasModal`, que lista os alertas da sala e permite marcá-los como
  * resolvidos.
+ *
+ * Também cobre a issue #43: exibir alertas de equipamentos indisponíveis no
+ * topo da página, antes dos demais dados da sala.
  */
 @Component({
   selector: 'app-detalhes-sala',
