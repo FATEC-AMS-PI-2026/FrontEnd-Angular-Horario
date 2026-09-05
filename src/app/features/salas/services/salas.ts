@@ -26,6 +26,9 @@ const SALAS_MOCK: Sala[] = [
       { inicio: '10:00', termino: '11:40', atividade: 'Algoritmos e Programação' },
       { inicio: '14:00', termino: '15:40', atividade: 'Física Geral', professor: 'Profa. Ana Beatriz' },
     ],
+    // Sem problemas reportados: testa o banner de alerta sumindo
+    // automaticamente (critério de aceite da issue #9).
+    problemasEquipamentos: [],
   },
   {
     id: 2,
@@ -52,6 +55,22 @@ const SALAS_MOCK: Sala[] = [
       { inicio: '09:00', termino: '10:40', atividade: 'Banco de Dados', professor: 'Prof. Marcelo Tadeu' },
       { inicio: '13:00', termino: '14:40', atividade: 'Redes de Computadores', professor: 'Prof. João Pedro' },
     ],
+    // Dois problemas reportados: testa múltiplos banners com severidades
+    // diferentes (issue #9).
+    problemasEquipamentos: [
+      {
+        equipamento: 'Televisão',
+        severidade: 'indisponivel',
+        descricao: 'Televisão não liga — possível problema na fonte de energia.',
+        dataReporte: '02/09/2026',
+      },
+      {
+        equipamento: 'Ar-condicionado',
+        severidade: 'defeito',
+        descricao: 'Ar-condicionado ligando, mas fazendo barulho excessivo.',
+        dataReporte: '03/09/2026',
+      },
+    ],
   },
   {
     id: 3,
@@ -68,6 +87,14 @@ const SALAS_MOCK: Sala[] = [
     // Sala em manutenção: sem horários agendados, testa o estado vazio do
     // card de próximos horários.
     proximosHorarios: [],
+    problemasEquipamentos: [
+      {
+        equipamento: 'Wi-Fi',
+        severidade: 'indisponivel',
+        descricao: 'Roteador removido para manutenção elétrica do prédio.',
+        dataReporte: '01/09/2026',
+      },
+    ],
   },
 ];
 

@@ -12,6 +12,10 @@ import { DisponibilidadeEquipamento, Equipamento } from '../../models/equipament
  *
  * O destaque por cor (verde/amarelo/vermelho conforme a disponibilidade) e o
  * contador "disponível/total" seguem o critério de aceite da issue #8.
+ *
+ * O indicador visual de proporção disponível/total (barra de progresso por
+ * equipamento) atende aos critérios de aceite da issue "WEB: Indicadores de
+ * capacidade dos equipamentos" (#71).
  */
 @Component({
   selector: 'app-equipamentos-card',
@@ -37,5 +41,19 @@ export class EquipamentosCard {
       return 'total';
     }
     return 'parcial';
+  }
+
+  /**
+   * Proporção (0 a 100) da quantidade disponível em relação ao total de um
+   * equipamento, usada para preencher a barra do indicador visual (issue
+   * #71). Equipamentos sem quantidade total cadastrada (`quantidadeTotal`
+   * zerado ou negativo) são tratados como 0% para evitar divisão por zero.
+   */
+  protected proporcao(equipamento: Equipamento): number {
+    if (equipamento.quantidadeTotal <= 0) {
+      return 0;
+    }
+    const proporcao = (equipamento.quantidadeDisponivel / equipamento.quantidadeTotal) * 100;
+    return Math.min(100, Math.max(0, proporcao));
   }
 }
