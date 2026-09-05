@@ -7,7 +7,7 @@ import { StatusSalaBadge } from '../../components/status-sala-badge';
 import { TecnicoCard } from '../../components/tecnico-card/tecnico-card';
 import { EquipamentosCard } from '../../components/equipamentos-card/equipamentos-card';
 import { ProximosHorariosCard } from '../../components/proximos-horarios-card/proximos-horarios-card';
-import { AlertasEquipamentoCard } from '../../components/alertas-equipamento-card/alertas-equipamento-card';
+import { AlertasEquipamentos } from '../../components/alertas-equipamentos/alertas-equipamentos';
 
 /**
  * Página de detalhes de uma sala. Cobre a issue #67: chegar aqui a partir da
@@ -23,8 +23,8 @@ import { AlertasEquipamentoCard } from '../../components/alertas-equipamento-car
  * Também cobre a issue #44: exibir os próximos horários de utilização da
  * sala, em ordem cronológica.
  *
- * Também cobre a issue #9: exibir banners de alerta para equipamentos
- * indisponíveis ou com defeito, através do `AlertasEquipamentoCard`.
+ * Também cobre a issue #43: exibir alertas de equipamentos indisponíveis no
+ * topo da página, antes dos demais dados da sala.
  */
 @Component({
   selector: 'app-detalhes-sala',
@@ -35,7 +35,7 @@ import { AlertasEquipamentoCard } from '../../components/alertas-equipamento-car
     TecnicoCard,
     EquipamentosCard,
     ProximosHorariosCard,
-    AlertasEquipamentoCard,
+    AlertasEquipamentos,
   ],
   templateUrl: './detalhes-sala.html',
   styleUrl: './detalhes-sala.scss',
