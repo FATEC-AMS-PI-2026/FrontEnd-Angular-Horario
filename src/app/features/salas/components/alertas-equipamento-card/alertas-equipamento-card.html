@@ -1,0 +1,30 @@
+@if (problemas().length > 0) {
+  <section class="alertas-equipamento" aria-live="polite">
+    @for (
+      problema of problemas();
+      track problema.equipamento + problema.dataReporte + problema.descricao;
+      let i = $index
+    ) {
+      <button
+        type="button"
+        class="alerta"
+        [class]="'alerta--' + problema.severidade"
+        [attr.aria-expanded]="expandido(i)"
+        (click)="alternar(i)"
+      >
+        <span class="alerta__cabecalho">
+          <span class="alerta__severidade">{{ rotuloSeveridade(problema) }}</span>
+          <span class="alerta__equipamento">{{ problema.equipamento }}</span>
+          <span class="alerta__icone" aria-hidden="true">{{ expandido(i) ? '−' : '+' }}</span>
+        </span>
+
+        @if (expandido(i)) {
+          <span class="alerta__detalhe">
+            <span class="alerta__descricao">{{ problema.descricao }}</span>
+            <span class="alerta__data">Reportado em {{ problema.dataReporte }}</span>
+          </span>
+        }
+      </button>
+    }
+  </section>
+}
