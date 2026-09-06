@@ -1,0 +1,45 @@
+@if (aberto()) {
+<div class="alertas-modal__fundo" (click)="fechar.emit()">
+  <div
+    class="alertas-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Alertas da sala"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="alertas-modal__cabecalho">
+      <h2>Alertas da sala</h2>
+      <button
+        type="button"
+        class="alertas-modal__fechar"
+        aria-label="Fechar alertas"
+        (click)="fechar.emit()"
+      >
+        ✕
+      </button>
+    </header>
+
+    <ul class="alertas-modal__lista">
+      @for (alerta of alertas(); track alerta.id) {
+      <li class="alerta-item" [class.alerta-item--resolvido]="alerta.resolvido">
+        <div class="alerta-item__info">
+          <span class="alerta-item__tipo">{{ alerta.tipo }}</span>
+          <span class="alerta-item__mensagem">{{ alerta.mensagem }}</span>
+          <span class="alerta-item__data">Aberto em {{ alerta.abertoEm | date: 'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+
+        @if (alerta.resolvido) {
+        <span class="alerta-item__status">Resolvido</span>
+        } @else if (podeGerenciarAlertas) {
+        <button type="button" class="alerta-item__botao" (click)="resolver.emit(alerta.id)">
+          Marcar como resolvido
+        </button>
+        }
+      </li>
+      } @empty {
+      <li class="alertas-modal__vazio">Nenhum alerta registrado para esta sala.</li>
+      }
+    </ul>
+  </div>
+</div>
+}
