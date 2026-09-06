@@ -1,21 +1,15 @@
 <div class="auth-container">
-
-    <!-- LADO DA IMAGEM -->
     <div class="auth-image-side">
         <img src="/auth/fatec.png" alt="Fachada da Fatec" class="bg-img" />
         <img src="/auth/cps-logo.png" alt="Centro Paula Souza" class="cps-logo" />
     </div>
 
-    <!-- LADO DO FORMULÁRIO -->
     <div class="auth-form-side">
         <div class="form-wrapper">
-
             <h1 class="title">Criar a Conta</h1>
             <p class="subtitle">Insira seus dados para se cadastrar</p>
 
             <form [formGroup]="cadastroForm" (ngSubmit)="cadastrar()">
-
-                <!-- NOME -->
                 <div class="field">
                     <label for="nome">Nome Completo</label>
                     <input id="nome" type="text" formControlName="nome" placeholder="Ex: Fulano Da Silva"
@@ -25,7 +19,6 @@
                     }
                 </div>
 
-                <!-- EMAIL -->
                 <div class="field">
                     <label for="email">Email Institucional</label>
                     <input id="email" type="email" formControlName="email" placeholder="seuemail@aluno.cps.sp.gov.br"
@@ -35,7 +28,6 @@
                     }
                 </div>
 
-                <!-- SENHA -->
                 <div class="field">
                     <label for="senha">Senha</label>
                     <input id="senha" type="password" formControlName="senha" placeholder="••••••••"
@@ -45,7 +37,6 @@
                     }
                 </div>
 
-                <!-- CONFIRMAR SENHA -->
                 <div class="field">
                     <label for="confirmarSenha">Confirmar Senha</label>
                     <input id="confirmarSenha" type="password" formControlName="confirmarSenha" placeholder="••••••••"
@@ -55,14 +46,13 @@
                     }
                 </div>
 
-                <!-- BOTÃO -->
-                <button type="submit" class="btn-submit">
-                    Entrar
-                </button>
-
+                <div class="button-group">
+                    <button type="submit" class="btn-submit">
+                        Cadastrar
+                    </button>
+                    <a class="btn-outline" routerLink="/login">Voltar para o Login</a>
+                </div>
             </form>
-
         </div>
     </div>
-
 </div>
