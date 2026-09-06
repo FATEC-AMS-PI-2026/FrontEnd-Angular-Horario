@@ -12,18 +12,18 @@
             <form [formGroup]="form" (ngSubmit)="onLogin()" novalidate>
 
                 <div class="field">
-                    <label for="identificador">E-mail ou Matrícula</label>
-                    <input id="identificador" type="text" placeholder="@aluno.cps.sp.gov.br"
+                    <label for="identificador">E-mail Institucional ou Matrícula</label>
+                    <input id="identificador" type="text" placeholder="seuemail@aluno.cps.sp.gov.br"
                         formControlName="identificador" autocomplete="username"
                         [class.input-error]="submitted && identificador?.invalid" />
                     @if (submitted && identificador?.invalid) {
-                    <small class="error-msg">Informe seu e-mail ou matrícula.</small>
+                    <small class="error-msg">Informe seu e-mail institucional ou matrícula.</small>
                     }
                 </div>
 
                 <div class="field">
                     <label for="senha">Senha</label>
-                    <input id="senha" type="password" placeholder="•••••••" formControlName="senha"
+                    <input id="senha" type="password" placeholder="••••••••" formControlName="senha"
                         autocomplete="current-password" [class.input-error]="submitted && senha?.invalid" />
                     @if (submitted && senha?.invalid) {
                     <small class="error-msg">Informe sua senha.</small>

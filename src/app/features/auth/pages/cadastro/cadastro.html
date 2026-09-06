@@ -12,7 +12,7 @@
             <form [formGroup]="cadastroForm" (ngSubmit)="cadastrar()">
                 <div class="field">
                     <label for="nome">Nome Completo</label>
-                    <input id="nome" type="text" formControlName="nome" placeholder="Ex: Fulano Da Silva"
+                    <input id="nome" type="text" formControlName="nome" placeholder="Fulano da Silva"
                         [class.input-error]="cadastroForm.get('nome')?.touched && cadastroForm.get('nome')?.invalid">
                     @if (cadastroForm.get('nome')?.touched && cadastroForm.get('nome')?.invalid) {
                     <small class="error-msg">Informe seu nome completo.</small>
@@ -20,11 +20,11 @@
                 </div>
 
                 <div class="field">
-                    <label for="email">Email Institucional</label>
+                    <label for="email">E-mail Institucional</label>
                     <input id="email" type="email" formControlName="email" placeholder="seuemail@aluno.cps.sp.gov.br"
                         [class.input-error]="cadastroForm.get('email')?.touched && cadastroForm.get('email')?.invalid">
                     @if (cadastroForm.get('email')?.touched && cadastroForm.get('email')?.invalid) {
-                    <small class="error-msg">Informe um email válido.</small>
+                    <small class="error-msg">Informe um e-mail válido.</small>
                     }
                 </div>
 
