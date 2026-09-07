@@ -1,4 +1,4 @@
-.grade-container {
+.pagina-grade {
     padding: 2rem;
     background-color: #f3f4f6;
     min-height: calc(100vh - 80px);
@@ -9,7 +9,7 @@
     flex-direction: column;
     gap: 1.5rem;
 
-    .schedule-card {
+    .cartao-horarios {
         background-color: #ffffff;
         border-radius: 16px;
         padding: 1.5rem;
@@ -17,7 +17,7 @@
         border: none;
         width: 100%;
 
-        .card-title {
+        .titulo {
             font-size: 1.5rem;
             font-weight: 700;
             color: #111827;
@@ -25,19 +25,17 @@
         }
     }
 
-    .table-grid {
+    .tabela {
         border: 1px solid #d1d5db;
         border-radius: 0.75rem;
         overflow: hidden;
         background-color: #fff;
-        /* Ajustado para branco puro */
 
-        .grid-header {
+        .cabecalho {
             display: grid;
             grid-template-columns: repeat(6, minmax(0, 1fr));
             border-bottom: 1px solid #d1d5db;
             background-color: #f3f4f6;
-            /* Cor sutil para o cabeçalho */
             text-align: center;
             padding: 1rem 0;
             color: #374151;
@@ -45,7 +43,7 @@
             font-size: 1.125rem;
         }
 
-        .grid-row {
+        .linha {
             display: grid;
             grid-template-columns: repeat(6, minmax(0, 1fr));
             border-bottom: 1px solid #e5e7eb;
@@ -55,13 +53,17 @@
             &:last-child {
                 border-bottom: none;
             }
+
+            &.linha-intervalo {
+                background-color: #f3f4f6;
+            }
         }
 
-        .time-column {
+        .coluna-horario {
             text-align: center;
             font-weight: 500;
             color: #6b7280;
-            font-size: 0.875rem;
+            font-size: 1rem;
             padding: 0.5rem 0;
             background-color: rgba(243, 244, 246, 0.5);
             height: 100%;
@@ -70,7 +72,7 @@
             justify-content: center;
         }
 
-        .cell-wrapper {
+        .celula {
             padding: 0.5rem;
             height: 100%;
             display: flex;
@@ -83,7 +85,7 @@
             }
         }
 
-        .subject-tag {
+        .etiqueta-materia {
             width: 100%;
             height: 100%;
             min-height: 50px;
@@ -92,7 +94,7 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            font-size: 0.75rem;
+            font-size: 0.875rem;
             font-weight: 600;
             padding: 0 0.5rem;
             box-sizing: border-box;
@@ -136,10 +138,6 @@
             &:not(.cor-vazio):hover {
                 transform: scale(1.03);
                 box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            }
-
-            .row-intervalo {
-                background-color: #f3f4f6 !important;
             }
         }
     }
