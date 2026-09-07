@@ -1,0 +1,84 @@
+<section class="professores" aria-labelledby="titulo-professores">
+
+    <h1 id="titulo-professores" class="professores__titulo">Professores</h1>
+
+    <div class="professores__filtros">
+        <input type="search" class="professores__campo-busca" placeholder="Buscar professor..."
+            aria-label="Buscar professor" autocomplete="off" [value]="termoBusca()" (input)="onBuscar($event)" />
+        <select class="professores__filtro-cargo" aria-label="Filtrar por cargo" (change)="onFiltrarCargo($event)">
+            <option value="">Todos os cargos</option>
+            @for (cargo of cargos(); track cargo) {
+            <option [value]="cargo" [selected]="cargoSelecionado() === cargo">{{ cargo }}</option>
+            }
+        </select>
+    </div>
+
+    <div class="professores__cursos" role="tablist" aria-label="Filtrar por curso">
+        <button type="button" class="curso-chip" [class.curso-chip--ativo]="cursoSelecionado() === null" role="tab"
+            [attr.aria-selected]="cursoSelecionado() === null" (click)="selecionarCurso(null)">
+            Todos
+        </button>
+        @for (curso of cursos(); track curso) {
+        <button type="button" class="curso-chip" [class.curso-chip--ativo]="cursoSelecionado() === curso" role="tab"
+            [attr.aria-selected]="cursoSelecionado() === curso" (click)="selecionarCurso(curso)">
+            {{ curso }}
+        </button>
+        }
+    </div>
+
+    <ul class="professores__cards">
+        @for (professor of professoresFiltrados(); track professor.id) {
+        <li>
+            <button type="button" class="professor-card"
+                [class.professor-card--selecionado]="estaSelecionado(professor)"
+                [attr.aria-pressed]="estaSelecionado(professor)" (click)="selecionarProfessor(professor)">
+                @if (professor.cargo === 'Coordenador do Curso') {
+                <span class="professor-card__tag">Coordenador</span>
+                }
+                <span class="professor-card__avatar">{{ iniciais(professor.nome) }}</span>
+                <strong class="professor-card__nome">
+                    {{ professor.cargo === 'Coordenador do Curso' ? professor.nome : 'Prof. ' + professor.nome }}
+                </strong>
+                @if (professor.cargo === 'Coordenador do Curso') {
+                <span class="professor-card__cargo">{{ professor.cargo }}</span>
+                }
+            </button>
+        </li>
+        } @empty {
+        <li class="professores__vazio">{{ mensagemVazia() }}</li>
+        }
+    </ul>
+
+    @if (professorSelecionado(); as professor) {
+    <section class="aulas-professor" aria-labelledby="titulo-aulas-professor">
+        <h2 id="titulo-aulas-professor" class="aulas-professor__titulo">Aulas ({{ professor.nome }})</h2>
+
+        @for (dia of diasAgrupados(); track dia.diaSemana) {
+        <div class="dia-aulas">
+            <h3 class="dia-aulas__titulo">{{ dia.diaSemana }}</h3>
+            <ul class="dia-aulas__lista">
+                @for (item of dia.itens; track $index) {
+                @if (ehAula(item)) {
+                <li class="aula-card" [class]="'aula-card--' + (item.aula.cor ?? 'verde')">
+                    <span class="aula-card__horario">
+                        <span>{{ item.aula.inicio }}</span>
+                        <span>{{ item.aula.termino }}</span>
+                    </span>
+                    <span class="aula-card__info">
+                        <strong>{{ item.aula.disciplina }}</strong>
+                        <span>{{ item.aula.local }}</span>
+                    </span>
+                </li>
+                } @else {
+                <li class="intervalo-bar">Intervalo</li>
+                }
+                }
+            </ul>
+        </div>
+        } @empty {
+        <p class="aulas-professor__vazio">Nenhuma aula cadastrada para este professor.</p>
+        }
+    </section>
+    }
+
+</section>
