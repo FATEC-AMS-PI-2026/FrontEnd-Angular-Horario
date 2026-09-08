@@ -1,62 +1,82 @@
 .professores {
     padding: var(--space-lg);
     background-color: var(--color-bg);
-    min-height: var(--page-min-height, 0px);
+    min-height: calc(100vh - var(--layout-topbar-height, 80px));
     width: 100%;
     box-sizing: border-box;
     font-family: var(--font-sans);
     display: flex;
     flex-direction: column;
-    gap: var(--space-sm);
+    gap: var(--space-md);
 }
 
-.professores__titulo {
-    margin: 0;
-    font-size: var(--text-xl);
-    font-weight: var(--fw-bold);
-    color: var(--color-text);
-}
-
+/* FILTROS (CAMPO DE BUSCA E SELECT) */
 .professores__filtros {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-xs);
+    gap: var(--space-sm);
     align-items: center;
 }
 
-.professores__campo-busca,
-.professores__filtro-cargo {
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--color-border-strong);
-    border-radius: var(--radius-sm);
-    font-size: var(--text-sm);
-    font-family: inherit;
-    color: var(--color-text);
-    background: var(--color-surface);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+.professores__busca-wrapper {
+    position: relative;
+    flex: 1 1 320px;
+    display: flex;
+    align-items: center;
 
-    &:focus,
-    &:focus-visible {
-        outline: none;
-        border-color: var(--color-primary);
-        box-shadow: 0 0 0 3px var(--color-focus-ring);
+    .professores__busca-icone {
+        position: absolute;
+        left: var(--space-sm);
+        color: var(--color-placeholder);
+        pointer-events: none;
     }
 }
 
 .professores__campo-busca {
-    flex: 1 1 250px;
+    width: 100%;
+    padding: 0.6rem var(--space-md) 0.6rem 2.5rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    font-family: inherit;
+    color: var(--color-text);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
     &::placeholder {
         color: var(--color-placeholder);
+    }
+
+    &:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px var(--color-focus-ring);
     }
 }
 
 .professores__filtro-cargo {
     flex: 0 0 180px;
     margin-left: auto;
+    padding: 0.6rem var(--space-md);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    font-family: inherit;
+    color: var(--color-text);
+    background: var(--color-surface);
     cursor: pointer;
+    box-shadow: var(--shadow-card);
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px var(--color-focus-ring);
+    }
 }
 
+/* CHIPS DE CURSO */
 .professores__cursos {
     display: flex;
     flex-wrap: wrap;
@@ -64,7 +84,7 @@
 }
 
 .curso-chip {
-    padding: 0.4rem 1rem;
+    padding: 0.35rem 1rem;
     border: 1px solid var(--color-border-strong);
     border-radius: var(--radius-pill);
     background: var(--color-surface);
@@ -90,21 +110,20 @@
     }
 }
 
-// Container da lista horizontal
+/* LISTA HORIZONTAL DE CARDS DE PROFESSOR */
 .professores__cards {
     display: flex;
-    flex-wrap: nowrap; // Mantém todos os cards na mesma linha
+    flex-wrap: nowrap;
     gap: var(--space-md);
     list-style: none;
     margin: 0;
-    padding: 0.35rem 0.25rem 0.85rem; // Espaço para não cortar as sombras nem a borda verde
-    overflow-x: auto; // Habilita a rolagem horizontal
+    padding: 0.35rem 0.25rem 0.85rem;
+    overflow-x: auto;
     overflow-y: hidden;
     scroll-behavior: smooth;
     scroll-snap-type: x proximity;
     -webkit-overflow-scrolling: touch;
 
-    // Barra de rolagem discreta e arredondada
     &::-webkit-scrollbar {
         height: 6px;
     }
@@ -123,19 +142,17 @@
         }
     }
 
-    // Largura proporcional exata da sua imagem de referência
     >li {
-        flex: 0 0 340px;
+        flex: 0 0 340px; // Proporção idêntica ao Figma
         display: flex;
         scroll-snap-align: start;
     }
 }
 
-// Design exato dos cards da imagem
 .professor-card {
     position: relative;
     width: 100%;
-    min-height: 145px; // Altura estável para todos os cards ficarem alinhados
+    min-height: 145px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -157,26 +174,24 @@
         box-shadow: var(--shadow-card-hover);
     }
 
-    // Card selecionado (Borda verde esmeralda destacada)
     &--selecionado {
         border-color: var(--color-primary);
         border-width: 2px;
-        padding: calc(var(--space-md) - 1px) calc(var(--space-md) - 1px) calc(1.25rem - 1px); // Evita o pulo de layout
+        padding: calc(var(--space-md) - 1px) calc(var(--space-md) - 1px) calc(1.25rem - 1px);
     }
 
-    // Tag "COORDENADOR" no canto superior direito
+    // Tag COORDENADOR verde (como no Figma) compatível com light e dark mode
     &__tag {
         position: absolute;
         top: 0.85rem;
         right: 1rem;
-        font-size: 0.65rem;
+        font-size: var(--text-xs);
         font-weight: var(--fw-bold);
         letter-spacing: 0.06em;
         text-transform: uppercase;
-        color: var(--color-text-subtle);
+        color: var(--color-primary);
     }
 
-    // Círculo com as iniciais
     &__avatar {
         width: 50px;
         height: 50px;
@@ -186,19 +201,17 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: var(--text-sm);
+        font-size: var(--text-md);
         font-weight: var(--fw-bold);
         margin-bottom: 0.15rem;
     }
 
-    // Nome do professor em negrito
     &__nome {
-        font-size: var(--text-sm);
+        font-size: var(--text-md);
         font-weight: var(--fw-bold);
         color: var(--color-text);
     }
 
-    // Subtítulo do cargo abaixo do nome
     &__cargo {
         font-size: var(--text-xs);
         color: var(--color-text-subtle);
@@ -214,15 +227,21 @@
     font-size: var(--text-md);
 }
 
+/* CARD DE AULAS (SUPERFÍCIE UNIFICADA DO FIGMA) */
 .aulas-professor {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    box-shadow: var(--shadow-card);
     display: flex;
     flex-direction: column;
-    gap: var(--space-sm);
+    gap: var(--space-md);
 }
 
 .aulas-professor__titulo {
     margin: 0;
-    font-size: 1.1rem; // uma etapa abaixo de --text-lg: título de seção, não de card
+    font-size: var(--text-lg);
     font-weight: var(--fw-bold);
     color: var(--color-text);
 }
@@ -230,7 +249,7 @@
 .aulas-professor__vazio {
     color: var(--color-text-subtle);
     margin: 0;
-    font-size: var(--text-md);
+    font-size: var(--text-sm);
 }
 
 .dia-aulas {
@@ -255,19 +274,21 @@
     padding: 0;
 }
 
+/* CARDS DE AULA COM BORDAS E CORES ADAPTÁVEIS AO DARK MODE */
 .aula-card {
     display: flex;
     align-items: center;
-    gap: var(--space-sm);
-    padding: 0.6rem var(--space-md);
+    gap: var(--space-md);
+    padding: 0.65rem var(--space-md);
     border-radius: var(--radius-md);
-    border: 1px solid transparent;
+    border: 1.5px solid var(--aula-border, transparent);
+    background-color: var(--aula-bg, var(--color-surface));
     color: var(--aula-fg, var(--color-text));
 
     &__horario {
         display: flex;
         flex-direction: column;
-        min-width: 50px;
+        min-width: 48px;
         font-weight: var(--fw-bold);
         font-size: var(--text-xs);
         color: inherit;
@@ -280,46 +301,50 @@
 
         strong {
             font-size: var(--text-sm);
+            font-weight: var(--fw-bold);
             color: inherit;
         }
 
         span {
             font-size: var(--text-xs);
-            color: inherit;
+            color: var(--color-text-subtle);
         }
     }
 
     &--verde {
+        --aula-bg: var(--tag-verde-bg);
+        --aula-border: var(--tag-verde-border);
         --aula-fg: var(--tag-verde-fg);
-        background: var(--tag-verde-bg);
-        border-color: var(--tag-verde-border);
     }
 
     &--vermelho {
+        --aula-bg: var(--tag-vermelho-bg);
+        --aula-border: var(--tag-vermelho-border);
         --aula-fg: var(--tag-vermelho-fg);
-        background: var(--tag-vermelho-bg);
-        border-color: var(--tag-vermelho-border);
     }
 
     &--azul {
+        --aula-bg: var(--tag-azul-bg);
+        --aula-border: var(--tag-azul-border);
         --aula-fg: var(--tag-azul-fg);
-        background: var(--tag-azul-bg);
-        border-color: var(--tag-azul-border);
     }
 
     &--roxo {
+        --aula-bg: var(--tag-roxo-bg);
+        --aula-border: var(--tag-roxo-border);
         --aula-fg: var(--tag-roxo-fg);
-        background: var(--tag-roxo-bg);
-        border-color: var(--tag-roxo-border);
     }
 }
 
+/* BARRA DE INTERVALO USANDO TOKENS AMARELOS NATIVOS */
 .intervalo-bar {
     text-align: center;
-    padding: 0.4rem;
+    padding: 0.35rem 0;
     border-radius: var(--radius-sm);
-    background: var(--tag-amarelo-bg);
+    background-color: var(--tag-amarelo-bg);
+    border: 1px solid var(--tag-amarelo-border);
     color: var(--tag-amarelo-fg);
     font-size: var(--text-xs);
     font-weight: var(--fw-semibold);
+    margin: 0.15rem 0;
 }

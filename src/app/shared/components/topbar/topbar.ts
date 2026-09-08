@@ -2,15 +2,26 @@ import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DOCUMENT } from '@angular/common';
+import { SettingsSearchService } from '../../../core/services/settings-search.service';
+import { FigmaIcon } from '../figma-icon/figma-icon';
 
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [],
+  imports: [FigmaIcon],
   templateUrl: './topbar.html',
   styleUrl: './topbar.scss',
 })
 export class Topbar implements OnInit {
+  protected readonly busca = inject(SettingsSearchService);
+  private readonly document = inject(DOCUMENT);
+
+  protected abrirNotificacoes(): void {
+    this.busca.termo.set('');
+    // Aguarda o card reaparecer caso a busca o tenha ocultado.
+    requestAnimationFrame(() => this.document.getElementById('notificacoes')?.focus());
+  }
   // Título padrão
   title: string = 'Início';
 

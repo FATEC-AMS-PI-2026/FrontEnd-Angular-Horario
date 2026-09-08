@@ -1,10 +1,17 @@
 <section class="professores" aria-labelledby="titulo-professores">
 
-    <h1 id="titulo-professores" class="professores__titulo">Professores</h1>
-
     <div class="professores__filtros">
-        <input type="search" class="professores__campo-busca" placeholder="Buscar professor..."
-            aria-label="Buscar professor" autocomplete="off" [value]="termoBusca()" (input)="onBuscar($event)" />
+        <div class="professores__busca-wrapper">
+            <svg class="professores__busca-icone" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="search" class="professores__campo-busca" placeholder="Buscar professor..."
+                aria-label="Buscar professor" autocomplete="off" [value]="termoBusca()" (input)="onBuscar($event)" />
+        </div>
+
         <select class="professores__filtro-cargo" aria-label="Filtrar por cargo" (change)="onFiltrarCargo($event)">
             <option value="">Todos os cargos</option>
             @for (cargo of cargos(); track cargo) {
@@ -50,6 +57,7 @@
     </ul>
 
     @if (professorSelecionado(); as professor) {
+    <!-- Seção de Aulas estilizada como card de superfície conforme o Figma -->
     <section class="aulas-professor" aria-labelledby="titulo-aulas-professor">
         <h2 id="titulo-aulas-professor" class="aulas-professor__titulo">Aulas ({{ professor.nome }})</h2>
 

@@ -48,6 +48,11 @@ export const routes: Routes = [
         // autenticação estiver pronta (src/app/core/guards)
         children: [
             { path: 'dashboard', component: Dashboard },
+            {
+                path: 'configuracoes',
+                loadComponent: () =>
+                    import('./features/configuracoes/configuracoes').then((m) => m.Configuracoes),
+            },
             { path: 'grade-semanal', component: GradeSemanal },
             {
                 path: 'salas',

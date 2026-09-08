@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { SessionService } from '../../../core/services/session.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -9,6 +10,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   styleUrl: './sidebar.scss',
 })
 export class Sidebar {
+  protected readonly session = inject(SessionService);
   protected readonly links = [
     { label: 'Início', path: '/dashboard', icon: 'home' },
     { label: 'Horários', path: '/horarios', icon: 'clock' },
@@ -19,7 +21,6 @@ export class Sidebar {
   ];
 
   logout() {
-    // Lógica futura de logout
-    console.log('Saindo do sistema...');
+    this.session.logout();
   }
 }

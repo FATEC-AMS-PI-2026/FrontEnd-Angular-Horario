@@ -1,41 +1,39 @@
 <section class="lista-salas" aria-labelledby="titulo-lista-salas">
 
   <div class="lista-salas__filtros">
-    <input
-      type="search"
-      class="lista-salas__campo-busca"
-      placeholder="Buscar sala pelo nome..."
-      aria-label="Buscar sala pelo nome"
-      autocomplete="off"
-      [value]="termoBusca()"
-      (input)="onBuscar($event)"
-    />
-    <select
-      class="lista-salas__filtro-predio"
-      aria-label="Filtrar por prédio"
-      (change)="onFiltrarPredio($event)"
-    >
+    <div class="lista-salas__busca-wrapper">
+      <svg class="lista-salas__busca-icone" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+        stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input type="search" class="lista-salas__campo-busca" placeholder="Buscar sala pelo nome..."
+        aria-label="Buscar sala pelo nome" autocomplete="off" [value]="termoBusca()" (input)="onBuscar($event)" />
+    </div>
+
+    <select class="lista-salas__filtro-predio" aria-label="Filtrar por prédio" (change)="onFiltrarPredio($event)">
       <option value="">Todos os prédios</option>
       @for (predio of predios(); track predio) {
-        <option [value]="predio" [selected]="predioSelecionado() === predio">{{ predio }}</option>
+      <option [value]="predio" [selected]="predioSelecionado() === predio">{{ predio }}</option>
       }
     </select>
   </div>
 
   <ul class="grade-salas">
     @for (sala of salasFiltradas(); track sala.id) {
-      <li>
-        <a class="card-sala" [routerLink]="['/salas', sala.id]">
-          <div class="card-sala__cabecalho">
-            <h2>{{ sala.nome }}</h2>
-            <app-status-sala-badge [status]="sala.status" />
-          </div>
-          <p class="card-sala__local">{{ sala.predio }} · {{ sala.andar }}º andar</p>
-          <p class="card-sala__info">{{ sala.tipo }} · {{ sala.capacidade }} lugares</p>
-        </a>
-      </li>
+    <li>
+      <a class="card-sala" [routerLink]="['/salas', sala.id]">
+        <div class="card-sala__cabecalho">
+          <h2>{{ sala.nome }}</h2>
+          <app-status-sala-badge [status]="sala.status" />
+        </div>
+        <p class="card-sala__local">{{ sala.predio }} · {{ sala.andar }}º andar</p>
+        <p class="card-sala__info">{{ sala.tipo }} · {{ sala.capacidade }} lugares</p>
+      </a>
+    </li>
     } @empty {
-      <li class="lista-salas__vazio">{{ mensagemVazia() }}</li>
+    <li class="lista-salas__vazio">{{ mensagemVazia() }}</li>
     }
   </ul>
 </section>
