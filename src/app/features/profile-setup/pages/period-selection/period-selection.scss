@@ -7,58 +7,58 @@
 
 .period-grid {
     display: flex;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-xl);
     flex-wrap: wrap;
 
     .period-card {
         width: 120px;
         height: 100px;
-        background-color: #ffffff;
-        border: 1px solid #d1d5db;
-        border-radius: 12px;
-        font-size: 2rem;
-        font-weight: 700;
-        color: #111827;
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-border-strong);
+        border-radius: var(--radius-lg);
+        font-size: 2rem; // número de destaque — fora da escala de texto, como o KPI do dashboard
+        font-weight: var(--fw-bold);
+        color: var(--color-text);
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: all 0.2s ease;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        box-shadow: var(--shadow-card);
 
         &:hover {
-            border-color: #0f6b3f;
-            background-color: #f0fdf4;
+            border-color: var(--color-primary);
+            background-color: var(--color-primary-pale);
         }
 
         &.active {
-            background-color: #0f6b3f;
-            border-color: #0f6b3f;
-            color: #ffffff;
-            box-shadow: 0 4px 6px rgba(15, 107, 63, 0.2);
+            background-color: var(--color-primary);
+            border-color: var(--color-primary);
+            color: var(--color-surface);
+            box-shadow: 0 4px 6px rgba(15, 110, 86, 0.2);
         }
     }
 }
 
 .course-info-card {
-    background-color: #ffffff;
-    border-radius: 12px;
+    background-color: var(--color-surface);
+    border-radius: var(--radius-lg);
     padding: 1.5rem 2rem;
-    border: 1px solid #f3f4f6;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    margin-bottom: 2rem;
+    border: 1px solid var(--color-bg);
+    box-shadow: var(--shadow-card);
+    margin-bottom: var(--space-xl);
 
     .info-header {
-        font-size: 0.95rem;
-        color: #4b5563;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid #e5e7eb;
+        font-size: var(--text-md);
+        color: var(--color-text-muted);
+        margin-bottom: var(--space-lg);
+        padding-bottom: var(--space-sm);
+        border-bottom: 1px solid var(--color-border);
 
         strong {
-            color: #111827;
-            font-weight: 700;
+            color: var(--color-text);
+            font-weight: var(--fw-bold);
         }
     }
 
@@ -68,17 +68,17 @@
         margin: 0;
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: var(--space-sm);
 
         li {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            font-size: 0.95rem;
-            color: #4b5563;
+            gap: var(--space-xs);
+            font-size: var(--text-md);
+            color: var(--color-text-muted);
 
             svg {
-                color: #0f6b3f;
+                color: var(--color-primary);
                 flex-shrink: 0;
             }
         }
@@ -90,39 +90,39 @@
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    gap: 1rem;
-    padding-top: 1rem;
+    gap: var(--space-sm);
+    padding-top: var(--space-sm);
 
     .btn-back {
-        background-color: #f3f4f6;
-        color: #374151;
-        border: 1px solid #d1d5db;
+        background-color: var(--color-bg);
+        color: var(--color-text-muted);
+        border: 1px solid var(--color-border-strong);
         padding: 0.75rem 1.5rem;
-        border-radius: 8px;
+        border-radius: var(--radius-md);
         font-size: 1rem;
-        font-weight: 600;
+        font-weight: var(--fw-semibold);
         cursor: pointer;
         transition: all 0.2s;
 
         &:hover {
-            background-color: #e5e7eb;
-            border-color: #9ca3af;
+            background-color: var(--color-border);
+            border-color: var(--color-placeholder);
         }
     }
 
     .btn-primary {
-        background-color: #0f6b3f;
-        color: #ffffff;
+        background-color: var(--color-primary);
+        color: var(--color-surface);
         border: none;
         padding: 0.75rem 2rem;
-        border-radius: 8px;
+        border-radius: var(--radius-md);
         font-size: 1rem;
-        font-weight: 600;
+        font-weight: var(--fw-semibold);
         cursor: pointer;
         transition: background-color 0.2s;
 
         &:hover:not(:disabled) {
-            background-color: #0b502f;
+            background-color: var(--color-primary-hover);
         }
 
         &:disabled {

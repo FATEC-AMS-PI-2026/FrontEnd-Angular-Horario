@@ -1,113 +1,119 @@
-.cabecalho-sala__voltar {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  color: #0f6b3f;
-  text-decoration: none;
-  font-size: 0.95rem;
-  font-weight: 600;
-
-  &:hover,
-  &:focus-visible {
-    text-decoration: underline;
-  }
+:host {
+    display: block;
+    width: 100%;
+    max-width: 720px;
 }
 
-.cabecalho-sala__breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin-bottom: 0.75rem;
-  font-size: 0.85rem;
-  color: #6b7280;
-
-  a {
-    color: #6b7280;
+.cabecalho-sala__voltar {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    margin-bottom: var(--space-sm);
+    color: var(--color-primary);
     text-decoration: none;
+    font-size: var(--text-md);
+    font-weight: var(--fw-semibold);
 
     &:hover,
     &:focus-visible {
-      text-decoration: underline;
+        text-decoration: underline;
     }
-  }
+}
 
-  span:last-child {
-    color: #111827;
-    font-weight: 600;
-  }
+.cabecalho-sala__breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: var(--space-xs);
+    font-size: var(--text-sm);
+    color: var(--color-text-subtle);
+
+    a {
+        color: var(--color-text-subtle);
+        text-decoration: none;
+
+        &:hover,
+        &:focus-visible {
+            text-decoration: underline;
+        }
+    }
+
+    span:last-child {
+        color: var(--color-text);
+        font-weight: var(--fw-semibold);
+    }
 }
 
 .cabecalho-sala__topo {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
 
-  h1 {
-    margin: 0;
-    font-size: 1.8rem;
-    color: #111827;
-    font-weight: 700;
-  }
+    h1 {
+        margin: 0;
+        font-size: var(--text-xl);
+        color: var(--color-text);
+        font-weight: var(--fw-bold);
+    }
 }
 
 .cabecalho-sala__ver-alertas {
-  flex-shrink: 0;
-  border: 1px solid var(--color-danger);
-  background: #fff;
-  color: var(--color-danger);
-  border-radius: 6px;
-  padding: 0.45rem 0.9rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
+    flex-shrink: 0;
+    border: 1px solid var(--color-danger);
+    background: var(--color-surface);
+    color: var(--color-danger);
+    border-radius: var(--radius-sm);
+    padding: 0.45rem 0.9rem;
+    font-size: var(--text-sm);
+    font-weight: var(--fw-semibold);
+    cursor: pointer;
 
-  &:hover,
-  &:focus-visible {
-    background: var(--color-danger);
-    color: #fff;
-  }
+    &:hover,
+    &:focus-visible {
+        background: var(--color-danger);
+        color: var(--color-surface);
+    }
 }
 
 .cabecalho-sala__badges {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin: 0.75rem 0;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    margin: var(--space-xs) 0;
 }
 
 .cabecalho-sala__badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.75rem;
-  border-radius: 999px;
-  background: #eef2f1;
-  color: #374151;
-  font-size: 0.8rem;
-  font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem var(--space-xs);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    font-weight: var(--fw-semibold);
 }
 
 .cabecalho-sala__resumo {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 1.5rem;
-  margin: 1rem 0 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #e5e7eb;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: var(--space-lg);
+    margin: var(--space-sm) 0 var(--space-lg);
+    padding-bottom: var(--space-sm);
+    border-bottom: 1px solid var(--color-border);
 
-  dt {
-    font-size: 0.85rem;
-    color: #6b7280;
-    margin-bottom: 0.25rem;
-  }
+    dt {
+        font-size: var(--text-sm);
+        color: var(--color-text-subtle);
+        margin-bottom: 0.25rem;
+    }
 
-  dd {
-    margin: 0;
-    font-size: 1.05rem;
-    color: #111827;
-    font-weight: 600;
-  }
+    dd {
+        margin: 0;
+        font-size: 1.05rem;
+        color: var(--color-text);
+        font-weight: var(--fw-semibold);
+    }
 }

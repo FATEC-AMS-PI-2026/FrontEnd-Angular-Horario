@@ -1,15 +1,82 @@
 .topbar {
-  height: 80px;
-  display: flex;
-  align-items: center;
-  padding: 0 32px;
-  background: #fff;
-  border-bottom: 1px solid #e5e7eb;
+    height: var(--layout-topbar-height);
+    display: flex;
+    align-items: center;
+    padding: 0 32px;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
 
-  &__title {
-    font-weight: 700;
-    font-size: 1.8rem;
-    color: #111827;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  }
+    &__title {
+        margin: 0;
+        font-weight: var(--fw-bold);
+        font-size: var(--text-xl);
+        color: var(--color-text);
+        font-family: var(--font-sans);
+    }
+}
+
+.topbar__acoes {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    margin-left: auto;
+    min-width: 0;
+}
+
+.topbar__busca {
+    width: min(18rem, 100%);
+    min-width: 0;
+    padding: var(--space-2xs) var(--space-sm);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font: inherit;
+    font-size: var(--text-sm);
+
+    &::placeholder {
+        color: var(--color-text-subtle);
+    }
+}
+
+.topbar__notificacoes {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-text);
+    cursor: pointer;
+
+    &:hover {
+        background: var(--color-bg);
+    }
+}
+
+:is(input, button):focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+}
+
+@media (max-width: 850px) {
+    .topbar {
+        height: auto;
+        min-height: var(--layout-topbar-height);
+        flex-wrap: wrap;
+        gap: var(--space-xs);
+        padding: var(--space-sm);
+    }
+
+    .topbar__acoes {
+        flex: 1 1 100%;
+        gap: var(--space-2xs);
+    }
+
+    .topbar__busca {
+        flex: 1;
+        width: auto;
+    }
 }

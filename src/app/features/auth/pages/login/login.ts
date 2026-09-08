@@ -1,16 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 
-/**
- * Tela de login. Cobre os critérios de aceite da issue "WEB: Formulário de
- * Login" (#93):
- * - Validação de campos obrigatórios (E-mail/Matrícula e Senha);
- * - Envio das credenciais via API, com redirecionamento em caso de sucesso;
- * - Link "Esqueci minha senha" navegando direto para a tela de recuperação
- *   (rota `/esqueci-senha`, já implementada pela issue #98).
- */
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -19,16 +11,17 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './login.scss',
 })
 export class Login {
+  // Injeção de dependências moderna (padrão Angular 17+)
+  private fb = inject(FormBuilder);
+  private router = inject(Router);
+  private authService = inject(AuthService);
+
   form: FormGroup;
   submitted = false;
   loading = false;
   errorMessage = '';
 
-  constructor(
-    private fb: FormBuilder,
-    private router: Router,
-    private authService: AuthService,
-  ) {
+  constructor() {
     this.form = this.fb.group({
       identificador: ['', [Validators.required]],
       senha: ['', [Validators.required]],
