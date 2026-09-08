@@ -1,0 +1,24 @@
+.app-shell {
+    display: flex;
+    min-height: 100vh;
+
+    &__main {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__content {
+        --page-min-height: calc(100dvh - var(--layout-topbar-height) - 2 * var(--layout-content-padding));
+        flex: 1;
+        padding: var(--layout-content-padding);
+        background: var(--color-bg);
+    }
+}
+
+@media (max-width: 600px) {
+    .app-shell {
+        --layout-content-padding: var(--space-sm);
+    }
+}

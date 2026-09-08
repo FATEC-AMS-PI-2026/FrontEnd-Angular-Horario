@@ -1,0 +1,105 @@
+<section class="configuracoes" aria-label="Configurações da conta e do sistema">
+  @if (geraisVisiveis()) {
+    <section class="card configuracoes__gerais" aria-labelledby="titulo-gerais">
+      <h2 id="titulo-gerais" class="configuracoes__titulo">Configurações gerais</h2>
+      <div class="configuracoes__opcoes">
+        <a class="configuracoes__opcao" routerLink="/esqueci-senha">
+          <app-figma-icon name="lock" />
+          <span>Alterar senha</span>
+          <app-figma-icon class="configuracoes__indicador" name="chevron" />
+        </a>
+        <a class="configuracoes__opcao" [href]="links.suporte" target="_blank" rel="noopener noreferrer">
+          <app-figma-icon name="alert" />
+          <span>Relatar problema<span class="configuracoes__sr-only"> (abre em nova aba)</span></span>
+          <app-figma-icon class="configuracoes__indicador" name="chevron" />
+        </a>
+        <label class="configuracoes__opcao" for="notificacoes">
+          <app-figma-icon name="bell" />
+          <span>Notificações</span>
+          <input #notificacoes id="notificacoes" class="configuracoes__switch" type="checkbox" role="switch"
+            [checked]="preferences.notificacoes()"
+            (change)="preferences.definirNotificacoes(notificacoes.checked)" />
+        </label>
+        <label class="configuracoes__opcao" for="modo-escuro">
+          <app-figma-icon name="moon" />
+          <span>Modo Escuro</span>
+          <input #modoEscuro id="modo-escuro" class="configuracoes__switch" type="checkbox" role="switch"
+            [checked]="preferences.modoEscuro()"
+            (change)="preferences.definirModoEscuro(modoEscuro.checked)" />
+        </label>
+        <button class="configuracoes__opcao configuracoes__opcao--sair" type="button" (click)="session.logout()">
+          <app-figma-icon name="logout" />
+          <span>Sair da Conta</span>
+          <app-figma-icon class="configuracoes__indicador" name="chevron" />
+        </button>
+      </div>
+    </section>
+  }
+
+  @if (contaVisivel()) {
+    <section class="card configuracoes__conta" aria-labelledby="titulo-conta">
+      <h2 id="titulo-conta" class="configuracoes__titulo">Conta</h2>
+      <div class="conta">
+        <span class="conta__avatar" aria-hidden="true">{{ session.iniciais() }}</span>
+        <div class="conta__dados">
+          @if (session.usuario(); as usuario) {
+            <strong class="conta__nome">{{ usuario.nome }}</strong>
+            <a class="conta__email" [href]="'mailto:' + usuario.email">{{ usuario.email }}</a>
+            <span class="conta__curso">Aluno · {{ session.identificacao() }}</span>
+          } @else {
+            <strong class="conta__nome">Nenhuma conta conectada</strong>
+            <a class="conta__email" routerLink="/login">Entre para visualizar seu perfil</a>
+          }
+        </div>
+      </div>
+    </section>
+  }
+
+  @if (sobreVisivel()) {
+    <section class="card configuracoes__sobre" aria-labelledby="titulo-sobre">
+      <h2 id="titulo-sobre" class="configuracoes__titulo">Sobre o sistema</h2>
+      <a class="configuracoes__opcao" [href]="links.sobre" target="_blank" rel="noopener noreferrer">
+        <app-figma-icon name="info" />
+        <span>Sobre<span class="configuracoes__sr-only"> (abre em nova aba)</span></span>
+        <app-figma-icon class="configuracoes__indicador" name="external" />
+      </a>
+      @if (links.privacidade) {
+        <a class="configuracoes__opcao" [href]="links.privacidade" target="_blank" rel="noopener noreferrer">
+          <app-figma-icon name="shield" />
+          <span>Privacidade e Segurança<span class="configuracoes__sr-only"> (abre em nova aba)</span></span>
+          <app-figma-icon class="configuracoes__indicador" name="external" />
+        </a>
+      } @else {
+        <button class="configuracoes__opcao" type="button" (click)="mostrarDocumentoPendente('Privacidade e Segurança')">
+          <app-figma-icon name="shield" /><span>Privacidade e Segurança</span>
+          <app-figma-icon class="configuracoes__indicador" name="external" />
+        </button>
+      }
+      @if (links.termos) {
+        <a class="configuracoes__opcao" [href]="links.termos" target="_blank" rel="noopener noreferrer">
+          <app-figma-icon name="file" />
+          <span>Termos de uso<span class="configuracoes__sr-only"> (abre em nova aba)</span></span>
+          <app-figma-icon class="configuracoes__indicador" name="external" />
+        </a>
+      } @else {
+        <button class="configuracoes__opcao" type="button" (click)="mostrarDocumentoPendente('Termos de uso')">
+          <app-figma-icon name="file" /><span>Termos de uso</span>
+          <app-figma-icon class="configuracoes__indicador" name="external" />
+        </button>
+      }
+    </section>
+  }
+
+  @if (!geraisVisiveis() && !contaVisivel() && !sobreVisivel()) {
+    <p class="configuracoes__mensagem" role="status">Nenhuma configuração encontrada para “{{ busca.termo() }}”.</p>
+  }
+  @if (preferences.erroPersistencia()) {
+    <p class="configuracoes__mensagem" role="alert">{{ preferences.erroPersistencia() }}</p>
+  }
+</section>
+
+<dialog #dialogo class="card configuracoes__dialogo" aria-labelledby="titulo-documento" aria-describedby="aviso-documento">
+  <h2 id="titulo-documento" class="card__titulo">{{ documento() }}</h2>
+  <p id="aviso-documento">Este documento ainda não foi disponibilizado pela equipe do GINI.</p>
+  <form method="dialog"><button class="configuracoes__fechar" autofocus>Entendi</button></form>
+</dialog>

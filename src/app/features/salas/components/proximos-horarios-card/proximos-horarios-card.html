@@ -1,0 +1,17 @@
+<section class="proximos-horarios-card">
+  <h2 class="proximos-horarios-card__titulo">Próximos horários</h2>
+
+  <ul class="proximos-horarios-card__lista">
+    @for (horario of horarios(); track horario.inicio + horario.atividade) {
+      <li class="proximo-horario">
+        <span class="proximo-horario__horario">{{ horario.inicio }} – {{ horario.termino }}</span>
+        <span class="proximo-horario__atividade">{{ horario.atividade }}</span>
+        @if (horario.professor) {
+          <span class="proximo-horario__professor">{{ horario.professor }}</span>
+        }
+      </li>
+    } @empty {
+      <li class="proximos-horarios-card__vazio">Nenhum horário agendado para esta sala.</li>
+    }
+  </ul>
+</section>

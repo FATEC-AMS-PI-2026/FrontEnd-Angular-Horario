@@ -1,0 +1,53 @@
+<div class="pagina-grade">
+    <div class="card cartao-horarios">
+        <h2 class="titulo">Horários da semana</h2>
+
+        <div class="tabela-scroll" role="region" aria-label="Horários da semana; role horizontalmente para ver todos os dias" tabindex="0">
+          <div class="tabela">
+            <!-- Cabeçalho -->
+            <div class="cabecalho">
+                <div>Horário</div>
+                <div>Segunda</div>
+                <div>Terça Feira</div>
+                <div>Quarta</div>
+                <div>Quinta</div>
+                <div>Sexta</div>
+            </div>
+
+            <!-- Loop pelas 6 aulas reais -->
+            @for (linha of grade; track $index; let idxAula = $index) {
+
+            <!-- Cálculo dinâmico para pular o índice do horário quando houver intervalo -->
+            @let idxHorario = idxAula >= 4 ? idxAula + 2 : (idxAula >= 2 ? idxAula + 1 : idxAula);
+
+            <!-- Linha da Aula Normal -->
+            <div class="linha">
+                <div class="coluna-horario">
+                    <span>{{ formatarHorario(horarios[idxHorario])[0] }}</span>
+                    <span>{{ formatarHorario(horarios[idxHorario])[1] }}</span>
+                </div>
+
+                @for (celula of linha; track $index) {
+                <div class="celula">
+                    <div [ngClass]="obterClasseCor(celula.cor)" class="etiqueta-materia">
+                        {{ celula.materia }}
+                    </div>
+                </div>
+                }
+            </div>
+
+            <!-- Injeção Automática do Intervalo -->
+            @if (idxAula === 1 || idxAula === 3) {
+            <div class="linha linha-intervalo">
+                <div class="coluna-horario">
+                    <span>{{ formatarHorario(horarios[idxHorario + 1])[0] }}</span>
+                    <span>{{ formatarHorario(horarios[idxHorario + 1])[1] }}</span>
+                </div>
+            </div>
+            }
+
+            }
+        </div>
+        </div>
+    </div>
+</div>
