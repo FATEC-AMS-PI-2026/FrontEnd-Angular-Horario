@@ -33,7 +33,7 @@
           <h3>Horários de hoje</h3>
           <span class="subtitle">{{ currentDay }}</span>
         </div>
-        <a href="/grade-semanal" class="link-more">Ver todos &rarr;</a>
+        <a routerLink="/grade-semanal" class="link-more">Ver todos &rarr;</a>
       </div>
 
       <div class="schedule-list">
@@ -67,6 +67,7 @@
       <div class="card card--rooms">
         <div class="card__header">
           <h3>Status das salas</h3>
+          <a routerLink="/salas" class="link-more">Ver todos &rarr;</a>
         </div>
         <div class="room-status-list">
           @for (room of roomStatus; track room.room) {
@@ -85,7 +86,7 @@
       <div class="card card--today-rooms">
         <div class="card__header">
           <h3>Salas de hoje</h3>
-          <a href="#" class="link-more">Ver todos &rarr;</a>
+          <a routerLink="/salas" class="link-more">Ver todos &rarr;</a>
         </div>
         <div class="today-rooms-list">
           @for (room of todayRooms; track room.subject) {

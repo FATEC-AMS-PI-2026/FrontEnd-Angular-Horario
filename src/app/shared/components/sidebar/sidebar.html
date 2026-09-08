@@ -17,15 +17,15 @@
       </svg>
     </div>
     <div class="info">
-      <strong>Fulano da silva</strong>
-      <span>ADS - 3º período - manhã</span>
+      <strong>{{ session.usuario()?.nome || 'Visitante' }}</strong>
+      <span [title]="session.identificacao()">{{ session.identificacao() }}</span>
     </div>
   </div>
 
   <!-- NAVEGAÇÃO -->
   <nav class="sidebar__nav">
     @for (link of links; track link.path) {
-    <a class="sidebar__link" [routerLink]="link.path" routerLinkActive="sidebar__link--active">
+    <a class="sidebar__link" [routerLink]="link.path" [attr.aria-label]="link.label" routerLinkActive="sidebar__link--active">
 
       <!-- Ícones dinâmicos -->
       <span class="icon">
@@ -83,14 +83,14 @@
         }
         }
       </span>
-      {{ link.label }}
+      <span class="sidebar__label">{{ link.label }}</span>
     </a>
     }
   </nav>
 
   <!-- RODAPÉ (SAIR) -->
   <div class="sidebar__footer">
-    <a class="sidebar__link sidebar__link--logout" (click)="logout()">
+    <button type="button" class="sidebar__link sidebar__link--logout" aria-label="Sair" (click)="logout()">
       <span class="icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
           stroke-linejoin="round">
@@ -99,8 +99,8 @@
           <line x1="21" y1="12" x2="9" y2="12"></line>
         </svg>
       </span>
-      Sair
-    </a>
+      <span class="sidebar__label">Sair</span>
+    </button>
   </div>
 
 </aside>

@@ -3,8 +3,8 @@
     height: 100vh;
     box-sizing: border-box;
     flex-shrink: 0;
-    background: #0f6b3f;
-    color: #fff;
+    background: var(--color-primary);
+    color: var(--color-surface);
     display: flex;
     flex-direction: column;
     padding: 24px 16px;
@@ -79,14 +79,14 @@
         margin-bottom: 32px;
 
         h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
+            font-size: 1.5rem; // hero contextual da coluna estreita — não é título de página
+            font-weight: var(--fw-bold);
             line-height: 1.2;
             margin-bottom: 12px;
         }
 
         p {
-            font-size: 0.85rem;
+            font-size: var(--text-sm);
             color: rgba(255, 255, 255, 0.85);
             line-height: 1.4;
         }
@@ -110,32 +110,32 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
-            font-size: 0.85rem;
+            font-weight: var(--fw-semibold);
+            font-size: var(--text-sm);
             box-sizing: border-box;
         }
 
         &-label {
-            font-size: 0.95rem;
+            font-size: var(--text-md);
         }
 
         &--completed,
         &--active {
             .setup-sidebar__step-icon {
-                background: #ffffff;
-                color: #0f6b3f;
+                background: var(--color-surface);
+                color: var(--color-primary);
             }
         }
 
         &--completed {
             .setup-sidebar__step-label {
-                font-weight: 500;
+                font-weight: var(--fw-medium);
             }
         }
 
         &--active {
             .setup-sidebar__step-label {
-                font-weight: 700;
+                font-weight: var(--fw-bold);
             }
         }
 
@@ -143,8 +143,8 @@
             opacity: 0.6;
 
             .setup-sidebar__step-icon {
-                border: 2px solid #ffffff;
-                color: #ffffff;
+                border: 2px solid var(--color-surface);
+                color: var(--color-surface);
                 background: transparent;
             }
         }

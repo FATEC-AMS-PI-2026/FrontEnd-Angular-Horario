@@ -23,7 +23,9 @@
 
     <div class="courses-grid">
         @for (course of filteredCourses(); track course.id) {
-        <div class="course-card" [class.selected]="selectedCourseId() === course.id" (click)="selectCourse(course.id)">
+        <!-- Adicionamos o course.title na chamada para poder salvar no serviço depois -->
+        <div class="course-card" [class.selected]="selectedCourseId() === course.id" 
+             (click)="selectCourse(course.id, course.title)">
 
             <div class="card-icon" [ngClass]="course.icon">
                 @switch (course.icon) {
@@ -80,6 +82,7 @@
         }
     </div>
 
+    <!-- Esse botão ativa e chama o router.navigate real -->
     <footer class="footer-actions">
         <button class="btn-continue" [disabled]="!selectedCourseId()" (click)="onContinue()">
             Continuar &rarr;

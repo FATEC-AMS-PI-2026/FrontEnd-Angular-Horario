@@ -6,36 +6,36 @@
     width: 100%;
     height: 100vh;
     display: flex;
-    background-color: #fff;
+    background-color: var(--color-surface);
     overflow: hidden;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
 }
 
-/* LADO DA IMAGEM E LOGOS */
+/* IMAGE SIDE */
 .auth-image-side {
     position: relative;
     width: 40%;
     height: 100%;
-    background-color: #000;
+    background-color: var(--color-text);
 
     .bg-img {
         width: 100%;
         height: 100%;
         object-fit: cover;
         display: block;
-        opacity: 0.9;
+        opacity: 0.85;
     }
 
     .cps-logo {
         position: absolute;
         top: 2rem;
-        left: 2.5rem;
-        height: 65px;
-        filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.4));
+        left: 2rem;
+        height: 55px;
+        filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.35));
     }
 }
 
-/* LADO DO FORMULÁRIO */
+/* FORM SIDE */
 .auth-form-side {
     width: 60%;
     height: 100%;
@@ -43,105 +43,112 @@
     align-items: center;
     justify-content: center;
     overflow-y: auto;
-    background-color: #fff;
+    background-color: var(--color-surface);
 
     .form-wrapper {
         width: 100%;
-        max-width: 620px;
-        padding: 2rem;
+        max-width: 460px;
+        padding: var(--space-lg);
     }
 
     .title {
-        margin: 0 0 8px;
-        font-size: 2.4rem;
-        font-weight: 700;
-        color: #111827;
+        margin: 0 0 4px;
+        font-size: var(--text-2xl);
+        font-weight: var(--fw-extrabold);
+        color: var(--color-text);
         text-align: center;
     }
 
     .subtitle {
-        margin: 0 0 32px;
-        font-size: 1.45rem;
-        font-weight: 600;
-        color: #6b7280;
+        margin: 0 0 24px;
+        font-size: 1.05rem;
+        font-weight: var(--fw-medium);
+        color: var(--color-text-subtle);
         text-align: center;
     }
 
-    /* CAMPOS DE INPUT */
+    /* INPUT FIELDS (Com Labels) */
     .field {
-        margin-bottom: 26px;
+        margin-bottom: 20px;
 
         label {
             display: block;
-            margin-bottom: 8px;
-            font-size: 1.15rem;
-            color: #374151;
-            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: var(--text-md);
+            color: var(--color-text-muted);
+            font-weight: var(--fw-semibold);
         }
 
         input {
             width: 100%;
-            padding: 16px 18px;
-            font-size: 1.2rem;
-            color: #111827;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
+            padding: 12px 14px;
+            font-size: var(--text-md);
+            color: var(--color-text);
+            border: 1px solid var(--color-border-strong);
+            border-radius: var(--radius-md);
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
             font-family: inherit;
 
             &:focus {
-                border-color: #0f6b3f;
-                box-shadow: 0 0 0 3px rgba(15, 107, 63, 0.15);
+                border-color: var(--color-primary);
+                box-shadow: 0 0 0 3px rgba(15, 110, 86, 0.15);
             }
 
             &.input-error {
-                border-color: #dc2626;
+                border-color: var(--color-error);
             }
 
             &::placeholder {
-                color: #9ca3af;
+                color: var(--color-placeholder);
             }
         }
 
         .error-msg {
             display: block;
-            margin-top: 6px;
-            font-size: 0.85rem;
-            color: #dc2626;
+            margin-top: 4px;
+            font-size: var(--text-sm);
+            color: var(--color-error);
         }
     }
 
-    /* LINK "ESQUECI MINHA SENHA" */
+    /* TEXT LINKS (Esqueci a Senha) */
     .forgot-password-link {
         display: block;
-        margin: -10px 0 22px;
-        font-size: 0.95rem;
-        color: #0f6b3f;
+        margin: -8px 0 20px;
+        font-size: 0.9rem;
+        color: var(--color-primary);
         text-align: right;
         text-decoration: none;
+        font-weight: var(--fw-semibold);
 
         &:hover {
             text-decoration: underline;
         }
     }
 
-    /* BOTÃO PRINCIPAL */
+    /* ACTION BUTTONS */
+    .button-group {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 8px;
+    }
+
     .btn-submit {
         width: 100%;
-        padding: 16px;
-        margin-top: 8px;
-        font-size: 1.35rem;
-        font-weight: 700;
-        color: #fff;
-        background: #0f6b3f;
+        padding: 14px;
+        font-size: 1.1rem;
+        font-weight: var(--fw-bold);
+        color: var(--color-surface);
+        background: var(--color-primary);
         border: none;
-        border-radius: 8px;
+        border-radius: var(--radius-md);
         cursor: pointer;
         transition: background 0.2s, transform 0.1s;
 
         &:hover:not(:disabled) {
-            background: #0c5a34;
+            background: var(--color-primary-hover);
         }
 
         &:active:not(:disabled) {
@@ -149,29 +156,72 @@
         }
 
         &:disabled {
-            opacity: 0.7;
+            opacity: 0.6;
             cursor: not-allowed;
         }
     }
 
-    /* MENSAGENS DE SUCESSO/ERRO GERAIS */
-    .alert-msg {
-        margin-top: 16px;
-        font-size: 0.95rem;
+    /* Novo botão secundário para voltar */
+    .btn-outline {
+        width: 100%;
+        padding: 14px;
+        font-size: 1.1rem;
+        font-weight: var(--fw-bold);
+        color: var(--color-text-muted);
+        background: transparent;
+        border: 1px solid var(--color-border-strong);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-block;
         text-align: center;
-        font-weight: 600;
+
+        &:hover {
+            background: var(--color-bg);
+            border-color: var(--color-placeholder);
+        }
+
+        &:active {
+            transform: translateY(1px);
+        }
+    }
+
+    .alert-msg {
+        margin-top: 12px;
+        font-size: 0.9rem;
+        text-align: center;
+        font-weight: var(--fw-semibold);
 
         &.success {
-            color: #0f6b3f;
+            color: var(--color-primary);
         }
 
         &.error {
-            color: #dc2626;
+            color: var(--color-error);
+        }
+    }
+
+    /* CONTAINER DE CADASTRO */
+    .signup-link-container {
+        margin-top: 32px;
+        text-align: center;
+        font-size: var(--text-md);
+        color: var(--color-text-subtle);
+
+        a {
+            color: var(--color-primary);
+            font-weight: var(--fw-bold);
+            text-decoration: none;
+            margin-left: 4px;
+
+            &:hover {
+                text-decoration: underline;
+            }
         }
     }
 }
 
-/* RESPONSIVIDADE PARA CELULARES */
 @media (max-width: 768px) {
     .auth-container {
         flex-direction: column;
@@ -179,19 +229,20 @@
 
     .auth-image-side {
         width: 100%;
-        height: 200px;
+        height: 140px;
         flex-shrink: 0;
 
         .cps-logo {
             top: 1rem;
             left: 1rem;
-            height: 50px;
+            height: 40px;
         }
     }
 
     .auth-form-side {
         width: 100%;
         height: auto;
-        padding: 2rem 0;
+        padding: 1.5rem 0;
+        align-items: flex-start;
     }
 }
