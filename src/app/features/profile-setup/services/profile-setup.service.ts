@@ -1,4 +1,5 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { SessionService } from '../../../core/services/session.service';
 
 export interface ProfileSetupPayload {
   curso: string;
@@ -9,6 +10,7 @@ export interface ProfileSetupPayload {
   providedIn: 'root'
 })
 export class ProfileSetupService {
+  private readonly session = inject(SessionService);
   // Signals guardam o estado atual
   currentStep = signal<number>(2);
   selectedCourse = signal<string | null>(null);
@@ -41,6 +43,6 @@ export class ProfileSetupService {
       curso: this.selectedCourse()!,
       periodo: this.selectedPeriod()!
     };
-    console.log('Payload pronto para API:', payload);
+    this.session.atualizarPerfil(payload.curso, payload.periodo);
   }
 }

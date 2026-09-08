@@ -1,60 +1,82 @@
 .lista-salas {
     padding: var(--space-lg);
     background-color: var(--color-bg);
-    min-height: var(--page-min-height, 0px);
+    min-height: calc(100vh - var(--layout-topbar-height, 80px));
     width: 100%;
     box-sizing: border-box;
     font-family: var(--font-sans);
     display: flex;
     flex-direction: column;
-    gap: var(--space-sm);
+    gap: var(--space-md);
 }
 
+/* FILTROS PADRONIZADOS COM A TELA DE PROFESSORES */
 .lista-salas__filtros {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-xs);
+    gap: var(--space-sm);
     align-items: center;
-    background-color: var(--color-surface);
-    border-radius: var(--radius-lg);
-    padding: var(--space-sm) var(--space-md);
-    border: 1px solid var(--color-border);
-    box-shadow: var(--shadow-card);
 }
 
-.lista-salas__campo-busca,
-.lista-salas__filtro-predio {
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--color-border-strong);
-    border-radius: var(--radius-sm);
-    font-size: var(--text-sm);
-    font-family: inherit;
-    color: var(--color-text);
-    background: var(--color-surface);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+.lista-salas__busca-wrapper {
+    position: relative;
+    flex: 1 1 320px;
+    display: flex;
+    align-items: center;
 
-    &:focus,
-    &:focus-visible {
-        outline: none;
-        border-color: var(--color-primary);
-        box-shadow: 0 0 0 3px rgba(15, 110, 86, 0.15);
+    .lista-salas__busca-icone {
+        position: absolute;
+        left: var(--space-sm);
+        color: var(--color-placeholder);
+        pointer-events: none;
     }
 }
 
 .lista-salas__campo-busca {
-    flex: 1 1 240px;
+    width: 100%;
+    padding: 0.6rem var(--space-md) 0.6rem 2.5rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    font-family: inherit;
+    color: var(--color-text);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
     &::placeholder {
         color: var(--color-placeholder);
+    }
+
+    &:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px var(--color-focus-ring);
     }
 }
 
 .lista-salas__filtro-predio {
     flex: 0 0 200px;
     margin-left: auto;
+    padding: 0.6rem var(--space-md);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    font-family: inherit;
+    color: var(--color-text);
+    background: var(--color-surface);
     cursor: pointer;
+    box-shadow: var(--shadow-card);
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px var(--color-focus-ring);
+    }
 }
 
+/* GRADE DE SALAS */
 .grade-salas {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -72,6 +94,7 @@
     text-decoration: none;
     color: inherit;
     background: var(--color-surface);
+    box-shadow: var(--shadow-card);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 
     &:hover,

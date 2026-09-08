@@ -6,20 +6,20 @@
 
     <!-- Period Selection Buttons -->
     <div class="period-grid">
-        <div class="period-card" [class.active]="setupService.selectedPeriod() === 'Manhã'"
-             (click)="selecionar('Manhã')">
+        <div class="period-card" [class.active]="setupService.selectedPeriod() === '1º período'"
+             (click)="selecionar('1º período')">
             1º
         </div>
-        <div class="period-card" [class.active]="setupService.selectedPeriod() === 'Tarde'"
-             (click)="selecionar('Tarde')">
+        <div class="period-card" [class.active]="setupService.selectedPeriod() === '2º período'"
+             (click)="selecionar('2º período')">
             2º
         </div>
-        <div class="period-card" [class.active]="setupService.selectedPeriod() === 'Noite'"
-             (click)="selecionar('Noite')">
+        <div class="period-card" [class.active]="setupService.selectedPeriod() === '3º período'"
+             (click)="selecionar('3º período')">
             3º
         </div>
-        <div class="period-card" [class.active]="setupService.selectedPeriod() === 'Integral'"
-             (click)="selecionar('Integral')">
+        <div class="period-card" [class.active]="setupService.selectedPeriod() === '4º período'"
+             (click)="selecionar('4º período')">
             4º
         </div>
     </div>

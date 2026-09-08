@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, delay, of, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
+import { SessionService } from '../../../core/services/session.service';
 
 export interface RecuperarSenhaResponse {
   message: string;
@@ -19,6 +20,7 @@ export interface LoginResponse {
   providedIn: 'root'
 })
 export class AuthService {
+  private readonly session = inject(SessionService);
   private readonly baseUrl = `${environment.apiUrl}/auth`;
 
   constructor(private http: HttpClient) { }
@@ -32,7 +34,10 @@ export class AuthService {
 
     if (identificador === mockEmail && senha === mockSenha) {
       // Simula o salvamento do Token JWT no navegador
-      localStorage.setItem('gini_token', 'token_falso_gerado_pelo_angular');
+      // Dados demonstrativos enquanto o contrato de perfil do backend não está disponível.
+      this.session.iniciar('token_falso_gerado_pelo_angular', {
+        nome: 'Aluno de teste', email: mockEmail, curso: '', periodo: '',
+      });
 
       // Retorna sucesso após 1 segundo (simulando a lentidão da internet)
       return of(true).pipe(delay(1000));
@@ -49,7 +54,7 @@ export class AuthService {
   }
 
   logout() {
-    localStorage.removeItem('gini_token');
+    this.session.logout();
   }
 
   isLoggedIn(): boolean {
