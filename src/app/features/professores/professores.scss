@@ -1,58 +1,58 @@
 .professores {
-    padding: 1.5rem;
-    background-color: #f3f4f6;
-    min-height: calc(100vh - 80px);
+    padding: var(--space-lg);
+    background-color: var(--color-bg);
+    min-height: var(--page-min-height, 0px);
     width: 100%;
     box-sizing: border-box;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
     display: flex;
     flex-direction: column;
-    gap: 1rem; // Reduzido
+    gap: var(--space-sm);
 }
 
 .professores__titulo {
     margin: 0;
-    font-size: 1.5rem; // Reduzido
-    font-weight: 700;
-    color: #111827;
+    font-size: var(--text-xl);
+    font-weight: var(--fw-bold);
+    color: var(--color-text);
 }
 
 .professores__filtros {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem; // Reduzido
+    gap: var(--space-xs);
     align-items: center;
 }
 
 .professores__campo-busca,
 .professores__filtro-cargo {
-    padding: 0.5rem 0.75rem; // Reduzido
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 0.875rem; // Reduzido
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-sm);
     font-family: inherit;
-    color: #111827;
-    background: #fff;
+    color: var(--color-text);
+    background: var(--color-surface);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
     &:focus,
     &:focus-visible {
         outline: none;
-        border-color: #0f6b3f;
-        box-shadow: 0 0 0 3px rgba(15, 107, 63, 0.15);
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px var(--color-focus-ring);
     }
 }
 
 .professores__campo-busca {
-    flex: 1 1 250px; // Reduzido
+    flex: 1 1 250px;
 
     &::placeholder {
-        color: #9ca3af;
+        color: var(--color-placeholder);
     }
 }
 
 .professores__filtro-cargo {
-    flex: 0 0 180px; // Reduzido
+    flex: 0 0 180px;
     margin-left: auto;
     cursor: pointer;
 }
@@ -60,32 +60,32 @@
 .professores__cursos {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem; // Reduzido
+    gap: var(--space-2xs);
 }
 
 .curso-chip {
-    padding: 0.4rem 1rem; // Reduzido
-    border: 1px solid #d1d5db;
-    border-radius: 999px;
-    background: #fff;
-    color: #374151;
+    padding: 0.4rem 1rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface);
+    color: var(--color-text-muted);
     font-family: inherit;
-    font-size: 0.85rem; // Reduzido
-    font-weight: 600;
+    font-size: var(--text-sm);
+    font-weight: var(--fw-semibold);
     cursor: pointer;
     transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 
     &:hover {
-        border-color: #9ca3af;
+        border-color: var(--color-placeholder);
     }
 
     &--ativo {
-        background: #111827;
-        border-color: #111827;
-        color: #fff;
+        background: var(--color-text);
+        border-color: var(--color-text);
+        color: var(--color-surface);
 
         &:hover {
-            border-color: #111827;
+            border-color: var(--color-text);
         }
     }
 }
@@ -94,7 +94,7 @@
 .professores__cards {
     display: flex;
     flex-wrap: nowrap; // Mantém todos os cards na mesma linha
-    gap: 1.25rem;
+    gap: var(--space-md);
     list-style: none;
     margin: 0;
     padding: 0.35rem 0.25rem 0.85rem; // Espaço para não cortar as sombras nem a borda verde
@@ -110,16 +110,16 @@
     }
 
     &::-webkit-scrollbar-track {
-        background: #e5e7eb;
-        border-radius: 999px;
+        background: var(--color-border);
+        border-radius: var(--radius-pill);
     }
 
     &::-webkit-scrollbar-thumb {
-        background: #9ca3af;
-        border-radius: 999px;
+        background: var(--color-placeholder);
+        border-radius: var(--radius-pill);
 
         &:hover {
-            background: #6b7280;
+            background: var(--color-text-subtle);
         }
     }
 
@@ -141,27 +141,27 @@
     align-items: center;
     justify-content: center;
     gap: 0.45rem;
-    padding: 1.5rem 1.25rem 1.25rem;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    background: #fff;
+    padding: var(--space-md) var(--space-md) 1.25rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
     font-family: inherit;
     cursor: pointer;
     text-align: center;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    box-shadow: var(--shadow-card);
     transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 
     &:hover,
     &:focus-visible {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        box-shadow: var(--shadow-card-hover);
     }
 
     // Card selecionado (Borda verde esmeralda destacada)
     &--selecionado {
-        border-color: #0f6b3f;
+        border-color: var(--color-primary);
         border-width: 2px;
-        padding: calc(1.5rem - 1px) calc(1.25rem - 1px) calc(1.25rem - 1px); // Evita o pulo de layout
+        padding: calc(var(--space-md) - 1px) calc(var(--space-md) - 1px) calc(1.25rem - 1px); // Evita o pulo de layout
     }
 
     // Tag "COORDENADOR" no canto superior direito
@@ -170,86 +170,86 @@
         top: 0.85rem;
         right: 1rem;
         font-size: 0.65rem;
-        font-weight: 700;
+        font-weight: var(--fw-bold);
         letter-spacing: 0.06em;
         text-transform: uppercase;
-        color: #6b7280;
+        color: var(--color-text-subtle);
     }
 
     // Círculo com as iniciais
     &__avatar {
         width: 50px;
         height: 50px;
-        border-radius: 50%;
-        background: #eef2f7;
-        color: #374151;
+        border-radius: var(--radius-pill);
+        background: var(--color-bg);
+        color: var(--color-text-muted);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.95rem;
-        font-weight: 700;
+        font-size: var(--text-sm);
+        font-weight: var(--fw-bold);
         margin-bottom: 0.15rem;
     }
 
     // Nome do professor em negrito
     &__nome {
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: #111827;
+        font-size: var(--text-sm);
+        font-weight: var(--fw-bold);
+        color: var(--color-text);
     }
 
     // Subtítulo do cargo abaixo do nome
     &__cargo {
-        font-size: 0.75rem;
-        color: #6b7280;
+        font-size: var(--text-xs);
+        color: var(--color-text-subtle);
     }
 }
 
 .professores__vazio {
     flex: 0 0 100%;
     min-width: 100%;
-    color: #6b7280;
+    color: var(--color-text-subtle);
     text-align: center;
-    padding: 2rem 0;
-    font-size: 1rem;
+    padding: var(--space-xl) 0;
+    font-size: var(--text-md);
 }
 
 .aulas-professor {
     display: flex;
     flex-direction: column;
-    gap: 1rem; // Reduzido
+    gap: var(--space-sm);
 }
 
 .aulas-professor__titulo {
     margin: 0;
-    font-size: 1.1rem; // Reduzido
-    font-weight: 700;
-    color: #111827;
+    font-size: 1.1rem; // uma etapa abaixo de --text-lg: título de seção, não de card
+    font-weight: var(--fw-bold);
+    color: var(--color-text);
 }
 
 .aulas-professor__vazio {
-    color: #6b7280;
+    color: var(--color-text-subtle);
     margin: 0;
-    font-size: 0.9rem;
+    font-size: var(--text-md);
 }
 
 .dia-aulas {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem; // Reduzido
+    gap: var(--space-2xs);
 }
 
 .dia-aulas__titulo {
     margin: 0;
-    font-size: 0.875rem; // Reduzido
-    font-weight: 600;
-    color: #374151;
+    font-size: var(--text-sm);
+    font-weight: var(--fw-semibold);
+    color: var(--color-text-muted);
 }
 
 .dia-aulas__lista {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem; // Reduzido
+    gap: var(--space-2xs);
     list-style: none;
     margin: 0;
     padding: 0;
@@ -258,18 +258,19 @@
 .aula-card {
     display: flex;
     align-items: center;
-    gap: 1rem; // Reduzido
-    padding: 0.6rem 1.25rem; // Reduzido
-    border-radius: 8px; // Reduzido
+    gap: var(--space-sm);
+    padding: 0.6rem var(--space-md);
+    border-radius: var(--radius-md);
     border: 1px solid transparent;
+    color: var(--aula-fg, var(--color-text));
 
     &__horario {
         display: flex;
         flex-direction: column;
-        min-width: 50px; // Reduzido
-        font-weight: 700;
-        font-size: 0.8rem; // Reduzido
-        color: #111827;
+        min-width: 50px;
+        font-weight: var(--fw-bold);
+        font-size: var(--text-xs);
+        color: inherit;
     }
 
     &__info {
@@ -278,43 +279,47 @@
         gap: 0.1rem;
 
         strong {
-            font-size: 0.875rem; // Reduzido
-            color: #111827;
+            font-size: var(--text-sm);
+            color: inherit;
         }
 
         span {
-            font-size: 0.75rem; // Reduzido
-            color: #4b5563;
+            font-size: var(--text-xs);
+            color: inherit;
         }
     }
 
     &--verde {
-        background: #d1fae5;
-        border-color: #a7e3c4;
+        --aula-fg: var(--tag-verde-fg);
+        background: var(--tag-verde-bg);
+        border-color: var(--tag-verde-border);
     }
 
     &--vermelho {
-        background: #fee2e2;
-        border-color: #f5b5b5;
+        --aula-fg: var(--tag-vermelho-fg);
+        background: var(--tag-vermelho-bg);
+        border-color: var(--tag-vermelho-border);
     }
 
     &--azul {
-        background: #dbeafe;
-        border-color: #b6d3f7;
+        --aula-fg: var(--tag-azul-fg);
+        background: var(--tag-azul-bg);
+        border-color: var(--tag-azul-border);
     }
 
     &--roxo {
-        background: #f3e8ff;
-        border-color: #ddc2f7;
+        --aula-fg: var(--tag-roxo-fg);
+        background: var(--tag-roxo-bg);
+        border-color: var(--tag-roxo-border);
     }
 }
 
 .intervalo-bar {
     text-align: center;
-    padding: 0.4rem; // Reduzido
-    border-radius: 6px; // Reduzido
-    background: #fef3c7;
-    color: #92400e;
-    font-size: 0.75rem; // Reduzido
-    font-weight: 600;
+    padding: 0.4rem;
+    border-radius: var(--radius-sm);
+    background: var(--tag-amarelo-bg);
+    color: var(--tag-amarelo-fg);
+    font-size: var(--text-xs);
+    font-weight: var(--fw-semibold);
 }

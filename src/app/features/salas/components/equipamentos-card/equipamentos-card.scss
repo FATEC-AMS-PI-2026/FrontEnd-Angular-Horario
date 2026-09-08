@@ -5,9 +5,9 @@
 
 .equipamentos-card__titulo {
     margin: 0 0 0.5rem;
-    font-size: 1rem;
-    font-weight: 700;
-    color: #111827;
+    font-size: var(--text-lg);
+    font-weight: var(--fw-bold);
+    color: var(--color-text);
 }
 
 .equipamentos-card__lista {
@@ -20,72 +20,77 @@
 }
 
 .equipamentos-card__vazio {
-    color: #6b7280;
-    font-size: 0.85rem;
+    color: var(--color-text-subtle);
+    font-size: var(--text-sm);
 }
 
 .equipamento {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #e5e7eb;
-    border-radius: 6px;
-    background: #fff;
-    font-size: 0.85rem;
+    gap: var(--space-2xs);
+    padding: 0.5rem var(--space-xs);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    font-size: var(--text-sm);
 
     &__nome {
-        font-weight: 600;
+        font-weight: var(--fw-semibold);
         min-width: 100px;
     }
 
     &__quantidade {
-        color: #555;
-        font-size: 0.8rem;
+        color: var(--color-text-muted);
+        font-size: var(--text-xs);
     }
 
     &__tag {
         margin-left: auto;
         padding: 0.1rem 0.5rem;
-        border-radius: 999px;
-        background: #fdecea;
-        color: #b3261e;
+        border-radius: var(--radius-pill);
+        background: var(--color-danger-bg);
+        color: var(--color-danger);
         font-size: 0.7rem;
-        font-weight: 600;
+        font-weight: var(--fw-semibold);
+
+        &--total {
+            background: var(--color-success-bg);
+            color: var(--color-success);
+        }
 
         &--parcial {
-            background: #fff4d6;
-            color: #8a5c00;
+            background: var(--color-warning-bg);
+            color: var(--color-warning-fg);
         }
     }
 
     &--total {
-        border-color: #bfe3c4;
-        background: #f4fbf5;
+        border-color: var(--color-success-border);
+        background: var(--color-success-bg);
 
         .equipamento__nome,
         .equipamento__quantidade {
-            color: #1e7d32;
+            color: var(--color-success);
         }
     }
 
     &--parcial {
-        border-color: #f0dfa3;
-        background: #fffbf0;
+        border-color: var(--color-warning-border);
+        background: var(--color-warning-bg);
 
         .equipamento__nome,
         .equipamento__quantidade {
-            color: #8a5c00;
+            color: var(--color-warning-fg);
         }
     }
 
     &--indisponivel {
-        border-color: #f3c6c2;
-        background: #fff8f7;
+        border-color: var(--color-danger-border);
+        background: var(--color-danger-bg);
 
         .equipamento__nome,
         .equipamento__quantidade {
-            color: #b3261e;
+            color: var(--color-danger);
         }
     }
 }

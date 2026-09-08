@@ -1,144 +1,142 @@
 .pagina-grade {
-    padding: 2rem;
-    background-color: #f3f4f6;
-    min-height: calc(100vh - 80px);
-    width: 100%;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  padding: var(--space-lg);
+  background: var(--color-bg);
+  color: var(--color-text);
+  min-height: var(--page-min-height, 0px);
+  width: 100%;
+  font-family: var(--font-sans);
+}
+
+.cartao-horarios {
+  width: 100%;
+
+  .titulo {
+    margin: 0 0 var(--space-lg);
+    font-size: var(--text-xl);
+    font-weight: var(--fw-bold);
+    color: var(--color-text);
+  }
+}
+
+.tabela-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+  }
+}
+
+.tabela {
+  min-width: 680px;
+  background: var(--color-surface);
+
+  .cabecalho,
+  .linha {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .cabecalho {
+    border-bottom: 1px solid var(--color-border-strong);
+    background: var(--color-bg);
+    color: var(--color-text-muted);
+    padding: var(--space-sm) 0;
+    text-align: center;
+    font-weight: var(--fw-semibold);
+    font-size: var(--text-lg);
+  }
+
+  .linha {
+    min-height: 70px;
+    align-items: center;
+    border-bottom: 1px solid var(--color-border);
+
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+
+  .linha-intervalo {
+    background: var(--color-bg);
+  }
+
+  .coluna-horario {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    justify-content: center;
+    height: 100%;
+    padding: var(--space-2xs) 0;
+    background: var(--color-bg);
+    color: var(--color-text-subtle);
+    text-align: center;
+    font-weight: var(--fw-medium);
+    font-size: var(--text-md);
+  }
 
-    .cartao-horarios {
-        background-color: #ffffff;
-        border-radius: 16px;
-        padding: 1.5rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        border: none;
-        width: 100%;
+  .celula {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: var(--space-2xs);
+    border-right: 1px solid var(--color-border);
 
-        .titulo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #111827;
-            margin-bottom: 1.5rem;
-        }
+    &:last-child {
+      border-right: 0;
+    }
+  }
+
+  .etiqueta-materia {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    min-height: 50px;
+    padding: var(--space-3xs) var(--space-2xs);
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    text-align: center;
+    font-size: var(--text-sm);
+    font-weight: var(--fw-semibold);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+    // As disciplinas conservam sua identidade; os tokens adaptam a paleta ao tema.
+    @each $disciplina, $cor in (pi: verde, bd: azul, ed: ciano, pm: roxo, ihc: rosa, ds: magenta) {
+      &.cor-#{$disciplina} {
+        background: var(--tag-#{$cor}-bg);
+        color: var(--tag-#{$cor}-fg);
+        border-color: var(--tag-#{$cor}-border);
+      }
     }
 
-    .tabela {
-        border: 1px solid #d1d5db;
-        border-radius: 0.75rem;
-        overflow: hidden;
-        background-color: #fff;
-
-        .cabecalho {
-            display: grid;
-            grid-template-columns: repeat(6, minmax(0, 1fr));
-            border-bottom: 1px solid #d1d5db;
-            background-color: #f3f4f6;
-            text-align: center;
-            padding: 1rem 0;
-            color: #374151;
-            font-weight: 600;
-            font-size: 1.125rem;
-        }
-
-        .linha {
-            display: grid;
-            grid-template-columns: repeat(6, minmax(0, 1fr));
-            border-bottom: 1px solid #e5e7eb;
-            align-items: center;
-            min-height: 70px;
-
-            &:last-child {
-                border-bottom: none;
-            }
-
-            &.linha-intervalo {
-                background-color: #f3f4f6;
-            }
-        }
-
-        .coluna-horario {
-            text-align: center;
-            font-weight: 500;
-            color: #6b7280;
-            font-size: 1rem;
-            padding: 0.5rem 0;
-            background-color: rgba(243, 244, 246, 0.5);
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .celula {
-            padding: 0.5rem;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-right: 1px solid #f3f4f6;
-
-            &:last-child {
-                border-right: none;
-            }
-        }
-
-        .etiqueta-materia {
-            width: 100%;
-            height: 100%;
-            min-height: 50px;
-            border-radius: 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            font-size: 0.875rem;
-            font-weight: 600;
-            padding: 0 0.5rem;
-            box-sizing: border-box;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-
-            &.cor-pi {
-                background-color: #d1fae5;
-                color: #065f46;
-            }
-
-            &.cor-bd {
-                background-color: #dbeafe;
-                color: #1e40af;
-            }
-
-            &.cor-ed {
-                background-color: #e0f2fe;
-                color: #075985;
-            }
-
-            &.cor-pm {
-                background-color: #f3e8ff;
-                color: #6b21a8;
-            }
-
-            &.cor-ihc {
-                background-color: #ffe4e6;
-                color: #9f1239;
-            }
-
-            &.cor-ds {
-                background-color: #fce7f3;
-                color: #9d174d;
-            }
-
-            &.cor-vazio {
-                background-color: transparent;
-                color: transparent;
-            }
-
-            &:not(.cor-vazio):hover {
-                transform: scale(1.03);
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            }
-        }
+    &.cor-vazio {
+      background: transparent;
+      color: transparent;
     }
+
+    &:not(.cor-vazio):hover {
+      transform: scale(1.03);
+      box-shadow: var(--shadow-card-hover);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .pagina-grade {
+    padding: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabela .etiqueta-materia {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+  }
 }

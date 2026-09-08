@@ -1,0 +1,68 @@
+// ============================================================================
+// GINI — Padrão de Card
+// Um único "molde" para os cards do sistema (lista-salas, professores,
+// dashboard, tecnico-card, etc já seguiam essencialmente esta receita —
+// isso só formaliza e centraliza o que era reescrito arquivo por arquivo).
+//
+// Como usar num componente (opção com mixin, precisa de @use):
+//   @use 'cards';
+//   .meu-card { @include cards.card-base; }
+//
+// Se preferir não mexer com @use no SCSS do componente, dá pra aplicar a
+// classe utilitária direto no template (.card, .card--interativo) — ver
+// final deste arquivo.
+// ============================================================================
+
+@mixin card-base {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+    box-shadow: var(--shadow-card);
+}
+
+// Para cards clicáveis/navegáveis (card-sala, professor-card, course-card...)
+@mixin card-interativo {
+    @include card-base;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-card-hover);
+    }
+}
+
+// Estado "selecionado" (professor-card, course-card). Reduz o padding em 1px
+// pra compensar a borda mais grossa e o card não "pular" de tamanho.
+@mixin card-selecionado {
+    border-color: var(--color-primary);
+    border-width: 2px;
+    padding: calc(var(--space-md) - 1px);
+}
+
+// Título padrão dentro de um card (h2/h3/strong de cabeçalho de card).
+@mixin card-titulo {
+    margin: 0;
+    font-size: var(--text-lg);
+    font-weight: var(--fw-bold);
+    color: var(--color-text);
+}
+
+// ---------- Classes utilitárias globais (uso direto no HTML) ----------
+.card {
+    @include card-base;
+}
+
+.card--interativo {
+    @include card-interativo;
+}
+
+.card--selecionado {
+    @include card-selecionado;
+}
+
+.card__titulo {
+    @include card-titulo;
+}

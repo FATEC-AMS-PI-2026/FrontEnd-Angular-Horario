@@ -1,14 +1,14 @@
 .detalhes-sala {
-    padding: 1.5rem;
-    background-color: #f3f4f6;
-    min-height: calc(100vh - 80px);
+    padding: var(--space-lg);
+    background-color: var(--color-bg);
+    min-height: var(--page-min-height, 0px);
     width: 100%;
     box-sizing: border-box;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+    align-items: stretch;
+    gap: var(--space-sm);
 }
 
 .botao-voltar {
@@ -16,10 +16,10 @@
     align-items: center;
     gap: 0.4rem;
     margin-bottom: 0.5rem;
-    color: #0f6b3f;
+    color: var(--color-primary);
     text-decoration: none;
-    font-size: 0.875rem;
-    font-weight: 600;
+    font-size: var(--text-sm);
+    font-weight: var(--fw-semibold);
 
     &:hover,
     &:focus-visible {
@@ -30,51 +30,51 @@
 .detalhes-sala__cabecalho {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: var(--space-xs);
     flex-wrap: wrap;
-    border-bottom: 1px solid #e5e7eb;
-    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: var(--space-xs);
     width: 100%;
     max-width: 720px;
 
     h1 {
         margin: 0;
         font-size: 1.5rem;
-        color: #111827;
-        font-weight: 700;
+        color: var(--color-text);
+        font-weight: var(--fw-bold);
     }
 }
 
 .detalhes-sala__info {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 1rem;
-    margin: 0.5rem 0 1rem;
+    gap: var(--space-sm);
+    margin: 0.5rem 0 var(--space-sm);
     width: 100%;
     max-width: 720px;
 
     dt {
-        font-size: 0.75rem;
-        color: #6b7280;
+        font-size: var(--text-xs);
+        color: var(--color-text-subtle);
         margin-bottom: 0.2rem;
     }
 
     dd {
         margin: 0;
-        font-size: 0.95rem;
-        color: #111827;
-        font-weight: 600;
+        font-size: var(--text-md);
+        color: var(--color-text);
+        font-weight: var(--fw-semibold);
     }
 }
 
 .detalhes-sala--nao-encontrada {
     text-align: center;
-    color: #6b7280;
-    padding: 2rem;
-    background-color: #fff;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    color: var(--color-text-subtle);
+    padding: var(--space-xl);
+    background-color: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
     width: 100%;
     max-width: 500px;
-    font-size: 0.95rem;
+    font-size: var(--text-md);
 }
