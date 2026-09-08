@@ -1,0 +1,119 @@
+:host {
+    display: block;
+    width: 100%;
+    max-width: 720px;
+}
+
+.cabecalho-sala__voltar {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    margin-bottom: var(--space-sm);
+    color: var(--color-primary);
+    text-decoration: none;
+    font-size: var(--text-md);
+    font-weight: var(--fw-semibold);
+
+    &:hover,
+    &:focus-visible {
+        text-decoration: underline;
+    }
+}
+
+.cabecalho-sala__breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: var(--space-xs);
+    font-size: var(--text-sm);
+    color: var(--color-text-subtle);
+
+    a {
+        color: var(--color-text-subtle);
+        text-decoration: none;
+
+        &:hover,
+        &:focus-visible {
+            text-decoration: underline;
+        }
+    }
+
+    span:last-child {
+        color: var(--color-text);
+        font-weight: var(--fw-semibold);
+    }
+}
+
+.cabecalho-sala__topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+
+    h1 {
+        margin: 0;
+        font-size: var(--text-xl);
+        color: var(--color-text);
+        font-weight: var(--fw-bold);
+    }
+}
+
+.cabecalho-sala__ver-alertas {
+    flex-shrink: 0;
+    border: 1px solid var(--color-danger);
+    background: var(--color-surface);
+    color: var(--color-danger);
+    border-radius: var(--radius-sm);
+    padding: 0.45rem 0.9rem;
+    font-size: var(--text-sm);
+    font-weight: var(--fw-semibold);
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+        background: var(--color-danger);
+        color: var(--color-surface);
+    }
+}
+
+.cabecalho-sala__badges {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    margin: var(--space-xs) 0;
+}
+
+.cabecalho-sala__badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem var(--space-xs);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    font-weight: var(--fw-semibold);
+}
+
+.cabecalho-sala__resumo {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: var(--space-lg);
+    margin: var(--space-sm) 0 var(--space-lg);
+    padding-bottom: var(--space-sm);
+    border-bottom: 1px solid var(--color-border);
+
+    dt {
+        font-size: var(--text-sm);
+        color: var(--color-text-subtle);
+        margin-bottom: 0.25rem;
+    }
+
+    dd {
+        margin: 0;
+        font-size: 1.05rem;
+        color: var(--color-text);
+        font-weight: var(--fw-semibold);
+    }
+}

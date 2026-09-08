@@ -1,0 +1,23 @@
+.profile-setup-container {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+    /* Changed from min-height to height to restrict the container size */
+    background-color: var(--color-bg);
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    /* Hide overflow on the main container */
+}
+
+.profile-setup-content {
+    flex: 1;
+    padding: 2.5rem; // maior que --space-xl (2rem) de propósito — respiro amplo da tela de onboarding
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    /* Enable vertical scroll ONLY on the content area */
+    height: 100%;
+    /* Ensure content area takes full height */
+}

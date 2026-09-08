@@ -1,0 +1,152 @@
+.setup-sidebar {
+    width: 250px;
+    height: 100vh;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    background: var(--color-primary);
+    color: var(--color-surface);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 16px;
+    position: sticky;
+    top: 0;
+    overflow: hidden;
+
+    &__circle {
+        position: absolute;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.04);
+        z-index: 1;
+        pointer-events: none;
+
+        &--top {
+            width: 350px;
+            height: 350px;
+            top: -150px;
+            left: -100px;
+        }
+
+        &--middle {
+            width: 250px;
+            height: 250px;
+            top: 100px;
+            right: -120px;
+        }
+
+        &--bottom {
+            width: 400px;
+            height: 400px;
+            bottom: -200px;
+            left: -150px;
+        }
+    }
+
+    &__content {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    &__brand {
+        margin-bottom: 28px;
+
+        .logo-box {
+            background: transparent;
+            width: 100%;
+            max-width: 130px;
+            height: auto;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            transition: transform 0.3s ease;
+
+            &:hover {
+                transform: translateY(-2px);
+            }
+
+            img {
+                width: 100%;
+                height: auto;
+                object-fit: contain;
+                filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.35));
+            }
+        }
+    }
+
+    &__header {
+        margin-bottom: 32px;
+
+        h1 {
+            font-size: 1.5rem; // hero contextual da coluna estreita — não é título de página
+            font-weight: var(--fw-bold);
+            line-height: 1.2;
+            margin-bottom: 12px;
+        }
+
+        p {
+            font-size: var(--text-sm);
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.4;
+        }
+    }
+
+    &__steps {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    &__step {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        &-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: var(--fw-semibold);
+            font-size: var(--text-sm);
+            box-sizing: border-box;
+        }
+
+        &-label {
+            font-size: var(--text-md);
+        }
+
+        &--completed,
+        &--active {
+            .setup-sidebar__step-icon {
+                background: var(--color-surface);
+                color: var(--color-primary);
+            }
+        }
+
+        &--completed {
+            .setup-sidebar__step-label {
+                font-weight: var(--fw-medium);
+            }
+        }
+
+        &--active {
+            .setup-sidebar__step-label {
+                font-weight: var(--fw-bold);
+            }
+        }
+
+        &--disabled {
+            opacity: 0.6;
+
+            .setup-sidebar__step-icon {
+                border: 2px solid var(--color-surface);
+                color: var(--color-surface);
+                background: transparent;
+            }
+        }
+    }
+}

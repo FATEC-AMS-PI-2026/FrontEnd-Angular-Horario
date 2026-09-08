@@ -1,0 +1,27 @@
+@if (sala(); as salaEncontrada) {
+<section class="detalhes-sala">
+  <app-cabecalho-sala [sala]="salaEncontrada" (verAlertas)="abrirAlertas()" />
+
+  <app-equipamentos-card [equipamentos]="salaEncontrada.equipamentos" />
+
+  <app-proximos-horarios-card [horarios]="salaEncontrada.proximosHorarios" />
+
+  <app-aulas-do-dia-card [aulas]="salaEncontrada.aulasDoDia" />
+
+  @if (salaEncontrada.tecnicoResponsavel; as tecnico) {
+  <app-tecnico-card [tecnico]="tecnico" />
+  }
+
+  <app-alertas-modal
+    [aberto]="alertasAbertos()"
+    [alertas]="salaEncontrada.alertas"
+    (fechar)="fecharAlertas()"
+    (resolver)="resolverAlerta($event)"
+  />
+</section>
+} @else {
+<section class="detalhes-sala detalhes-sala--nao-encontrada">
+  <p>Sala não encontrada.</p>
+  <a routerLink="/salas">Voltar para a lista de salas</a>
+</section>
+}

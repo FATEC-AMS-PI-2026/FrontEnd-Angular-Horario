@@ -1,0 +1,12 @@
+<header class="topbar">
+  <h1 class="topbar__title">{{ title }}</h1>
+  @if (title === 'Configurações') {
+    <div class="topbar__acoes">
+      <input #buscaCampo class="topbar__busca" type="search" placeholder="Buscar"
+        aria-label="Buscar configurações" [value]="busca.termo()" (input)="busca.termo.set(buscaCampo.value)" />
+      <button class="topbar__notificacoes" type="button" aria-label="Configurar notificações" (click)="abrirNotificacoes()">
+        <app-figma-icon name="bell" />
+      </button>
+    </div>
+  }
+</header>

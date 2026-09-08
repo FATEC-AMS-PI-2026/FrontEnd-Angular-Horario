@@ -1,0 +1,17 @@
+/* Estilos globais e tokens de identidade visual do GINI (ver briefing, seção 8.3) */
+@use './styles/tokens';
+@use './styles/cards';
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: var(--text-md);
+    color: var(--color-text);
+    background: var(--color-bg);
+}

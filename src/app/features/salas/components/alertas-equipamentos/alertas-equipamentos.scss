@@ -1,0 +1,29 @@
+.alertas-equipamentos {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    padding: 0;
+    margin: 0 0 var(--space-sm);
+    list-style: none;
+    max-width: 720px;
+}
+
+.alerta-equipamento {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.65rem 0.9rem;
+    border: 1px solid var(--color-danger);
+    border-radius: var(--radius-md);
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+
+    &__icone {
+        font-size: var(--text-md);
+        line-height: 1;
+    }
+
+    &__texto {
+        font-size: var(--text-md);
+    }
+}
