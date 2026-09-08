@@ -1,0 +1,192 @@
+// ============================================================================
+// GINI — Design Tokens
+// Fonte única de verdade para cores, tipografia, espaçamento, bordas e
+// sombras usadas em todo o projeto (ver briefing, seção 8.3).
+//
+// Regra de ouro: nenhum componente novo deveria escrever um hex, um px de
+// radius ou uma família de fonte "solta". Se o valor não existe aqui embaixo,
+// ele deveria ser adicionado aqui — não reinventado no componente.
+// ============================================================================
+
+:root {
+    // ---------- Cor de marca ----------
+    // Único verde oficial do GINI. Existiam 3 variações hardcoded pelo projeto
+    // (#0f6b3f em ~30 lugares, #0b6635 no profile-setup) — todas devem migrar
+    // para var(--color-primary).
+    --color-primary: #0f6e56;
+    --color-primary-hover: #1a9470;
+    --color-primary-light: #4dbfa0;
+    --color-primary-pale: #e0f5ee;
+    --color-on-primary: #ffffff;
+    --color-sidebar: #0f6e56;
+    --color-overlay: rgba(17, 24, 39, 0.55);
+    --color-on-action: #ffffff;
+    --color-banner-bg: #0f6e56;
+    --color-banner-fg: #ffffff;
+    --color-focus-ring: rgba(15, 110, 86, 0.25);
+
+    // ---------- Cores semânticas ----------
+    --color-danger: #c8102e; // ações destrutivas / alertas críticos (ex.: "ver alertas")
+    --color-danger-bg: #fdecea; // fundo claro de alerta/indisponível (já era usado assim em 3 arquivos)
+    --color-danger-border: #f3c6c2;
+    --color-error: #ef4444; // vermelho vivo: validação de formulário e ações de saída/destrutivas leves (ex.: "sair" no menu)
+
+    --color-warning-bg: #fff4d6; // "defeito"/"parcial" (equipamentos, alertas)
+    --color-warning-border: #f0dfa3;
+    --color-warning-fg: #8a5c00; // havia #6b4700 e #8a5c00 pro mesmo estado — unificado
+
+    --color-success: #1e7d32; // "resolvido"/"disponível" (já era o valor real usado)
+    --color-success-bg: #f4fbf5;
+    --color-success-border: #bfe3c4;
+
+    --color-status-free: #3b6d11;
+    --color-status-busy: #e24b4a;
+    --color-status-maintenance: #ef9f27;
+
+    // ---------- Neutros (escala de cinza) ----------
+    --color-text: #111827; // texto principal — era #1a1a1a no styles.scss, mas
+    // 100% dos componentes já sobrescreviam com #111827
+    --color-text-muted: #4b5563; // texto secundário
+    --color-text-subtle: #626c7c; // legível também sobre --color-bg
+    --color-placeholder: #9ca3af;
+
+    --color-border: #e5e7eb; // borda padrão de cards
+    --color-border-strong: #d1d5db; // borda de inputs / elementos de formulário
+
+    --color-surface: #ffffff; // fundo de cards, inputs, modais
+    --color-bg: #f3f4f6; // fundo de página — era #f5f7f6, mas 8+ páginas já
+    // usavam #f3f4f6 direto; padronizado pela maioria
+
+    // ---------- Tipografia ----------
+    --font-sans: 'DM Sans', system-ui, sans-serif;
+    --font-mono: 'DM Mono', 'Courier New', monospace;
+
+    // Escala de tamanhos (rem). 4 níveis pedidos + 2 extras de apoio:
+    --text-2xl: 2.2rem; // hero — telas cheias de autenticação/onboarding
+    --text-xl: 1.75rem; // títulos grandes (título de página, cabeçalhos de seção)
+    --text-lg: 1.125rem; // títulos de card
+    --text-md: 0.95rem; // corpo de texto (padrão)
+    --text-sm: 0.85rem; // texto secundário
+    --text-xs: 0.75rem; // legendas, badges, tags
+
+    --fw-regular: 400;
+    --fw-medium: 500;
+    --fw-semibold: 600;
+    --fw-bold: 700;
+    --fw-extrabold: 800;
+
+    // ---------- Espaçamento ----------
+    --space-3xs: 0.25rem;
+    --space-2xs: 0.5rem;
+    --space-xs: 0.75rem;
+    --space-sm: 1rem;
+    --space-md: 1.25rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+
+    // Dimensões compartilhadas para descontar o cabeçalho e o espaço do layout.
+    --layout-topbar-height: 80px;
+    --layout-content-padding: var(--space-lg);
+
+    // ---------- Bordas ----------
+    --radius-sm: 6px; // inputs pequenos, tags pequenas
+    --radius-md: 8px; // botões, inputs
+    --radius-lg: 12px; // cards — já era o valor predominante no projeto
+    --radius-pill: 999px; // chips, badges, avatares em pílula
+
+    // ---------- Sombras ----------
+    --shadow-card: 0 1px 3px rgba(17, 24, 39, 0.06);
+    --shadow-card-hover: 0 4px 12px rgba(17, 24, 39, 0.1);
+    --shadow-modal: 0 12px 32px rgba(17, 24, 39, 0.2);
+
+    // ---------- Paleta de disciplina/aula ----------
+    // Já existiam duas paletas ad hoc parecidas (grade-semanal e professores).
+    // Um único conjunto nomeado evita reinventar hex por tela nova.
+    --tag-verde-bg: #d1fae5;
+    --tag-verde-fg: #065f46;
+    --tag-azul-bg: #dbeafe;
+    --tag-azul-fg: #1e40af;
+    --tag-ciano-bg: #e0f2fe;
+    --tag-ciano-fg: #075985;
+    --tag-roxo-bg: #f3e8ff;
+    --tag-roxo-fg: #6b21a8;
+    --tag-rosa-bg: #ffe4e6;
+    --tag-rosa-fg: #9f1239;
+    --tag-magenta-bg: #fce7f3;
+    --tag-magenta-fg: #9d174d;
+    --tag-vermelho-bg: #fee2e2;
+    --tag-vermelho-fg: #991b1b;
+    --tag-amarelo-bg: #fef3c7;
+    --tag-amarelo-fg: #92400e;
+    --tag-verde-border: #a7e3c4;
+    --tag-azul-border: #b6d3f7;
+    --tag-ciano-border: #9ed6ed;
+    --tag-roxo-border: #ddc2f7;
+    --tag-rosa-border: #f4b6c6;
+    --tag-magenta-border: #eeb7de;
+    --tag-vermelho-border: #f5b5b5;
+    --tag-amarelo-border: #eab308;
+    --tag-indigo-bg: #e0e7ff;
+    --tag-indigo-fg: #3730a3;
+    --tag-indigo-border: #6366f1;
+}
+
+// Preferência global: os componentes continuam consumindo os mesmos tokens.
+:root[data-theme='dark'] {
+    color-scheme: dark;
+    --color-on-action: #111827;
+    --color-banner-bg: #153d32;
+    --color-banner-fg: #d5f5ea;
+    --color-focus-ring: rgba(77, 191, 160, 0.4);
+    --color-primary: #4dbfa0;
+    --color-primary-hover: #74d2b8;
+    --color-primary-pale: #153d32;
+    --color-text: #f3f4f6;
+    --color-text-muted: #d1d5db;
+    --color-text-subtle: #b0b8c5;
+    --color-placeholder: #929eaf;
+    --color-border: #364152;
+    --color-border-strong: #64748b;
+    --color-surface: #1f2937;
+    --color-bg: #111827;
+    --color-danger: #ff8093;
+    --color-error: #ff8093;
+    --color-danger-bg: #421e29;
+    --color-danger-border: #80394a;
+    --color-warning-bg: #443619;
+    --color-warning-fg: #fbd776;
+    --color-warning-border: #806326;
+    --color-success: #85d99a;
+    --color-success-bg: #193b2c;
+    --color-success-border: #386b50;
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.2);
+    --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --shadow-modal: 0 12px 32px rgba(0, 0, 0, 0.5);
+    --tag-verde-bg: #153d32;
+    --tag-verde-fg: #91e6c0;
+    --tag-azul-bg: #1c3555;
+    --tag-azul-fg: #a8cbff;
+    --tag-ciano-bg: #123b4d;
+    --tag-ciano-fg: #99d9ef;
+    --tag-roxo-bg: #3b2454;
+    --tag-roxo-fg: #ddb5fa;
+    --tag-rosa-bg: #4c2638;
+    --tag-rosa-fg: #ffc2d4;
+    --tag-magenta-bg: #4b2544;
+    --tag-magenta-fg: #f7bae9;
+    --tag-vermelho-bg: #49272d;
+    --tag-vermelho-fg: #ffb7b7;
+    --tag-amarelo-bg: #443619;
+    --tag-amarelo-fg: #fbd776;
+    --tag-verde-border: #386b55;
+    --tag-azul-border: #416490;
+    --tag-ciano-border: #327189;
+    --tag-roxo-border: #71548d;
+    --tag-rosa-border: #83526a;
+    --tag-magenta-border: #815274;
+    --tag-vermelho-border: #85505a;
+    --tag-amarelo-border: #806326;
+    --tag-indigo-bg: #292b52;
+    --tag-indigo-fg: #c5caff;
+    --tag-indigo-border: #686dc0;
+}

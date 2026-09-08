@@ -1,43 +1,43 @@
 .lista-salas {
-    padding: 1.5rem;
-    background-color: #f3f4f6;
-    min-height: calc(100vh - 80px);
+    padding: var(--space-lg);
+    background-color: var(--color-bg);
+    min-height: var(--page-min-height, 0px);
     width: 100%;
     box-sizing: border-box;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: var(--space-sm);
 }
 
 .lista-salas__filtros {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
+    gap: var(--space-xs);
     align-items: center;
-    background-color: #ffffff;
-    border-radius: 12px;
-    padding: 1rem 1.25rem;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    background-color: var(--color-surface);
+    border-radius: var(--radius-lg);
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-card);
 }
 
 .lista-salas__campo-busca,
 .lista-salas__filtro-predio {
     padding: 0.5rem 0.75rem;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 0.875rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-sm);
     font-family: inherit;
-    color: #111827;
-    background: #fff;
+    color: var(--color-text);
+    background: var(--color-surface);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
     &:focus,
     &:focus-visible {
         outline: none;
-        border-color: #0f6b3f;
-        box-shadow: 0 0 0 3px rgba(15, 107, 63, 0.15);
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(15, 110, 86, 0.15);
     }
 }
 
@@ -45,7 +45,7 @@
     flex: 1 1 240px;
 
     &::placeholder {
-        color: #9ca3af;
+        color: var(--color-placeholder);
     }
 }
 
@@ -58,7 +58,7 @@
 .grade-salas {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 1rem;
+    gap: var(--space-sm);
     list-style: none;
     margin: 0;
     padding: 0;
@@ -66,18 +66,18 @@
 
 .card-sala {
     display: block;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 1rem 1.25rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 1rem var(--space-md);
     text-decoration: none;
     color: inherit;
-    background: #fff;
+    background: var(--color-surface);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 
     &:hover,
     &:focus-visible {
         transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        box-shadow: var(--shadow-card-hover);
     }
 
     &__cabecalho {
@@ -87,9 +87,9 @@
         gap: 0.5rem;
 
         h2 {
-            font-size: 1rem;
-            font-weight: 700;
-            color: #111827;
+            font-size: var(--text-lg);
+            font-weight: var(--fw-bold);
+            color: var(--color-text);
             margin: 0;
         }
     }
@@ -97,15 +97,15 @@
     &__local,
     &__info {
         margin: 0.35rem 0 0;
-        font-size: 0.85rem;
-        color: #6b7280;
+        font-size: var(--text-sm);
+        color: var(--color-text-subtle);
     }
 }
 
 .lista-salas__vazio {
     grid-column: 1 / -1;
-    color: #6b7280;
+    color: var(--color-text-subtle);
     text-align: center;
-    padding: 2rem 0;
-    font-size: 1rem;
+    padding: var(--space-xl) 0;
+    font-size: var(--text-md);
 }
