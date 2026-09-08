@@ -21,12 +21,12 @@
     </div>
 
     <div class="professores__cursos" role="tablist" aria-label="Filtrar por curso">
-        <button type="button" class="curso-chip" [class.curso-chip--ativo]="cursoSelecionado() === null" role="tab"
+        <button type="button" class="filtro-chip curso-chip" [class.filtro-chip--ativo]="cursoSelecionado() === null" [class.curso-chip--ativo]="cursoSelecionado() === null" role="tab"
             [attr.aria-selected]="cursoSelecionado() === null" (click)="selecionarCurso(null)">
             Todos
         </button>
         @for (curso of cursos(); track curso) {
-        <button type="button" class="curso-chip" [class.curso-chip--ativo]="cursoSelecionado() === curso" role="tab"
+        <button type="button" class="filtro-chip curso-chip" [class.filtro-chip--ativo]="cursoSelecionado() === curso" [class.curso-chip--ativo]="cursoSelecionado() === curso" role="tab"
             [attr.aria-selected]="cursoSelecionado() === curso" (click)="selecionarCurso(curso)">
             {{ curso }}
         </button>

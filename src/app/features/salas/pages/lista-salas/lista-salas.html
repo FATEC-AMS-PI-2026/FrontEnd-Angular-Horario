@@ -15,9 +15,39 @@
     <select class="lista-salas__filtro-predio" aria-label="Filtrar por prédio" (change)="onFiltrarPredio($event)">
       <option value="">Todos os prédios</option>
       @for (predio of predios(); track predio) {
-      <option [value]="predio" [selected]="predioSelecionado() === predio">{{ predio }}</option>
+        <option [value]="predio">{{ predio }}</option>
       }
     </select>
+  </div>
+
+  <div class="lista-salas__tipos" role="group" aria-label="Filtrar por tipo de sala">
+    <button
+      type="button"
+      class="filtro-chip"
+      [class.filtro-chip--ativo]="tipoSelecionado() === null"
+      [attr.aria-pressed]="tipoSelecionado() === null"
+      (click)="selecionarTipo(null)"
+    >
+      Todos
+    </button>
+    <button
+      type="button"
+      class="filtro-chip"
+      [class.filtro-chip--ativo]="tipoSelecionado() === 'sala'"
+      [attr.aria-pressed]="tipoSelecionado() === 'sala'"
+      (click)="selecionarTipo('sala')"
+    >
+      Salas
+    </button>
+    <button
+      type="button"
+      class="filtro-chip"
+      [class.filtro-chip--ativo]="tipoSelecionado() === 'laboratorio'"
+      [attr.aria-pressed]="tipoSelecionado() === 'laboratorio'"
+      (click)="selecionarTipo('laboratorio')"
+    >
+      Laboratórios
+    </button>
   </div>
 
   <ul class="grade-salas">
