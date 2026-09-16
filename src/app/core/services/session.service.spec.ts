@@ -8,11 +8,16 @@ describe('SessionService', () => {
   beforeEach(() => {
     localStorage.removeItem('gini_token');
     localStorage.removeItem('gini_usuario');
+    sessionStorage.removeItem('gini_token');
+    sessionStorage.removeItem('gini_usuario');
     TestBed.configureTestingModule({ providers: [provideRouter([])] });
   });
 
   afterEach(() => {
-    ['gini_token', 'gini_usuario', 'gini_preferencias'].forEach(key => localStorage.removeItem(key));
+    ['gini_token', 'gini_usuario', 'gini_preferencias'].forEach(key => {
+      localStorage.removeItem(key);
+      sessionStorage.removeItem(key);
+    });
   });
 
   it('restaura a conta autenticada e a identificação acadêmica', () => {
@@ -48,5 +53,34 @@ describe('SessionService', () => {
     expect(service.usuario()).toBeNull();
     expect(localStorage.getItem('gini_preferencias')).not.toBeNull();
     expect(navigate).toHaveBeenCalledWith(['/login']);
+  });
+
+  // Critérios "Persistência de Sessão" / "Sessão Volátil (Padrão)" da issue #130.
+  it('guarda no LocalStorage quando lembrarDeMim é true (padrão)', () => {
+    const service = TestBed.inject(SessionService);
+    service.iniciar('test-token', usuario, true);
+    expect(localStorage.getItem('gini_token')).toBe('test-token');
+    expect(sessionStorage.getItem('gini_token')).toBeNull();
+  });
+
+  it('guarda no SessionStorage quando lembrarDeMim é false', () => {
+    const service = TestBed.inject(SessionService);
+    service.iniciar('test-token', usuario, false);
+    expect(sessionStorage.getItem('gini_token')).toBe('test-token');
+    expect(localStorage.getItem('gini_token')).toBeNull();
+  });
+
+  it('restaura a sessão a partir do SessionStorage ao recarregar', () => {
+    sessionStorage.setItem('gini_token', 'test-token');
+    sessionStorage.setItem('gini_usuario', JSON.stringify(usuario));
+    expect(TestBed.inject(SessionService).usuario()).toEqual(usuario);
+  });
+
+  it('logout limpa tanto LocalStorage quanto SessionStorage', () => {
+    const service = TestBed.inject(SessionService);
+    service.iniciar('test-token', usuario, false);
+    service.logout();
+    expect(sessionStorage.getItem('gini_token')).toBeNull();
+    expect(localStorage.getItem('gini_token')).toBeNull();
   });
 });

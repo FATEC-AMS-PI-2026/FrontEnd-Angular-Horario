@@ -127,6 +127,27 @@
         }
     }
 
+    /* CHECKBOX "LEMBRAR DE MIM" */
+    .field-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: -8px 0 20px;
+
+        input[type='checkbox'] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--color-primary);
+            cursor: pointer;
+        }
+
+        label {
+            font-size: var(--text-sm);
+            color: var(--color-text-muted);
+            cursor: pointer;
+        }
+    }
+
     /* ACTION BUTTONS */
     .button-group {
         display: flex;
