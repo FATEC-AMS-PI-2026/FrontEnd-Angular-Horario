@@ -1,6 +1,6 @@
 import { Component, DestroyRef, inject } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
-import { Router, RouterLink } from '@angular/router';
+import { ApiErrorService } from '../../../../core/services/api-error.service';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
@@ -16,6 +16,7 @@ import { AuthService } from '../../services/auth.service';
 export class Login {
     private readonly router = inject(Router);
     private readonly authService = inject(AuthService);
+    private readonly apiError = inject(ApiErrorService);
     private readonly destroyRef = inject(DestroyRef);
     readonly form = inject(FormBuilder).nonNullable.group({
         identificador: ['', [Validators.required, Validators.pattern(/\S/)]],
@@ -23,7 +24,13 @@ export class Login {
     });
     submitted = false;
     loading = false;
-    errorMessage = '';
+    errorMessage = this.mensagemInicial();
+
+    private mensagemInicial(): string {
+        const motivo = inject(ActivatedRoute).snapshot.queryParamMap.get('motivo');
+        return motivo === 'sessao-expirada' ? 'Sua sessão expirou. Entre novamente para continuar.'
+            : motivo === 'perfil-indisponivel' ? 'Não foi possível carregar seu perfil. Tente entrar novamente.' : '';
+    }
 
     get identificador() { return this.form.controls.identificador; }
     get senha() { return this.form.controls.senha; }
@@ -40,9 +47,8 @@ export class Login {
         ).subscribe({
             next: destino => { void this.router.navigateByUrl(destino); },
             error: (error: unknown) => {
-                this.errorMessage = error instanceof HttpErrorResponse && error.status === 401
-                    ? 'E-mail/matrícula ou senha inválidos. Tente novamente.'
-                    : 'Não foi possível entrar ou consultar seu perfil. Tente novamente.';
+                this.errorMessage = this.apiError.mensagem(error,
+                    'Não foi possível entrar ou consultar seu perfil. Tente novamente.', true);
             },
         });
     }

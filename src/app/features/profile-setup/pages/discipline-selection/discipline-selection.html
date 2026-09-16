@@ -1,114 +1,120 @@
-<section class="discipline-selection" aria-label="Personalização da grade">
-  <header class="page-intro">
-    <p class="contexto">{{ setupService.selectedCourse() }} · {{ setupService.selectedPeriod() }}</p>
-    <h2>Monte a grade do seu semestre</h2>
-    <p>Escolha as disciplinas que vai cursar. Consulte outros períodos para incluir DPs ou adiantar matérias.</p>
-  </header>
+<section class="discipline-selection" aria-label="Personalização da grade" [attr.aria-busy]="loading() || saving()">
+    @if (saving()) { <p role="status">Salvando sua grade...</p> }
+    <header class="page-intro">
+        <p class="contexto">{{ setupService.selectedCourse() }} · {{ setupService.selectedPeriod() }}</p>
+        <h2>Monte a grade do seu semestre</h2>
+        <p>Escolha as disciplinas que vai cursar. Consulte outros períodos para incluir DPs ou adiantar matérias.</p>
+    </header>
 
-  @if (loading()) {
+    @if (loading()) {
     <div class="estado" role="status">Carregando a matriz de disciplinas do curso...</div>
-  }
-  @if (errorMessage()) {
+    }
+    @if (errorMessage()) {
     <div class="estado erro" role="alert">
-      <p>{{ errorMessage() }}</p>
-      @if (!carregado()) {
-        <button class="btn-secondary" type="button" (click)="carregar()" [disabled]="loading()">Tentar novamente</button>
-      }
+        <p>{{ errorMessage() }}</p>
+        @if (!carregado()) {
+        <button class="btn-secondary" type="button" (click)="carregar()" [disabled]="loading()">Tentar
+            novamente</button>
+        }
     </div>
-  }
-  @if (avisoSelecao()) {
+    }
+    @if (avisoSelecao()) {
     <p class="aviso" role="status">{{ avisoSelecao() }}</p>
-  }
+    }
 
-  @if (carregado()) {
+    @if (carregado()) {
     <div class="grade-layout">
-      <div class="catalogo">
-        <div class="filtros">
-          <label for="busca-disciplina">Buscar disciplina</label>
-          <input #campoBusca id="busca-disciplina" type="search" placeholder="Busque pelo nome da disciplina"
-            [value]="busca()" (input)="busca.set(campoBusca.value)" [disabled]="saving()" />
-          <div class="periodos" role="group" aria-label="Filtrar disciplinas por período">
-            @for (periodo of periodos(); track periodo) {
-              <button type="button" class="pill" [class.active]="filtroPeriodo() === periodo"
-                [attr.aria-pressed]="filtroPeriodo() === periodo" [disabled]="saving()"
-                (click)="filtroPeriodo.set(periodo)">
-                {{ periodo }}
-                @if (periodo === setupService.selectedPeriod()) { <span>Atual</span> }
-              </button>
-            }
-            <button type="button" class="pill" [class.active]="filtroPeriodo() === null"
-              [attr.aria-pressed]="filtroPeriodo() === null" [disabled]="saving()"
-              (click)="filtroPeriodo.set(null)">Todos os períodos</button>
-          </div>
-        </div>
-
-        <div class="lista-cabecalho">
-          <h3>{{ filtroPeriodo() || 'Todos os períodos' }}</h3>
-          <span>{{ visiveis().length }} disciplinas encontradas</span>
-          <button type="button" class="btn-secondary" (click)="adicionarTodas()"
-            [disabled]="!podeAdicionarTodas()"
-            [title]="filtroPeriodo() ? 'Adicionar todas as disciplinas do ' + filtroPeriodo() : 'Selecione um período para adicionar suas disciplinas'">
-            Adicionar todas as disciplinas
-          </button>
-        </div>
-        <fieldset class="disciplinas" [disabled]="saving()">
-          <legend>Selecione as disciplinas para sua grade</legend>
-          @for (disciplina of visiveis(); track disciplina.id) {
-            <label class="disciplina" [class.selecionada]="setupService.selectedDisciplinas().includes(disciplina.id)">
-              <input type="checkbox" [checked]="setupService.selectedDisciplinas().includes(disciplina.id)"
-                (change)="selecionar(disciplina.id)" [attr.aria-label]="disciplina.nome + ' — ' + disciplina.periodo" />
-              <span class="disciplina-info">
-                <strong>{{ disciplina.nome }}</strong>
-                <span>{{ disciplina.periodo }}</span>
-              </span>
-              <span class="tag" [class.dp]="tipo(disciplina) === 'DP'"
-                [class.adiantamento]="tipo(disciplina) === 'Adiantamento'">{{ tipo(disciplina) }}</span>
-            </label>
-          } @empty {
-            <div class="estado">
-              <h3>Nenhuma disciplina encontrada</h3>
-              <p>{{ disciplinas().length ? 'Experimente outro período ou termo de busca.' : 'Ainda não há disciplinas disponíveis para este curso.' }}</p>
-              @if (disciplinas().length) {
-                <button type="button" class="btn-secondary" (click)="limparFiltros()">Limpar filtros</button>
-              }
+        <div class="catalogo">
+            <div class="filtros">
+                <label for="busca-disciplina">Buscar disciplina</label>
+                <input #campoBusca id="busca-disciplina" type="search" placeholder="Busque pelo nome da disciplina"
+                    [value]="busca()" (input)="busca.set(campoBusca.value)" [disabled]="saving()" />
+                <div class="periodos" role="group" aria-label="Filtrar disciplinas por período">
+                    @for (periodo of periodos(); track periodo) {
+                    <button type="button" class="pill" [class.active]="filtroPeriodo() === periodo"
+                        [attr.aria-pressed]="filtroPeriodo() === periodo" [disabled]="saving()"
+                        (click)="filtroPeriodo.set(periodo)">
+                        {{ periodo }}
+                        @if (periodo === setupService.selectedPeriod()) { <span>Atual</span> }
+                    </button>
+                    }
+                    <button type="button" class="pill" [class.active]="filtroPeriodo() === null"
+                        [attr.aria-pressed]="filtroPeriodo() === null" [disabled]="saving()"
+                        (click)="filtroPeriodo.set(null)">Todos os períodos</button>
+                </div>
             </div>
-          }
-        </fieldset>
-        <p class="legenda">DP: disciplina de um período anterior. Adiantamento: disciplina de um período futuro.</p>
-      </div>
 
-      <aside class="resumo" aria-labelledby="titulo-resumo">
-        <h2 id="titulo-resumo">Sua grade</h2>
-        <p class="contador" role="status" aria-live="polite">
-          <strong>{{ selecionadas().length }}</strong>
-          {{ selecionadas().length === 1 ? 'disciplina selecionada' : 'disciplinas selecionadas' }}
-        </p>
-        <div class="totais">
-          <span>Regulares <strong>{{ resumo().regular }}</strong></span>
-          <span>DPs <strong>{{ resumo().dp }}</strong></span>
-          <span>Adiantamentos <strong>{{ resumo().adiantamento }}</strong></span>
+            <div class="lista-cabecalho">
+                <h3>{{ filtroPeriodo() || 'Todos os períodos' }}</h3>
+                <span>{{ visiveis().length }} disciplinas encontradas</span>
+                <button type="button" class="btn-secondary" (click)="adicionarTodas()"
+                    [disabled]="!podeAdicionarTodas()"
+                    [title]="filtroPeriodo() ? 'Adicionar todas as disciplinas do ' + filtroPeriodo() : 'Selecione um período para adicionar suas disciplinas'">
+                    Adicionar todas as disciplinas
+                </button>
+            </div>
+            <fieldset class="disciplinas" [disabled]="saving()">
+                <legend>Selecione as disciplinas para sua grade</legend>
+                @for (disciplina of visiveis(); track disciplina.id) {
+                <label class="disciplina"
+                    [class.selecionada]="setupService.selectedDisciplinas().includes(disciplina.id)">
+                    <input type="checkbox" [checked]="setupService.selectedDisciplinas().includes(disciplina.id)"
+                        (change)="selecionar(disciplina.id)"
+                        [attr.aria-label]="disciplina.nome + ' — ' + disciplina.periodo" />
+                    <span class="disciplina-info">
+                        <strong>{{ disciplina.nome }}</strong>
+                        <span>{{ disciplina.periodo }}</span>
+                    </span>
+                    <span class="tag" [class.dp]="tipo(disciplina) === 'DP'"
+                        [class.adiantamento]="tipo(disciplina) === 'Adiantamento'">{{ tipo(disciplina) }}</span>
+                </label>
+                } @empty {
+                <div class="estado">
+                    <h3>Nenhuma disciplina encontrada</h3>
+                    <p>{{ disciplinas().length ? 'Experimente outro período ou termo de busca.' : 'Ainda não há
+                        disciplinas disponíveis para este curso.' }}</p>
+                    @if (disciplinas().length) {
+                    <button type="button" class="btn-secondary" (click)="limparFiltros()">Limpar filtros</button>
+                    }
+                </div>
+                }
+            </fieldset>
+            <p class="legenda">DP: disciplina de um período anterior. Adiantamento: disciplina de um período futuro.</p>
         </div>
-        <ul class="selecionadas">
-          @for (disciplina of selecionadas(); track disciplina.id) {
-            <li>
-              <div><strong>{{ disciplina.nome }}</strong><span>{{ disciplina.periodo }} · {{ tipo(disciplina) }}</span></div>
-              <button type="button" class="remover" [disabled]="saving()" (click)="selecionar(disciplina.id)"
-                [attr.aria-label]="'Remover ' + disciplina.nome">Remover</button>
-            </li>
-          } @empty {
-            <li class="resumo-vazio">Selecione ao menos uma disciplina. Suas escolhas aparecerão aqui.</li>
-          }
-        </ul>
-        <p class="legenda">As seleções são mantidas ao mudar os filtros.</p>
-      </aside>
-    </div>
-  }
 
-  <footer class="footer-actions">
-    <button type="button" class="btn-secondary" [disabled]="saving()" (click)="voltar()">Voltar</button>
-    <button type="button" class="btn-primary" (click)="concluir()"
-      [disabled]="loading() || saving() || !carregado() || !selecionadas().length">
-      {{ saving() ? 'Salvando grade...' : 'Concluir e entrar' }}
-    </button>
-  </footer>
+        <aside class="resumo" aria-labelledby="titulo-resumo">
+            <h2 id="titulo-resumo">Sua grade</h2>
+            <p class="contador" role="status" aria-live="polite">
+                <strong>{{ selecionadas().length }}</strong>
+                {{ selecionadas().length === 1 ? 'disciplina selecionada' : 'disciplinas selecionadas' }}
+            </p>
+            <div class="totais">
+                <span>Regulares <strong>{{ resumo().regular }}</strong></span>
+                <span>DPs <strong>{{ resumo().dp }}</strong></span>
+                <span>Adiantamentos <strong>{{ resumo().adiantamento }}</strong></span>
+            </div>
+            <ul class="selecionadas">
+                @for (disciplina of selecionadas(); track disciplina.id) {
+                <li>
+                    <div><strong>{{ disciplina.nome }}</strong><span>{{ disciplina.periodo }} · {{ tipo(disciplina)
+                            }}</span></div>
+                    <button type="button" class="remover" [disabled]="saving()" (click)="selecionar(disciplina.id)"
+                        [attr.aria-label]="'Remover ' + disciplina.nome">Remover</button>
+                </li>
+                } @empty {
+                <li class="resumo-vazio">Selecione ao menos uma disciplina. Suas escolhas aparecerão aqui.</li>
+                }
+            </ul>
+            <p class="legenda">As seleções são mantidas ao mudar os filtros.</p>
+        </aside>
+    </div>
+    }
+
+    <footer class="footer-actions">
+        <button type="button" class="btn-secondary" [disabled]="saving()" (click)="voltar()">Voltar</button>
+        <button type="button" class="btn-primary" (click)="concluir()"
+            [disabled]="loading() || saving() || !carregado() || !selecionadas().length">
+            {{ saving() ? 'Salvando grade...' : 'Concluir e entrar' }}
+        </button>
+    </footer>
 </section>

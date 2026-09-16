@@ -9,10 +9,12 @@
             <h1 class="title">Criar a Conta</h1>
             <p class="subtitle">Insira seus dados para se cadastrar</p>
 
-            <form [formGroup]="cadastroForm" (ngSubmit)="cadastrar()">
+            <form [formGroup]="cadastroForm" (ngSubmit)="cadastrar()" [attr.aria-busy]="loading">
+                @if (loading) { <p role="status">Criando sua conta e carregando seu perfil...</p> }
                 <div class="field">
                     <label for="nome">Nome Completo</label>
                     <input id="nome" type="text" formControlName="nome" placeholder="Fulano da Silva"
+                        [readOnly]="loading"
                         [class.input-error]="cadastroForm.get('nome')?.touched && cadastroForm.get('nome')?.invalid">
                     @if (cadastroForm.get('nome')?.touched && cadastroForm.get('nome')?.invalid) {
                     <small class="error-msg">Informe seu nome completo.</small>
@@ -22,6 +24,7 @@
                 <div class="field">
                     <label for="email">E-mail Institucional</label>
                     <input id="email" type="email" formControlName="email" placeholder="seuemail@aluno.cps.sp.gov.br"
+                        [readOnly]="loading"
                         [class.input-error]="cadastroForm.get('email')?.touched && cadastroForm.get('email')?.invalid">
                     @if (cadastroForm.get('email')?.touched && cadastroForm.get('email')?.invalid) {
                     <small class="error-msg">Informe um e-mail válido.</small>
@@ -31,6 +34,7 @@
                 <div class="field">
                     <label for="senha">Senha</label>
                     <input id="senha" type="password" formControlName="senha" placeholder="••••••••"
+                        [readOnly]="loading"
                         [class.input-error]="cadastroForm.get('senha')?.touched && cadastroForm.get('senha')?.invalid">
                     @if (cadastroForm.get('senha')?.touched && cadastroForm.get('senha')?.invalid) {
                     <small class="error-msg">A senha deve possuir pelo menos 8 caracteres.</small>
@@ -40,6 +44,7 @@
                 <div class="field">
                     <label for="confirmarSenha">Confirmar Senha</label>
                     <input id="confirmarSenha" type="password" formControlName="confirmarSenha" placeholder="••••••••"
+                        [readOnly]="loading"
                         [class.input-error]="cadastroForm.get('confirmarSenha')?.touched && cadastroForm.get('confirmarSenha')?.invalid">
                     @if (cadastroForm.get('confirmarSenha')?.touched && cadastroForm.get('confirmarSenha')?.invalid) {
                     <small class="error-msg">Confirme sua senha.</small>

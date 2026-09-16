@@ -1,4 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
+import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -12,6 +15,8 @@ import { AuthService } from '../../services/auth.service';
     styleUrls: ['./forgot-password.scss']
 })
 export class ForgotPassword {
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly apiError = inject(ApiErrorService);
     form: FormGroup;
     submitted = false;
     loading = false;
@@ -29,6 +34,7 @@ export class ForgotPassword {
     }
 
     onSubmit(): void {
+        if (this.loading) return;
         this.submitted = true;
         this.successMessage = '';
         this.errorMessage = '';
@@ -39,15 +45,20 @@ export class ForgotPassword {
 
         this.loading = true;
 
-        this.authService.recuperarSenha(this.email?.value).subscribe({
+        this.authService.recuperarSenha(this.email?.value.trim()).pipe(
+            takeUntilDestroyed(this.destroyRef),
+            finalize(() => this.loading = false),
+        ).subscribe({
             next: (res) => {
                 this.loading = false;
                 this.successMessage =
-                    res?.message ?? 'Se o e-mail informado estiver cadastrado, você receberá um link de redefinição em instantes.';
+                    typeof res?.message === 'string' && res.message.trim()
+                        ? res.message : 'Se o e-mail informado estiver cadastrado, você receberá um link de redefinição em instantes.';
             },
-            error: () => {
+            error: (error: unknown) => {
                 this.loading = false;
-                this.errorMessage = 'Não foi possível enviar o e-mail de recuperação. Tente novamente.';
+                this.errorMessage = this.apiError.mensagem(error,
+                    'Não foi possível enviar o e-mail de recuperação. Tente novamente.');
             }
         });
     }

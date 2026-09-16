@@ -73,9 +73,8 @@
                 <span class="setup-sidebar__step-label">Escolher período</span>
             </div>
             @if (!setupService.returningUser() || setupService.currentStep() === 4) {
-            <div class="setup-sidebar__step"
-                 [class.setup-sidebar__step--active]="setupService.currentStep() === 4"
-                 [class.setup-sidebar__step--disabled]="setupService.currentStep() < 4">
+            <div class="setup-sidebar__step" [class.setup-sidebar__step--active]="setupService.currentStep() === 4"
+                [class.setup-sidebar__step--disabled]="setupService.currentStep() < 4">
                 <div class="setup-sidebar__step-icon">4</div>
                 <span class="setup-sidebar__step-label">Escolher disciplinas</span>
             </div>

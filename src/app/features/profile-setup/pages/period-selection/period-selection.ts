@@ -2,9 +2,10 @@ import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
+import { finalize, map } from 'rxjs';
 import { ProfileSetupService } from '../../services/profile-setup.service';
 import { CursoDetalhes } from '../../models/profile.model';
+import { ApiErrorService } from '../../../../core/services/api-error.service';
 
 @Component({
     selector: 'app-period-selection',
@@ -16,6 +17,7 @@ import { CursoDetalhes } from '../../models/profile.model';
 export class PeriodSelection implements OnInit {
     readonly setupService = inject(ProfileSetupService);
     private readonly router = inject(Router);
+    private readonly apiError = inject(ApiErrorService);
     private readonly destroyRef = inject(DestroyRef);
     readonly curso = signal<CursoDetalhes | null>(null);
     readonly loading = signal(false);
@@ -28,10 +30,18 @@ export class PeriodSelection implements OnInit {
     }
 
     carregar(): void {
-        if (this.loading()) return;
+        if (this.loading() || this.saving()) return;
+        this.curso.set(null);
         this.loading.set(true);
         this.errorMessage.set('');
         this.setupService.obterCurso().pipe(
+            map(curso => {
+                if (!curso || !Array.isArray(curso.periodos) ||
+                    curso.periodos.some(periodo => typeof periodo !== 'string')) {
+                    throw new Error('Resposta de períodos inválida.');
+                }
+                return curso;
+            }),
             takeUntilDestroyed(this.destroyRef),
             finalize(() => this.loading.set(false)),
         ).subscribe({
@@ -41,12 +51,13 @@ export class PeriodSelection implements OnInit {
                     this.setupService.selectedPeriod.set(null);
                 }
             },
-            error: () => this.errorMessage.set('Não foi possível carregar os períodos. Tente novamente.'),
+            error: (error: unknown) => this.errorMessage.set(this.apiError.mensagem(error,
+                'Não foi possível carregar os períodos. Tente novamente.')),
         });
     }
 
     selecionar(periodo: string): void {
-        if (!this.saving() && this.curso()?.periodos.includes(periodo)) {
+        if (!this.loading() && !this.saving() && this.curso()?.periodos.includes(periodo)) {
             this.setupService.setPeriod(periodo);
         }
     }
@@ -73,7 +84,8 @@ export class PeriodSelection implements OnInit {
             next: () => {
                 void this.router.navigate([alterarDisciplinas ? '/setup/discipline-selection' : '/dashboard']);
             },
-            error: () => this.errorMessage.set('Não foi possível salvar o período. Tente novamente.'),
+            error: (error: unknown) => this.errorMessage.set(this.apiError.mensagem(error,
+                'Não foi possível salvar o período. Suas escolhas foram mantidas. Tente novamente.')),
         });
     }
 }

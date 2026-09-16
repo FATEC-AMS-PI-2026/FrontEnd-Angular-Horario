@@ -16,211 +16,213 @@ import { profileGuard } from '../../../core/guards/profile.guard';
 import { ProfileSetupService } from '../../profile-setup/services/profile-setup.service';
 
 @Component({ template: '' })
-class PaginaDemoTeste {}
+class PaginaDemoTeste { }
 
 describe('TEMPORÁRIO: duas jornadas demonstrativas', () => {
-  const original = { production: environment.production, demoAuth: environment.demoAuth };
-  let http: HttpTestingController;
-  let auth: AuthService;
-  let setup: ProfileSetupService;
+    const original = { production: environment.production, demoAuth: environment.demoAuth };
+    let http: HttpTestingController;
+    let auth: AuthService;
+    let setup: ProfileSetupService;
 
-  function configurar(): void {
-    TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([
-        { path: 'login', component: PaginaDemoTeste },
-        { path: '', canActivateChild: [profileGuard], children: [
-          { path: 'dashboard', component: PaginaDemoTeste },
-          { path: 'setup/course-selection', component: PaginaDemoTeste },
-          { path: 'setup/period-selection', component: PaginaDemoTeste },
-          { path: 'setup/discipline-selection', component: PaginaDemoTeste },
-        ] },
-      ])],
+    function configurar(): void {
+        TestBed.configureTestingModule({
+            providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([
+                { path: 'login', component: PaginaDemoTeste },
+                {
+                    path: '', canActivateChild: [profileGuard], children: [
+                        { path: 'dashboard', component: PaginaDemoTeste },
+                        { path: 'setup/course-selection', component: PaginaDemoTeste },
+                        { path: 'setup/period-selection', component: PaginaDemoTeste },
+                        { path: 'setup/discipline-selection', component: PaginaDemoTeste },
+                    ]
+                },
+            ])],
+        });
+        http = TestBed.inject(HttpTestingController);
+        auth = TestBed.inject(AuthService);
+        setup = TestBed.inject(ProfileSetupService);
+    }
+
+    beforeEach(() => {
+        ['gini_token', 'gini_usuario', 'gini_demo_perfil'].forEach(key => localStorage.removeItem(key));
+        environment.production = false;
+        environment.demoAuth = true;
+        configurar();
     });
-    http = TestBed.inject(HttpTestingController);
-    auth = TestBed.inject(AuthService);
-    setup = TestBed.inject(ProfileSetupService);
-  }
 
-  beforeEach(() => {
-    ['gini_token', 'gini_usuario', 'gini_demo_perfil'].forEach(key => localStorage.removeItem(key));
-    environment.production = false;
-    environment.demoAuth = true;
-    configurar();
-  });
-
-  afterEach(() => {
-    http.verify();
-    Object.assign(environment, original);
-    ['gini_token', 'gini_usuario', 'gini_demo_perfil'].forEach(key => localStorage.removeItem(key));
-  });
-
-  function entrar(email: string): void {
-    auth.login(email, 'Demo123!').subscribe();
-  }
-
-  function concluirGrade(): void {
-    setup.listarDisciplinas().subscribe(itens => setup.definirDisciplinas([itens[0].id]));
-    setup.submitProfile().subscribe();
-  }
-
-  it('primeiro acesso passa por curso, período e disciplinas antes da dashboard, sem HTTP', async () => {
-    const next = jasmine.createSpy('next');
-    auth.login('primeiro@gini.local', 'Demo123!').subscribe(next);
-    expect(next).toHaveBeenCalledOnceWith('/setup/course-selection');
-    const harness = await RouterTestingHarness.create();
-    await harness.navigateByUrl('/dashboard');
-    expect(TestBed.inject(Router).url).toBe('/setup/course-selection');
-    await harness.navigateByUrl('/setup/period-selection');
-    expect(TestBed.inject(Router).url).toBe('/setup/course-selection');
-    setup.listarCursos().subscribe(cursos => {
-      expect(cursos.length).toBeGreaterThan(0);
-      setup.setCourse(cursos[0].title, cursos[0].id);
+    afterEach(() => {
+        http.verify();
+        Object.assign(environment, original);
+        ['gini_token', 'gini_usuario', 'gini_demo_perfil'].forEach(key => localStorage.removeItem(key));
     });
-    await harness.navigateByUrl('/setup/period-selection');
-    expect(TestBed.inject(Router).url).toBe('/setup/period-selection');
-    setup.obterCurso().subscribe(curso => setup.setPeriod(curso.periodos[0]));
-    await harness.navigateByUrl('/setup/discipline-selection');
-    expect(TestBed.inject(Router).url).toBe('/setup/discipline-selection');
-    concluirGrade();
-    await harness.navigateByUrl('/dashboard');
-    expect(TestBed.inject(Router).url).toBe('/dashboard');
-    http.expectNone(() => true);
-  });
 
-  it('cada login da primeira conta reinicia curso e período, mesmo depois de concluir', () => {
-    entrar('primeiro@gini.local');
-    setup.setCourse('ADS', 'demo-ads-manha');
-    setup.setPeriod('1º período');
-    concluirGrade();
-    entrar('primeiro@gini.local');
-    expect(setup.returningUser()).toBeFalse();
-    expect(setup.selectedCourseId()).toBeNull();
-    expect(setup.selectedPeriod()).toBeNull();
-    expect(setup.periodoConfirmado()).toBeFalse();
-  });
+    function entrar(email: string): void {
+        auth.login(email, 'Demo123!').subscribe();
+    }
 
-  it('reentrada pula curso, exige confirmação e preserva o curso da conta', async () => {
-    const next = jasmine.createSpy('next');
-    auth.login('demo@gini.local', 'Demo123!').subscribe(next);
-    expect(next).toHaveBeenCalledOnceWith('/setup/period-selection');
-    expect(setup.selectedCourseId()).toBe('demo-ads-manha');
-    const harness = await RouterTestingHarness.create();
-    await harness.navigateByUrl('/setup/course-selection');
-    expect(TestBed.inject(Router).url).toBe('/setup/period-selection');
-    await harness.navigateByUrl('/dashboard');
-    expect(TestBed.inject(Router).url).toBe('/setup/period-selection');
-    setup.setPeriod('3º período');
-    setup.confirmarPeriodo().subscribe();
-    await harness.navigateByUrl('/dashboard');
-    expect(TestBed.inject(Router).url).toBe('/dashboard');
-    expect(TestBed.inject(SessionService).usuario()?.periodo).toBe('3º período');
-    entrar('demo@gini.local');
-    expect(setup.periodoConfirmado()).toBeFalse();
-    http.expectNone(() => true);
-  });
+    function concluirGrade(): void {
+        setup.listarDisciplinas().subscribe(itens => setup.definirDisciplinas([itens[0].id]));
+        setup.submitProfile().subscribe();
+    }
 
-  it('trocar de conta não herda as escolhas da outra demonstração', () => {
-    entrar('primeiro@gini.local');
-    setup.setCourse('ADS tarde', 'demo-ads-tarde');
-    setup.setPeriod('4º período');
-    entrar('demo@gini.local');
-    expect(setup.selectedCourseId()).toBe('demo-ads-manha');
-    expect(setup.selectedPeriod()).toBe('2º período');
-    entrar('primeiro@gini.local');
-    expect(setup.selectedCourseId()).toBeNull();
-  });
+    it('primeiro acesso passa por curso, período e disciplinas antes da dashboard, sem HTTP', async () => {
+        const next = jasmine.createSpy('next');
+        auth.login('primeiro@gini.local', 'Demo123!').subscribe(next);
+        expect(next).toHaveBeenCalledOnceWith('/setup/course-selection');
+        const harness = await RouterTestingHarness.create();
+        await harness.navigateByUrl('/dashboard');
+        expect(TestBed.inject(Router).url).toBe('/setup/course-selection');
+        await harness.navigateByUrl('/setup/period-selection');
+        expect(TestBed.inject(Router).url).toBe('/setup/course-selection');
+        setup.listarCursos().subscribe(cursos => {
+            expect(cursos.length).toBeGreaterThan(0);
+            setup.setCourse(cursos[0].title, cursos[0].id);
+        });
+        await harness.navigateByUrl('/setup/period-selection');
+        expect(TestBed.inject(Router).url).toBe('/setup/period-selection');
+        setup.obterCurso().subscribe(curso => setup.setPeriod(curso.periodos[0]));
+        await harness.navigateByUrl('/setup/discipline-selection');
+        expect(TestBed.inject(Router).url).toBe('/setup/discipline-selection');
+        concluirGrade();
+        await harness.navigateByUrl('/dashboard');
+        expect(TestBed.inject(Router).url).toBe('/dashboard');
+        http.expectNone(() => true);
+    });
 
-  it('restaura escolhas e conclusão após atualizar a página', async () => {
-    entrar('primeiro@gini.local');
-    setup.setCourse('ADS', 'demo-ads-manha');
-    setup.setPeriod('1º período');
-    TestBed.resetTestingModule();
-    configurar();
-    let harness = await RouterTestingHarness.create();
-    await harness.navigateByUrl('/setup/period-selection');
-    expect(TestBed.inject(Router).url).toBe('/setup/period-selection');
-    expect(setup.selectedPeriod()).toBe('1º período');
-    concluirGrade();
-    TestBed.resetTestingModule();
-    configurar();
-    harness = await RouterTestingHarness.create();
-    await harness.navigateByUrl('/dashboard');
-    expect(TestBed.inject(Router).url).toBe('/dashboard');
-    http.expectNone(() => true);
-  });
+    it('cada login da primeira conta reinicia curso e período, mesmo depois de concluir', () => {
+        entrar('primeiro@gini.local');
+        setup.setCourse('ADS', 'demo-ads-manha');
+        setup.setPeriod('1º período');
+        concluirGrade();
+        entrar('primeiro@gini.local');
+        expect(setup.returningUser()).toBeFalse();
+        expect(setup.selectedCourseId()).toBeNull();
+        expect(setup.selectedPeriod()).toBeNull();
+        expect(setup.periodoConfirmado()).toBeFalse();
+    });
 
-  it('a reentrada pode alterar disciplinas após confirmar o período', async () => {
-    entrar('demo@gini.local');
-    const harness = await RouterTestingHarness.create();
-    await harness.navigateByUrl('/setup/discipline-selection');
-    expect(TestBed.inject(Router).url).toBe('/setup/period-selection');
-    setup.confirmarPeriodo().subscribe();
-    await harness.navigateByUrl('/setup/discipline-selection');
-    expect(TestBed.inject(Router).url).toBe('/setup/discipline-selection');
-    http.expectNone(() => true);
-  });
+    it('reentrada pula curso, exige confirmação e preserva o curso da conta', async () => {
+        const next = jasmine.createSpy('next');
+        auth.login('demo@gini.local', 'Demo123!').subscribe(next);
+        expect(next).toHaveBeenCalledOnceWith('/setup/period-selection');
+        expect(setup.selectedCourseId()).toBe('demo-ads-manha');
+        const harness = await RouterTestingHarness.create();
+        await harness.navigateByUrl('/setup/course-selection');
+        expect(TestBed.inject(Router).url).toBe('/setup/period-selection');
+        await harness.navigateByUrl('/dashboard');
+        expect(TestBed.inject(Router).url).toBe('/setup/period-selection');
+        setup.setPeriod('3º período');
+        setup.confirmarPeriodo().subscribe();
+        await harness.navigateByUrl('/dashboard');
+        expect(TestBed.inject(Router).url).toBe('/dashboard');
+        expect(TestBed.inject(SessionService).usuario()?.periodo).toBe('3º período');
+        entrar('demo@gini.local');
+        expect(setup.periodoConfirmado()).toBeFalse();
+        http.expectNone(() => true);
+    });
 
-  it('recusa senha incorreta e limpa sessão e escolhas', () => {
-    entrar('demo@gini.local');
-    const error = jasmine.createSpy('error');
-    auth.login('demo@gini.local', 'incorreta').subscribe({ error });
-    expect(error).toHaveBeenCalledWith(jasmine.objectContaining({ status: 401 }));
-    expect(localStorage.getItem('gini_token')).toBeNull();
-    expect(localStorage.getItem('gini_demo_perfil')).toBeNull();
-    http.expectNone(() => true);
-  });
+    it('trocar de conta não herda as escolhas da outra demonstração', () => {
+        entrar('primeiro@gini.local');
+        setup.setCourse('ADS tarde', 'demo-ads-tarde');
+        setup.setPeriod('4º período');
+        entrar('demo@gini.local');
+        expect(setup.selectedCourseId()).toBe('demo-ads-manha');
+        expect(setup.selectedPeriod()).toBe('2º período');
+        entrar('primeiro@gini.local');
+        expect(setup.selectedCourseId()).toBeNull();
+    });
 
-  it('sair remove o acesso e o progresso local', async () => {
-    entrar('demo@gini.local');
-    const harness = await RouterTestingHarness.create();
-    auth.logout();
-    await harness.navigateByUrl('/dashboard');
-    expect(TestBed.inject(Router).url).toBe('/login');
-    expect(localStorage.getItem('gini_demo_perfil')).toBeNull();
-  });
+    it('restaura escolhas e conclusão após atualizar a página', async () => {
+        entrar('primeiro@gini.local');
+        setup.setCourse('ADS', 'demo-ads-manha');
+        setup.setPeriod('1º período');
+        TestBed.resetTestingModule();
+        configurar();
+        let harness = await RouterTestingHarness.create();
+        await harness.navigateByUrl('/setup/period-selection');
+        expect(TestBed.inject(Router).url).toBe('/setup/period-selection');
+        expect(setup.selectedPeriod()).toBe('1º período');
+        concluirGrade();
+        TestBed.resetTestingModule();
+        configurar();
+        harness = await RouterTestingHarness.create();
+        await harness.navigateByUrl('/dashboard');
+        expect(TestBed.inject(Router).url).toBe('/dashboard');
+        http.expectNone(() => true);
+    });
 
-  it('bloqueia a sessão demo em produção mesmo com flag ligada', async () => {
-    entrar('demo@gini.local');
-    environment.production = true;
-    expect(TestBed.inject(DemoAuthService).habilitado).toBeFalse();
-    const harness = await RouterTestingHarness.create();
-    await harness.navigateByUrl('/dashboard');
-    expect(TestBed.inject(Router).url).toBe('/login');
-    expect(localStorage.getItem('gini_token')).toBeNull();
-    http.expectNone(() => true);
-  });
+    it('a reentrada pode alterar disciplinas após confirmar o período', async () => {
+        entrar('demo@gini.local');
+        const harness = await RouterTestingHarness.create();
+        await harness.navigateByUrl('/setup/discipline-selection');
+        expect(TestBed.inject(Router).url).toBe('/setup/period-selection');
+        setup.confirmarPeriodo().subscribe();
+        await harness.navigateByUrl('/setup/discipline-selection');
+        expect(TestBed.inject(Router).url).toBe('/setup/discipline-selection');
+        http.expectNone(() => true);
+    });
 
-  it('usa HTTP real quando a demonstração está desligada', () => {
-    environment.demoAuth = false;
-    auth.login('demo@gini.local', 'Demo123!').subscribe({ error: () => {} });
-    http.expectOne(environment.apiUrl + '/auth/login')
-      .flush({}, { status: 401, statusText: 'Unauthorized' });
-  });
+    it('recusa senha incorreta e limpa sessão e escolhas', () => {
+        entrar('demo@gini.local');
+        const error = jasmine.createSpy('error');
+        auth.login('demo@gini.local', 'incorreta').subscribe({ error });
+        expect(error).toHaveBeenCalledWith(jasmine.objectContaining({ status: 401 }));
+        expect(localStorage.getItem('gini_token')).toBeNull();
+        expect(localStorage.getItem('gini_demo_perfil')).toBeNull();
+        http.expectNone(() => true);
+    });
 
-  it('recusa período inexistente sem liberar dashboard', () => {
-    entrar('demo@gini.local');
-    setup.setPeriod('99º período');
-    const error = jasmine.createSpy('error');
-    setup.confirmarPeriodo().subscribe({ error });
-    expect(error).toHaveBeenCalled();
-    expect(setup.periodoConfirmado()).toBeFalse();
-  });
+    it('sair remove o acesso e o progresso local', async () => {
+        entrar('demo@gini.local');
+        const harness = await RouterTestingHarness.create();
+        auth.logout();
+        await harness.navigateByUrl('/dashboard');
+        expect(TestBed.inject(Router).url).toBe('/login');
+        expect(localStorage.getItem('gini_demo_perfil')).toBeNull();
+    });
 
-  it('restaura a seleção de disciplinas após recarregar e valida IDs antes de salvar', () => {
-    entrar('primeiro@gini.local');
-    setup.setCourse('ADS', 'demo-ads-manha');
-    setup.setPeriod('2º período');
-    setup.definirDisciplinas(['demo-ads-manha-1-1', 'demo-ads-manha-3-1']);
-    TestBed.resetTestingModule();
-    configurar();
-    setup.garantirPerfil().subscribe();
-    expect(setup.selectedDisciplinas()).toEqual(['demo-ads-manha-1-1', 'demo-ads-manha-3-1']);
-    setup.submitProfile().subscribe();
-    expect(setup.returningUser()).toBeTrue();
-    setup.definirDisciplinas(['id-inexistente']);
-    const error = jasmine.createSpy('error');
-    setup.submitProfile().subscribe({ error });
-    expect(error).toHaveBeenCalled();
-    http.expectNone(() => true);
-  });
+    it('bloqueia a sessão demo em produção mesmo com flag ligada', async () => {
+        entrar('demo@gini.local');
+        environment.production = true;
+        expect(TestBed.inject(DemoAuthService).habilitado).toBeFalse();
+        const harness = await RouterTestingHarness.create();
+        await harness.navigateByUrl('/dashboard');
+        expect(TestBed.inject(Router).url).toBe('/login');
+        expect(localStorage.getItem('gini_token')).toBeNull();
+        http.expectNone(() => true);
+    });
+
+    it('usa HTTP real quando a demonstração está desligada', () => {
+        environment.demoAuth = false;
+        auth.login('demo@gini.local', 'Demo123!').subscribe({ error: () => { } });
+        http.expectOne(environment.apiUrl + '/auth/login')
+            .flush({}, { status: 401, statusText: 'Unauthorized' });
+    });
+
+    it('recusa período inexistente sem liberar dashboard', () => {
+        entrar('demo@gini.local');
+        setup.setPeriod('99º período');
+        const error = jasmine.createSpy('error');
+        setup.confirmarPeriodo().subscribe({ error });
+        expect(error).toHaveBeenCalled();
+        expect(setup.periodoConfirmado()).toBeFalse();
+    });
+
+    it('restaura a seleção de disciplinas após recarregar e valida IDs antes de salvar', () => {
+        entrar('primeiro@gini.local');
+        setup.setCourse('ADS', 'demo-ads-manha');
+        setup.setPeriod('2º período');
+        setup.definirDisciplinas(['demo-ads-manha-1-1', 'demo-ads-manha-3-1']);
+        TestBed.resetTestingModule();
+        configurar();
+        setup.garantirPerfil().subscribe();
+        expect(setup.selectedDisciplinas()).toEqual(['demo-ads-manha-1-1', 'demo-ads-manha-3-1']);
+        setup.submitProfile().subscribe();
+        expect(setup.returningUser()).toBeTrue();
+        setup.definirDisciplinas(['id-inexistente']);
+        const error = jasmine.createSpy('error');
+        setup.submitProfile().subscribe({ error });
+        expect(error).toHaveBeenCalled();
+        http.expectNone(() => true);
+    });
 });

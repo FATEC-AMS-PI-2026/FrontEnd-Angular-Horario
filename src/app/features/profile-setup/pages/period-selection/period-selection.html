@@ -1,4 +1,5 @@
-<div class="period-selection-container">
+<div class="period-selection-container" [attr.aria-busy]="loading() || saving()">
+    @if (saving()) { <p role="status">Salvando seu período...</p> }
 
     <div class="page-header">
         <h2>Selecione o período desejado</h2>
