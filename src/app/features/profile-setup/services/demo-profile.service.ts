@@ -4,12 +4,13 @@
  */
 import { Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
-import { CursoDetalhes, PerfilResponse } from '../models/profile.model';
+import { CursoDetalhes, Disciplina, PerfilResponse } from '../models/profile.model';
 
 interface EstadoDemo {
   token: string;
   perfil: PerfilResponse;
   periodoConfirmado: boolean;
+  disciplinasRascunho?: string[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -46,9 +47,11 @@ export class DemoProfileService {
       },
       configuracaoInicialConcluida: !primeiroAcesso,
       cursoId: primeiroAcesso ? null : curso.id,
-      disciplinasIds: [],
+      disciplinasIds: primeiroAcesso ? [] : this.listarDisciplinas(curso.id)
+        .filter(item => item.periodo === '2º período').map(item => item.id),
     };
-    this.salvar({ token: this.token, perfil, periodoConfirmado: false });
+    this.salvar({ token: this.token, perfil, periodoConfirmado: false,
+      disciplinasRascunho: [...perfil.disciplinasIds] });
     return perfil;
   }
 
@@ -64,6 +67,7 @@ export class DemoProfileService {
 
   escolher(cursoId: string | null, periodo: string | null): void {
     const estado = this.restaurar();
+    if (estado.perfil.cursoId !== cursoId) estado.disciplinasRascunho = [];
     const curso = this.cursos.find(item => item.id === cursoId);
     estado.perfil = { ...estado.perfil, cursoId, usuario: {
       ...estado.perfil.usuario, curso: curso?.title ?? '', periodo: periodo ?? '',
@@ -78,6 +82,46 @@ export class DemoProfileService {
     }
     this.escolher(cursoId, periodo);
     const estado = this.restaurar();
+    if (!estado.perfil.configuracaoInicialConcluida) {
+      throw new Error('Conclua a seleção de disciplinas antes de entrar.');
+    }
+    estado.periodoConfirmado = true;
+    this.salvar(estado);
+    return estado.perfil;
+  }
+
+  listarDisciplinas(cursoId: string | null): Disciplina[] {
+    const curso = this.cursos.find(item => item.id === cursoId);
+    const nomes = [
+      ['Algoritmos e lógica de programação', 'Matemática discreta', 'Comunicação e expressão'],
+      ['Programação orientada a objetos', 'Banco de dados I', 'Engenharia de software I'],
+      ['Estruturas de dados', 'Banco de dados II', 'Interação humano-computador'],
+      ['Desenvolvimento web', 'Redes de computadores', 'Engenharia de software II'],
+      ['Desenvolvimento para dispositivos móveis', 'Segurança da informação', 'Gestão de projetos'],
+      ['Inteligência artificial', 'Sistemas distribuídos', 'Trabalho de graduação'],
+    ];
+    return curso?.periodos.flatMap((periodo, index) => nomes[index].map((nome, item) => ({
+      id: `${curso.id}-${index + 1}-${item + 1}`, nome, periodo,
+    }))) ?? [];
+  }
+
+  guardarDisciplinas(ids: string[]): void {
+    const estado = this.restaurar();
+    estado.disciplinasRascunho = [...ids];
+    this.salvar(estado);
+  }
+
+  concluirGrade(cursoId: string | null, periodo: string | null, ids: string[]): PerfilResponse {
+    const curso = this.cursos.find(item => item.id === cursoId);
+    const catalogo = this.listarDisciplinas(cursoId);
+    if (!curso || !periodo || !curso.periodos.includes(periodo) || !ids.length ||
+        ids.some(id => !catalogo.some(item => item.id === id))) {
+      throw new Error('Confira as disciplinas selecionadas.');
+    }
+    this.escolher(cursoId, periodo);
+    const estado = this.restaurar();
+    estado.perfil.disciplinasIds = [...new Set(ids)];
+    estado.disciplinasRascunho = [...estado.perfil.disciplinasIds];
     estado.perfil.configuracaoInicialConcluida = true;
     estado.periodoConfirmado = true;
     this.salvar(estado);

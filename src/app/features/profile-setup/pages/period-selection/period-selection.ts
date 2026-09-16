@@ -60,8 +60,7 @@ export class PeriodSelection implements OnInit {
     concluir(alterarDisciplinas = false): void {
         if (this.loading() || this.saving() || !this.setupService.isSetupComplete() ||
             !this.curso()?.periodos.includes(this.setupService.selectedPeriod() ?? '')) return;
-        // TEMPORÁRIO: excluir a condição modoDemonstracao após integrar o backend.
-        if (!this.setupService.returningUser() && !this.setupService.modoDemonstracao) {
+        if (!this.setupService.returningUser()) {
             void this.router.navigate(['/setup/discipline-selection']);
             return;
         }

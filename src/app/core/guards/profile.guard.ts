@@ -30,11 +30,6 @@ export const profileGuard: CanActivateChildFn = (_route, state) => {
             const course = '/setup/course-selection';
             const period = '/setup/period-selection';
             const disciplines = '/setup/discipline-selection';
-            // TEMPORÁRIO: excluir este desvio após integrar o backend; demo termina no período.
-            if (setup.modoDemonstracao && path === disciplines) {
-                return router.parseUrl(setup.periodoConfirmado() ? '/dashboard'
-                    : setup.selectedCourseId() ? period : course);
-            }
             if (!path.startsWith('/setup/')) {
                 if (!setup.returningUser()) return router.parseUrl(course);
                 return setup.periodoConfirmado() ? true : router.parseUrl(period);

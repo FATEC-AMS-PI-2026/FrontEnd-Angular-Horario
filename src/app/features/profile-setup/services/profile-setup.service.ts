@@ -40,7 +40,7 @@ export class ProfileSetupService {
                 this.selectedCourseId.set(perfil.cursoId);
                 this.selectedCourse.set(perfil.usuario.curso || null);
                 this.selectedPeriod.set(perfil.usuario.periodo || null);
-                this.selectedDisciplinas.set([]);
+                this.selectedDisciplinas.set(estado.disciplinasRascunho ?? perfil.disciplinasIds);
                 this.periodoConfirmado.set(estado.periodoConfirmado);
                 this.currentStep.set(this.returningUser() ? 3 : 2);
                 return of(perfil);
@@ -93,9 +93,18 @@ export class ProfileSetupService {
     }
 
     listarDisciplinas(): Observable<Disciplina[]> {
-        return this.http.get<Disciplina[]>(`${this.baseUrl}/cursos/${encodeURIComponent(this.selectedCourseId() ?? '')}/disciplinas`, {
-            ...this.options(), params: { periodo: this.selectedPeriod() ?? '' },
-        });
+        // TEMPORÁRIO: excluir o catálogo demonstrativo após integrar o backend.
+        if (this.demo.ativo) return of(this.demo.listarDisciplinas(this.selectedCourseId()));
+        // A matriz completa mantém DPs e adiantamentos disponíveis, independentemente do filtro da tela.
+        return this.http.get<Disciplina[]>(
+            `${this.baseUrl}/cursos/${encodeURIComponent(this.selectedCourseId() ?? '')}/disciplinas`,
+            this.options());
+    }
+
+    definirDisciplinas(ids: string[]): void {
+        this.selectedDisciplinas.set([...new Set(ids)]);
+        // TEMPORÁRIO: excluir a persistência do rascunho demo após integrar o backend.
+        if (this.demo.ativo) this.demo.guardarDisciplinas(this.selectedDisciplinas());
     }
 
     setCourse(curso: string, id: string): void {
@@ -111,9 +120,7 @@ export class ProfileSetupService {
     }
 
     setPeriod(periodo: string): void {
-        if (periodo !== this.selectedPeriod() && !this.returningUser()) {
-            this.selectedDisciplinas.set([]);
-        }
+        // A seleção pode incluir outros períodos; mudar o período atual não descarta DPs/adiantamentos.
         this.selectedPeriod.set(periodo);
         // TEMPORÁRIO: excluir a persistência das escolhas demo após integrar o backend.
         if (this.demo.ativo) this.demo.escolher(this.selectedCourseId(), periodo);
@@ -124,7 +131,10 @@ export class ProfileSetupService {
     }
 
     confirmarPeriodo(): Observable<PerfilResponse> {
-        // TEMPORÁRIO: excluir a conclusão demo sem disciplinas após integrar o backend.
+        if (!this.returningUser() || !this.isSetupComplete()) {
+            return throwError(() => new Error('Perfil ou período inválido.'));
+        }
+        // TEMPORÁRIO: excluir a confirmação local de reentrada após integrar o backend.
         if (this.demo.ativo) {
             return defer(() => {
                 const perfil = this.demo.confirmar(this.selectedCourseId(), this.selectedPeriod());
@@ -132,9 +142,6 @@ export class ProfileSetupService {
                 this.periodoConfirmado.set(true);
                 return of(perfil);
             });
-        }
-        if (!this.returningUser() || !this.isSetupComplete()) {
-            return throwError(() => new Error('Perfil ou período inválido.'));
         }
         return this.http.patch<PerfilResponse>(`${this.baseUrl}/usuarios/me/perfil/periodo`, {
             periodo: this.selectedPeriod(),
@@ -150,6 +157,16 @@ export class ProfileSetupService {
     submitProfile(): Observable<PerfilResponse> {
         if (!this.isSetupComplete() || !this.selectedDisciplinas().length) {
             return throwError(() => new Error('Conclua a seleção de disciplinas.'));
+        }
+        // TEMPORÁRIO: excluir a gravação da grade demonstrativa após integrar o backend.
+        if (this.demo.ativo) {
+            return defer(() => {
+                const perfil = this.demo.concluirGrade(
+                    this.selectedCourseId(), this.selectedPeriod(), this.selectedDisciplinas());
+                this.atualizarPerfil(perfil);
+                this.periodoConfirmado.set(true);
+                return of(perfil);
+            });
         }
         return this.http.put<PerfilResponse>(`${this.baseUrl}/usuarios/me/perfil`, {
             cursoId: this.selectedCourseId(), periodo: this.selectedPeriod(),

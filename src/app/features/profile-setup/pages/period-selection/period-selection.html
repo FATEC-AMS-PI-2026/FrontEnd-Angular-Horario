@@ -81,15 +81,13 @@
         <button class="btn-back" [disabled]="saving()" (click)="voltar()">Voltar</button>
         }
 
-        <!-- TEMPORÁRIO: excluir a condição modoDemonstracao após integrar o backend. -->
-        @if (setupService.returningUser() && !setupService.modoDemonstracao) {
+        @if (setupService.returningUser()) {
         <button class="btn-back" [disabled]="!setupService.isSetupComplete() || loading() || saving() || !curso()"
             (click)="concluir(true)">Alterar disciplinas</button>
         }
         <button class="btn-primary" [disabled]="!setupService.isSetupComplete() || loading() || saving() || !curso()"
             (click)="concluir()">
-            <!-- TEMPORÁRIO: excluir modoDemonstracao deste rótulo após integrar o backend. -->
-            {{ saving() ? 'Salvando...' : setupService.returningUser() || setupService.modoDemonstracao ? 'Entrar no sistema' : 'Escolher disciplinas' }}
+            {{ saving() ? 'Salvando...' : setupService.returningUser() ? 'Entrar no sistema' : 'Escolher disciplinas' }}
         </button>
     </div>
 </div>

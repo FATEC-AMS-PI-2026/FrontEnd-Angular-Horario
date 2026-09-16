@@ -58,7 +58,12 @@ describe('TEMPORÁRIO: duas jornadas demonstrativas', () => {
     auth.login(email, 'Demo123!').subscribe();
   }
 
-  it('primeiro acesso passa por curso e período antes de liberar dashboard, sem HTTP', async () => {
+  function concluirGrade(): void {
+    setup.listarDisciplinas().subscribe(itens => setup.definirDisciplinas([itens[0].id]));
+    setup.submitProfile().subscribe();
+  }
+
+  it('primeiro acesso passa por curso, período e disciplinas antes da dashboard, sem HTTP', async () => {
     const next = jasmine.createSpy('next');
     auth.login('primeiro@gini.local', 'Demo123!').subscribe(next);
     expect(next).toHaveBeenCalledOnceWith('/setup/course-selection');
@@ -74,7 +79,9 @@ describe('TEMPORÁRIO: duas jornadas demonstrativas', () => {
     await harness.navigateByUrl('/setup/period-selection');
     expect(TestBed.inject(Router).url).toBe('/setup/period-selection');
     setup.obterCurso().subscribe(curso => setup.setPeriod(curso.periodos[0]));
-    setup.confirmarPeriodo().subscribe();
+    await harness.navigateByUrl('/setup/discipline-selection');
+    expect(TestBed.inject(Router).url).toBe('/setup/discipline-selection');
+    concluirGrade();
     await harness.navigateByUrl('/dashboard');
     expect(TestBed.inject(Router).url).toBe('/dashboard');
     http.expectNone(() => true);
@@ -84,7 +91,7 @@ describe('TEMPORÁRIO: duas jornadas demonstrativas', () => {
     entrar('primeiro@gini.local');
     setup.setCourse('ADS', 'demo-ads-manha');
     setup.setPeriod('1º período');
-    setup.confirmarPeriodo().subscribe();
+    concluirGrade();
     entrar('primeiro@gini.local');
     expect(setup.returningUser()).toBeFalse();
     expect(setup.selectedCourseId()).toBeNull();
@@ -133,7 +140,7 @@ describe('TEMPORÁRIO: duas jornadas demonstrativas', () => {
     await harness.navigateByUrl('/setup/period-selection');
     expect(TestBed.inject(Router).url).toBe('/setup/period-selection');
     expect(setup.selectedPeriod()).toBe('1º período');
-    setup.confirmarPeriodo().subscribe();
+    concluirGrade();
     TestBed.resetTestingModule();
     configurar();
     harness = await RouterTestingHarness.create();
@@ -142,14 +149,14 @@ describe('TEMPORÁRIO: duas jornadas demonstrativas', () => {
     http.expectNone(() => true);
   });
 
-  it('a demonstração não abre a etapa de disciplinas', async () => {
+  it('a reentrada pode alterar disciplinas após confirmar o período', async () => {
     entrar('demo@gini.local');
     const harness = await RouterTestingHarness.create();
     await harness.navigateByUrl('/setup/discipline-selection');
     expect(TestBed.inject(Router).url).toBe('/setup/period-selection');
     setup.confirmarPeriodo().subscribe();
     await harness.navigateByUrl('/setup/discipline-selection');
-    expect(TestBed.inject(Router).url).toBe('/dashboard');
+    expect(TestBed.inject(Router).url).toBe('/setup/discipline-selection');
     http.expectNone(() => true);
   });
 
@@ -197,5 +204,23 @@ describe('TEMPORÁRIO: duas jornadas demonstrativas', () => {
     setup.confirmarPeriodo().subscribe({ error });
     expect(error).toHaveBeenCalled();
     expect(setup.periodoConfirmado()).toBeFalse();
+  });
+
+  it('restaura a seleção de disciplinas após recarregar e valida IDs antes de salvar', () => {
+    entrar('primeiro@gini.local');
+    setup.setCourse('ADS', 'demo-ads-manha');
+    setup.setPeriod('2º período');
+    setup.definirDisciplinas(['demo-ads-manha-1-1', 'demo-ads-manha-3-1']);
+    TestBed.resetTestingModule();
+    configurar();
+    setup.garantirPerfil().subscribe();
+    expect(setup.selectedDisciplinas()).toEqual(['demo-ads-manha-1-1', 'demo-ads-manha-3-1']);
+    setup.submitProfile().subscribe();
+    expect(setup.returningUser()).toBeTrue();
+    setup.definirDisciplinas(['id-inexistente']);
+    const error = jasmine.createSpy('error');
+    setup.submitProfile().subscribe({ error });
+    expect(error).toHaveBeenCalled();
+    http.expectNone(() => true);
   });
 });

@@ -18,4 +18,6 @@ export interface CursoDetalhes extends Course {
 export interface Disciplina {
   id: string;
   nome: string;
+  /** Período de origem na matriz do curso, conforme CursoDetalhes.periodos. */
+  periodo: string;
 }
