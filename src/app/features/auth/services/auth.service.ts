@@ -26,7 +26,7 @@ export class AuthService {
   constructor(private http: HttpClient) { }
 
   // Quando o Spring Boot estiver pronto, trocar isso por um this.http.post(...)
-  login(identificador: string, senha: string): Observable<boolean> {
+  login(identificador: string, senha: string, lembrarDeMim = true): Observable<boolean> {
 
     // Credenciais de teste:
     const mockEmail = 'aluno@cps.sp.gov.br';
@@ -37,7 +37,7 @@ export class AuthService {
       // Dados demonstrativos enquanto o contrato de perfil do backend não está disponível.
       this.session.iniciar('token_falso_gerado_pelo_angular', {
         nome: 'Aluno de teste', email: mockEmail, curso: '', periodo: '',
-      });
+      }, lembrarDeMim);
 
       // Retorna sucesso após 1 segundo (simulando a lentidão da internet)
       return of(true).pipe(delay(1000));

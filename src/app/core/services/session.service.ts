@@ -8,6 +8,9 @@ export interface UsuarioSessao {
   periodo: string;
 }
 
+const TOKEN_KEY = 'gini_token';
+const USUARIO_KEY = 'gini_usuario';
+
 @Injectable({ providedIn: 'root' })
 export class SessionService {
   private readonly router = inject(Router);
@@ -22,32 +25,55 @@ export class SessionService {
     return nomes.length ? `${nomes[0][0]}${nomes.length > 1 ? nomes[nomes.length - 1][0] : ''}`.toUpperCase() : '?';
   });
 
-  iniciar(token: string, usuario: UsuarioSessao): void {
-    localStorage.setItem('gini_token', token);
-    this.salvarUsuario(usuario);
+  /**
+   * Inicia a sessão. `lembrarDeMim` controla onde o token/usuário ficam
+   * persistidos — LocalStorage (sobrevive ao fechar o navegador) quando
+   * true, SessionStorage (expira ao fechar a aba/navegador) quando false.
+   * Cobre os critérios "Persistência de Sessão" / "Sessão Volátil (Padrão)"
+   * da issue "WEB: Auth - Funcionalidade 'Lembrar de mim' no Login" (#130).
+   */
+  iniciar(token: string, usuario: UsuarioSessao, lembrarDeMim = true): void {
+    this.limparStorages();
+    const storage = lembrarDeMim ? localStorage : sessionStorage;
+    storage.setItem(TOKEN_KEY, token);
+    this.salvarUsuario(usuario, storage);
   }
 
   atualizarPerfil(curso: string, periodo: string): void {
     const usuario = this.usuario();
-    if (usuario) this.salvarUsuario({ ...usuario, curso, periodo });
+    if (usuario) this.salvarUsuario({ ...usuario, curso, periodo }, this.storageAtivo() ?? localStorage);
   }
 
   logout(): void {
-    localStorage.removeItem('gini_token');
-    localStorage.removeItem('gini_usuario');
+    this.limparStorages();
     this.usuarioAtual.set(null);
     void this.router.navigate(['/login']);
   }
 
-  private salvarUsuario(usuario: UsuarioSessao): void {
-    localStorage.setItem('gini_usuario', JSON.stringify(usuario));
+  private salvarUsuario(usuario: UsuarioSessao, storage: Storage): void {
+    storage.setItem(USUARIO_KEY, JSON.stringify(usuario));
     this.usuarioAtual.set(usuario);
+  }
+
+  private limparStorages(): void {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USUARIO_KEY);
+    sessionStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(USUARIO_KEY);
+  }
+
+  /** Storage (local ou session) onde a sessão atual está guardada, se houver. */
+  private storageAtivo(): Storage | null {
+    if (localStorage.getItem(TOKEN_KEY)) return localStorage;
+    if (sessionStorage.getItem(TOKEN_KEY)) return sessionStorage;
+    return null;
   }
 
   private restaurarUsuario(): UsuarioSessao | null {
     try {
-      if (!localStorage.getItem('gini_token')) return null;
-      const usuario: unknown = JSON.parse(localStorage.getItem('gini_usuario') ?? 'null');
+      const storage = this.storageAtivo();
+      if (!storage) return null;
+      const usuario: unknown = JSON.parse(storage.getItem(USUARIO_KEY) ?? 'null');
       if (usuario && typeof usuario === 'object' &&
         'nome' in usuario && typeof usuario.nome === 'string' && usuario.nome.trim() &&
         'email' in usuario && typeof usuario.email === 'string' &&
