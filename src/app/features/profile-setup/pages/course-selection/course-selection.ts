@@ -3,9 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
+import { finalize, map } from 'rxjs';
 import { ProfileSetupService } from '../../services/profile-setup.service';
 import { Course } from '../../models/course.model';
+import { ApiErrorService } from '../../../../core/services/api-error.service';
 
 @Component({
     selector: 'app-course-selection',
@@ -17,6 +18,7 @@ import { Course } from '../../models/course.model';
 export class CourseSelection implements OnInit {
     readonly setupService = inject(ProfileSetupService);
     private readonly router = inject(Router);
+    private readonly apiError = inject(ApiErrorService);
     private readonly destroyRef = inject(DestroyRef);
     readonly searchQuery = signal('');
     readonly selectedFilter = signal('Todos');
@@ -39,17 +41,35 @@ export class CourseSelection implements OnInit {
         if (this.loading()) return;
         this.loading.set(true);
         this.errorMessage.set('');
+        this.courses.set([]);
         this.setupService.listarCursos().pipe(
+            map(cursos => {
+                if (!Array.isArray(cursos) || cursos.some(curso => !curso ||
+                    typeof curso.id !== 'string' || typeof curso.title !== 'string')) {
+                    throw new Error('Resposta de cursos inválida.');
+                }
+                return cursos;
+            }),
             takeUntilDestroyed(this.destroyRef),
             finalize(() => this.loading.set(false)),
         ).subscribe({
-            next: cursos => this.courses.set(cursos),
-            error: () => this.errorMessage.set('Não foi possível carregar os cursos. Tente novamente.'),
+            next: cursos => {
+                this.courses.set(cursos);
+                if (!cursos.some(curso => curso.id === this.selectedCourseId())) {
+                    this.selectedCourseId.set(null);
+                }
+            },
+            error: (error: unknown) => this.errorMessage.set(this.apiError.mensagem(error,
+                'Não foi possível carregar os cursos. Tente novamente.')),
         });
     }
 
     setFilter(filter: string): void { this.selectedFilter.set(filter); }
-    selectCourse(id: string, _title: string): void { this.selectedCourseId.set(id); }
+    selectCourse(id: string, _title: string): void {
+        if (!this.loading() && !this.errorMessage() && this.courses().some(curso => curso.id === id)) {
+            this.selectedCourseId.set(id);
+        }
+    }
 
     onContinue(): void {
         const curso = this.courses().find(c => c.id === this.selectedCourseId());

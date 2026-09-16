@@ -1,52 +1,104 @@
-import { Component } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subscription, finalize, timer } from 'rxjs';
+import { SessionService } from '../../core/services/session.service';
+import { ApiErrorService } from '../../core/services/api-error.service';
+import { DashboardService, GradeIndisponivelError } from './services/dashboard.service';
+import { AlocacaoResponse, dataAcademica, horarioAcademico } from './models/grade-dia.model';
 
 @Component({
-  selector: 'app-dashboard',
-  standalone: true,
-  imports: [CommonModule, RouterLink],
-  templateUrl: './dashboard.html',
-  styleUrl: './dashboard.scss'
+    selector: 'app-dashboard',
+    standalone: true,
+    imports: [CommonModule, RouterLink],
+    templateUrl: './dashboard.html',
+    styleUrl: './dashboard.scss',
 })
-export class Dashboard {
-  // Informações do Usuário e Banner
-  userName = 'Fulano';
-  courseInfo = 'ADS 3º período';
-  currentDay = 'Segunda-feira';
-  currentTime = '13:20';
-  nextClass = 'Projeto Integrador I';
+export class Dashboard implements OnInit {
+    readonly session = inject(SessionService);
+    private readonly service = inject(DashboardService);
+    private readonly apiError = inject(ApiErrorService);
+    private readonly destroyRef = inject(DestroyRef);
+    private requisicao?: Subscription;
+    private dataSolicitada = '';
+    readonly agora = signal(new Date());
+    readonly alocacoes = signal<AlocacaoResponse[]>([]);
+    readonly loading = signal(false);
+    readonly carregado = signal(false);
+    readonly indisponivel = signal(false);
+    readonly errorMessage = signal('');
+    readonly currentDay = computed(() => new Intl.DateTimeFormat('pt-BR', {
+        timeZone: 'America/Sao_Paulo', weekday: 'long',
+    }).format(this.agora()));
+    readonly currentTime = computed(() => horarioAcademico(this.agora()).slice(0, 5));
+    readonly emAndamento = computed(() => {
+        const hora = horarioAcademico(this.agora());
+        return this.alocacoes().filter(item =>
+            item.blocoHorario.horaInicio <= hora && hora < item.blocoHorario.horaFim);
+    });
+    readonly proxima = computed(() =>
+        this.alocacoes().find(item => item.blocoHorario.horaInicio > horarioAcademico(this.agora())));
+    readonly stats = computed(() => [
+        { title: 'Aulas hoje', value: String(this.alocacoes().length), subtitle: this.currentDay() },
+        { title: 'Professores', value: String(new Set(this.alocacoes().map(item => item.professor.id)).size), subtitle: 'Nas aulas de hoje' },
+        { title: 'Próxima aula', value: this.proxima()?.blocoHorario.horaInicio.slice(0, 5) ?? '—', subtitle: this.proxima()?.disciplina.nome ?? 'Sem próxima aula hoje' },
+        { title: 'Aula em andamento', value: this.emAndamento()[0]?.blocoHorario.horaInicio.slice(0, 5) ?? '—', subtitle: this.emAndamento().map(item => item.disciplina.nome).join(' · ') || 'Nenhuma aula neste momento' },
+    ]);
+    readonly salasHoje = computed(() => {
+        const salas = new Map<number, { id: number; codigo: string; disciplinas: Set<string> }>();
+        for (const item of this.alocacoes()) {
+            const sala = salas.get(item.sala.id) ?? { ...item.sala, disciplinas: new Set<string>() };
+            sala.disciplinas.add(item.disciplina.nome);
+            salas.set(item.sala.id, sala);
+        }
+        return [...salas.values()].map(sala => ({
+            ...sala, disciplinas: [...sala.disciplinas].join(' · '),
+        }));
+    });
+    readonly statusSalas = computed(() => this.salasHoje().map(sala => {
+        const aulas = this.emAndamento().filter(item => item.sala.id === sala.id);
+        return {
+            ...sala,
+            emAula: aulas.length > 0,
+            professor: [...new Set(aulas.map(item => item.professor.nome))].join(' · '),
+            // A grade pessoal não comprova disponibilidade global nem manutenção da sala.
+            label: aulas.length ? 'Sua aula em andamento' : 'Sem aula sua agora',
+        };
+    }));
 
-  // Cards Superiores
-  stats = [
-    { title: 'Aulas hoje', value: '6', subtitle: 'Segunda-feira' },
-    { title: 'Professores', value: '4', subtitle: 'Neste período' },
-    { title: 'Próxima aula', value: '15:10', subtitle: 'Banco de Dados' },
-    { title: 'Aula em andamento', value: '13:20', subtitle: 'Projeto Integrador I' }
-  ];
+    ngOnInit(): void {
+        this.carregar();
+        timer(30_000, 30_000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+            this.agora.set(new Date());
+            if (dataAcademica(this.agora()) !== this.dataSolicitada) this.carregar();
+        });
+    }
 
-  // Grade de Horários de Hoje
-  schedule = [
-    { type: 'class', start: '13:20', end: '14:10', subject: 'Projeto Integrador I', prof: 'Prof. Glauco Todesco' },
-    { type: 'class', start: '14:10', end: '15:00', subject: 'Projeto Integrador I', prof: 'Prof. Glauco Todesco' },
-    { type: 'interval', label: 'Intervalo' },
-    { type: 'class', start: '15:10', end: '16:00', subject: 'Banco de Dados', prof: 'Prof. Renato' },
-    { type: 'class', start: '16:00', end: '16:50', subject: 'Banco de Dados', prof: 'Prof. Renato' },
-    { type: 'interval', label: 'Intervalo' },
-    { type: 'class', start: '17:00', end: '17:50', subject: 'Interação Humano-Computador', prof: 'Prof. Renato' },
-    { type: 'class', start: '17:50', end: '18:40', subject: 'Interação Humano-Computador', prof: 'Prof. Renato' }
-  ];
-
-  // Status das Salas
-  roomStatus = [
-    { room: 'LAB 01', prof: 'Prof. Glauco Todesco', status: 'livre', label: 'Livre' },
-    { room: 'LAB 02', prof: 'Prof. Glauco Todesco', status: 'em_uso', label: 'Em uso' },
-    { room: 'LAB 03', prof: 'Prof. Glauco Todesco', status: 'manutencao', label: 'Manutenção' }
-  ];
-
-  // Salas de Hoje
-  todayRooms = [
-    { location: 'Lab. 03 - Prédio 4 | Andar 3', subject: 'Projeto Integrador I' },
-    { location: 'Lab. 01 - Prédio 4 | Andar 3', subject: 'Banco de Dados' }
-  ];
+    carregar(): void {
+        this.requisicao?.unsubscribe();
+        this.dataSolicitada = dataAcademica(this.agora());
+        this.loading.set(true);
+        this.carregado.set(false);
+        this.indisponivel.set(false);
+        this.errorMessage.set('');
+        this.alocacoes.set([]);
+        this.requisicao = this.service.carregarDia(this.dataSolicitada).pipe(
+            takeUntilDestroyed(this.destroyRef),
+            finalize(() => this.loading.set(false)),
+        ).subscribe({
+            next: alocacoes => {
+                this.alocacoes.set(alocacoes);
+                this.carregado.set(true);
+            },
+            error: (error: unknown) => {
+                if (error instanceof GradeIndisponivelError) {
+                    this.indisponivel.set(true);
+                } else {
+                    this.errorMessage.set(this.apiError.mensagem(error,
+                        'Não foi possível carregar suas aulas. Tente novamente.'));
+                }
+            },
+        });
+    }
 }

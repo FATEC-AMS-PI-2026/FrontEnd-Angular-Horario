@@ -1,4 +1,5 @@
 import { inject } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { CanActivateChildFn, Router } from '@angular/router';
 import { catchError, map, of } from 'rxjs';
 import { SessionService } from '../services/session.service';
@@ -42,10 +43,12 @@ export const profileGuard: CanActivateChildFn = (_route, state) => {
             }
             return true;
         }),
-        catchError(() => {
+        catchError((error: unknown) => {
             setup.limpar();
             session.limpar();
-            return of(router.parseUrl('/login'));
+            const motivo = error instanceof HttpErrorResponse && error.status === 401
+                ? 'sessao-expirada' : 'perfil-indisponivel';
+            return of(router.createUrlTree(['/login'], { queryParams: { motivo } }));
         }),
     );
 };

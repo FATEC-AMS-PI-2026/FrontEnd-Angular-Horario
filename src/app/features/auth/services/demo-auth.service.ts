@@ -13,29 +13,29 @@ import { DemoProfileService } from '../../profile-setup/services/demo-profile.se
 
 @Injectable({ providedIn: 'root' })
 export class DemoAuthService {
-  private readonly session = inject(SessionService);
-  private readonly setup = inject(ProfileSetupService);
-  private readonly demo = inject(DemoProfileService);
+    private readonly session = inject(SessionService);
+    private readonly setup = inject(ProfileSetupService);
+    private readonly demo = inject(DemoProfileService);
 
-  get habilitado(): boolean {
-    return this.demo.habilitado;
-  }
+    get habilitado(): boolean {
+        return this.demo.habilitado;
+    }
 
-  get sessaoDemonstrativa(): boolean {
-    return this.demo.sessaoDemonstrativa;
-  }
+    get sessaoDemonstrativa(): boolean {
+        return this.demo.sessaoDemonstrativa;
+    }
 
-  login(email: string, senha: string): Observable<string> {
-    return defer(() => {
-      this.setup.limpar();
-      this.session.limpar();
-      const conta = email.trim();
-      if (!this.habilitado || !['primeiro@gini.local', 'demo@gini.local'].includes(conta) || senha !== 'Demo123!') {
-        return throwError(() => new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' }));
-      }
-      const perfil = this.demo.iniciar(conta === 'primeiro@gini.local');
-      this.session.iniciar(this.demo.token, perfil.usuario);
-      return this.setup.carregarPerfil().pipe(map(() => this.setup.destinoAposLogin()));
-    });
-  }
+    login(email: string, senha: string): Observable<string> {
+        return defer(() => {
+            this.setup.limpar();
+            this.session.limpar();
+            const conta = email.trim();
+            if (!this.habilitado || !['primeiro@gini.local', 'demo@gini.local'].includes(conta) || senha !== 'Demo123!') {
+                return throwError(() => new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' }));
+            }
+            const perfil = this.demo.iniciar(conta === 'primeiro@gini.local');
+            this.session.iniciar(this.demo.token, perfil.usuario);
+            return this.setup.carregarPerfil().pipe(map(() => this.setup.destinoAposLogin()));
+        });
+    }
 }

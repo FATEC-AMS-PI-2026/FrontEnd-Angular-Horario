@@ -1,26 +1,26 @@
 .profile-setup-container {
-  display: flex;
-  min-height: 100dvh;
-  background: var(--color-bg);
+    display: flex;
+    min-height: 100dvh;
+    background: var(--color-bg);
 }
 
 .profile-setup-main {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  min-width: 0;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
 }
 
 .profile-setup-content {
-  --page-min-height: calc(100dvh - var(--layout-topbar-height) - 2 * var(--layout-content-padding));
-  flex: 1;
-  min-width: 0;
-  padding: var(--layout-content-padding);
+    --page-min-height: calc(100dvh - var(--layout-topbar-height) - 2 * var(--layout-content-padding));
+    flex: 1;
+    min-width: 0;
+    padding: var(--layout-content-padding);
 }
 
 @media (max-width: 700px) {
-  .profile-setup-container {
-    flex-direction: column;
-    --layout-content-padding: var(--space-sm);
-  }
+    .profile-setup-container {
+        flex-direction: column;
+        --layout-content-padding: var(--space-sm);
+    }
 }

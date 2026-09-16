@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
+import { ApiErrorService } from '../../../../core/services/api-error.service';
 
 @Component({
     selector: 'app-cadastro',
@@ -14,6 +15,7 @@ import { AuthService } from '../../services/auth.service';
 })
 export class Cadastro {
     private readonly auth = inject(AuthService);
+    private readonly apiError = inject(ApiErrorService);
     private readonly router = inject(Router);
     private readonly destroyRef = inject(DestroyRef);
     readonly cadastroForm = inject(FormBuilder).nonNullable.group({
@@ -43,8 +45,9 @@ export class Cadastro {
             finalize(() => this.loading = false),
         ).subscribe({
             next: destino => { void this.router.navigateByUrl(destino); },
-            error: () => {
-                this.errorMessage = 'Não foi possível concluir o cadastro ou consultar seu perfil. Se a conta já foi criada, entre pela tela de login.';
+            error: (error: unknown) => {
+                this.errorMessage = this.apiError.mensagem(error,
+                    'Não foi possível concluir o cadastro ou consultar seu perfil. Se a conta já foi criada, entre pela tela de login.');
             },
         });
     }
