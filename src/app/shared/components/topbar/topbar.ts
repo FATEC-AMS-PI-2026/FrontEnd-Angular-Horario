@@ -53,6 +53,7 @@ export class Topbar implements OnInit {
     // Rotas de Setup de Perfil
     else if (url.includes('/course-selection')) this.title = 'Escolha seu curso';
     else if (url.includes('/period-selection')) this.title = 'Escolha seu período';
+    else if (url.includes('/discipline-selection')) this.title = 'Escolha suas disciplinas';
 
     // Fallback padrão
     else this.title = 'GINI';

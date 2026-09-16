@@ -23,4 +23,16 @@ describe('SetupSidebar', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('mostra check no período ao avançar para disciplinas e restaura o número ao voltar', () => {
+    component.setupService.currentStep.set(4);
+    fixture.detectChanges();
+    const periodo = fixture.nativeElement.querySelectorAll('.setup-sidebar__step')[2] as HTMLElement;
+    expect(periodo.classList.contains('setup-sidebar__step--completed')).toBeTrue();
+    expect(periodo.querySelector('svg')).not.toBeNull();
+    component.setupService.currentStep.set(3);
+    fixture.detectChanges();
+    expect(periodo.querySelector('svg')).toBeNull();
+    expect(periodo.querySelector('.setup-sidebar__step-icon')?.textContent?.trim()).toBe('3');
+  });
 });

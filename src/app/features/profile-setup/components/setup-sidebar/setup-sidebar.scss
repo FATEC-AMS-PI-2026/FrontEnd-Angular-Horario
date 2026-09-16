@@ -150,3 +150,16 @@
         }
     }
 }
+
+@media (max-width: 700px) {
+    .setup-sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+        padding: var(--space-sm);
+
+        &__brand, &__header, &__circle { display: none; }
+        &__steps { flex-direction: row; flex-wrap: wrap; gap: var(--space-sm); }
+        &__step-label { font-size: var(--text-xs); }
+    }
+}
