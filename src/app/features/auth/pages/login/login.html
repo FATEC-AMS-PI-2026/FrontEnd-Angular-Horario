@@ -32,6 +32,11 @@
 
                 <a class="forgot-password-link" routerLink="/esqueci-senha">Esqueci minha senha</a>
 
+                <div class="field-checkbox">
+                    <input id="lembrarDeMim" type="checkbox" formControlName="lembrarDeMim" />
+                    <label for="lembrarDeMim">Lembrar de mim</label>
+                </div>
+
                 <div class="button-group">
                     <button type="submit" class="btn-submit" [disabled]="loading">
                         {{ loading ? 'Entrando...' : 'Entrar' }}
