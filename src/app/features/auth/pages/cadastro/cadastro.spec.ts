@@ -1,74 +1,25 @@
-import { Component } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
-@Component({
-  selector: 'app-cadastro',
-  imports: [ReactiveFormsModule],
-  templateUrl: './cadastro.html',
-  styleUrl: './cadastro.scss'
-})
-export class Cadastro {
+import { Cadastro } from './cadastro';
 
-  cadastroForm: FormGroup;
+describe('Cadastro', () => {
+  let component: Cadastro;
+  let fixture: ComponentFixture<Cadastro>;
 
-  constructor(private fb: FormBuilder) {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [Cadastro],
+      providers: [provideRouter([])]
+    })
+    .compileComponents();
 
-    this.cadastroForm = this.fb.group({
-      nome: ['', [
-        Validators.required,
-        Validators.minLength(3)
-      ]],
+    fixture = TestBed.createComponent(Cadastro);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-      email: ['', [
-        Validators.required,
-        Validators.email
-      ]],
-
-      senha: ['', [
-        Validators.required,
-        Validators.minLength(8)
-      ]],
-
-      confirmarSenha: ['', [
-        Validators.required
-      ]]
-    });
-
-  }
-
-  cadastrar(): void {
-
-    if (this.cadastroForm.invalid) {
-
-      this.cadastroForm.markAllAsTouched();
-
-      return;
-    }
-
-    const senha = this.cadastroForm.get('senha')?.value;
-
-    const confirmarSenha =
-      this.cadastroForm.get('confirmarSenha')?.value;
-
-    if (senha !== confirmarSenha) {
-
-      alert('As senhas não coincidem.');
-
-      return;
-    }
-
-    console.log('Dados do cadastro:');
-
-    console.log(this.cadastroForm.value);
-
-    alert('Cadastro realizado com sucesso!');
-
-    this.cadastroForm.reset();
-  }
-
-}
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});

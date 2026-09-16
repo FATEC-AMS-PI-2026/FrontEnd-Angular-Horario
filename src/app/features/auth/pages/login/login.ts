@@ -25,6 +25,7 @@ export class Login {
     this.form = this.fb.group({
       identificador: ['', [Validators.required]],
       senha: ['', [Validators.required]],
+      lembrarDeMim: [false],
     });
   }
 
@@ -46,7 +47,9 @@ export class Login {
 
     this.loading = true;
 
-    this.authService.login(this.identificador?.value, this.senha?.value).subscribe({
+    const lembrarDeMim = this.form.get('lembrarDeMim')?.value;
+
+    this.authService.login(this.identificador?.value, this.senha?.value, lembrarDeMim).subscribe({
       next: () => {
         this.loading = false;
         // Direciona o usuário para o fluxo de escolha de curso (setup) após autenticar.
