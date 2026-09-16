@@ -3,6 +3,7 @@ import { Layout } from './shared/components/layout/layout';
 import { Login } from './features/auth/pages/login/login';
 import { Dashboard } from './features/dashboard/dashboard';
 import { GradeSemanal } from './features/grade-semanal/grade-semanal';
+import { profileGuard } from './core/guards/profile.guard';
 export const routes: Routes = [
     { path: 'login', component: Login },
 
@@ -23,6 +24,7 @@ export const routes: Routes = [
     // Rotas de configuração de perfil
     {
         path: 'setup',
+        canActivateChild: [profileGuard],
         loadComponent: () => import('./features/profile-setup/profile-setup')
             .then(m => m.ProfileSetup),
         children: [
@@ -36,6 +38,11 @@ export const routes: Routes = [
                 path: 'period-selection',
                 loadComponent: () => import('./features/profile-setup/pages/period-selection/period-selection')
                     .then(m => m.PeriodSelection)
+            },
+            {
+                path: 'discipline-selection',
+                loadComponent: () => import('./features/profile-setup/pages/discipline-selection/discipline-selection')
+                    .then(m => m.DisciplineSelection)
             }
         ]
     },
@@ -44,8 +51,7 @@ export const routes: Routes = [
     {
         path: '',
         component: Layout,
-        // TODO: aplicar authGuard aqui quando a integração com o BackEnd de
-        // autenticação estiver pronta (src/app/core/guards)
+        canActivateChild: [profileGuard],
         children: [
             { path: 'dashboard', component: Dashboard },
             {

@@ -1,61 +1,49 @@
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector: 'app-login',
-  standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
-  templateUrl: './login.html',
-  styleUrl: './login.scss',
+    selector: 'app-login',
+    standalone: true,
+    imports: [ReactiveFormsModule, RouterLink],
+    templateUrl: './login.html',
+    styleUrl: './login.scss',
 })
 export class Login {
-  // Injeção de dependências moderna (padrão Angular 17+)
-  private fb = inject(FormBuilder);
-  private router = inject(Router);
-  private authService = inject(AuthService);
-
-  form: FormGroup;
-  submitted = false;
-  loading = false;
-  errorMessage = '';
-
-  constructor() {
-    this.form = this.fb.group({
-      identificador: ['', [Validators.required]],
-      senha: ['', [Validators.required]],
+    private readonly router = inject(Router);
+    private readonly authService = inject(AuthService);
+    private readonly destroyRef = inject(DestroyRef);
+    readonly form = inject(FormBuilder).nonNullable.group({
+        identificador: ['', [Validators.required, Validators.pattern(/\S/)]],
+        senha: ['', Validators.required],
     });
-  }
+    submitted = false;
+    loading = false;
+    errorMessage = '';
 
-  get identificador() {
-    return this.form.get('identificador');
-  }
+    get identificador() { return this.form.controls.identificador; }
+    get senha() { return this.form.controls.senha; }
 
-  get senha() {
-    return this.form.get('senha');
-  }
-
-  onLogin(): void {
-    this.submitted = true;
-    this.errorMessage = '';
-
-    if (this.form.invalid) {
-      return;
+    onLogin(): void {
+        if (this.loading) return;
+        this.submitted = true;
+        this.errorMessage = '';
+        if (this.form.invalid) return;
+        this.loading = true;
+        this.authService.login(this.identificador.value.trim(), this.senha.value).pipe(
+            takeUntilDestroyed(this.destroyRef),
+            finalize(() => this.loading = false),
+        ).subscribe({
+            next: destino => { void this.router.navigateByUrl(destino); },
+            error: (error: unknown) => {
+                this.errorMessage = error instanceof HttpErrorResponse && error.status === 401
+                    ? 'E-mail/matrícula ou senha inválidos. Tente novamente.'
+                    : 'Não foi possível entrar ou consultar seu perfil. Tente novamente.';
+            },
+        });
     }
-
-    this.loading = true;
-
-    this.authService.login(this.identificador?.value, this.senha?.value).subscribe({
-      next: () => {
-        this.loading = false;
-        // Direciona o usuário para o fluxo de escolha de curso (setup) após autenticar.
-        this.router.navigate(['/setup']);
-      },
-      error: () => {
-        this.loading = false;
-        this.errorMessage = 'E-mail/matrícula ou senha inválidos. Tente novamente.';
-      },
-    });
-  }
 }

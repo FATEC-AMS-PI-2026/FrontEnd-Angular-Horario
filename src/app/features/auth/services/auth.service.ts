@@ -1,63 +1,73 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, delay, of, throwError } from 'rxjs';
+import { Observable, catchError, defer, map, switchMap, tap, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { SessionService } from '../../../core/services/session.service';
+import { ProfileSetupService } from '../../profile-setup/services/profile-setup.service';
+// TEMPORÁRIO: excluir esta importação após integrar o backend.
+import { DemoAuthService } from './demo-auth.service';
 
-export interface RecuperarSenhaResponse {
-  message: string;
-}
+export interface RecuperarSenhaResponse { message: string; }
+export interface LoginResponse { token: string; }
+export interface CadastroPayload { nome: string; email: string; senha: string; }
 
-/**
- * Resposta da API de autenticação. Cobre a issue "WEB: Formulário de Login"
- * (#93): o token retornado autentica as próximas chamadas do usuário.
- */
-export interface LoginResponse {
-  token: string;
-}
-
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly session = inject(SessionService);
-  private readonly baseUrl = `${environment.apiUrl}/auth`;
+    // TEMPORÁRIO: excluir esta dependência após integrar o backend.
+    private readonly demoAuth = inject(DemoAuthService);
+    private readonly session = inject(SessionService);
+    private readonly setup = inject(ProfileSetupService);
+    private readonly http = inject(HttpClient);
+    private readonly baseUrl = `${environment.apiUrl}/auth`;
 
-  constructor(private http: HttpClient) { }
-
-  // Quando o Spring Boot estiver pronto, trocar isso por um this.http.post(...)
-  login(identificador: string, senha: string): Observable<boolean> {
-
-    // Credenciais de teste:
-    const mockEmail = 'aluno@cps.sp.gov.br';
-    const mockSenha = '123';
-
-    if (identificador === mockEmail && senha === mockSenha) {
-      // Simula o salvamento do Token JWT no navegador
-      // Dados demonstrativos enquanto o contrato de perfil do backend não está disponível.
-      this.session.iniciar('token_falso_gerado_pelo_angular', {
-        nome: 'Aluno de teste', email: mockEmail, curso: '', periodo: '',
-      });
-
-      // Retorna sucesso após 1 segundo (simulando a lentidão da internet)
-      return of(true).pipe(delay(1000));
-    } else {
-      // Retorna erro se a senha estiver errada
-      return throwError(() => new Error('Credenciais inválidas')).pipe(delay(1000));
+    login(identificador: string, senha: string): Observable<string> {
+        // TEMPORÁRIO: excluir este desvio após integrar o backend e usar somente autenticar().
+        if (this.demoAuth.habilitado) {
+            return this.demoAuth.login(identificador, senha);
+        }
+        return this.autenticar('login', { identificador, senha });
     }
-  }
 
-  recuperarSenha(email: string): Observable<RecuperarSenhaResponse> {
-    return this.http.post<RecuperarSenhaResponse>(`${this.baseUrl}/recuperar-senha`, {
-      email
-    });
-  }
+    cadastrar(payload: CadastroPayload): Observable<string> {
+        return this.autenticar('cadastro', payload, true);
+    }
 
-  logout() {
-    this.session.logout();
-  }
+    recuperarSenha(email: string): Observable<RecuperarSenhaResponse> {
+        return this.http.post<RecuperarSenhaResponse>(`${this.baseUrl}/recuperar-senha`, { email });
+    }
 
-  isLoggedIn(): boolean {
-    return !!localStorage.getItem('gini_token');
-  }
+    logout(): void {
+        this.setup.limpar();
+        this.session.logout();
+    }
+
+    isLoggedIn(): boolean {
+        return !!localStorage.getItem('gini_token');
+    }
+
+    private autenticar(endpoint: string, payload: CadastroPayload | { identificador: string; senha: string }, novo = false): Observable<string> {
+        return defer(() => {
+            this.setup.limpar();
+            this.session.limpar();
+            return this.http.post<LoginResponse>(`${this.baseUrl}/${endpoint}`, payload);
+        }).pipe(
+            switchMap(({ token }) => {
+                if (typeof token !== 'string' || !token.trim()) {
+                    return throwError(() => new Error('Token de autenticação inválido.'));
+                }
+                return this.setup.carregarPerfil(token).pipe(tap(perfil => {
+                    if (novo && perfil.configuracaoInicialConcluida) {
+                        throw new Error('Estado de cadastro inválido.');
+                    }
+                    this.session.iniciar(token, perfil.usuario);
+                }));
+            }),
+            map(() => this.setup.destinoAposLogin()),
+            catchError((error: unknown) => {
+                this.setup.limpar();
+                this.session.limpar();
+                return throwError(() => error);
+            }),
+        );
+    }
 }

@@ -1,0 +1,37 @@
+<section class="period-selection-container">
+    <header class="page-header">
+        <h2>Escolha suas disciplinas</h2>
+        <p>{{ setupService.selectedCourse() }} · {{ setupService.selectedPeriod() }}</p>
+    </header>
+    @if (loading()) {
+    <p role="status">Carregando disciplinas...</p>
+    }
+    @if (errorMessage()) {
+    <p role="alert">{{ errorMessage() }}</p>
+    @if (!disciplinas().length) {
+    <button type="button" (click)="carregar()">Tentar novamente</button>
+    }
+    }
+    <fieldset class="disciplinas" [disabled]="loading() || saving()">
+        <legend>Selecione as disciplinas que farão parte da sua grade</legend>
+        @for (disciplina of disciplinas(); track disciplina.id) {
+        <label class="disciplina" [class.selecionada]="setupService.selectedDisciplinas().includes(disciplina.id)">
+            <input type="checkbox" [checked]="setupService.selectedDisciplinas().includes(disciplina.id)"
+                (change)="selecionar(disciplina.id)" />
+            <span>{{ disciplina.nome }}</span>
+        </label>
+        } @empty {
+        @if (!loading() && !errorMessage()) {
+        <p role="status">Nenhuma disciplina disponível para este período.</p>
+        }
+        }
+    </fieldset>
+    <footer class="footer-actions">
+        <button type="button" class="btn-back" [disabled]="saving()" (click)="voltar()">Voltar</button>
+        <button type="button" class="btn-primary"
+            [disabled]="loading() || saving() || !disciplinas().length || !setupService.selectedDisciplinas().length"
+            (click)="concluir()">
+            {{ saving() ? 'Salvando...' : 'Concluir e entrar' }}
+        </button>
+    </footer>
+</section>

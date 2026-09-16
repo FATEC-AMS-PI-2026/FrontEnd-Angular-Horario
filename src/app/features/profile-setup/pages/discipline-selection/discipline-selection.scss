@@ -1,0 +1,30 @@
+@use 'cards';
+
+.disciplinas {
+    border: 0;
+    padding: 0;
+    margin: 0 0 var(--space-xl);
+    display: grid;
+    gap: var(--space-md);
+
+    legend {
+        margin-bottom: var(--space-md);
+        color: var(--color-text-muted);
+    }
+}
+
+.disciplina {
+    @include cards.card-interativo;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--color-text);
+
+    &.selecionada {
+        @include cards.card-selecionado;
+    }
+
+    input {
+        accent-color: var(--color-primary);
+    }
+}
