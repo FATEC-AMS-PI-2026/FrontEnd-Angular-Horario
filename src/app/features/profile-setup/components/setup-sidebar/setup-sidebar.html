@@ -15,8 +15,13 @@
             <p>
                 @if (setupService.currentStep() === 2) {
                 Escolha seu curso e períodos para personalizar seus horários
-                } @else {
+                <!-- TEMPORÁRIO: excluir modoDemonstracao desta condição após integrar o backend. -->
+                } @else if (setupService.returningUser() || setupService.modoDemonstracao) {
                 Último passo — escolha em qual período você está cursando.
+                } @else if (setupService.currentStep() === 3) {
+                Escolha seu período para consultar as disciplinas disponíveis.
+                } @else {
+                Selecione suas disciplinas para concluir a configuração.
                 }
             </p>
         </div>
@@ -51,10 +56,20 @@
 
             <!-- Step 3 -->
             <div class="setup-sidebar__step" [class.setup-sidebar__step--active]="setupService.currentStep() === 3"
+                [class.setup-sidebar__step--completed]="setupService.currentStep() > 3"
                 [class.setup-sidebar__step--disabled]="setupService.currentStep() < 3">
                 <div class="setup-sidebar__step-icon setup-sidebar__step-icon--outline">3</div>
                 <span class="setup-sidebar__step-label">Escolher período</span>
             </div>
+            <!-- TEMPORÁRIO: excluir a condição modoDemonstracao após integrar o backend. -->
+            @if (!setupService.modoDemonstracao && (!setupService.returningUser() || setupService.currentStep() === 4)) {
+            <div class="setup-sidebar__step"
+                 [class.setup-sidebar__step--active]="setupService.currentStep() === 4"
+                 [class.setup-sidebar__step--disabled]="setupService.currentStep() < 4">
+                <div class="setup-sidebar__step-icon">4</div>
+                <span class="setup-sidebar__step-label">Escolher disciplinas</span>
+            </div>
+            }
         </div>
     </div>
 </aside>
