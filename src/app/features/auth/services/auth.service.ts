@@ -4,8 +4,6 @@ import { Observable, catchError, defer, map, switchMap, tap, throwError } from '
 import { BACKEND_CONFIG } from '../../../core/services/backend-config';
 import { SessionService, obterTokenSessao } from '../../../core/services/session.service';
 import { ProfileSetupService } from '../../profile-setup/services/profile-setup.service';
-// TEMPORÁRIO: excluir esta importação após integrar o backend.
-import { DemoAuthService } from './demo-auth.service';
 // TEMPORÁRIO: excluir estas importações de contas e modelos locais após integrar o backend Java.
 import { ContaLocalService } from './conta-local.service';
 import { DadosLocaisError, PerfilLocal } from '../../dados-locais/models/catalogo-local';
@@ -16,8 +14,6 @@ export interface CadastroPayload { nome: string; email: string; senha: string; }
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-    // TEMPORÁRIO: excluir esta dependência após integrar o backend.
-    private readonly demoAuth = inject(DemoAuthService);
     private readonly session = inject(SessionService);
     private readonly setup = inject(ProfileSetupService);
     private readonly http = inject(HttpClient);
@@ -30,10 +26,6 @@ export class AuthService {
     private readonly baseUrl = `${inject(BACKEND_CONFIG).url.replace(/\/+$/, '')}/auth`;
 
     login(identificador: string, senha: string, lembrarDeMim = true): Observable<string> {
-        // TEMPORÁRIO: excluir este desvio após integrar o backend e usar somente autenticar().
-        if (this.demoAuth.habilitado && ['primeiro@gini.local', 'demo@gini.local'].includes(identificador.trim().toLowerCase())) {
-            return this.demoAuth.login(identificador, senha, lembrarDeMim);
-        }
         // TEMPORÁRIO: excluir este login local após integrar o backend Java.
         if (this.modoLocal) return this.abrirLocal(() => this.contas.entrar(identificador, senha), lembrarDeMim);
         return this.autenticar('login', { identificador, senha }, false, lembrarDeMim);

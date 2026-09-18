@@ -7,7 +7,7 @@ import { Injectable, inject } from '@angular/core';
 import { BancoLocalService } from './banco-local.service';
 import { validarCatalogo } from './validar-catalogo';
 import { CatalogoLocal, CatalogoSalvo, DadosLocaisError, PerfilLocal } from '../models/catalogo-local';
-import { CursoDetalhes, Disciplina, PerfilResponse } from '../../profile-setup/models/profile.model';
+import { CursoDetalhes, Disciplina, PerfilResponse, rotuloPeriodo } from '../../profile-setup/models/profile.model';
 import { AlocacaoResponse, diaSemana } from '../../dashboard/models/grade-dia.model';
 
 /** Fonte local independente do Java. Não autentica usuários nem armazena senhas. */
@@ -63,7 +63,7 @@ export class DadosLocaisService {
         return {
             usuario: {
                 nome: perfil.nome, email: '', curso: valido ? curso?.nome ?? '' : '',
-                periodo: valido && perfil.periodo ? `${perfil.periodo}º ${curso?.organizacao === 'Anual' ? 'ano' : 'período'}` : ''
+                periodo: valido && perfil.periodo && curso ? rotuloPeriodo(perfil.periodo, curso.organizacao) : ''
             },
             cursoId: valido && curso ? String(curso.id) : null,
             disciplinasIds: valido ? perfil.ofertasIds.map(String) : [],
@@ -82,7 +82,8 @@ export class DadosLocaisService {
         return salvo.catalogo.cursos.map(c => ({
             id: String(c.id), title: c.nome, period: `Período: ${c.turno}`,
             unit: c.unidade, type: 'Tecnólogo', category: c.turno, icon: 'code',
-            periodos: c.periodos.map(p => `${p}º ${c.organizacao === 'Anual' ? 'ano' : 'período'}`), cargaHoraria: c.cargaHoraria,
+            periodicidade: c.organizacao,
+            periodos: c.periodos.map(p => rotuloPeriodo(p, c.organizacao)), cargaHoraria: c.cargaHoraria,
             duracaoAnos: c.organizacao === 'Anual' ? c.duracaoSemestres / 2 : undefined,
             duracaoSemestres: c.duracaoSemestres, coordenador: c.coordenador
         }));
@@ -102,10 +103,10 @@ export class DadosLocaisService {
         return c.ofertas.flatMap(o => {
             const d = c.disciplinas.find(item => item.id === o.disciplinaId)!;
             const t = c.turmas.find(item => item.id === o.turmaId)!;
-            const anual = c.cursos.find(curso => curso.id === d.cursoId)?.organizacao === 'Anual';
+            const curso = c.cursos.find(curso => curso.id === d.cursoId)!;
             return String(d.cursoId) === cursoId ? [{
                 id: String(o.id),
-                nome: `${d.nome} · ${t.codigo} (${t.turno})`, periodo: `${d.periodo}º ${anual ? 'ano' : 'período'}`
+                nome: `${d.nome} · ${t.codigo} (${t.turno})`, periodo: rotuloPeriodo(d.periodo, curso.organizacao)
             }] : [];
         });
     }
@@ -138,9 +139,13 @@ export class DadosLocaisService {
             (!confirmar && this.revisaoConsultada !== salvo.revisao)) {
             throw new DadosLocaisError('A grade foi atualizada. Saia e entre novamente para conferir suas disciplinas.');
         }
+        // Resolve o rótulo contra os dados do curso: 1º semestre não é 1º ano.
+        const curso = salvo.catalogo.cursos.find(c => String(c.id) === cursoId);
+        const numeroPeriodo = curso?.periodos.find(p => rotuloPeriodo(p, curso.organizacao) === periodo);
+        if (numeroPeriodo === undefined) throw new DadosLocaisError('Selecione um período disponível para este curso.');
         const ofertasIds = [...new Set(ids.map(Number))];
-        this.validarEscolhas(salvo.catalogo, Number(cursoId), Number.parseInt(periodo ?? '', 10), ofertasIds);
-        const atualizado = { ...perfil, cursoId: Number(cursoId), periodo: Number.parseInt(periodo!, 10), ofertasIds, revisao: salvo.revisao };
+        this.validarEscolhas(salvo.catalogo, Number(cursoId), numeroPeriodo, ofertasIds);
+        const atualizado = { ...perfil, cursoId: Number(cursoId), periodo: numeroPeriodo, ofertasIds, revisao: salvo.revisao };
         let mudou = false;
         await this.banco.executar<void>('readwrite', store => {
             const catalogo = store.get('catalogo');

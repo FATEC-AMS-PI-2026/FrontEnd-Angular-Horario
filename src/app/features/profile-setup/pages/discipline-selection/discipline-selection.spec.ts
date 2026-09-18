@@ -15,10 +15,10 @@ describe('DisciplineSelection: grade personalizada', () => {
     let navigate: jasmine.Spy;
     const base = environment.apiUrl;
     const matriz: Disciplina[] = [
-        { id: 'dp', nome: 'Algoritmos', periodo: '1º período' },
-        { id: 'regular', nome: 'Programação orientada a objetos', periodo: '2º período' },
-        { id: 'regular-2', nome: 'Banco de dados', periodo: '2º período' },
-        { id: 'futura', nome: 'Sistemas distribuídos', periodo: '3º período' },
+        { id: 'dp', nome: 'Algoritmos', periodo: '1º semestre' },
+        { id: 'regular', nome: 'Programação orientada a objetos', periodo: '2º semestre' },
+        { id: 'regular-2', nome: 'Banco de dados', periodo: '2º semestre' },
+        { id: 'futura', nome: 'Sistemas distribuídos', periodo: '3º semestre' },
     ];
 
     beforeEach(() => {
@@ -28,7 +28,7 @@ describe('DisciplineSelection: grade personalizada', () => {
         });
         setup = TestBed.inject(ProfileSetupService);
         setup.setCourse('ADS', 'ads');
-        setup.setPeriod('2º período');
+        setup.setPeriod('2º semestre');
         http = TestBed.inject(HttpTestingController);
         fixture = TestBed.createComponent(DisciplineSelection);
         component = fixture.componentInstance;
@@ -40,13 +40,39 @@ describe('DisciplineSelection: grade personalizada', () => {
 
     function carregar(disciplinas = matriz): void {
         http.expectOne(base + '/cursos/ads').flush({
-            periodos: ['1º período', '2º período', '3º período'],
+            periodicidade: 'Semestral', periodos: ['1º semestre', '2º semestre', '3º semestre'],
         });
         const request = http.expectOne(base + '/cursos/ads/disciplinas');
         expect(request.request.params.has('periodo')).toBeFalse();
         request.flush(disciplinas);
         fixture.detectChanges();
     }
+
+    it('filtra anos, classifica DP e adiciona todas somente do ano escolhido', () => {
+        setup.setPeriod('2º ano');
+        component.filtroPeriodo.set('2º ano');
+        http.expectOne(base + '/cursos/ads').flush({
+            periodicidade: 'Anual', periodos: ['1º ano', '2º ano'],
+        });
+        http.expectOne(base + '/cursos/ads/disciplinas').flush([
+            { id: 'dp', nome: 'Algoritmos', periodo: '1º ano' },
+            { id: 'regular', nome: 'Banco de dados', periodo: '2º ano' },
+        ]);
+        fixture.detectChanges();
+        expect(fixture.nativeElement.querySelector('h2').textContent).toContain('seu ano');
+        expect(component.visiveis().map(d => d.id)).toEqual(['regular']);
+        component.adicionarTodas();
+        component.filtroPeriodo.set('1º ano');
+        component.adicionarTodas();
+        expect(setup.selectedDisciplinas()).toEqual(['regular', 'dp']);
+        expect(component.resumo()).toEqual({ regular: 1, dp: 1, adiantamento: 0 });
+        component.concluir();
+        const pedido = http.expectOne(base + '/usuarios/me/perfil');
+        expect(pedido.request.body).toEqual({ cursoId: 'ads', periodo: '2º ano', disciplinasIds: ['regular', 'dp'] });
+        pedido.flush({ usuario: { nome: 'Ana', email: '', curso: 'ADS', periodo: '2º ano' },
+            cursoId: 'ads', disciplinasIds: ['regular', 'dp'], configuracaoInicialConcluida: true });
+        expect(navigate).toHaveBeenCalledOnceWith(['/dashboard']);
+    });
 
     it('abre com a grade do período exato selecionado, sem limitar a consulta da matriz', () => {
         carregar();
@@ -67,7 +93,7 @@ describe('DisciplineSelection: grade personalizada', () => {
         expect(component.podeAdicionarTodas()).toBeFalse();
         component.adicionarTodas();
         expect(setup.selectedDisciplinas().length).toBe(3);
-        component.filtroPeriodo.set('3º período');
+        component.filtroPeriodo.set('3º semestre');
         expect(component.podeAdicionarTodas()).toBeTrue();
         component.adicionarTodas();
         expect(setup.selectedDisciplinas()).toEqual(['dp', 'regular', 'regular-2', 'futura']);
@@ -81,7 +107,7 @@ describe('DisciplineSelection: grade personalizada', () => {
         component.adicionarTodas();
         expect(component.podeAdicionarTodas()).toBeFalse();
         expect(setup.selectedDisciplinas()).toEqual([]);
-        component.filtroPeriodo.set('2º período');
+        component.filtroPeriodo.set('2º semestre');
         component.saving.set(true);
         component.adicionarTodas();
         expect(setup.selectedDisciplinas()).toEqual([]);
@@ -90,9 +116,9 @@ describe('DisciplineSelection: grade personalizada', () => {
     it('combina regular, DP e adiantamento e mantém seleção ao trocar filtros', () => {
         carregar();
         component.selecionar('regular');
-        component.filtroPeriodo.set('1º período');
+        component.filtroPeriodo.set('1º semestre');
         component.selecionar('dp');
-        component.filtroPeriodo.set('3º período');
+        component.filtroPeriodo.set('3º semestre');
         component.selecionar('futura');
         expect(component.resumo()).toEqual({ regular: 1, dp: 1, adiantamento: 1 });
         expect(component.selecionadas().length).toBe(3);
@@ -134,11 +160,11 @@ describe('DisciplineSelection: grade personalizada', () => {
         const request = http.expectOne(base + '/usuarios/me/perfil');
         expect(request.request.method).toBe('PUT');
         expect(request.request.body).toEqual({
-            cursoId: 'ads', periodo: '2º período', disciplinasIds: ['regular', 'dp', 'futura'],
+            cursoId: 'ads', periodo: '2º semestre', disciplinasIds: ['regular', 'dp', 'futura'],
         });
         expect(navigate).not.toHaveBeenCalled();
         request.flush({
-            usuario: { nome: 'Ana', email: 'ana@example.test', curso: 'ADS', periodo: '2º período' },
+            usuario: { nome: 'Ana', email: 'ana@example.test', curso: 'ADS', periodo: '2º semestre' },
             cursoId: 'ads', disciplinasIds: ['regular', 'dp', 'futura'],
             configuracaoInicialConcluida: true,
         });
@@ -171,7 +197,7 @@ describe('DisciplineSelection: grade personalizada', () => {
     });
 
     it('exibe erro de API sem inventar disciplinas e permite recarregar', () => {
-        http.expectOne(base + '/cursos/ads').flush({ periodos: ['2º período'] });
+        http.expectOne(base + '/cursos/ads').flush({ periodicidade: 'Semestral', periodos: ['2º semestre'] });
         http.expectOne(base + '/cursos/ads/disciplinas')
             .flush({}, { status: 500, statusText: 'Error' });
         expect(component.carregado()).toBeFalse();
@@ -183,7 +209,7 @@ describe('DisciplineSelection: grade personalizada', () => {
 
     it('trata matriz incompatível como falha recuperável sem apagar o rascunho', () => {
         setup.definirDisciplinas(['dp']);
-        http.expectOne(base + '/cursos/ads').flush({ periodos: ['2º período'] });
+        http.expectOne(base + '/cursos/ads').flush({ periodicidade: 'Semestral', periodos: ['2º semestre'] });
         http.expectOne(base + '/cursos/ads/disciplinas').flush({ content: [] });
         expect(component.loading()).toBeFalse();
         expect(component.carregado()).toBeFalse();
@@ -192,7 +218,7 @@ describe('DisciplineSelection: grade personalizada', () => {
     });
 
     it('rejeita vínculo com período desconhecido e impede salvar', () => {
-        carregar([{ id: 'invalida', nome: 'Sem vínculo', periodo: '99º período' }]);
+        carregar([{ id: 'invalida', nome: 'Sem vínculo', periodo: '99º semestre' }]);
         expect(component.carregado()).toBeFalse();
         expect(component.errorMessage()).toContain('matriz do curso está incompleta');
         component.concluir();
@@ -211,7 +237,7 @@ describe('DisciplineSelection: grade personalizada', () => {
         component.selecionar('regular');
         component.voltar();
         expect(navigate).toHaveBeenCalledOnceWith(['/setup/period-selection']);
-        setup.setPeriod('3º período');
+        setup.setPeriod('3º semestre');
         expect(setup.selectedDisciplinas()).toEqual(['regular']);
         expect(component.tipo(matriz[1])).toBe('DP');
     });

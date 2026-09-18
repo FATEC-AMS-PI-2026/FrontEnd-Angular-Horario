@@ -7,6 +7,7 @@ import { Subject, of } from 'rxjs';
 import { CARREGAR_GRADE_DIA, CarregarGradeDia, DashboardService } from './services/dashboard.service';
 import { AlocacaoResponse, dataAcademica, diaSemana } from './models/grade-dia.model';
 import { SessionService } from '../../core/services/session.service';
+import { intervalosDaGrade } from './models/intervalos-grade';
 
 describe('Dashboard', () => {
     let component: Dashboard;
@@ -111,6 +112,48 @@ describe('Dashboard: grade do serviço', () => {
         component.agora.set(new Date('2026-09-14T16:00:00-03:00'));
         expect(component.proxima()).toBeUndefined();
         expect(component.stats()[3].subtitle).toBe('Nenhuma aula neste momento');
+    });
+
+    it('pula os blocos da disciplina atual e mostra a próxima disciplina diferente', () => {
+        const engenharia = (id: number, inicio: string, fim: string) => ({
+            ...aula(id, inicio, fim), disciplina: { id: 10, nome: 'Engenharia de Software', periodo: 1 },
+        });
+        resposta.next([engenharia(1, '15:00', '15:50'), engenharia(2, '15:50', '16:40'), aula(3, '17:00', '17:50')]);
+        resposta.complete();
+        component.agora.set(new Date('2026-09-14T15:16:00-03:00'));
+        expect(component.proxima()?.id).toBe(3);
+        expect(component.stats()[2].value).toBe('17:00');
+        component.agora.set(new Date('2026-09-14T15:50:00-03:00'));
+        expect(component.proxima()?.id).toBe(3);
+        component.agora.set(new Date('2026-09-14T16:40:00-03:00'));
+        expect(component.stats()[3].subtitle).toBe('(intervalo)');
+        fixture.detectChanges();
+        expect(fixture.nativeElement.querySelectorAll('.schedule-item--interval').length).toBe(1);
+        expect(component.alocacoes().length).toBe(3);
+        component.agora.set(new Date('2026-09-14T17:00:00-03:00'));
+        expect(component.intervaloAtual()).toBeUndefined();
+        expect(component.emAndamento()[0].id).toBe(3);
+    });
+
+    it('compara nomes sem depender dos IDs dos blocos e não esconde aulas antes do início do dia', () => {
+        resposta.next([aula(1, '13:20', '14:10'), {
+            ...aula(2, '14:10', '15:00'), disciplina: { id: 99, nome: '  DISCIPLINA   1 ', periodo: 1 },
+        }]);
+        resposta.complete();
+        expect(component.proxima()).toBeUndefined();
+        component.agora.set(new Date('2026-09-14T12:00:00-03:00'));
+        expect(component.proxima()?.id).toBe(1);
+        expect(component.intervaloAtual()).toBeUndefined();
+    });
+
+    it('calcula lacunas por horários e não cria intervalos para aulas contíguas ou sobrepostas', () => {
+        expect(intervalosDaGrade([])).toEqual([]);
+        expect(intervalosDaGrade([aula(1, '13:20', '14:10')])).toEqual([]);
+        expect(intervalosDaGrade([aula(1, '13:20', '14:10'), aula(2, '14:10:00', '15:00')])).toEqual([]);
+        const intervalos = intervalosDaGrade([
+            aula(3, '16:10', '17:00'), aula(1, '13:20', '15:00'), aula(2, '14:00', '14:50'),
+        ]);
+        expect(intervalos.map(i => [i.horaInicio, i.horaFim])).toEqual([['15:00:00', '16:10:00']]);
     });
 
     it('mostra ausência de aulas apenas após resposta vazia bem-sucedida', () => {

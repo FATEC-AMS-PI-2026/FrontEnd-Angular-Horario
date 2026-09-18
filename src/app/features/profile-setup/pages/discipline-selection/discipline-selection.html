@@ -2,8 +2,8 @@
     @if (saving()) { <p role="status">Salvando sua grade...</p> }
     <header class="page-intro">
         <p class="contexto">{{ setupService.selectedCourse() }} · {{ setupService.selectedPeriod() }}</p>
-        <h2>Monte a grade do seu período</h2>
-        <p>Escolha as disciplinas que vai cursar. Consulte outros períodos para incluir DPs ou adiantar matérias.</p>
+        <h2>Monte a grade do seu {{ setupService.nomePeriodo() }}</h2>
+        <p>Escolha as disciplinas que vai cursar. Consulte outros {{ setupService.nomePeriodos() }} para incluir DPs ou adiantar matérias.</p>
     </header>
 
     @if (loading()) {
@@ -29,7 +29,7 @@
                 <label for="busca-disciplina">Buscar disciplina</label>
                 <input #campoBusca id="busca-disciplina" type="search" placeholder="Busque pelo nome da disciplina"
                     [value]="busca()" (input)="busca.set(campoBusca.value)" [disabled]="saving()" />
-                <div class="periodos" role="group" aria-label="Filtrar disciplinas por período">
+                <div class="periodos" role="group" [attr.aria-label]="'Filtrar disciplinas por ' + setupService.nomePeriodo()">
                     @for (periodo of periodos(); track periodo) {
                     <button type="button" class="pill" [class.active]="filtroPeriodo() === periodo"
                         [attr.aria-pressed]="filtroPeriodo() === periodo" [disabled]="saving()"
@@ -40,16 +40,16 @@
                     }
                     <button type="button" class="pill" [class.active]="filtroPeriodo() === null"
                         [attr.aria-pressed]="filtroPeriodo() === null" [disabled]="saving()"
-                        (click)="filtroPeriodo.set(null)">Todos os períodos</button>
+                        (click)="filtroPeriodo.set(null)">Todos os {{ setupService.nomePeriodos() }}</button>
                 </div>
             </div>
 
             <div class="lista-cabecalho">
-                <h3>{{ filtroPeriodo() || 'Todos os períodos' }}</h3>
+                <h3>{{ filtroPeriodo() || 'Todos os ' + setupService.nomePeriodos() }}</h3>
                 <span>{{ visiveis().length }} disciplinas encontradas</span>
                 <button type="button" class="btn-secondary" (click)="adicionarTodas()"
                     [disabled]="!podeAdicionarTodas()"
-                    [title]="filtroPeriodo() ? 'Adicionar todas as disciplinas do ' + filtroPeriodo() : 'Selecione um período para adicionar suas disciplinas'">
+                    [title]="filtroPeriodo() ? 'Adicionar todas as disciplinas do ' + filtroPeriodo() : 'Selecione um ' + setupService.nomePeriodo() + ' para adicionar suas disciplinas'">
                     Adicionar todas as disciplinas
                 </button>
             </div>
@@ -71,7 +71,7 @@
                 } @empty {
                 <div class="estado">
                     <h3>Nenhuma disciplina encontrada</h3>
-                    <p>{{ disciplinas().length ? 'Experimente outro período ou termo de busca.' : 'Ainda não há
+                    <p>{{ disciplinas().length ? 'Experimente outro ' + setupService.nomePeriodo() + ' ou termo de busca.' : 'Ainda não há
                         disciplinas disponíveis para este curso.' }}</p>
                     @if (disciplinas().length) {
                     <button type="button" class="btn-secondary" (click)="limparFiltros()">Limpar filtros</button>
@@ -79,7 +79,7 @@
                 </div>
                 }
             </fieldset>
-            <p class="legenda">DP: disciplina de um período anterior. Adiantamento: disciplina de um período futuro.</p>
+            <p class="legenda">DP: disciplina de um {{ setupService.nomePeriodo() }} anterior. Adiantamento: disciplina de um {{ setupService.nomePeriodo() }} futuro.</p>
         </div>
 
         <aside class="resumo" aria-labelledby="titulo-resumo">

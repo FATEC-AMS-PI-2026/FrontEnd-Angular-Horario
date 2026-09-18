@@ -18,9 +18,9 @@
                 } @else if (setupService.currentStep() === 4) {
                 Monte sua grade com disciplinas regulares, DPs e adiantamentos.
                 } @else if (setupService.returningUser()) {
-                Último passo — escolha em qual período você está cursando.
+                Último passo — escolha qual {{ setupService.nomePeriodo() }} você está cursando.
                 } @else if (setupService.currentStep() === 3) {
-                Escolha seu período para consultar as disciplinas disponíveis.
+                Escolha seu {{ setupService.nomePeriodo() }} para consultar as disciplinas disponíveis.
                 } @else {
                 Selecione suas disciplinas para concluir a configuração.
                 }
@@ -70,7 +70,7 @@
                     3
                     }
                 </div>
-                <span class="setup-sidebar__step-label">Escolher período</span>
+                <span class="setup-sidebar__step-label">Escolher {{ setupService.nomePeriodo() }}</span>
             </div>
             @if (!setupService.returningUser() || setupService.currentStep() === 4) {
             <div class="setup-sidebar__step" [class.setup-sidebar__step--active]="setupService.currentStep() === 4"

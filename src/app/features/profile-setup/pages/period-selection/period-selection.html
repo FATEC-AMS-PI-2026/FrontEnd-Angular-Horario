@@ -1,12 +1,12 @@
 <div class="period-selection-container" [attr.aria-busy]="loading() || saving()">
-    @if (saving()) { <p role="status">Salvando seu período...</p> }
+    @if (saving()) { <p role="status">Salvando seu {{ setupService.nomePeriodo() }}...</p> }
 
     <div class="page-header">
-        <h2>Selecione o período desejado</h2>
+        <h2>Selecione o {{ setupService.nomePeriodo() }} desejado</h2>
     </div>
 
     @if (loading()) {
-    <p role="status">Carregando períodos...</p>
+    <p role="status">Carregando {{ setupService.nomePeriodos() }}...</p>
     }
     @if (errorMessage()) {
     <p role="alert">{{ errorMessage() }}</p>
@@ -19,11 +19,11 @@
         <button type="button" class="period-card" [class.active]="setupService.selectedPeriod() === periodo"
             [attr.aria-label]="periodo" [attr.aria-pressed]="setupService.selectedPeriod() === periodo"
             [disabled]="saving()" (click)="selecionar(periodo)">
-            {{ periodo.replace(' período', '') }}
+            {{ periodo }}
         </button>
         } @empty {
         @if (!loading() && !errorMessage()) {
-        <p role="status">Nenhum período disponível para este curso.</p>
+        <p role="status">Nenhum {{ setupService.nomePeriodo() }} disponível para este curso.</p>
         }
         }
     </div>

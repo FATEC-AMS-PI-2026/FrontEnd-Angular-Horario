@@ -69,6 +69,32 @@ describe('Dados locais: IndexedDB real no navegador', () => {
         expect(JSON.stringify(await dados.catalogo())).not.toContain('Ana');
     });
 
+    for (const organizacao of ['Anual', 'Semestral'] as const) {
+        it(`respeita ${organizacao} ao listar, salvar e restaurar o período numérico`, async () => {
+            const c = catalogo();
+            c.cursos[0].organizacao = organizacao;
+            c.cursos[0].periodos = organizacao === 'Anual' ? [1, 2] : [1, 2, 3, 4];
+            await dados.importar(c);
+            const perfil = await dados.criarPerfil('Ana');
+            localStorage.setItem('gini_token', dados.prefixo + perfil.id);
+            const unidade = organizacao === 'Anual' ? 'ano' : 'semestre';
+            const curso = await dados.curso('1');
+            expect(curso.periodicidade).toBe(organizacao);
+            expect(curso.periodos).toEqual(c.cursos[0].periodos.map(p => `${p}º ${unidade}`));
+            expect((await dados.disciplinas('1'))[0].periodo).toBe(`1º ${unidade}`);
+            await dados.salvar('1', `2º ${unidade}`, ['1']);
+            expect((await dados.perfis())[0].periodo).toBe(2);
+            expect((await dados.carregarPerfil()).usuario.periodo).toBe(`2º ${unidade}`);
+            await dados.salvar('1', `1º ${unidade}`, ['1'], true);
+            expect((await dados.carregarPerfil()).disciplinasIds).toEqual(['1']);
+            const errada = organizacao === 'Anual' ? 'semestre' : 'ano';
+            for (const invalido of [`1º ${errada}`, '99º ' + unidade, '1abc', '1']) {
+                await expectAsync(dados.salvar('1', invalido, ['1'])).toBeRejected();
+            }
+            expect((await dados.perfis())[0].periodo).toBe(1);
+        });
+    }
+
     it('aplica seleção do aluno, feriados e compensações sem inventar professor ou sala', async () => {
         await preparar();
         await dados.salvar('1', '1º ano', ['1']);

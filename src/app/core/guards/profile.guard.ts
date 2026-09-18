@@ -4,23 +4,11 @@ import { CanActivateChildFn, Router } from '@angular/router';
 import { catchError, map, of } from 'rxjs';
 import { SessionService, obterTokenSessao } from '../services/session.service';
 import { ProfileSetupService } from '../../features/profile-setup/services/profile-setup.service';
-// TEMPORÁRIO: excluir esta importação após integrar o backend.
-import { DemoAuthService } from '../../features/auth/services/demo-auth.service';
 
 export const profileGuard: CanActivateChildFn = (_route, state) => {
     const router = inject(Router);
     const setup = inject(ProfileSetupService);
     const session = inject(SessionService);
-    // TEMPORÁRIO: excluir este bloco após integrar o backend; libera somente a sessão demo local.
-    const demoAuth = inject(DemoAuthService);
-    if (demoAuth.sessaoDemonstrativa) {
-        if (!demoAuth.habilitado || !session.usuario()) {
-            setup.limpar();
-            session.limpar();
-            return router.parseUrl('/login');
-        }
-    }
-    // FIM TEMPORÁRIO: a proteção real de perfil permanece abaixo.
     if (!obterTokenSessao()) {
         setup.limpar();
         return router.parseUrl('/login');

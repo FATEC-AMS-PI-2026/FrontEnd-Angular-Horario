@@ -1,7 +1,7 @@
 <div class="profile-setup-container">
     <app-setup-sidebar></app-setup-sidebar>
     <div class="profile-setup-main">
-        <app-topbar></app-topbar>
+        <app-topbar [titulo]="setupService.currentStep() === 3 ? 'Escolha seu ' + setupService.nomePeriodo() : null"></app-topbar>
         <main class="profile-setup-content">
             <router-outlet></router-outlet>
         </main>

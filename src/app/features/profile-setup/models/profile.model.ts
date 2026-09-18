@@ -12,7 +12,14 @@ export interface PerfilResponse {
     disciplinasIds: string[];
 }
 
+export type PeriodicidadeCurso = 'Anual' | 'Semestral';
+
+export function rotuloPeriodo(numero: number, periodicidade: PeriodicidadeCurso): string {
+    return `${numero}º ${periodicidade === 'Anual' ? 'ano' : 'semestre'}`;
+}
+
 export interface CursoDetalhes extends Course {
+    periodicidade: PeriodicidadeCurso;
     periodos: string[];
     cargaHoraria: number | null;
     duracaoAnos?: number;

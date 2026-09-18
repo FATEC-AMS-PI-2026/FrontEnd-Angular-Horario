@@ -12,12 +12,13 @@
     flex-wrap: wrap;
 
     .period-card {
-        width: 120px;
+        min-width: 120px;
+        padding: var(--space-sm);
         height: 100px;
         background-color: var(--color-surface);
         border: 1px solid var(--color-border-strong);
         border-radius: var(--radius-lg);
-        font-size: 2rem; // número de destaque — fora da escala de texto, como o KPI do dashboard
+        font-size: calc(var(--text-lg) * 1.2);
         font-weight: var(--fw-bold);
         color: var(--color-text);
         cursor: pointer;
