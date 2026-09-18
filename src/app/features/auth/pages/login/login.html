@@ -8,24 +8,29 @@
         <div class="form-wrapper">
             <h1 class="title">Bem-vindo de volta</h1>
             <p class="subtitle">Insira seus dados para entrar</p>
+            <!-- TEMPORÁRIO: excluir o aviso de conta local após integrar o backend Java. -->
+            @if (modoLocal) { <p class="subtitle">Entre com a conta criada neste navegador.</p> }
 
-            <form [formGroup]="form" (ngSubmit)="onLogin()" novalidate>
+            <form [formGroup]="form" (ngSubmit)="onLogin()" novalidate [attr.aria-busy]="loading">
+                @if (loading) { <p role="status">Autenticando e carregando seu perfil...</p> }
 
                 <div class="field">
-                    <label for="identificador">E-mail Institucional ou Matrícula</label>
+                    <!-- TEMPORÁRIO: excluir as alternativas modoLocal deste campo após integrar o backend Java. -->
+                    <label for="identificador">{{ modoLocal ? 'E-mail' : 'E-mail Institucional ou Matrícula' }}</label>
                     <input id="identificador" type="text" placeholder="seuemail@aluno.cps.sp.gov.br"
-                        formControlName="identificador" autocomplete="username"
-                        [class.input-error]="submitted && identificador?.invalid" />
-                    @if (submitted && identificador?.invalid) {
-                    <small class="error-msg">Informe seu e-mail institucional ou matrícula.</small>
+                        formControlName="identificador" autocomplete="username" [readOnly]="loading"
+                        [class.input-error]="submitted && identificador.invalid" />
+                    @if (submitted && identificador.invalid) {
+                    <small class="error-msg">{{ modoLocal ? 'Informe seu e-mail.' : 'Informe seu e-mail institucional ou matrícula.' }}</small>
                     }
                 </div>
 
                 <div class="field">
                     <label for="senha">Senha</label>
                     <input id="senha" type="password" placeholder="••••••••" formControlName="senha"
-                        autocomplete="current-password" [class.input-error]="submitted && senha?.invalid" />
-                    @if (submitted && senha?.invalid) {
+                        autocomplete="current-password" [readOnly]="loading"
+                        [class.input-error]="submitted && senha.invalid" />
+                    @if (submitted && senha.invalid) {
                     <small class="error-msg">Informe sua senha.</small>
                     }
                 </div>
@@ -33,7 +38,7 @@
                 <a class="forgot-password-link" routerLink="/esqueci-senha">Esqueci minha senha</a>
 
                 <div class="field-checkbox">
-                    <input id="lembrarDeMim" type="checkbox" formControlName="lembrarDeMim" />
+                    <input id="lembrarDeMim" type="checkbox" formControlName="lembrarDeMim" [attr.disabled]="loading ? '' : null" />
                     <label for="lembrarDeMim">Lembrar de mim</label>
                 </div>
 
@@ -44,7 +49,7 @@
                 </div>
 
                 @if (errorMessage) {
-                <p class="alert-msg error">{{ errorMessage }}</p>
+                <p class="alert-msg error" role="alert">{{ errorMessage }}</p>
                 }
 
                 <div class="signup-link-container">
