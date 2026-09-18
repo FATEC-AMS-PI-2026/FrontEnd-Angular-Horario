@@ -34,7 +34,7 @@ Services preservam a separação: ContaLocalService cuida do cadastro/login e in
 
 ## Backend futuro
 
-A conexão continua desativada por `backendHabilitado: false`. O perfil remoto permanece separado em PerfilRemotoService. Ao integrar Java, substituir a autenticação local, alinhar os contratos de perfil/grade e mapear IDs. Não basta alterar a URL; contas locais não são enviadas automaticamente ao servidor. As contas demonstrativas reservadas continuam disponíveis somente no ambiente de demonstração.
+A conexão continua desativada por `backendHabilitado: false`. O perfil remoto permanece separado em PerfilRemotoService. Ao integrar Java, substituir a autenticação local, alinhar os contratos de perfil/grade e mapear IDs. Não basta alterar a URL; contas locais não são enviadas automaticamente ao servidor. O modo de demonstração foi removido; o cadastro local é a única alternativa enquanto não houver integração.
 
 
 ## Lembrar de mim
