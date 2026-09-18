@@ -8,6 +8,8 @@
         <div class="form-wrapper">
             <h1 class="title">Criar a Conta</h1>
             <p class="subtitle">Insira seus dados para se cadastrar</p>
+            <!-- TEMPORÁRIO: excluir o aviso de conta local após integrar o backend Java. -->
+            @if (modoLocal) { <p class="subtitle">Sua conta e sua grade ficam salvas neste navegador.</p> }
 
             <form [formGroup]="cadastroForm" (ngSubmit)="cadastrar()" [attr.aria-busy]="loading">
                 @if (loading) { <p role="status">Criando sua conta e carregando seu perfil...</p> }
@@ -52,7 +54,12 @@
                 </div>
 
                 @if (errorMessage) {
+                <!-- TEMPORÁRIO: excluir este aviso de conta local duplicada após integrar o backend Java. -->
+                @if (errorMessage === 'Conta já cadastrada') {
+                <p class="alert-msg success" role="status">{{ errorMessage }}</p>
+                } @else {
                 <p class="error-msg" role="alert">{{ errorMessage }}</p>
+                }
                 }
                 <div class="button-group">
                     <button type="submit" class="btn-submit" [disabled]="loading">

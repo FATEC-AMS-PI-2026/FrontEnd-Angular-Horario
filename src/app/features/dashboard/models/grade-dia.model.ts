@@ -5,8 +5,8 @@ export type DiaSemana = 'DOMINGO' | 'SEGUNDA' | 'TERCA' | 'QUARTA' | 'QUINTA' | 
 export interface AlocacaoResponse {
     id: number;
     disciplina: { id: number; nome: string; periodo: number };
-    professor: { id: number; nome: string };
-    sala: { id: number; codigo: string };
+    professor: { id: number; nome: string } | null;
+    sala: { id: number; codigo: string } | null;
     diaSemana: DiaSemana;
     blocoHorario: { id: number; horaInicio: string; horaFim: string; duracao: number };
     turma: { id: number; codigo: string; periodo: number; ano: number };

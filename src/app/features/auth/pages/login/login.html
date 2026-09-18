@@ -8,17 +8,20 @@
         <div class="form-wrapper">
             <h1 class="title">Bem-vindo de volta</h1>
             <p class="subtitle">Insira seus dados para entrar</p>
+            <!-- TEMPORÁRIO: excluir o aviso de conta local após integrar o backend Java. -->
+            @if (modoLocal) { <p class="subtitle">Entre com a conta criada neste navegador.</p> }
 
             <form [formGroup]="form" (ngSubmit)="onLogin()" novalidate [attr.aria-busy]="loading">
                 @if (loading) { <p role="status">Autenticando e carregando seu perfil...</p> }
 
                 <div class="field">
-                    <label for="identificador">E-mail Institucional ou Matrícula</label>
+                    <!-- TEMPORÁRIO: excluir as alternativas modoLocal deste campo após integrar o backend Java. -->
+                    <label for="identificador">{{ modoLocal ? 'E-mail' : 'E-mail Institucional ou Matrícula' }}</label>
                     <input id="identificador" type="text" placeholder="seuemail@aluno.cps.sp.gov.br"
                         formControlName="identificador" autocomplete="username" [readOnly]="loading"
                         [class.input-error]="submitted && identificador.invalid" />
                     @if (submitted && identificador.invalid) {
-                    <small class="error-msg">Informe seu e-mail institucional ou matrícula.</small>
+                    <small class="error-msg">{{ modoLocal ? 'Informe seu e-mail.' : 'Informe seu e-mail institucional ou matrícula.' }}</small>
                     }
                 </div>
 
@@ -33,6 +36,11 @@
                 </div>
 
                 <a class="forgot-password-link" routerLink="/esqueci-senha">Esqueci minha senha</a>
+
+                <div class="field-checkbox">
+                    <input id="lembrarDeMim" type="checkbox" formControlName="lembrarDeMim" [attr.disabled]="loading ? '' : null" />
+                    <label for="lembrarDeMim">Lembrar de mim</label>
+                </div>
 
                 <div class="button-group">
                     <button type="submit" class="btn-submit" [disabled]="loading">

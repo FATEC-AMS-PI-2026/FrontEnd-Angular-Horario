@@ -55,7 +55,8 @@
                     </div>
                     <div class="info-block">
                         <strong>{{ item.disciplina.nome }}</strong>
-                        <span>{{ item.professor.nome }} · {{ item.sala.codigo }}</span>
+                        <span>{{ item.professor?.nome || 'Professor não informado' }} · {{ item.sala?.codigo || 'Sala
+                            não informada' }}</span>
                     </div>
                 </div>
                 } @empty { <p role="status">Você não tem aulas programadas para hoje.</p> }

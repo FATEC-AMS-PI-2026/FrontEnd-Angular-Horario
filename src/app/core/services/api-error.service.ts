@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+// TEMPORÁRIO: excluir a importação de erros locais após integrar o backend Java.
+import { DadosLocaisError } from '../../features/dados-locais/models/catalogo-local';
+import { BackendIndisponivelError } from './backend-config';
 
 // Nomes definidos por StandardError e ValidationError no backend Java/Spring.
 export interface StandardError {
@@ -17,6 +20,9 @@ export interface ValidationError extends StandardError {
 @Injectable({ providedIn: 'root' })
 export class ApiErrorService {
     mensagem(error: unknown, fallback: string, login = false): string {
+        // TEMPORÁRIO: excluir este tratamento de armazenamento local após integrar o backend Java.
+        if (error instanceof DadosLocaisError) return error.message;
+        if (error instanceof BackendIndisponivelError) return error.message;
         if (!(error instanceof HttpErrorResponse)) return fallback;
         if (error.status === 0) return 'Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.';
         if (error.status === 401) return login && (!error.url || /\/auth\/login(?:\?|$)/.test(error.url))

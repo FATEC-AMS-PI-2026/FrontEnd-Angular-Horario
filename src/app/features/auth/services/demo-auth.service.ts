@@ -25,7 +25,7 @@ export class DemoAuthService {
         return this.demo.sessaoDemonstrativa;
     }
 
-    login(email: string, senha: string): Observable<string> {
+    login(email: string, senha: string, lembrarDeMim = true): Observable<string> {
         return defer(() => {
             this.setup.limpar();
             this.session.limpar();
@@ -34,7 +34,7 @@ export class DemoAuthService {
                 return throwError(() => new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' }));
             }
             const perfil = this.demo.iniciar(conta === 'primeiro@gini.local');
-            this.session.iniciar(this.demo.token, perfil.usuario);
+            this.session.iniciar(this.demo.token, perfil.usuario, lembrarDeMim);
             return this.setup.carregarPerfil().pipe(map(() => this.setup.destinoAposLogin()));
         });
     }

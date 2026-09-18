@@ -14,6 +14,7 @@ import { DemoAuthService } from './demo-auth.service';
 import { SessionService } from '../../../core/services/session.service';
 import { profileGuard } from '../../../core/guards/profile.guard';
 import { ProfileSetupService } from '../../profile-setup/services/profile-setup.service';
+import { BACKEND_CONFIG } from '../../../core/services/backend-config';
 
 @Component({ template: '' })
 class PaginaDemoTeste { }
@@ -194,6 +195,7 @@ describe('TEMPORÁRIO: duas jornadas demonstrativas', () => {
 
     it('usa HTTP real quando a demonstração está desligada', () => {
         environment.demoAuth = false;
+        TestBed.inject(BACKEND_CONFIG).habilitado = true;
         auth.login('demo@gini.local', 'Demo123!').subscribe({ error: () => { } });
         http.expectOne(environment.apiUrl + '/auth/login')
             .flush({}, { status: 401, statusText: 'Unauthorized' });

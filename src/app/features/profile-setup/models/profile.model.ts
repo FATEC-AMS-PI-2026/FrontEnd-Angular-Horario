@@ -1,6 +1,10 @@
 import { UsuarioSessao } from '../../../core/services/session.service';
 import { Course } from './course.model';
 
+/** Modelo consumido pelas telas. Não é um DTO confirmado do Java.
+ * TEMPORÁRIO: excluir a convenção local de IDs de ofertas (disciplina + turma) após integrar o backend Java.
+ * O adaptador remoto deverá mapear explicitamente os identificadores do servidor.
+ */
 export interface PerfilResponse {
     usuario: UsuarioSessao;
     configuracaoInicialConcluida: boolean;
@@ -10,7 +14,8 @@ export interface PerfilResponse {
 
 export interface CursoDetalhes extends Course {
     periodos: string[];
-    cargaHoraria: number;
+    cargaHoraria: number | null;
+    duracaoAnos?: number;
     duracaoSemestres: number;
     coordenador: string | null;
 }

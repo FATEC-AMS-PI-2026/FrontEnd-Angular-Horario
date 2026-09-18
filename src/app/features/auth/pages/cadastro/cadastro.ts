@@ -18,6 +18,8 @@ export class Cadastro {
     private readonly apiError = inject(ApiErrorService);
     private readonly router = inject(Router);
     private readonly destroyRef = inject(DestroyRef);
+    // TEMPORÁRIO: excluir o indicador de conta local após integrar o backend Java.
+    readonly modoLocal = this.auth.modoLocal;
     readonly cadastroForm = inject(FormBuilder).nonNullable.group({
         nome: ['', [Validators.required, Validators.minLength(3), Validators.pattern(/\S/)]],
         email: ['', [Validators.required, Validators.email]],
@@ -40,7 +42,8 @@ export class Cadastro {
             return;
         }
         this.loading = true;
-        this.auth.cadastrar({ nome: nome.trim(), email: email.trim(), senha }).pipe(
+        const payload = { nome: nome.trim(), email: email.trim(), senha };
+        this.auth.cadastrar(payload).pipe(
             takeUntilDestroyed(this.destroyRef),
             finalize(() => this.loading = false),
         ).subscribe({

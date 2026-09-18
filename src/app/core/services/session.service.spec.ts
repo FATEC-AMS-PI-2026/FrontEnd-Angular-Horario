@@ -6,12 +6,14 @@ describe('SessionService', () => {
     const usuario: UsuarioSessao = { nome: 'Ana Silva', email: 'ana@fatec.sp.gov.br', curso: 'ADS', periodo: '3º período' };
 
     beforeEach(() => {
+        sessionStorage.clear();
         localStorage.removeItem('gini_token');
         localStorage.removeItem('gini_usuario');
         TestBed.configureTestingModule({ providers: [provideRouter([])] });
     });
 
     afterEach(() => {
+        sessionStorage.clear();
         ['gini_token', 'gini_usuario', 'gini_preferencias'].forEach(key => localStorage.removeItem(key));
     });
 
@@ -35,6 +37,31 @@ describe('SessionService', () => {
         service.atualizarPerfil('Secretariado', '2º período');
         expect(service.identificacao()).toBe('Secretariado · 2º período');
         expect(JSON.parse(localStorage.getItem('gini_usuario')!).periodo).toBe('2º período');
+    });
+
+    it('restaura sessão da aba e mantém atualizações no mesmo armazenamento', () => {
+        sessionStorage.setItem('gini_token', 'temporario');
+        sessionStorage.setItem('gini_usuario', JSON.stringify(usuario));
+        const service = TestBed.inject(SessionService);
+        expect(service.token).toBe('temporario');
+        expect(service.usuario()).toEqual(usuario);
+        service.atualizarPerfil('ADS', '1º ano');
+        expect(JSON.parse(sessionStorage.getItem('gini_usuario')!).periodo).toBe('1º ano');
+        expect(localStorage.getItem('gini_usuario')).toBeNull();
+    });
+
+    it('troca entre sessão persistente e sessão da aba sem deixar token antigo', () => {
+        const service = TestBed.inject(SessionService);
+        service.iniciar('persistente', usuario, true);
+        expect(localStorage.getItem('gini_token')).toBe('persistente');
+        service.iniciar('aba', usuario, false);
+        expect(localStorage.getItem('gini_token')).toBeNull();
+        expect(sessionStorage.getItem('gini_token')).toBe('aba');
+        service.iniciar('nova', usuario, true);
+        expect(sessionStorage.getItem('gini_token')).toBeNull();
+        service.limpar();
+        expect(service.token).toBeNull();
+        expect(service.usuario()).toBeNull();
     });
 
     it('encerra a sessão, redireciona e preserva preferências', () => {
