@@ -1,22 +1,23 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, of, tap, throwError } from 'rxjs';
+import { Observable, defer, of, tap, throwError } from 'rxjs';
 // TEMPORÁRIO: excluir estas importações após integrar o backend.
-import { defer } from 'rxjs';
 import { DemoProfileService } from './demo-profile.service';
-import { SessionService } from '../../../core/services/session.service';
-import { environment } from '../../../../environments/environment';
+import { SessionService, obterTokenSessao } from '../../../core/services/session.service';
+import { PerfilRemotoService } from './perfil-remoto.service';
 import { Course } from '../models/course.model';
 import { CursoDetalhes, Disciplina, PerfilResponse } from '../models/profile.model';
+// TEMPORÁRIO: excluir esta importação de armazenamento local após integrar o backend Java.
+import { DadosLocaisService } from '../../dados-locais/services/dados-locais.service';
 
 @Injectable({ providedIn: 'root' })
 export class ProfileSetupService {
+    // TEMPORÁRIO: excluir esta dependência local após integrar o backend Java.
+    private readonly local = inject(DadosLocaisService);
     // TEMPORÁRIO: excluir a dependência e o indicador de demonstração após integrar o backend.
     private readonly demo = inject(DemoProfileService);
     get modoDemonstracao(): boolean { return this.demo.ativo; }
-    private readonly http = inject(HttpClient);
+    private readonly remoto = inject(PerfilRemotoService);
     private readonly session = inject(SessionService);
-    private readonly baseUrl = environment.apiUrl;
     private loadedToken: string | null = null;
     private readonly perfilAtual = signal<PerfilResponse | null>(null);
     readonly perfil = this.perfilAtual.asReadonly();
@@ -29,7 +30,20 @@ export class ProfileSetupService {
     readonly selectedDisciplinas = signal<string[]>([]);
     readonly isSetupComplete = computed(() => !!this.selectedCourseId() && !!this.selectedPeriod());
 
-    carregarPerfil(token = localStorage.getItem('gini_token')): Observable<PerfilResponse> {
+    carregarPerfil(token = obterTokenSessao()): Observable<PerfilResponse> {
+        // TEMPORÁRIO: excluir este desvio para o armazenamento local após integrar o backend Java.
+        if (this.local.ativo) {
+            return defer(() => this.local.carregarPerfil()).pipe(tap(perfil => {
+                if (this.loadedToken !== token || !perfil.configuracaoInicialConcluida) this.periodoConfirmado.set(false);
+                this.loadedToken = token;
+                this.perfilAtual.set(perfil);
+                this.selectedCourseId.set(perfil.cursoId);
+                this.selectedCourse.set(perfil.usuario.curso || null);
+                this.selectedPeriod.set(perfil.usuario.periodo || null);
+                this.selectedDisciplinas.set(perfil.disciplinasIds);
+                this.session.atualizarPerfil(perfil.usuario.curso, perfil.usuario.periodo);
+            }));
+        }
         // TEMPORÁRIO: excluir este carregamento local após integrar o backend.
         if (this.demo.ativo) {
             return defer(() => {
@@ -47,9 +61,7 @@ export class ProfileSetupService {
             });
         }
         if (!token) return throwError(() => new Error('Sessão não autenticada.'));
-        return this.http.get<PerfilResponse>(`${this.baseUrl}/usuarios/me/perfil`, {
-            headers: new HttpHeaders({ Authorization: `Bearer ${token}` }),
-        }).pipe(tap(perfil => {
+        return this.remoto.carregar(token).pipe(tap(perfil => {
             if (typeof perfil.configuracaoInicialConcluida !== 'boolean' || !perfil.usuario ||
                 !Array.isArray(perfil.disciplinasIds) ||
                 (perfil.configuracaoInicialConcluida && !perfil.cursoId)) {
@@ -67,7 +79,7 @@ export class ProfileSetupService {
     }
 
     garantirPerfil(): Observable<PerfilResponse> {
-        const token = localStorage.getItem('gini_token');
+        const token = obterTokenSessao();
         const perfil = this.perfil();
         return token && token === this.loadedToken && perfil ? of(perfil) : this.carregarPerfil(token);
     }
@@ -77,28 +89,31 @@ export class ProfileSetupService {
     }
 
     listarCursos(): Observable<Course[]> {
+        // TEMPORÁRIO: excluir este desvio para o armazenamento local após integrar o backend Java.
+        if (this.local.ativo) return defer(() => this.local.cursos());
         // TEMPORÁRIO: excluir o catálogo demonstrativo após integrar o backend.
         if (this.demo.ativo) return of(structuredClone(this.demo.cursos));
-        return this.http.get<Course[]>(`${this.baseUrl}/cursos`, this.options());
+        return this.remoto.cursos();
     }
 
     obterCurso(): Observable<CursoDetalhes> {
+        // TEMPORÁRIO: excluir este desvio para o armazenamento local após integrar o backend Java.
+        if (this.local.ativo) return defer(() => this.local.curso(this.selectedCourseId()));
         // TEMPORÁRIO: excluir a consulta demonstrativa após integrar o backend.
         if (this.demo.ativo) {
             const curso = this.demo.cursos.find(item => item.id === this.selectedCourseId());
             return curso ? of(structuredClone(curso)) : throwError(() => new Error('Curso indisponível.'));
         }
-        return this.http.get<CursoDetalhes>(
-            `${this.baseUrl}/cursos/${encodeURIComponent(this.selectedCourseId() ?? '')}`, this.options());
+        return this.remoto.curso(this.selectedCourseId());
     }
 
     listarDisciplinas(): Observable<Disciplina[]> {
+        // TEMPORÁRIO: excluir este desvio para o armazenamento local após integrar o backend Java.
+        if (this.local.ativo) return defer(() => this.local.disciplinas(this.selectedCourseId()));
         // TEMPORÁRIO: excluir o catálogo demonstrativo após integrar o backend.
         if (this.demo.ativo) return of(this.demo.listarDisciplinas(this.selectedCourseId()));
         // A matriz completa mantém DPs e adiantamentos disponíveis, independentemente do filtro da tela.
-        return this.http.get<Disciplina[]>(
-            `${this.baseUrl}/cursos/${encodeURIComponent(this.selectedCourseId() ?? '')}/disciplinas`,
-            this.options());
+        return this.remoto.disciplinas(this.selectedCourseId());
     }
 
     definirDisciplinas(ids: string[]): void {
@@ -134,6 +149,8 @@ export class ProfileSetupService {
         if (!this.returningUser() || !this.isSetupComplete()) {
             return throwError(() => new Error('Perfil ou período inválido.'));
         }
+        // TEMPORÁRIO: excluir este desvio para o armazenamento local após integrar o backend Java.
+        if (this.local.ativo) return this.salvarLocal(true);
         // TEMPORÁRIO: excluir a confirmação local de reentrada após integrar o backend.
         if (this.demo.ativo) {
             return defer(() => {
@@ -143,9 +160,7 @@ export class ProfileSetupService {
                 return of(perfil);
             });
         }
-        return this.http.patch<PerfilResponse>(`${this.baseUrl}/usuarios/me/perfil/periodo`, {
-            periodo: this.selectedPeriod(),
-        }, this.options()).pipe(tap(perfil => {
+        return this.remoto.confirmarPeriodo(this.selectedPeriod()).pipe(tap(perfil => {
             if (perfil.configuracaoInicialConcluida !== true) {
                 throw new Error('Perfil não configurado.');
             }
@@ -158,6 +173,8 @@ export class ProfileSetupService {
         if (!this.isSetupComplete() || !this.selectedDisciplinas().length) {
             return throwError(() => new Error('Conclua a seleção de disciplinas.'));
         }
+        // TEMPORÁRIO: excluir este desvio para o armazenamento local após integrar o backend Java.
+        if (this.local.ativo) return this.salvarLocal(false);
         // TEMPORÁRIO: excluir a gravação da grade demonstrativa após integrar o backend.
         if (this.demo.ativo) {
             return defer(() => {
@@ -168,10 +185,8 @@ export class ProfileSetupService {
                 return of(perfil);
             });
         }
-        return this.http.put<PerfilResponse>(`${this.baseUrl}/usuarios/me/perfil`, {
-            cursoId: this.selectedCourseId(), periodo: this.selectedPeriod(),
-            disciplinasIds: this.selectedDisciplinas(),
-        }, this.options()).pipe(tap(perfil => {
+        return this.remoto.salvar(this.selectedCourseId(), this.selectedPeriod(),
+            this.selectedDisciplinas()).pipe(tap(perfil => {
             if (perfil.configuracaoInicialConcluida !== true) {
                 throw new Error('A configuração do perfil não foi concluída.');
             }
@@ -191,12 +206,18 @@ export class ProfileSetupService {
         this.currentStep.set(2);
     }
 
+    // TEMPORÁRIO: excluir este método de gravação local após integrar o backend Java.
+    private salvarLocal(confirmar: boolean): Observable<PerfilResponse> {
+        return defer(() => this.local.salvar(this.selectedCourseId(), this.selectedPeriod(),
+            this.selectedDisciplinas(), confirmar)).pipe(tap(perfil => {
+                this.atualizarPerfil(perfil);
+                this.periodoConfirmado.set(true);
+            }));
+    }
+
     private atualizarPerfil(perfil: PerfilResponse): void {
         this.perfilAtual.set(perfil);
         this.session.atualizarPerfil(perfil.usuario.curso, perfil.usuario.periodo);
     }
 
-    private options(): { headers: HttpHeaders } {
-        return { headers: new HttpHeaders({ Authorization: `Bearer ${localStorage.getItem('gini_token') ?? ''}` }) };
-    }
 }

@@ -6,6 +6,7 @@ import { AuthService } from './auth.service';
 import { ProfileSetupService } from '../../profile-setup/services/profile-setup.service';
 import { SessionService } from '../../../core/services/session.service';
 import { environment } from '../../../../environments/environment';
+import { BACKEND_CONFIG } from '../../../core/services/backend-config';
 
 describe('AuthService: fluxo dinâmico', () => {
     let auth: AuthService;
@@ -17,7 +18,8 @@ describe('AuthService: fluxo dinâmico', () => {
         localStorage.removeItem('gini_token');
         localStorage.removeItem('gini_usuario');
         TestBed.configureTestingModule({
-            providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+            providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([]),
+                { provide: BACKEND_CONFIG, useValue: { habilitado: true, url: base } }],
         });
         auth = TestBed.inject(AuthService);
         http = TestBed.inject(HttpTestingController);

@@ -1,5 +1,7 @@
 export const environment = {
   production: false,
+  // Habilitar somente após alinhar e testar os contratos com o Java.
+  backendHabilitado: false,
   // TEMPORÁRIO: excluir demoAuth após integrar o backend; habilita apenas o login demonstrativo.
   demoAuth: true,
   apiUrl: 'http://localhost:3000/api',

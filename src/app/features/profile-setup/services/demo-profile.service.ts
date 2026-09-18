@@ -1,3 +1,4 @@
+import { obterTokenSessao } from '../../../core/services/session.service';
 /**
  * TEMPORÁRIO: excluir este arquivo inteiro após integrar o backend.
  * Dados e progresso locais para demonstrar primeiro acesso e reentrada sem API.
@@ -33,7 +34,7 @@ export class DemoProfileService {
     ];
 
     get habilitado(): boolean { return !environment.production && environment.demoAuth; }
-    get sessaoDemonstrativa(): boolean { return localStorage.getItem('gini_token') === this.token; }
+    get sessaoDemonstrativa(): boolean { return obterTokenSessao() === this.token; }
     get ativo(): boolean { return this.habilitado && this.sessaoDemonstrativa; }
 
     iniciar(primeiroAcesso: boolean): PerfilResponse {

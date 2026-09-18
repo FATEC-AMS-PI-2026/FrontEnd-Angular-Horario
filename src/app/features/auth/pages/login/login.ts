@@ -16,11 +16,14 @@ import { AuthService } from '../../services/auth.service';
 export class Login {
     private readonly router = inject(Router);
     private readonly authService = inject(AuthService);
+    // TEMPORÁRIO: excluir este indicador de conta local após integrar o backend Java.
+    readonly modoLocal = this.authService.modoLocal;
     private readonly apiError = inject(ApiErrorService);
     private readonly destroyRef = inject(DestroyRef);
     readonly form = inject(FormBuilder).nonNullable.group({
         identificador: ['', [Validators.required, Validators.pattern(/\S/)]],
         senha: ['', Validators.required],
+        lembrarDeMim: [false],
     });
     submitted = false;
     loading = false;
@@ -41,7 +44,7 @@ export class Login {
         this.errorMessage = '';
         if (this.form.invalid) return;
         this.loading = true;
-        this.authService.login(this.identificador.value.trim(), this.senha.value).pipe(
+        this.authService.login(this.identificador.value.trim(), this.senha.value, this.form.controls.lembrarDeMim.value).pipe(
             takeUntilDestroyed(this.destroyRef),
             finalize(() => this.loading = false),
         ).subscribe({

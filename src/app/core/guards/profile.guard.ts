@@ -2,7 +2,7 @@ import { inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CanActivateChildFn, Router } from '@angular/router';
 import { catchError, map, of } from 'rxjs';
-import { SessionService } from '../services/session.service';
+import { SessionService, obterTokenSessao } from '../services/session.service';
 import { ProfileSetupService } from '../../features/profile-setup/services/profile-setup.service';
 // TEMPORÁRIO: excluir esta importação após integrar o backend.
 import { DemoAuthService } from '../../features/auth/services/demo-auth.service';
@@ -21,7 +21,7 @@ export const profileGuard: CanActivateChildFn = (_route, state) => {
         }
     }
     // FIM TEMPORÁRIO: a proteção real de perfil permanece abaixo.
-    if (!localStorage.getItem('gini_token')) {
+    if (!obterTokenSessao()) {
         setup.limpar();
         return router.parseUrl('/login');
     }

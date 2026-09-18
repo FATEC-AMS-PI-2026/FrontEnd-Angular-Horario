@@ -4,8 +4,9 @@ import { Login } from './features/auth/pages/login/login';
 import { Dashboard } from './features/dashboard/dashboard';
 import { GradeSemanal } from './features/grade-semanal/grade-semanal';
 import { profileGuard } from './core/guards/profile.guard';
+import { guestGuard } from './core/guards/guest.guard';
 export const routes: Routes = [
-    { path: 'login', component: Login },
+    { path: 'login', component: Login, canActivate: [guestGuard] },
 
     {
         path: 'cadastro',

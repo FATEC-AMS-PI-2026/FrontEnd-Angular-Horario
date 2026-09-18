@@ -20,15 +20,15 @@ describe('Login', () => {
     });
     it('não envia formulário vazio ou identificador em branco', () => {
         component.onLogin();
-        component.form.setValue({ identificador: '  ', senha: 'senha' });
+        component.form.setValue({ identificador: '  ', senha: 'senha', lembrarDeMim: false });
         component.onLogin();
         expect(auth.login).not.toHaveBeenCalled();
     });
     it('aguarda o serviço e impede envio duplicado', () => {
-        component.form.setValue({ identificador: ' ana@cps.sp.gov.br ', senha: 'senha' });
+        component.form.setValue({ identificador: ' ana@cps.sp.gov.br ', senha: 'senha', lembrarDeMim: false });
         component.onLogin();
         component.onLogin();
-        expect(auth.login).toHaveBeenCalledOnceWith('ana@cps.sp.gov.br', 'senha');
+        expect(auth.login).toHaveBeenCalledOnceWith('ana@cps.sp.gov.br', 'senha', false);
         expect(component.loading).toBeTrue();
         expect(navigate).not.toHaveBeenCalled();
         response.next('/setup/period-selection');
@@ -36,8 +36,14 @@ describe('Login', () => {
         expect(navigate).toHaveBeenCalledOnceWith('/setup/period-selection');
         expect(component.loading).toBeFalse();
     });
+    it('envia a opção marcada de lembrar de mim', () => {
+        component.form.setValue({ identificador: 'ana@cps.sp.gov.br', senha: 'senha', lembrarDeMim: true });
+        component.onLogin();
+        expect(auth.login).toHaveBeenCalledOnceWith('ana@cps.sp.gov.br', 'senha', true);
+    });
+
     it('mostra erro de credenciais e permite tentar novamente', () => {
-        component.form.setValue({ identificador: '123', senha: 'senha' });
+        component.form.setValue({ identificador: '123', senha: 'senha', lembrarDeMim: false });
         component.onLogin();
         response.error(new HttpErrorResponse({ status: 401 }));
         expect(component.errorMessage).toContain('inválidos');

@@ -41,13 +41,14 @@ export class Dashboard implements OnInit {
         this.alocacoes().find(item => item.blocoHorario.horaInicio > horarioAcademico(this.agora())));
     readonly stats = computed(() => [
         { title: 'Aulas hoje', value: String(this.alocacoes().length), subtitle: this.currentDay() },
-        { title: 'Professores', value: String(new Set(this.alocacoes().map(item => item.professor.id)).size), subtitle: 'Nas aulas de hoje' },
+        { title: 'Professores', value: (this.alocacoes().some(item => item.professor === null) ? 'Não informado' : String(new Set(this.alocacoes().map(item => item.professor!.id)).size)), subtitle: 'Nas aulas de hoje' },
         { title: 'Próxima aula', value: this.proxima()?.blocoHorario.horaInicio.slice(0, 5) ?? '—', subtitle: this.proxima()?.disciplina.nome ?? 'Sem próxima aula hoje' },
         { title: 'Aula em andamento', value: this.emAndamento()[0]?.blocoHorario.horaInicio.slice(0, 5) ?? '—', subtitle: this.emAndamento().map(item => item.disciplina.nome).join(' · ') || 'Nenhuma aula neste momento' },
     ]);
     readonly salasHoje = computed(() => {
         const salas = new Map<number, { id: number; codigo: string; disciplinas: Set<string> }>();
         for (const item of this.alocacoes()) {
+            if (!item.sala) continue;
             const sala = salas.get(item.sala.id) ?? { ...item.sala, disciplinas: new Set<string>() };
             sala.disciplinas.add(item.disciplina.nome);
             salas.set(item.sala.id, sala);
@@ -57,11 +58,11 @@ export class Dashboard implements OnInit {
         }));
     });
     readonly statusSalas = computed(() => this.salasHoje().map(sala => {
-        const aulas = this.emAndamento().filter(item => item.sala.id === sala.id);
+        const aulas = this.emAndamento().filter(item => item.sala?.id === sala.id);
         return {
             ...sala,
             emAula: aulas.length > 0,
-            professor: [...new Set(aulas.map(item => item.professor.nome))].join(' · '),
+            professor: [...new Set(aulas.map(item => item.professor?.nome ?? 'Professor não informado'))].join(' · '),
             // A grade pessoal não comprova disponibilidade global nem manutenção da sala.
             label: aulas.length ? 'Sua aula em andamento' : 'Sem aula sua agora',
         };

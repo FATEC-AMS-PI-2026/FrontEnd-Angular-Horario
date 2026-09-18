@@ -1,5 +1,7 @@
 export const environment = {
   production: true,
+  // Habilitar somente após alinhar e testar os contratos com o Java.
+  backendHabilitado: false,
   // TEMPORÁRIO: excluir demoAuth após integrar o backend; demonstração proibida em produção.
   demoAuth: false,
   apiUrl: 'https://sua-api-de-producao.com/api',

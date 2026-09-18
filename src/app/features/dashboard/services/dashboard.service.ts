@@ -22,8 +22,8 @@ export class DashboardService {
             const horario = /^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/;
             if (!Array.isArray(alocacoes) || alocacoes.some(item =>
                 !item || !Number.isSafeInteger(item.id) || !item.disciplina?.nome ||
-                !Number.isSafeInteger(item.professor?.id) || !item.professor.nome ||
-                !Number.isSafeInteger(item.sala?.id) || !item.sala.codigo ||
+                (item.professor !== null && (!Number.isSafeInteger(item.professor?.id) || !item.professor.nome)) ||
+                (item.sala !== null && (!Number.isSafeInteger(item.sala?.id) || !item.sala.codigo)) ||
                 item.diaSemana !== diaSemana(data) ||
                 !horario.test(item.blocoHorario?.horaInicio) || !horario.test(item.blocoHorario?.horaFim) ||
                 item.blocoHorario.horaInicio >= item.blocoHorario.horaFim)) {
