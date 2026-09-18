@@ -25,6 +25,24 @@ describe('ProfileSetupService', () => {
         localStorage.removeItem('gini_usuario');
     });
 
+    it('atualiza a periodicidade ao trocar o curso e limpa a seleção anterior', () => {
+        service.setCourse('AMS', 'ams');
+        service.obterCurso().subscribe();
+        http.expectOne(`${base}/cursos/ams`).flush({ periodicidade: 'Anual', periodos: ['1º ano', '2º ano'] });
+        expect(service.nomePeriodo()).toBe('ano');
+        service.setPeriod('2º ano');
+        service.definirDisciplinas(['bd']);
+        service.setCourse('ADS', 'ads');
+        expect(service.nomePeriodo()).toBe('período');
+        expect(service.selectedPeriod()).toBeNull();
+        expect(service.selectedDisciplinas()).toEqual([]);
+        service.obterCurso().subscribe();
+        http.expectOne(`${base}/cursos/ads`).flush({ periodicidade: 'Semestral', periodos: ['1º semestre'] });
+        expect(service.nomePeriodo()).toBe('semestre');
+        service.limpar();
+        expect(service.nomePeriodo()).toBe('período');
+    });
+
     it('restaura o perfil pelo servidor e confirma somente o período sem substituir disciplinas', () => {
         service.garantirPerfil().subscribe();
         http.expectOne(`${base}/usuarios/me/perfil`).flush(perfil);

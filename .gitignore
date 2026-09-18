@@ -30,6 +30,7 @@ yarn-error.log
 
 # Miscellaneous
 /Agents/
+/AGENTS.md
 /.angular/cache
 .sass-cache/
 /connect.lock

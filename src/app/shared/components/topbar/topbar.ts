@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, input, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -14,6 +14,7 @@ import { FigmaIcon } from '../figma-icon/figma-icon';
     styleUrl: './topbar.scss',
 })
 export class Topbar implements OnInit {
+    readonly titulo = input<string | null>(null);
     protected readonly busca = inject(SettingsSearchService);
     private readonly document = inject(DOCUMENT);
 

@@ -7,6 +7,7 @@ import { SessionService } from '../../core/services/session.service';
 import { ApiErrorService } from '../../core/services/api-error.service';
 import { DashboardService, GradeIndisponivelError } from './services/dashboard.service';
 import { AlocacaoResponse, dataAcademica, horarioAcademico } from './models/grade-dia.model';
+import { intervalosDaGrade } from './models/intervalos-grade';
 
 @Component({
     selector: 'app-dashboard',
@@ -37,13 +38,27 @@ export class Dashboard implements OnInit {
         return this.alocacoes().filter(item =>
             item.blocoHorario.horaInicio <= hora && hora < item.blocoHorario.horaFim);
     });
-    readonly proxima = computed(() =>
-        this.alocacoes().find(item => item.blocoHorario.horaInicio > horarioAcademico(this.agora())));
+    readonly proxima = computed(() => {
+        const nome = (valor: string) => valor.trim().replace(/\s+/g, ' ').toLocaleLowerCase('pt-BR');
+        const atuais = new Set(this.emAndamento().map(aula => nome(aula.disciplina.nome)));
+        return this.alocacoes().find(item => item.blocoHorario.horaInicio > horarioAcademico(this.agora()) &&
+            !atuais.has(nome(item.disciplina.nome)));
+    });
+    readonly intervalos = computed(() => intervalosDaGrade(this.alocacoes()));
+    readonly intervaloAtual = computed(() => this.intervalos().find(intervalo =>
+        intervalo.horaInicio <= horarioAcademico(this.agora()) && horarioAcademico(this.agora()) < intervalo.horaFim));
+    readonly horarios = computed(() => [
+        ...this.alocacoes().map(aula => ({
+            id: `aula-${aula.id}`, horaInicio: aula.blocoHorario.horaInicio,
+            horaFim: aula.blocoHorario.horaFim, aula
+        })),
+        ...this.intervalos().map(intervalo => ({ ...intervalo, aula: null })),
+    ].sort((a, b) => a.horaInicio.localeCompare(b.horaInicio)));
     readonly stats = computed(() => [
         { title: 'Aulas hoje', value: String(this.alocacoes().length), subtitle: this.currentDay() },
         { title: 'Professores', value: (this.alocacoes().some(item => item.professor === null) ? 'Não informado' : String(new Set(this.alocacoes().map(item => item.professor!.id)).size)), subtitle: 'Nas aulas de hoje' },
         { title: 'Próxima aula', value: this.proxima()?.blocoHorario.horaInicio.slice(0, 5) ?? '—', subtitle: this.proxima()?.disciplina.nome ?? 'Sem próxima aula hoje' },
-        { title: 'Aula em andamento', value: this.emAndamento()[0]?.blocoHorario.horaInicio.slice(0, 5) ?? '—', subtitle: this.emAndamento().map(item => item.disciplina.nome).join(' · ') || 'Nenhuma aula neste momento' },
+        { title: 'Aula em andamento', value: (this.emAndamento()[0]?.blocoHorario.horaInicio ?? this.intervaloAtual()?.horaInicio)?.slice(0, 5) ?? '—', subtitle: this.emAndamento().map(item => item.disciplina.nome).join(' · ') || (this.intervaloAtual() ? '(intervalo)' : 'Nenhuma aula neste momento') },
     ]);
     readonly salasHoje = computed(() => {
         const salas = new Map<number, { id: number; codigo: string; disciplinas: Set<string> }>();

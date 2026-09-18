@@ -47,17 +47,23 @@
             </div>
             @if (carregado()) {
             <div class="schedule-list">
-                @for (item of alocacoes(); track item.id) {
-                <div class="schedule-item schedule-item--class">
+                @for (item of horarios(); track item.id) {
+                <div class="schedule-item" [class.schedule-item--class]="item.aula"
+                    [class.schedule-item--interval]="!item.aula">
+                    @if (item.aula; as aula) {
                     <div class="time-block">
-                        <span>{{ item.blocoHorario.horaInicio.slice(0, 5) }}</span>
-                        <span>{{ item.blocoHorario.horaFim.slice(0, 5) }}</span>
+                        <span>{{ item.horaInicio.slice(0, 5) }}</span>
+                        <span>{{ item.horaFim.slice(0, 5) }}</span>
                     </div>
                     <div class="info-block">
-                        <strong>{{ item.disciplina.nome }}</strong>
-                        <span>{{ item.professor?.nome || 'Professor não informado' }} · {{ item.sala?.codigo || 'Sala
+                        <strong>{{ aula.disciplina.nome }}</strong>
+                        <span>{{ aula.professor?.nome || 'Professor não informado' }} · {{ aula.sala?.codigo || 'Sala
                             não informada' }}</span>
                     </div>
+                    } @else {
+                    <span title="Tempo entre suas aulas">{{ item.horaInicio.slice(0, 5) }}–{{ item.horaFim.slice(0, 5)
+                        }} · (intervalo)</span>
+                    }
                 </div>
                 } @empty { <p role="status">Você não tem aulas programadas para hoje.</p> }
             </div>

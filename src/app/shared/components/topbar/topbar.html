@@ -1,5 +1,5 @@
 <header class="topbar">
-  <h1 class="topbar__title">{{ title }}</h1>
+  <h1 class="topbar__title">{{ titulo() ?? title }}</h1>
   @if (title === 'Configurações') {
     <div class="topbar__acoes">
       <input #buscaCampo class="topbar__busca" type="search" placeholder="Buscar"
