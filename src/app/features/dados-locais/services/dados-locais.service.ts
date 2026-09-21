@@ -104,9 +104,13 @@ export class DadosLocaisService {
             const d = c.disciplinas.find(item => item.id === o.disciplinaId)!;
             const t = c.turmas.find(item => item.id === o.turmaId)!;
             const curso = c.cursos.find(curso => curso.id === d.cursoId)!;
+            const professores = [...new Set(c.alocacoes.filter(aula => aula.ofertaId === o.id)
+                .map(aula => c.professores.find(professor => professor.id === aula.professorId)?.nome.trim()
+                    || 'Professor a definir'))];
             return String(d.cursoId) === cursoId ? [{
                 id: String(o.id),
-                nome: `${d.nome} · ${t.codigo} (${t.turno})`, periodo: rotuloPeriodo(d.periodo, curso.organizacao)
+                nome: `${d.nome} · ${t.codigo} (${t.turno}) - ${professores.join(', ') || 'Professor a definir'}`,
+                periodo: rotuloPeriodo(d.periodo, curso.organizacao)
             }] : [];
         });
     }

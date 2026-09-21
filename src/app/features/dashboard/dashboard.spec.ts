@@ -87,6 +87,28 @@ describe('Dashboard: grade do serviço', () => {
 
     afterEach(() => TestBed.inject(SessionService).limpar());
 
+    it('mostra o docente da relação retornada pelo Service na lista e na próxima aula', () => {
+        const atual = aula(1, '13:20:00', '14:10:00');
+        const futura = aula(2, '14:10:00', '15:00:00');
+        futura.professor = { id: 9, nome: 'Lilian Oliveira' };
+        resposta.next([atual, futura]); resposta.complete(); fixture.detectChanges();
+        const tela: HTMLElement = fixture.nativeElement;
+        expect(tela.querySelectorAll('.schedule-item--class')[1].textContent).toContain('Lilian Oliveira');
+        expect(tela.querySelectorAll('.stat-card')[2].textContent).toContain('Lilian Oliveira');
+        expect(tela.querySelector('.banner__right')?.textContent).toContain('Lilian Oliveira');
+    });
+
+    it('mostra professor a definir sem docente e não exibe docente sem próxima aula', () => {
+        const futura = aula(2, '14:10:00', '15:00:00'); futura.professor = null;
+        resposta.next([futura]); resposta.complete(); fixture.detectChanges();
+        const tela: HTMLElement = fixture.nativeElement;
+        expect(tela.querySelector('.schedule-item--class')?.textContent).toContain('Professor a definir');
+        expect(tela.querySelectorAll('.stat-card')[2].textContent).toContain('Professor a definir');
+        component.agora.set(new Date('2026-09-14T16:00:00-03:00')); fixture.detectChanges();
+        expect(tela.querySelectorAll('.stat-card')[2].textContent).toContain('Sem próxima aula hoje');
+        expect(tela.querySelectorAll('.stat-card')[2].textContent).not.toContain('Professor a definir');
+    });
+
     it('mostra carregamento e calcula resumo, ordem das aulas e salas sem duplicação', () => {
         expect(component.loading()).toBeTrue();
         expect(carregar).toHaveBeenCalledOnceWith('2026-09-14');

@@ -7,7 +7,8 @@
         </div>
         <div class="banner__right">
             <h2 class="time">{{ currentTime() }}</h2>
-            @if (carregado()) { <p>Próxima: {{ proxima()?.disciplina?.nome || 'Sem próxima aula hoje' }}</p> }
+            @if (carregado()) { <p>Próxima: {{ proxima()?.disciplina?.nome || 'Sem próxima aula hoje' }}</p>
+            @if (proxima(); as aula) { <p>{{ nomeProfessor(aula) }}</p> } }
         </div>
     </section>
 
@@ -32,6 +33,7 @@
             <span class="stat-card__title">{{ stat.title }}</span>
             <strong class="stat-card__value">{{ stat.value }}</strong>
             <span class="stat-card__subtitle">{{ stat.subtitle }}</span>
+            @if (stat.professor) { <span class="stat-card__subtitle">{{ stat.professor }}</span> }
         </div>
         }
     </section>
@@ -57,7 +59,7 @@
                     </div>
                     <div class="info-block">
                         <strong>{{ aula.disciplina.nome }}</strong>
-                        <span>{{ aula.professor?.nome || 'Professor não informado' }} · {{ aula.sala?.codigo || 'Sala
+                        <span>{{ nomeProfessor(aula) }} · {{ aula.sala?.codigo || 'Sala
                             não informada' }}</span>
                     </div>
                     } @else {

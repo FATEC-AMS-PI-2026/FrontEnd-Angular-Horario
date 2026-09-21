@@ -57,7 +57,7 @@ export class Dashboard implements OnInit {
     readonly stats = computed(() => [
         { title: 'Aulas hoje', value: String(this.alocacoes().length), subtitle: this.currentDay() },
         { title: 'Professores', value: (this.alocacoes().some(item => item.professor === null) ? 'Não informado' : String(new Set(this.alocacoes().map(item => item.professor!.id)).size)), subtitle: 'Nas aulas de hoje' },
-        { title: 'Próxima aula', value: this.proxima()?.blocoHorario.horaInicio.slice(0, 5) ?? '—', subtitle: this.proxima()?.disciplina.nome ?? 'Sem próxima aula hoje' },
+        { title: 'Próxima aula', value: this.proxima()?.blocoHorario.horaInicio.slice(0, 5) ?? '—', subtitle: this.proxima()?.disciplina.nome ?? 'Sem próxima aula hoje', professor: this.proxima() ? this.nomeProfessor(this.proxima()!) : null },
         { title: 'Aula em andamento', value: (this.emAndamento()[0]?.blocoHorario.horaInicio ?? this.intervaloAtual()?.horaInicio)?.slice(0, 5) ?? '—', subtitle: this.emAndamento().map(item => item.disciplina.nome).join(' · ') || (this.intervaloAtual() ? '(intervalo)' : 'Nenhuma aula neste momento') },
     ]);
     readonly salasHoje = computed(() => {
@@ -82,6 +82,10 @@ export class Dashboard implements OnInit {
             label: aulas.length ? 'Sua aula em andamento' : 'Sem aula sua agora',
         };
     }));
+
+    nomeProfessor(aula: AlocacaoResponse): string {
+        return aula.professor?.nome?.trim() || 'Professor a definir';
+    }
 
     ngOnInit(): void {
         this.carregar();

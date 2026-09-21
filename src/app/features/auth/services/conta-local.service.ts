@@ -6,7 +6,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { BancoLocalService } from '../../dados-locais/services/banco-local.service';
-import { CatalogoSalvo, DadosLocaisError, PerfilLocal } from '../../dados-locais/models/catalogo-local';
+import { CatalogoLocal, CatalogoSalvo, DadosLocaisError, PerfilLocal } from '../../dados-locais/models/catalogo-local';
 import { validarCatalogo } from '../../dados-locais/services/validar-catalogo';
 
 interface ContaLocal {
@@ -25,7 +25,7 @@ export class ContaLocalService {
     private readonly http = inject(HttpClient);
 
     async prepararCatalogo(): Promise<void> {
-        if (await this.banco.ler('catalogo-fixo-v1')) return;
+        if (await this.banco.ler('catalogo-fixo-v2-professores')) return;
         const catalogo = validarCatalogo(await firstValueFrom(
             this.http.get<unknown>('dados/ads-ams-primeiro-ano.json'),
         ));
@@ -35,10 +35,20 @@ export class ContaLocalService {
                 const anterior = pedido.result as CatalogoSalvo | undefined;
                 // Preserva revisão e escolhas quando o catálogo da antiga importação já é o mesmo.
                 if (JSON.stringify(anterior?.catalogo) !== JSON.stringify(catalogo)) {
-                    store.put({ catalogo, revisao: crypto.randomUUID(), importadoEm: new Date().toISOString() }, 'catalogo');
+                    // Alterar somente docentes/metadados não invalida as escolhas acadêmicas.
+                    const mesmaGrade = anterior && this.estruturaGrade(anterior.catalogo) === this.estruturaGrade(catalogo);
+                    store.put({ catalogo, revisao: mesmaGrade ? anterior.revisao : crypto.randomUUID(), importadoEm: new Date().toISOString() }, 'catalogo');
                 }
-                store.put(true, 'catalogo-fixo-v1');
+                store.put(true, 'catalogo-fixo-v2-professores');
             };
+        });
+    }
+
+    // TEMPORÁRIO: comparação para atualizar docentes locais sem apagar a configuração dos alunos.
+    private estruturaGrade(catalogo: CatalogoLocal): string {
+        return JSON.stringify({
+            ...catalogo, atualizadoEm: '', fonte: undefined, professores: [],
+            alocacoes: catalogo.alocacoes.map(aula => ({ ...aula, professorId: null })),
         });
     }
 
