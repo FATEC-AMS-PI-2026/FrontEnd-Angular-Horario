@@ -1,10 +1,10 @@
 {
   "versao": 1,
   "titulo": "ADS AMS — 1º ano — Fatec Itu — 2026",
-  "atualizadoEm": "2026-09-16",
+  "atualizadoEm": "2026-09-21",
   "vigenciaInicio": "2026-02-09",
   "vigenciaFim": "2026-12-14",
-  "fonte": "Horário.png fornecido pelo usuário; Calendário Acadêmico 2026, Fatec Itu, retificado em 04/03/2026. Siglas mantidas como na imagem; professores e salas não informados. IDs atribuídos localmente.",
+  "fonte": "Horário.png e Calendário Acadêmico 2026 da Fatec Itu fornecidos pelo usuário. Professores conforme imagem de disciplinas fornecida em 21/09/2026; Língua Inglesa: Lilian Oliveira, informada pelo usuário. Salas não informadas. IDs atribuídos localmente.",
   "quadroHorario": {
     "id": 1,
     "versao": 1
@@ -99,7 +99,44 @@
       "cursoId": 1
     }
   ],
-  "professores": [],
+  "professores": [
+    {
+      "id": 1,
+      "nome": "Glauco Todesco"
+    },
+    {
+      "id": 2,
+      "nome": "Renato Luiz Cardoso"
+    },
+    {
+      "id": 3,
+      "nome": "Antonio Tadeu Maffeis"
+    },
+    {
+      "id": 4,
+      "nome": "Lilian Simão Oliveira"
+    },
+    {
+      "id": 5,
+      "nome": "Melky Fanti Duenas"
+    },
+    {
+      "id": 6,
+      "nome": "Jose Carlos Martins Junior"
+    },
+    {
+      "id": 7,
+      "nome": "Paulo César de Macedo"
+    },
+    {
+      "id": 8,
+      "nome": "Marcos Antonio Rosa"
+    },
+    {
+      "id": 9,
+      "nome": "Lilian Oliveira"
+    }
+  ],
   "salas": [],
   "turmas": [
     {
@@ -177,7 +214,7 @@
     {
       "id": 1,
       "ofertaId": 1,
-      "professorId": null,
+      "professorId": 6,
       "salaId": null,
       "diaSemana": "SEGUNDA",
       "horaInicio": "13:20",
@@ -186,7 +223,7 @@
     {
       "id": 2,
       "ofertaId": 1,
-      "professorId": null,
+      "professorId": 6,
       "salaId": null,
       "diaSemana": "SEGUNDA",
       "horaInicio": "14:10",
@@ -195,7 +232,7 @@
     {
       "id": 3,
       "ofertaId": 2,
-      "professorId": null,
+      "professorId": 3,
       "salaId": null,
       "diaSemana": "SEGUNDA",
       "horaInicio": "15:10",
@@ -204,7 +241,7 @@
     {
       "id": 4,
       "ofertaId": 2,
-      "professorId": null,
+      "professorId": 3,
       "salaId": null,
       "diaSemana": "SEGUNDA",
       "horaInicio": "16:00",
@@ -213,7 +250,7 @@
     {
       "id": 5,
       "ofertaId": 3,
-      "professorId": null,
+      "professorId": 4,
       "salaId": null,
       "diaSemana": "SEGUNDA",
       "horaInicio": "17:00",
@@ -222,7 +259,7 @@
     {
       "id": 6,
       "ofertaId": 3,
-      "professorId": null,
+      "professorId": 4,
       "salaId": null,
       "diaSemana": "SEGUNDA",
       "horaInicio": "17:50",
@@ -231,7 +268,7 @@
     {
       "id": 7,
       "ofertaId": 4,
-      "professorId": null,
+      "professorId": 1,
       "salaId": null,
       "diaSemana": "TERCA",
       "horaInicio": "13:20",
@@ -240,7 +277,7 @@
     {
       "id": 8,
       "ofertaId": 4,
-      "professorId": null,
+      "professorId": 1,
       "salaId": null,
       "diaSemana": "TERCA",
       "horaInicio": "14:10",
@@ -249,7 +286,7 @@
     {
       "id": 9,
       "ofertaId": 4,
-      "professorId": null,
+      "professorId": 1,
       "salaId": null,
       "diaSemana": "TERCA",
       "horaInicio": "15:10",
@@ -258,7 +295,7 @@
     {
       "id": 10,
       "ofertaId": 4,
-      "professorId": null,
+      "professorId": 1,
       "salaId": null,
       "diaSemana": "TERCA",
       "horaInicio": "16:00",
@@ -267,7 +304,7 @@
     {
       "id": 11,
       "ofertaId": 5,
-      "professorId": null,
+      "professorId": 2,
       "salaId": null,
       "diaSemana": "TERCA",
       "horaInicio": "17:00",
@@ -276,7 +313,7 @@
     {
       "id": 12,
       "ofertaId": 5,
-      "professorId": null,
+      "professorId": 2,
       "salaId": null,
       "diaSemana": "TERCA",
       "horaInicio": "17:50",
@@ -285,7 +322,7 @@
     {
       "id": 13,
       "ofertaId": 6,
-      "professorId": null,
+      "professorId": 7,
       "salaId": null,
       "diaSemana": "QUARTA",
       "horaInicio": "13:20",
@@ -294,7 +331,7 @@
     {
       "id": 14,
       "ofertaId": 6,
-      "professorId": null,
+      "professorId": 7,
       "salaId": null,
       "diaSemana": "QUARTA",
       "horaInicio": "14:10",
@@ -303,7 +340,7 @@
     {
       "id": 15,
       "ofertaId": 7,
-      "professorId": null,
+      "professorId": 5,
       "salaId": null,
       "diaSemana": "QUARTA",
       "horaInicio": "15:10",
@@ -312,7 +349,7 @@
     {
       "id": 16,
       "ofertaId": 7,
-      "professorId": null,
+      "professorId": 5,
       "salaId": null,
       "diaSemana": "QUARTA",
       "horaInicio": "16:00",
@@ -321,7 +358,7 @@
     {
       "id": 17,
       "ofertaId": 8,
-      "professorId": null,
+      "professorId": 2,
       "salaId": null,
       "diaSemana": "QUARTA",
       "horaInicio": "17:00",
@@ -330,7 +367,7 @@
     {
       "id": 18,
       "ofertaId": 8,
-      "professorId": null,
+      "professorId": 2,
       "salaId": null,
       "diaSemana": "QUARTA",
       "horaInicio": "17:50",
@@ -339,7 +376,7 @@
     {
       "id": 19,
       "ofertaId": 9,
-      "professorId": null,
+      "professorId": 8,
       "salaId": null,
       "diaSemana": "QUINTA",
       "horaInicio": "13:20",
@@ -348,7 +385,7 @@
     {
       "id": 20,
       "ofertaId": 9,
-      "professorId": null,
+      "professorId": 8,
       "salaId": null,
       "diaSemana": "QUINTA",
       "horaInicio": "14:10",
@@ -357,7 +394,7 @@
     {
       "id": 21,
       "ofertaId": 2,
-      "professorId": null,
+      "professorId": 3,
       "salaId": null,
       "diaSemana": "QUINTA",
       "horaInicio": "15:10",
@@ -366,7 +403,7 @@
     {
       "id": 22,
       "ofertaId": 2,
-      "professorId": null,
+      "professorId": 3,
       "salaId": null,
       "diaSemana": "QUINTA",
       "horaInicio": "16:00",
@@ -375,7 +412,7 @@
     {
       "id": 23,
       "ofertaId": 10,
-      "professorId": null,
+      "professorId": 9,
       "salaId": null,
       "diaSemana": "QUINTA",
       "horaInicio": "17:00",
@@ -384,7 +421,7 @@
     {
       "id": 24,
       "ofertaId": 10,
-      "professorId": null,
+      "professorId": 9,
       "salaId": null,
       "diaSemana": "QUINTA",
       "horaInicio": "17:50",
@@ -393,7 +430,7 @@
     {
       "id": 25,
       "ofertaId": 11,
-      "professorId": null,
+      "professorId": 1,
       "salaId": null,
       "diaSemana": "SEXTA",
       "horaInicio": "13:20",
@@ -402,7 +439,7 @@
     {
       "id": 26,
       "ofertaId": 11,
-      "professorId": null,
+      "professorId": 1,
       "salaId": null,
       "diaSemana": "SEXTA",
       "horaInicio": "14:10",
@@ -411,7 +448,7 @@
     {
       "id": 27,
       "ofertaId": 3,
-      "professorId": null,
+      "professorId": 4,
       "salaId": null,
       "diaSemana": "SEXTA",
       "horaInicio": "15:10",
@@ -420,7 +457,7 @@
     {
       "id": 28,
       "ofertaId": 3,
-      "professorId": null,
+      "professorId": 4,
       "salaId": null,
       "diaSemana": "SEXTA",
       "horaInicio": "16:00",
@@ -429,7 +466,7 @@
     {
       "id": 29,
       "ofertaId": 12,
-      "professorId": null,
+      "professorId": 5,
       "salaId": null,
       "diaSemana": "SEXTA",
       "horaInicio": "17:00",
@@ -438,7 +475,7 @@
     {
       "id": 30,
       "ofertaId": 12,
-      "professorId": null,
+      "professorId": 5,
       "salaId": null,
       "diaSemana": "SEXTA",
       "horaInicio": "17:50",

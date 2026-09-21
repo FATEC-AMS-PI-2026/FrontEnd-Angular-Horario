@@ -72,6 +72,36 @@ describe('Cadastro e login com contas deste navegador', () => {
     expect(JSON.stringify(await banco.ler('contas'))).not.toContain('senha123');
   });
 
+  it('atualiza docentes do catálogo antigo sem invalidar contas e disciplinas salvas', async () => {
+    await firstValueFrom(auth.cadastrar({ nome: 'Ana', email: 'ana@cps.sp.gov.br', senha: 'senha123' }));
+    await dados.disciplinas('1'); await dados.salvar('1', '1º ano', ['1']);
+    const antes = await dados.catalogo();
+    await banco.executar<void>('readwrite', store => {
+      store.delete('catalogo-fixo-v2-professores'); store.put(true, 'catalogo-fixo-v1');
+    });
+    const atualizado: CatalogoLocal = { ...catalogo, atualizadoEm: '2026-09-21',
+      professores: [{ id: 9, nome: 'Lilian Oliveira' }],
+      alocacoes: catalogo.alocacoes.map(a => ({ ...a, professorId: 9 })) };
+    http.get.and.returnValue(of(atualizado));
+    auth.logout();
+    expect(await firstValueFrom(auth.login('ana@cps.sp.gov.br', 'senha123'))).toBe('/setup/period-selection');
+    expect((await dados.catalogo())?.revisao).toBe(antes?.revisao);
+    expect((await dados.carregarPerfil()).disciplinasIds).toEqual(['1']);
+    expect((await dados.grade('2026-09-14'))[0].professor?.nome).toBe('Lilian Oliveira');
+    http.get.calls.reset(); await contas.prepararCatalogo();
+    expect(http.get).not.toHaveBeenCalled();
+  });
+
+  it('exige revisão das escolhas se a atualização também mudar os horários', async () => {
+    await firstValueFrom(auth.cadastrar({ nome: 'Ana', email: 'ana@cps.sp.gov.br', senha: 'senha123' }));
+    await dados.disciplinas('1'); await dados.salvar('1', '1º ano', ['1']);
+    await banco.executar<void>('readwrite', store => store.delete('catalogo-fixo-v2-professores'));
+    http.get.and.returnValue(of({ ...catalogo,
+      alocacoes: catalogo.alocacoes.map(a => ({ ...a, horaInicio: '13:30' })) }));
+    await contas.prepararCatalogo();
+    expect((await dados.carregarPerfil()).configuracaoInicialConcluida).toBeFalse();
+  });
+
   it('mantém a grade na reentrada sem lembrar de mim e reconhece a sessão da aba', async () => {
     await firstValueFrom(auth.cadastrar({ nome: 'Ana', email: 'ana@cps.sp.gov.br', senha: 'senha123' }));
     await dados.disciplinas('1'); await dados.salvar('1', '1º ano', ['1']);
