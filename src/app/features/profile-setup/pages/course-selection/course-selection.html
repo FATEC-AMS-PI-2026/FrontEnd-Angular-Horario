@@ -1,6 +1,8 @@
-<div class="course-selection-container">
+<div class="course-selection-container" [attr.aria-busy]="loading()">
     <header class="page-header">
-        <span class="available-count">{{ filteredCourses().length }} cursos disponíveis - Fatec Itu</span>
+        @if (!loading() && !errorMessage()) {
+        <span class="available-count">{{ filteredCourses().length }} cursos disponíveis</span>
+        }
     </header>
 
     <div class="search-box">
@@ -9,8 +11,8 @@
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
-        <input type="text" placeholder="Buscar curso..." [ngModel]="searchQuery()"
-            (ngModelChange)="searchQuery.set($event)" />
+        <input type="text" placeholder="Buscar curso..." aria-label="Buscar curso" [disabled]="loading()"
+            [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" />
     </div>
 
     <div class="filter-pills">
@@ -21,11 +23,22 @@
         }
     </div>
 
+    @if (loading()) {
+    <p role="status">Carregando cursos...</p>
+    } @else if (errorMessage()) {
+    <p role="alert">{{ errorMessage() }}</p>
+    <button type="button" (click)="carregar()">Tentar novamente</button>
+    } @else if (!filteredCourses().length) {
+    <p role="status">{{ courses().length ? 'Nenhum curso corresponde aos filtros selecionados.' : 'Nenhum curso
+        disponível no momento.' }}</p>
+    }
     <div class="courses-grid">
         @for (course of filteredCourses(); track course.id) {
         <!-- Adicionamos o course.title na chamada para poder salvar no serviço depois -->
-        <div class="course-card" [class.selected]="selectedCourseId() === course.id" 
-             (click)="selectCourse(course.id, course.title)">
+        <div class="course-card" role="button" tabindex="0" [attr.aria-pressed]="selectedCourseId() === course.id"
+            (keydown.enter)="selectCourse(course.id, course.title)"
+            (keydown.space)="$event.preventDefault(); selectCourse(course.id, course.title)"
+            [class.selected]="selectedCourseId() === course.id" (click)="selectCourse(course.id, course.title)">
 
             <div class="card-icon" [ngClass]="course.icon">
                 @switch (course.icon) {
@@ -84,7 +97,8 @@
 
     <!-- Esse botão ativa e chama o router.navigate real -->
     <footer class="footer-actions">
-        <button class="btn-continue" [disabled]="!selectedCourseId()" (click)="onContinue()">
+        <button class="btn-continue" [disabled]="!selectedCourseId() || loading() || !!errorMessage()"
+            (click)="onContinue()">
             Continuar &rarr;
         </button>
     </footer>

@@ -1,66 +1,80 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize, map } from 'rxjs';
 import { ProfileSetupService } from '../../services/profile-setup.service';
+import { Course } from '../../models/course.model';
+import { ApiErrorService } from '../../../../core/services/api-error.service';
 
 @Component({
-  selector: 'app-course-selection',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './course-selection.html',
-  styleUrl: './course-selection.scss'
+    selector: 'app-course-selection',
+    standalone: true,
+    imports: [CommonModule, FormsModule],
+    templateUrl: './course-selection.html',
+    styleUrl: './course-selection.scss',
 })
-export class CourseSelection {
-  public setupService = inject(ProfileSetupService);
-  private router = inject(Router);
+export class CourseSelection implements OnInit {
+    readonly setupService = inject(ProfileSetupService);
+    private readonly router = inject(Router);
+    private readonly apiError = inject(ApiErrorService);
+    private readonly destroyRef = inject(DestroyRef);
+    readonly searchQuery = signal('');
+    readonly selectedFilter = signal('Todos');
+    readonly filters = ['Todos', 'Manhã', 'Tarde', 'Noite', 'Tecnólogo'];
+    readonly courses = signal<Course[]>([]);
+    readonly selectedCourseId = signal<string | null>(this.setupService.selectedCourseId());
+    readonly loading = signal(false);
+    readonly errorMessage = signal('');
+    readonly filteredCourses = computed(() => this.courses().filter(course =>
+        (this.selectedFilter() === 'Todos' || course.category === this.selectedFilter() ||
+            course.type === this.selectedFilter()) &&
+        course.title.toLocaleLowerCase().includes(this.searchQuery().trim().toLocaleLowerCase())));
 
-  searchQuery = signal<string>('');
-  selectedFilter = signal<string>('Todos');
-  filters = ['Todos', 'Manhã', 'Tarde', 'Noite', 'Tecnólogo'];
-
-  // All 6 courses restored to the mock data
-  courses = signal([
-    { id: '1', title: 'Análise e Desenvolvimento de Sistemas', type: 'Tecnólogo', period: 'Período: Manhã', unit: 'Fatec Itu', category: 'Manhã', icon: 'code' },
-    { id: '2', title: 'Análise e Desenvolvimento de Sistemas', type: 'Tecnólogo', period: 'Período: Tarde (AMS)', unit: 'Fatec Itu', category: 'Tarde', icon: 'code' },
-    { id: '3', title: 'Gestão de Processos Gerenciais', type: 'Tecnólogo', period: 'Período: Manhã', unit: 'Fatec Itu', category: 'Manhã', icon: 'chart' },
-    { id: '4', title: 'Gestão de Eventos', type: 'Tecnólogo', period: 'Período: Manhã', unit: 'Fatec Itu', category: 'Manhã', icon: 'calendar' },
-    { id: '5', title: 'Mecatrônica Industrial', type: 'Tecnólogo', period: 'Período: Noite', unit: 'Fatec Itu', category: 'Noite', icon: 'bot' },
-    { id: '6', title: 'Secretariado', type: 'Tecnólogo', period: 'Período: Manhã', unit: 'Fatec Itu', category: 'Manhã', icon: 'briefcase' }
-  ]);
-
-  filteredCourses = computed(() => {
-    let filtered = this.courses();
-
-    if (this.selectedFilter() !== 'Todos') {
-      filtered = filtered.filter(c => c.category === this.selectedFilter() || c.type === this.selectedFilter());
+    ngOnInit(): void {
+        this.setupService.currentStep.set(2);
+        this.carregar();
     }
 
-    if (this.searchQuery().trim()) {
-      const term = this.searchQuery().toLowerCase();
-      filtered = filtered.filter(c => c.title.toLowerCase().includes(term));
+    carregar(): void {
+        if (this.loading()) return;
+        this.loading.set(true);
+        this.errorMessage.set('');
+        this.courses.set([]);
+        this.setupService.listarCursos().pipe(
+            map(cursos => {
+                if (!Array.isArray(cursos) || cursos.some(curso => !curso ||
+                    typeof curso.id !== 'string' || typeof curso.title !== 'string')) {
+                    throw new Error('Resposta de cursos inválida.');
+                }
+                return cursos;
+            }),
+            takeUntilDestroyed(this.destroyRef),
+            finalize(() => this.loading.set(false)),
+        ).subscribe({
+            next: cursos => {
+                this.courses.set(cursos);
+                if (!cursos.some(curso => curso.id === this.selectedCourseId())) {
+                    this.selectedCourseId.set(null);
+                }
+            },
+            error: (error: unknown) => this.errorMessage.set(this.apiError.mensagem(error,
+                'Não foi possível carregar os cursos. Tente novamente.')),
+        });
     }
-    return filtered;
-  });
 
-  selectedCourseId = signal<string | null>(null);
-  selectedCourseTitle: string | null = null;
+    setFilter(filter: string): void { this.selectedFilter.set(filter); }
+    selectCourse(id: string, _title: string): void {
+        if (!this.loading() && !this.errorMessage() && this.courses().some(curso => curso.id === id)) {
+            this.selectedCourseId.set(id);
+        }
+    }
 
-  setFilter(filter: string) {
-    this.selectedFilter.set(filter);
-  }
-
-  selectCourse(id: string, title: string) {
-    this.selectedCourseId.set(id);
-    this.selectedCourseTitle = title;
-  }
-
-  onContinue() {
-    if (!this.selectedCourseTitle) return;
-
-    this.setupService.setCourse(this.selectedCourseTitle);
-
-    // Fix: Using the correct path from app.routes.ts
-    this.router.navigate(['/setup/period-selection']);
-  }
+    onContinue(): void {
+        const curso = this.courses().find(c => c.id === this.selectedCourseId());
+        if (!curso || this.loading() || this.errorMessage()) return;
+        this.setupService.setCourse(curso.title, curso.id);
+        void this.router.navigate(['/setup/period-selection']);
+    }
 }
