@@ -60,6 +60,11 @@ export const routes: Routes = [
                 loadComponent: () =>
                     import('./features/configuracoes/configuracoes').then((m) => m.Configuracoes),
             },
+            {
+                path: 'horarios',
+                loadComponent: () =>
+                    import('./features/horarios/horarios').then((m) => m.Horarios),
+            },
             { path: 'grade-semanal', component: GradeSemanal },
             {
                 path: 'salas',
