@@ -10,7 +10,9 @@ export const backendInterceptor: HttpInterceptorFn = (request, next) => {
     const destino = request.url.split(/[?#]/, 1)[0];
     if (!base || (destino !== base && !destino.startsWith(base + '/'))) return next(request);
 
-    if (!config.habilitado) {
+    const modulo = destino.slice(base.length + 1).split('/', 1)[0];
+    const moduloIntegrado = !!modulo && (config.modulos ?? []).includes(modulo);
+    if (!config.habilitado && !moduloIntegrado) {
         return throwError(() => new BackendIndisponivelError(
             'Esta operação depende do backend, que ainda não está integrado. Crie uma conta neste navegador pela tela de cadastro.',
         ));
