@@ -170,3 +170,19 @@
     padding: var(--space-xl) 0;
     font-size: var(--text-md);
 }
+
+/* CARREGANDO / ERRO DA API (issue #132) */
+.lista-salas__estado {
+    color: var(--color-text-subtle);
+    text-align: center;
+    padding: var(--space-xl) 0;
+    font-size: var(--text-md);
+
+    p {
+        margin: 0 0 var(--space-sm);
+    }
+
+    &--erro p {
+        color: var(--color-danger);
+    }
+}

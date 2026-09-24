@@ -1,16 +1,12 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { SalasService } from '../../services/salas';
+import { SalasApiService } from '../../services/salas-api';
 import { StatusSalaBadge } from '../../components/status-sala-badge';
 
-type TipoFiltroSala = 'sala' | 'laboratorio';
-
-function ehLaboratorio(tipo: string): boolean {
-  return tipo.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().includes('laboratorio');
-}
 /**
- * Página de listagem de salas. Cada card leva para a página de detalhes
- * (issue #67 — navegação entre lista e detalhes).
+ * Página de listagem de salas, com dados do backend Java (issue #132). Cada
+ * card leva para a página de detalhes (issue #67 — navegação entre lista e
+ * detalhes).
  */
 @Component({
   selector: 'app-lista-salas',
@@ -20,8 +16,14 @@ function ehLaboratorio(tipo: string): boolean {
   styleUrl: './lista-salas.scss',
 })
 export class ListaSalas {
-  private readonly salasService = inject(SalasService);
-  protected readonly salas = this.salasService.salas;
+  private readonly salasApi = inject(SalasApiService);
+  protected readonly salas = this.salasApi.salas;
+  protected readonly carregando = this.salasApi.carregando;
+  protected readonly erro = this.salasApi.erro;
+
+  constructor() {
+    this.salasApi.carregar();
+  }
 
   /** Termo digitado no campo de busca (nome da sala). */
   protected readonly termoBusca = signal('');
@@ -29,14 +31,25 @@ export class ListaSalas {
   /** Prédio selecionado no filtro. `null` significa "todos os prédios". */
   protected readonly predioSelecionado = signal<string | null>(null);
 
-  /** Tipo de ambiente selecionado nos botões. `null` mostra salas e laboratórios. */
-  protected readonly tipoSelecionado = signal<TipoFiltroSala | null>(null);
+  /** Tipo de sala selecionado nos botões. `null` mostra todos os tipos. */
+  protected readonly tipoSelecionado = signal<string | null>(null);
 
-  /** Lista de prédios distintos, derivada das salas cadastradas, para popular o filtro. */
+  /**
+   * Lista de prédios distintos, derivada das salas cadastradas, para popular
+   * o filtro. Fica vazia enquanto o backend não informar o prédio (#109), e
+   * aí o filtro nem aparece.
+   */
   protected readonly predios = computed(() => {
-    const nomes = this.salas().map((sala) => sala.predio);
+    const nomes = this.salas()
+      .map((sala) => sala.predio)
+      .filter((predio): predio is string => !!predio);
     return Array.from(new Set(nomes)).sort((a, b) => a.localeCompare(b));
   });
+
+  /** Tipos de sala distintos retornados pelo backend, um chip para cada. */
+  protected readonly tipos = computed(() =>
+    Array.from(new Set(this.salas().map((sala) => sala.tipo))).sort((a, b) => a.localeCompare(b)),
+  );
 
   /**
    * Lista de salas já filtrada pelo termo, prédio e tipo selecionados.
@@ -56,10 +69,8 @@ export class ListaSalas {
       salas = salas.filter((sala) => sala.predio === predio);
     }
 
-    if (tipo === 'laboratorio') {
-      salas = salas.filter((sala) => ehLaboratorio(sala.tipo));
-    } else if (tipo === 'sala') {
-      salas = salas.filter((sala) => !ehLaboratorio(sala.tipo));
+    if (tipo) {
+      salas = salas.filter((sala) => sala.tipo === tipo);
     }
 
     if (termo) {
@@ -72,10 +83,7 @@ export class ListaSalas {
   /** Mensagem exibida quando a combinação de busca + filtro não encontra nenhuma sala. */
   protected readonly mensagemVazia = computed(() => {
     const termo = this.termoBusca().trim();
-    const predio = this.predioSelecionado();
-    const tipo = this.tipoSelecionado();
-    const tipoTexto = tipo === 'laboratorio' ? 'laboratórios' : tipo === 'sala' ? 'salas' : '';
-    const contexto = [tipoTexto, predio].filter(Boolean).join(' em ');
+    const contexto = [this.tipoSelecionado(), this.predioSelecionado()].filter(Boolean).join(' em ');
 
     if (termo && contexto) {
       return 'Nenhuma sala encontrada para "' + termo + '" em ' + contexto + '.';
@@ -99,7 +107,11 @@ export class ListaSalas {
     this.predioSelecionado.set(select.value || null);
   }
 
-  protected selecionarTipo(tipo: TipoFiltroSala | null): void {
+  protected selecionarTipo(tipo: string | null): void {
     this.tipoSelecionado.update((atual) => (atual === tipo ? null : tipo));
+  }
+
+  protected tentarNovamente(): void {
+    this.salasApi.carregar();
   }
 }

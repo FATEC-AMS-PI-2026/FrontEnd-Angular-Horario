@@ -60,6 +60,19 @@ describe('Conexão futura com o backend', () => {
         http.expectNone('https://backend.test/api/cursos');
     });
 
+    it('libera só os módulos já integrados enquanto o backend geral está desligado', () => {
+        config.modulos = ['salas'];
+        client.get('https://backend.test/api/salas?page=0').subscribe();
+        http.expectOne('https://backend.test/api/salas?page=0').flush({});
+
+        const erros: unknown[] = [];
+        client.get('https://backend.test/api/salas-extras').subscribe({ error: e => erros.push(e) });
+        client.get('https://backend.test/api/cursos').subscribe({ error: e => erros.push(e) });
+        expect(erros.length).toBe(2);
+        expect(erros.every(e => e instanceof BackendIndisponivelError)).toBeTrue();
+        http.expectNone('https://backend.test/api/cursos');
+    });
+
     it('delimita o caminho da API sem bloquear URLs de prefixo parecido', () => {
         client.get('https://backend.test/api-public/catalogo').subscribe();
         http.expectOne('https://backend.test/api-public/catalogo').flush({});

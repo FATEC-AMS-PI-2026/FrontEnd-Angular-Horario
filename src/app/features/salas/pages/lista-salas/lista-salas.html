@@ -12,12 +12,14 @@
         aria-label="Buscar sala pelo nome" autocomplete="off" [value]="termoBusca()" (input)="onBuscar($event)" />
     </div>
 
+    @if (predios().length) {
     <select class="lista-salas__filtro-predio" aria-label="Filtrar por prédio" (change)="onFiltrarPredio($event)">
       <option value="">Todos os prédios</option>
       @for (predio of predios(); track predio) {
         <option [value]="predio">{{ predio }}</option>
       }
     </select>
+    }
   </div>
 
   <div class="lista-salas__tipos" role="group" aria-label="Filtrar por tipo de sala">
@@ -30,35 +32,40 @@
     >
       Todos
     </button>
+    @for (tipo of tipos(); track tipo) {
     <button
       type="button"
       class="filtro-chip"
-      [class.filtro-chip--ativo]="tipoSelecionado() === 'sala'"
-      [attr.aria-pressed]="tipoSelecionado() === 'sala'"
-      (click)="selecionarTipo('sala')"
+      [class.filtro-chip--ativo]="tipoSelecionado() === tipo"
+      [attr.aria-pressed]="tipoSelecionado() === tipo"
+      (click)="selecionarTipo(tipo)"
     >
-      Salas
+      {{ tipo }}
     </button>
-    <button
-      type="button"
-      class="filtro-chip"
-      [class.filtro-chip--ativo]="tipoSelecionado() === 'laboratorio'"
-      [attr.aria-pressed]="tipoSelecionado() === 'laboratorio'"
-      (click)="selecionarTipo('laboratorio')"
-    >
-      Laboratórios
-    </button>
+    }
   </div>
 
+  @if (carregando()) {
+  <p class="lista-salas__estado" role="status">Carregando salas...</p>
+  } @else if (erro()) {
+  <div class="lista-salas__estado lista-salas__estado--erro" role="alert">
+    <p>{{ erro() }}</p>
+    <button type="button" class="filtro-chip" (click)="tentarNovamente()">Tentar novamente</button>
+  </div>
+  } @else {
   <ul class="grade-salas">
     @for (sala of salasFiltradas(); track sala.id) {
     <li>
       <a class="card-sala" [routerLink]="['/salas', sala.id]">
         <div class="card-sala__cabecalho">
           <h2>{{ sala.nome }}</h2>
+          @if (sala.status) {
           <app-status-sala-badge [status]="sala.status" />
+          }
         </div>
+        @if (sala.predio) {
         <p class="card-sala__local">{{ sala.predio }} · {{ sala.andar }}º andar</p>
+        }
         <p class="card-sala__info">{{ sala.tipo }} · {{ sala.capacidade }} lugares</p>
       </a>
     </li>
@@ -66,4 +73,5 @@
     <li class="lista-salas__vazio">{{ mensagemVazia() }}</li>
     }
   </ul>
+  }
 </section>
