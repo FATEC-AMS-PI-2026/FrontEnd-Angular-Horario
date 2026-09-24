@@ -1,64 +1,58 @@
-import { Component, inject } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, DestroyRef, inject } from '@angular/core';
+import { ApiErrorService } from '../../../../core/services/api-error.service';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector: 'app-login',
-  standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
-  templateUrl: './login.html',
-  styleUrl: './login.scss',
+    selector: 'app-login',
+    standalone: true,
+    imports: [ReactiveFormsModule, RouterLink],
+    templateUrl: './login.html',
+    styleUrl: './login.scss',
 })
 export class Login {
-  // Injeção de dependências moderna (padrão Angular 17+)
-  private fb = inject(FormBuilder);
-  private router = inject(Router);
-  private authService = inject(AuthService);
-
-  form: FormGroup;
-  submitted = false;
-  loading = false;
-  errorMessage = '';
-
-  constructor() {
-    this.form = this.fb.group({
-      identificador: ['', [Validators.required]],
-      senha: ['', [Validators.required]],
-      lembrarDeMim: [false],
+    private readonly router = inject(Router);
+    private readonly authService = inject(AuthService);
+    // TEMPORÁRIO: excluir este indicador de conta local após integrar o backend Java.
+    readonly modoLocal = this.authService.modoLocal;
+    private readonly apiError = inject(ApiErrorService);
+    private readonly destroyRef = inject(DestroyRef);
+    readonly form = inject(FormBuilder).nonNullable.group({
+        identificador: ['', [Validators.required, Validators.pattern(/\S/)]],
+        senha: ['', Validators.required],
+        lembrarDeMim: [false],
     });
-  }
+    submitted = false;
+    loading = false;
+    errorMessage = this.mensagemInicial();
 
-  get identificador() {
-    return this.form.get('identificador');
-  }
-
-  get senha() {
-    return this.form.get('senha');
-  }
-
-  onLogin(): void {
-    this.submitted = true;
-    this.errorMessage = '';
-
-    if (this.form.invalid) {
-      return;
+    private mensagemInicial(): string {
+        const motivo = inject(ActivatedRoute).snapshot.queryParamMap.get('motivo');
+        return motivo === 'sessao-expirada' ? 'Sua sessão expirou. Entre novamente para continuar.'
+            : motivo === 'perfil-indisponivel' ? 'Não foi possível carregar seu perfil. Tente entrar novamente.' : '';
     }
 
-    this.loading = true;
+    get identificador() { return this.form.controls.identificador; }
+    get senha() { return this.form.controls.senha; }
 
-    const lembrarDeMim = this.form.get('lembrarDeMim')?.value;
-
-    this.authService.login(this.identificador?.value, this.senha?.value, lembrarDeMim).subscribe({
-      next: () => {
-        this.loading = false;
-        // Direciona o usuário para o fluxo de escolha de curso (setup) após autenticar.
-        this.router.navigate(['/setup']);
-      },
-      error: () => {
-        this.loading = false;
-        this.errorMessage = 'E-mail/matrícula ou senha inválidos. Tente novamente.';
-      },
-    });
-  }
+    onLogin(): void {
+        if (this.loading) return;
+        this.submitted = true;
+        this.errorMessage = '';
+        if (this.form.invalid) return;
+        this.loading = true;
+        this.authService.login(this.identificador.value.trim(), this.senha.value, this.form.controls.lembrarDeMim.value).pipe(
+            takeUntilDestroyed(this.destroyRef),
+            finalize(() => this.loading = false),
+        ).subscribe({
+            next: destino => { void this.router.navigateByUrl(destino); },
+            error: (error: unknown) => {
+                this.errorMessage = this.apiError.mensagem(error,
+                    'Não foi possível entrar ou consultar seu perfil. Tente novamente.', true);
+            },
+        });
+    }
 }

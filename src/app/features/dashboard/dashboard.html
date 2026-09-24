@@ -1,118 +1,112 @@
-<div class="dashboard-container">
+<div class="dashboard-container" [attr.aria-busy]="loading()">
+    <section class="banner">
+        <div class="banner__left">
+            <h2>{{ session.usuario()?.nome ? 'Olá, ' + session.usuario()!.nome + '!' : 'Olá!' }} 👋</h2>
+            <p>{{ currentDay() }} · {{ session.identificacao() }}</p>
+            @if (carregado()) { <p>Você tem {{ alocacoes().length }} aulas hoje.</p> }
+        </div>
+        <div class="banner__right">
+            <h2 class="time">{{ currentTime() }}</h2>
+            @if (carregado()) { <p>Próxima: {{ proxima()?.disciplina?.nome || 'Sem próxima aula hoje' }}</p>
+            @if (proxima(); as aula) { <p>{{ nomeProfessor(aula) }}</p> } }
+        </div>
+    </section>
 
-  <!-- BANNER PRINCIPAL -->
-  <section class="banner">
-    <div class="banner__left">
-      <h2>Olá, {{ userName }}! 👋</h2>
-      <p>Você tem 6 aulas hoje - {{ currentDay }} - {{ courseInfo }}</p>
-    </div>
-    <div class="banner__right">
-      <h2 class="time">{{ currentTime }}</h2>
-      <p>Próxima: {{ nextClass }}</p>
-    </div>
-  </section>
-
-  <!-- CARDS DE ESTATÍSTICAS -->
-  <section class="stats-grid">
-    @for (stat of stats; track stat.title) {
-    <div class="stat-card">
-      <span class="stat-card__title">{{ stat.title }}</span>
-      <strong class="stat-card__value">{{ stat.value }}</strong>
-      <span class="stat-card__subtitle">{{ stat.subtitle }}</span>
-    </div>
+    @if (loading()) {
+    <div class="card" role="status">Carregando suas aulas...</div>
+    } @else if (indisponivel()) {
+    <section class="card" role="status">
+        <h3>Sua grade ainda não está disponível</h3>
+        <p>Assim que sua grade estiver vinculada ao seu perfil, suas aulas aparecerão aqui.</p>
+    </section>
+    } @else if (errorMessage()) {
+    <section class="card">
+        <p role="alert">{{ errorMessage() }}</p>
+        <button type="button" class="link-more" (click)="carregar()">Tentar novamente</button>
+    </section>
     }
-  </section>
 
-  <!-- CONTEÚDO PRINCIPAL (2 COLUNAS) -->
-  <section class="content-grid">
-
-    <!-- COLUNA ESQUERDA: Horários -->
-    <div class="card card--schedule">
-      <div class="card__header">
-        <div>
-          <h3>Horários de hoje</h3>
-          <span class="subtitle">{{ currentDay }}</span>
-        </div>
-        <a routerLink="/grade-semanal" class="link-more">Ver todos &rarr;</a>
-      </div>
-
-      <div class="schedule-list">
-        @for (item of schedule; track $index) {
-
-        @if (item.type === 'class') {
-        <div class="schedule-item schedule-item--class">
-          <div class="time-block">
-            <span>{{ item.start }}</span>
-            <span>{{ item.end }}</span>
-          </div>
-          <div class="info-block">
-            <strong>{{ item.subject }}</strong>
-            <span>{{ item.prof }}</span>
-          </div>
-        </div>
-        } @else {
-        <div class="schedule-item schedule-item--interval">
-          <span>{{ item.label }}</span>
+    @if (carregado()) {
+    <section class="stats-grid" aria-label="Resumo de hoje">
+        @for (stat of stats(); track stat.title) {
+        <div class="stat-card">
+            <span class="stat-card__title">{{ stat.title }}</span>
+            <strong class="stat-card__value">{{ stat.value }}</strong>
+            <span class="stat-card__subtitle">{{ stat.subtitle }}</span>
+            @if (stat.professor) { <span class="stat-card__subtitle">{{ stat.professor }}</span> }
         </div>
         }
+    </section>
+    }
 
-        }
-      </div>
-    </div>
-
-    <!-- COLUNA DIREITA: Salas -->
-    <div class="right-column">
-
-      <!-- STATUS DAS SALAS -->
-      <div class="card card--rooms">
-        <div class="card__header">
-          <h3>Status das salas</h3>
-          <a routerLink="/salas" class="link-more">Ver todos &rarr;</a>
-        </div>
-        <div class="room-status-list">
-          @for (room of roomStatus; track room.room) {
-          <div class="room-status-item" [ngClass]="'status-' + room.status">
-            <div class="room-info">
-              <strong>{{ room.room }}</strong>
-              <span>{{ room.prof }}</span>
+    <section class="content-grid">
+        <div class="card card--schedule">
+            <div class="card__header">
+                <div>
+                    <h3>Horários de hoje</h3><span class="subtitle">{{ currentDay() }}</span>
+                </div>
+                <a routerLink="/grade-semanal" class="link-more">Ver todos &rarr;</a>
             </div>
-            <div class="badge">{{ room.label }}</div>
-          </div>
-          }
-        </div>
-      </div>
-
-      <!-- SALAS DE HOJE -->
-      <div class="card card--today-rooms">
-        <div class="card__header">
-          <h3>Salas de hoje</h3>
-          <a routerLink="/salas" class="link-more">Ver todos &rarr;</a>
-        </div>
-        <div class="today-rooms-list">
-          @for (room of todayRooms; track room.subject) {
-          <div class="today-room-item">
-            <div class="icon-wrapper">
-              <!-- Ícone genérico de laboratório/frasco -->
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M10 2v7.31"></path>
-                <path d="M14 9.3V1.99"></path>
-                <path d="M8.5 2h7"></path>
-                <path d="M14 9.3a6.5 6.5 0 1 1-4 0"></path>
-                <path d="M5.52 16h12.96"></path>
-              </svg>
+            @if (carregado()) {
+            <div class="schedule-list">
+                @for (item of horarios(); track item.id) {
+                <div class="schedule-item" [class.schedule-item--class]="item.aula"
+                    [class.schedule-item--interval]="!item.aula">
+                    @if (item.aula; as aula) {
+                    <div class="time-block">
+                        <span>{{ item.horaInicio.slice(0, 5) }}</span>
+                        <span>{{ item.horaFim.slice(0, 5) }}</span>
+                    </div>
+                    <div class="info-block">
+                        <strong>{{ aula.disciplina.nome }}</strong>
+                        <span>{{ nomeProfessor(aula) }} · {{ aula.sala?.codigo || 'Sala
+                            não informada' }}</span>
+                    </div>
+                    } @else {
+                    <span title="Tempo entre suas aulas">{{ item.horaInicio.slice(0, 5) }}–{{ item.horaFim.slice(0, 5)
+                        }} · (intervalo)</span>
+                    }
+                </div>
+                } @empty { <p role="status">Você não tem aulas programadas para hoje.</p> }
             </div>
-            <div class="room-info">
-              <strong>{{ room.location }}</strong>
-              <span>{{ room.subject }}</span>
-            </div>
-          </div>
-          }
+            }
         </div>
-      </div>
 
-    </div>
+        <div class="right-column">
+            <div class="card card--rooms">
+                <div class="card__header">
+                    <h3>Status das salas</h3>
+                    <a routerLink="/salas" class="link-more">Ver todos &rarr;</a>
+                </div>
+                @if (carregado()) {
+                <p class="subtitle">Conforme suas aulas. A disponibilidade geral das salas não foi informada.</p>
+                <div class="room-status-list">
+                    @for (sala of statusSalas(); track sala.id) {
+                    <div class="room-status-item" [class.status-em_uso]="sala.emAula">
+                        <div class="room-info"><strong>{{ sala.codigo }}</strong><span>{{ sala.professor }}</span></div>
+                        <div class="badge">{{ sala.label }}</div>
+                    </div>
+                    } @empty { <p>Nenhuma sala vinculada às suas aulas de hoje.</p> }
+                </div>
+                }
+            </div>
 
-  </section>
-
+            <div class="card card--today-rooms">
+                <div class="card__header">
+                    <h3>Salas de hoje</h3>
+                    <a routerLink="/salas" class="link-more">Ver todos &rarr;</a>
+                </div>
+                @if (carregado()) {
+                <div class="today-rooms-list">
+                    @for (sala of salasHoje(); track sala.id) {
+                    <div class="today-room-item">
+                        <div class="room-info"><strong>{{ sala.codigo }}</strong><span>{{ sala.disciplinas }}</span>
+                        </div>
+                    </div>
+                    } @empty { <p>Nenhuma sala vinculada às suas aulas de hoje.</p> }
+                </div>
+                }
+            </div>
+        </div>
+    </section>
 </div>

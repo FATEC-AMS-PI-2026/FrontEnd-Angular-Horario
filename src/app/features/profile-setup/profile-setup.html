@@ -1,8 +1,9 @@
 <div class="profile-setup-container">
-    <!-- Propriedade [currentStep] removida. A Sidebar lê direto do Service agora -->
     <app-setup-sidebar></app-setup-sidebar>
-
-    <main class="profile-setup-content">
-        <router-outlet></router-outlet>
-    </main>
+    <div class="profile-setup-main">
+        <app-topbar [titulo]="setupService.currentStep() === 3 ? 'Escolha seu ' + setupService.nomePeriodo() : null"></app-topbar>
+        <main class="profile-setup-content">
+            <router-outlet></router-outlet>
+        </main>
+    </div>
 </div>

@@ -1,0 +1,671 @@
+{
+  "versao": 1,
+  "titulo": "ADS AMS — 1º ano — Fatec Itu — 2026",
+  "atualizadoEm": "2026-09-21",
+  "vigenciaInicio": "2026-02-09",
+  "vigenciaFim": "2026-12-14",
+  "fonte": "Horário.png e Calendário Acadêmico 2026 da Fatec Itu fornecidos pelo usuário. Professores conforme imagem de disciplinas fornecida em 21/09/2026; Língua Inglesa: Lilian Oliveira, informada pelo usuário. Salas não informadas. IDs atribuídos localmente.",
+  "quadroHorario": {
+    "id": 1,
+    "versao": 1
+  },
+  "cursos": [
+    {
+      "id": 1,
+      "nome": "Análise e Desenvolvimento de Sistemas — AMS",
+      "organizacao": "Anual",
+      "turno": "Tarde",
+      "unidade": "Fatec Itu",
+      "periodos": [
+        1,
+        2
+      ],
+      "cargaHoraria": null,
+      "duracaoSemestres": 4,
+      "coordenador": null
+    }
+  ],
+  "disciplinas": [
+    {
+      "id": 1,
+      "nome": "ICMNED",
+      "periodo": 1,
+      "cursoId": 1
+    },
+    {
+      "id": 2,
+      "nome": "ESTRUTURA DE DADOS",
+      "periodo": 1,
+      "cursoId": 1
+    },
+    {
+      "id": 3,
+      "nome": "ENGENHARIA DE SOFTWARE",
+      "periodo": 1,
+      "cursoId": 1
+    },
+    {
+      "id": 4,
+      "nome": "PROJETO INTEGRADOR 1",
+      "periodo": 1,
+      "cursoId": 1
+    },
+    {
+      "id": 5,
+      "nome": "INT. HUMANO COMPUTADOR",
+      "periodo": 1,
+      "cursoId": 1
+    },
+    {
+      "id": 6,
+      "nome": "GEST. ÁGIL DE PRO. SOFT.",
+      "periodo": 1,
+      "cursoId": 1
+    },
+    {
+      "id": 7,
+      "nome": "ORG. DE COMP. E SIST. OP.",
+      "periodo": 1,
+      "cursoId": 1
+    },
+    {
+      "id": 8,
+      "nome": "TABDRNR",
+      "periodo": 1,
+      "cursoId": 1
+    },
+    {
+      "id": 9,
+      "nome": "MATEMÁTICA DISCRETA",
+      "periodo": 1,
+      "cursoId": 1
+    },
+    {
+      "id": 10,
+      "nome": "LINGUA INGLESA 1",
+      "periodo": 1,
+      "cursoId": 1
+    },
+    {
+      "id": 11,
+      "nome": "TAPWM",
+      "periodo": 1,
+      "cursoId": 1
+    },
+    {
+      "id": 12,
+      "nome": "TAP",
+      "periodo": 1,
+      "cursoId": 1
+    }
+  ],
+  "professores": [
+    {
+      "id": 1,
+      "nome": "Glauco Todesco"
+    },
+    {
+      "id": 2,
+      "nome": "Renato Luiz Cardoso"
+    },
+    {
+      "id": 3,
+      "nome": "Antonio Tadeu Maffeis"
+    },
+    {
+      "id": 4,
+      "nome": "Lilian Simão Oliveira"
+    },
+    {
+      "id": 5,
+      "nome": "Melky Fanti Duenas"
+    },
+    {
+      "id": 6,
+      "nome": "Jose Carlos Martins Junior"
+    },
+    {
+      "id": 7,
+      "nome": "Paulo César de Macedo"
+    },
+    {
+      "id": 8,
+      "nome": "Marcos Antonio Rosa"
+    },
+    {
+      "id": 9,
+      "nome": "Lilian Oliveira"
+    }
+  ],
+  "salas": [],
+  "turmas": [
+    {
+      "id": 1,
+      "codigo": "1º ADS FATEC",
+      "periodo": 1,
+      "ano": 2026,
+      "cursoId": 1,
+      "turno": "Tarde"
+    }
+  ],
+  "ofertas": [
+    {
+      "id": 1,
+      "disciplinaId": 1,
+      "turmaId": 1
+    },
+    {
+      "id": 2,
+      "disciplinaId": 2,
+      "turmaId": 1
+    },
+    {
+      "id": 3,
+      "disciplinaId": 3,
+      "turmaId": 1
+    },
+    {
+      "id": 4,
+      "disciplinaId": 4,
+      "turmaId": 1
+    },
+    {
+      "id": 5,
+      "disciplinaId": 5,
+      "turmaId": 1
+    },
+    {
+      "id": 6,
+      "disciplinaId": 6,
+      "turmaId": 1
+    },
+    {
+      "id": 7,
+      "disciplinaId": 7,
+      "turmaId": 1
+    },
+    {
+      "id": 8,
+      "disciplinaId": 8,
+      "turmaId": 1
+    },
+    {
+      "id": 9,
+      "disciplinaId": 9,
+      "turmaId": 1
+    },
+    {
+      "id": 10,
+      "disciplinaId": 10,
+      "turmaId": 1
+    },
+    {
+      "id": 11,
+      "disciplinaId": 11,
+      "turmaId": 1
+    },
+    {
+      "id": 12,
+      "disciplinaId": 12,
+      "turmaId": 1
+    }
+  ],
+  "alocacoes": [
+    {
+      "id": 1,
+      "ofertaId": 1,
+      "professorId": 6,
+      "salaId": null,
+      "diaSemana": "SEGUNDA",
+      "horaInicio": "13:20",
+      "horaFim": "14:10"
+    },
+    {
+      "id": 2,
+      "ofertaId": 1,
+      "professorId": 6,
+      "salaId": null,
+      "diaSemana": "SEGUNDA",
+      "horaInicio": "14:10",
+      "horaFim": "15:00"
+    },
+    {
+      "id": 3,
+      "ofertaId": 2,
+      "professorId": 3,
+      "salaId": null,
+      "diaSemana": "SEGUNDA",
+      "horaInicio": "15:10",
+      "horaFim": "16:00"
+    },
+    {
+      "id": 4,
+      "ofertaId": 2,
+      "professorId": 3,
+      "salaId": null,
+      "diaSemana": "SEGUNDA",
+      "horaInicio": "16:00",
+      "horaFim": "16:50"
+    },
+    {
+      "id": 5,
+      "ofertaId": 3,
+      "professorId": 4,
+      "salaId": null,
+      "diaSemana": "SEGUNDA",
+      "horaInicio": "17:00",
+      "horaFim": "17:50"
+    },
+    {
+      "id": 6,
+      "ofertaId": 3,
+      "professorId": 4,
+      "salaId": null,
+      "diaSemana": "SEGUNDA",
+      "horaInicio": "17:50",
+      "horaFim": "18:40"
+    },
+    {
+      "id": 7,
+      "ofertaId": 4,
+      "professorId": 1,
+      "salaId": null,
+      "diaSemana": "TERCA",
+      "horaInicio": "13:20",
+      "horaFim": "14:10"
+    },
+    {
+      "id": 8,
+      "ofertaId": 4,
+      "professorId": 1,
+      "salaId": null,
+      "diaSemana": "TERCA",
+      "horaInicio": "14:10",
+      "horaFim": "15:00"
+    },
+    {
+      "id": 9,
+      "ofertaId": 4,
+      "professorId": 1,
+      "salaId": null,
+      "diaSemana": "TERCA",
+      "horaInicio": "15:10",
+      "horaFim": "16:00"
+    },
+    {
+      "id": 10,
+      "ofertaId": 4,
+      "professorId": 1,
+      "salaId": null,
+      "diaSemana": "TERCA",
+      "horaInicio": "16:00",
+      "horaFim": "16:50"
+    },
+    {
+      "id": 11,
+      "ofertaId": 5,
+      "professorId": 2,
+      "salaId": null,
+      "diaSemana": "TERCA",
+      "horaInicio": "17:00",
+      "horaFim": "17:50"
+    },
+    {
+      "id": 12,
+      "ofertaId": 5,
+      "professorId": 2,
+      "salaId": null,
+      "diaSemana": "TERCA",
+      "horaInicio": "17:50",
+      "horaFim": "18:40"
+    },
+    {
+      "id": 13,
+      "ofertaId": 6,
+      "professorId": 7,
+      "salaId": null,
+      "diaSemana": "QUARTA",
+      "horaInicio": "13:20",
+      "horaFim": "14:10"
+    },
+    {
+      "id": 14,
+      "ofertaId": 6,
+      "professorId": 7,
+      "salaId": null,
+      "diaSemana": "QUARTA",
+      "horaInicio": "14:10",
+      "horaFim": "15:00"
+    },
+    {
+      "id": 15,
+      "ofertaId": 7,
+      "professorId": 5,
+      "salaId": null,
+      "diaSemana": "QUARTA",
+      "horaInicio": "15:10",
+      "horaFim": "16:00"
+    },
+    {
+      "id": 16,
+      "ofertaId": 7,
+      "professorId": 5,
+      "salaId": null,
+      "diaSemana": "QUARTA",
+      "horaInicio": "16:00",
+      "horaFim": "16:50"
+    },
+    {
+      "id": 17,
+      "ofertaId": 8,
+      "professorId": 2,
+      "salaId": null,
+      "diaSemana": "QUARTA",
+      "horaInicio": "17:00",
+      "horaFim": "17:50"
+    },
+    {
+      "id": 18,
+      "ofertaId": 8,
+      "professorId": 2,
+      "salaId": null,
+      "diaSemana": "QUARTA",
+      "horaInicio": "17:50",
+      "horaFim": "18:40"
+    },
+    {
+      "id": 19,
+      "ofertaId": 9,
+      "professorId": 8,
+      "salaId": null,
+      "diaSemana": "QUINTA",
+      "horaInicio": "13:20",
+      "horaFim": "14:10"
+    },
+    {
+      "id": 20,
+      "ofertaId": 9,
+      "professorId": 8,
+      "salaId": null,
+      "diaSemana": "QUINTA",
+      "horaInicio": "14:10",
+      "horaFim": "15:00"
+    },
+    {
+      "id": 21,
+      "ofertaId": 2,
+      "professorId": 3,
+      "salaId": null,
+      "diaSemana": "QUINTA",
+      "horaInicio": "15:10",
+      "horaFim": "16:00"
+    },
+    {
+      "id": 22,
+      "ofertaId": 2,
+      "professorId": 3,
+      "salaId": null,
+      "diaSemana": "QUINTA",
+      "horaInicio": "16:00",
+      "horaFim": "16:50"
+    },
+    {
+      "id": 23,
+      "ofertaId": 10,
+      "professorId": 9,
+      "salaId": null,
+      "diaSemana": "QUINTA",
+      "horaInicio": "17:00",
+      "horaFim": "17:50"
+    },
+    {
+      "id": 24,
+      "ofertaId": 10,
+      "professorId": 9,
+      "salaId": null,
+      "diaSemana": "QUINTA",
+      "horaInicio": "17:50",
+      "horaFim": "18:40"
+    },
+    {
+      "id": 25,
+      "ofertaId": 11,
+      "professorId": 1,
+      "salaId": null,
+      "diaSemana": "SEXTA",
+      "horaInicio": "13:20",
+      "horaFim": "14:10"
+    },
+    {
+      "id": 26,
+      "ofertaId": 11,
+      "professorId": 1,
+      "salaId": null,
+      "diaSemana": "SEXTA",
+      "horaInicio": "14:10",
+      "horaFim": "15:00"
+    },
+    {
+      "id": 27,
+      "ofertaId": 3,
+      "professorId": 4,
+      "salaId": null,
+      "diaSemana": "SEXTA",
+      "horaInicio": "15:10",
+      "horaFim": "16:00"
+    },
+    {
+      "id": 28,
+      "ofertaId": 3,
+      "professorId": 4,
+      "salaId": null,
+      "diaSemana": "SEXTA",
+      "horaInicio": "16:00",
+      "horaFim": "16:50"
+    },
+    {
+      "id": 29,
+      "ofertaId": 12,
+      "professorId": 5,
+      "salaId": null,
+      "diaSemana": "SEXTA",
+      "horaInicio": "17:00",
+      "horaFim": "17:50"
+    },
+    {
+      "id": 30,
+      "ofertaId": 12,
+      "professorId": 5,
+      "salaId": null,
+      "diaSemana": "SEXTA",
+      "horaInicio": "17:50",
+      "horaFim": "18:40"
+    }
+  ],
+  "calendario": {
+    "semAula": [
+      {
+        "inicio": "2026-02-14",
+        "fim": "2026-02-18",
+        "motivo": "Carnaval e Quarta-feira de Cinzas"
+      },
+      {
+        "inicio": "2026-04-03",
+        "fim": "2026-04-04",
+        "motivo": "Paixão de Cristo e emenda"
+      },
+      {
+        "inicio": "2026-04-20",
+        "fim": "2026-04-21",
+        "motivo": "Tiradentes e emenda"
+      },
+      {
+        "inicio": "2026-05-01",
+        "fim": "2026-05-02",
+        "motivo": "Dia do Trabalho e emenda"
+      },
+      {
+        "inicio": "2026-06-04",
+        "fim": "2026-06-06",
+        "motivo": "Corpus Christi e emenda"
+      },
+      {
+        "inicio": "2026-06-28",
+        "fim": "2026-08-02",
+        "motivo": "Entre períodos de aulas regulares; exames finais não constam na grade semanal"
+      },
+      {
+        "inicio": "2026-09-07",
+        "fim": "2026-09-07",
+        "motivo": "Independência do Brasil"
+      },
+      {
+        "inicio": "2026-10-12",
+        "fim": "2026-10-12",
+        "motivo": "Nossa Senhora Aparecida"
+      },
+      {
+        "inicio": "2026-10-15",
+        "fim": "2026-10-15",
+        "motivo": "Dia do Professor"
+      },
+      {
+        "inicio": "2026-10-28",
+        "fim": "2026-10-28",
+        "motivo": "Dia do Servidor Público"
+      },
+      {
+        "inicio": "2026-11-02",
+        "fim": "2026-11-02",
+        "motivo": "Finados"
+      },
+      {
+        "inicio": "2026-11-15",
+        "fim": "2026-11-15",
+        "motivo": "Proclamação da República"
+      },
+      {
+        "inicio": "2026-11-20",
+        "fim": "2026-11-21",
+        "motivo": "Consciência Negra e emenda"
+      }
+    ],
+    "reposicoes": [
+      {
+        "data": "2026-02-21",
+        "diaSemana": "SEGUNDA",
+        "turno": "Tarde"
+      },
+      {
+        "data": "2026-02-28",
+        "diaSemana": "SEGUNDA",
+        "turno": "Tarde"
+      },
+      {
+        "data": "2026-03-07",
+        "diaSemana": "TERCA",
+        "turno": "Tarde"
+      },
+      {
+        "data": "2026-03-14",
+        "diaSemana": "TERCA",
+        "turno": "Tarde"
+      },
+      {
+        "data": "2026-03-21",
+        "diaSemana": "QUARTA",
+        "turno": "Tarde"
+      },
+      {
+        "data": "2026-03-28",
+        "diaSemana": "QUINTA",
+        "turno": "Tarde"
+      },
+      {
+        "data": "2026-04-11",
+        "diaSemana": "SEXTA",
+        "turno": "Tarde"
+      },
+      {
+        "data": "2026-04-18",
+        "diaSemana": "SEXTA",
+        "turno": "Tarde"
+      },
+      {
+        "data": "2026-04-25",
+        "diaSemana": "SEXTA",
+        "turno": "Tarde"
+      },
+      {
+        "data": "2026-05-09",
+        "diaSemana": "SABADO",
+        "turno": "Tarde"
+      },
+      {
+        "data": "2026-05-16",
+        "diaSemana": "SABADO",
+        "turno": "Tarde"
+      },
+      {
+        "data": "2026-05-23",
+        "diaSemana": "SABADO",
+        "turno": "Tarde"
+      },
+      {
+        "data": "2026-09-05",
+        "diaSemana": "SEGUNDA",
+        "turno": "Tarde"
+      },
+      {
+        "data": "2026-09-12",
+        "diaSemana": "SEGUNDA",
+        "turno": "Tarde"
+      },
+      {
+        "data": "2026-09-19",
+        "diaSemana": "SEGUNDA",
+        "turno": "Tarde"
+      },
+      {
+        "data": "2026-09-26",
+        "diaSemana": "TERCA",
+        "turno": "Tarde"
+      },
+      {
+        "data": "2026-10-03",
+        "diaSemana": "QUARTA",
+        "turno": "Tarde"
+      },
+      {
+        "data": "2026-10-10",
+        "diaSemana": "QUINTA",
+        "turno": "Tarde"
+      },
+      {
+        "data": "2026-10-17",
+        "diaSemana": "QUINTA",
+        "turno": "Tarde"
+      },
+      {
+        "data": "2026-10-24",
+        "diaSemana": "SEXTA",
+        "turno": "Tarde"
+      },
+      {
+        "data": "2026-10-31",
+        "diaSemana": "SEXTA",
+        "turno": "Tarde"
+      },
+      {
+        "data": "2026-11-07",
+        "diaSemana": "SABADO",
+        "turno": "Tarde"
+      },
+      {
+        "data": "2026-11-14",
+        "diaSemana": "SABADO",
+        "turno": "Tarde"
+      }
+    ]
+  }
+}

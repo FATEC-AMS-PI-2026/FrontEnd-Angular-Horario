@@ -29,6 +29,7 @@ yarn-error.log
 .history/*
 
 # Miscellaneous
+/Agents/
 /AGENTS.md
 /.angular/cache
 .sass-cache/

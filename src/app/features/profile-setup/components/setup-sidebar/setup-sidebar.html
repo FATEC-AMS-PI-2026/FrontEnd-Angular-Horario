@@ -15,8 +15,14 @@
             <p>
                 @if (setupService.currentStep() === 2) {
                 Escolha seu curso e períodos para personalizar seus horários
+                } @else if (setupService.currentStep() === 4) {
+                Monte sua grade com disciplinas regulares, DPs e adiantamentos.
+                } @else if (setupService.returningUser()) {
+                Último passo — escolha qual {{ setupService.nomePeriodo() }} você está cursando.
+                } @else if (setupService.currentStep() === 3) {
+                Escolha seu {{ setupService.nomePeriodo() }} para consultar as disciplinas disponíveis.
                 } @else {
-                Último passo — escolha em qual período você está cursando.
+                Selecione suas disciplinas para concluir a configuração.
                 }
             </p>
         </div>
@@ -51,10 +57,28 @@
 
             <!-- Step 3 -->
             <div class="setup-sidebar__step" [class.setup-sidebar__step--active]="setupService.currentStep() === 3"
+                [class.setup-sidebar__step--completed]="setupService.currentStep() > 3"
                 [class.setup-sidebar__step--disabled]="setupService.currentStep() < 3">
-                <div class="setup-sidebar__step-icon setup-sidebar__step-icon--outline">3</div>
-                <span class="setup-sidebar__step-label">Escolher período</span>
+                <div class="setup-sidebar__step-icon"
+                    [class.setup-sidebar__step-icon--outline]="setupService.currentStep() <= 3">
+                    @if (setupService.currentStep() > 3) {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    } @else {
+                    3
+                    }
+                </div>
+                <span class="setup-sidebar__step-label">Escolher {{ setupService.nomePeriodo() }}</span>
             </div>
+            @if (!setupService.returningUser() || setupService.currentStep() === 4) {
+            <div class="setup-sidebar__step" [class.setup-sidebar__step--active]="setupService.currentStep() === 4"
+                [class.setup-sidebar__step--disabled]="setupService.currentStep() < 4">
+                <div class="setup-sidebar__step-icon">4</div>
+                <span class="setup-sidebar__step-label">Escolher disciplinas</span>
+            </div>
+            }
         </div>
     </div>
 </aside>
