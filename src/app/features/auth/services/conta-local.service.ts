@@ -25,7 +25,7 @@ export class ContaLocalService {
     private readonly http = inject(HttpClient);
 
     async prepararCatalogo(): Promise<void> {
-        if (await this.banco.ler('catalogo-fixo-v2-professores')) return;
+        if (await this.banco.ler('catalogo-fixo-v4-pge')) return;
         const catalogo = validarCatalogo(await firstValueFrom(
             this.http.get<unknown>('dados/ads-ams-primeiro-ano.json'),
         ));
@@ -35,11 +35,11 @@ export class ContaLocalService {
                 const anterior = pedido.result as CatalogoSalvo | undefined;
                 // Preserva revisão e escolhas quando o catálogo da antiga importação já é o mesmo.
                 if (JSON.stringify(anterior?.catalogo) !== JSON.stringify(catalogo)) {
-                    // Alterar somente docentes/metadados não invalida as escolhas acadêmicas.
-                    const mesmaGrade = anterior && this.estruturaGrade(anterior.catalogo) === this.estruturaGrade(catalogo);
+                    // Novas turmas e atualização de docentes/salas preservam escolhas se a grade anterior continuar igual.
+                    const mesmaGrade = anterior && this.gradeAnteriorPreservada(anterior.catalogo, catalogo);
                     store.put({ catalogo, revisao: mesmaGrade ? anterior.revisao : crypto.randomUUID(), importadoEm: new Date().toISOString() }, 'catalogo');
                 }
-                store.put(true, 'catalogo-fixo-v2-professores');
+                store.put(true, 'catalogo-fixo-v4-pge');
             };
         });
     }
@@ -47,8 +47,23 @@ export class ContaLocalService {
     // TEMPORÁRIO: comparação para atualizar docentes locais sem apagar a configuração dos alunos.
     private estruturaGrade(catalogo: CatalogoLocal): string {
         return JSON.stringify({
-            ...catalogo, atualizadoEm: '', fonte: undefined, professores: [],
-            alocacoes: catalogo.alocacoes.map(aula => ({ ...aula, professorId: null })),
+            ...catalogo, titulo: '', atualizadoEm: '', fonte: undefined, professores: [], salas: [],
+            alocacoes: catalogo.alocacoes.map(aula => ({ ...aula, professorId: null, salaId: null })),
+        });
+    }
+
+    // TEMPORÁRIO: novas ofertas não invalidam as escolhas das turmas já cadastradas.
+    private gradeAnteriorPreservada(anterior: CatalogoLocal, novo: CatalogoLocal): boolean {
+        const antigos = (lista: { id: number }[]) => new Set(lista.map(item => item.id));
+        const cursos = antigos(anterior.cursos), disciplinas = antigos(anterior.disciplinas);
+        const turmas = antigos(anterior.turmas), ofertas = antigos(anterior.ofertas);
+        return this.estruturaGrade(anterior) === this.estruturaGrade({
+            ...novo,
+            cursos: novo.cursos.filter(item => cursos.has(item.id)),
+            disciplinas: novo.disciplinas.filter(item => disciplinas.has(item.id)),
+            turmas: novo.turmas.filter(item => turmas.has(item.id)),
+            ofertas: novo.ofertas.filter(item => ofertas.has(item.id)),
+            alocacoes: novo.alocacoes.filter(item => ofertas.has(item.ofertaId)),
         });
     }
 
