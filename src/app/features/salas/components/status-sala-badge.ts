@@ -9,7 +9,7 @@ import { StatusSala } from '../models/sala';
   selector: 'app-status-sala-badge',
   template: `
     <span class="badge" [class]="classeCor()">
-      {{ status() }}
+      {{ texto() || status() }}
     </span>
   `,
   styles: [
@@ -39,6 +39,7 @@ import { StatusSala } from '../models/sala';
 })
 export class StatusSalaBadge {
   readonly status = input.required<StatusSala>();
+  readonly texto = input<string>();
   protected readonly classeCor = computed(() => {
     switch (this.status()) {
       case 'Livre':

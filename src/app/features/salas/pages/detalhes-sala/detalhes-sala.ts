@@ -1,82 +1,73 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { map } from 'rxjs';
-import { SalasService } from '../../services/salas';
-import { TecnicoCard } from '../../components/tecnico-card/tecnico-card';
-import { EquipamentosCard } from '../../components/equipamentos-card/equipamentos-card';
-import { ProximosHorariosCard } from '../../components/proximos-horarios-card/proximos-horarios-card';
-import { AulasDoDiaCard } from '../../components/aulas-do-dia-card/aulas-do-dia-card';
+import { HttpErrorResponse } from '@angular/common/http';
+import { catchError, combineLatest, concat, exhaustMap, map, of, startWith, Subject, switchMap, timer } from 'rxjs';
+import { SalasApiService } from '../../services/salas-api';
+import { ApiErrorService } from '../../../../core/services/api-error.service';
+import { SalaResumo } from '../../models/sala-resumo';
 import { CabecalhoSala } from '../../components/cabecalho-sala/cabecalho-sala';
-import { AlertasModal } from '../../components/alertas-modal/alertas-modal';
+import { RelogioService } from '../../services/relogio';
+import { AlocacaoSalaApi, calcularDisponibilidade, DisponibilidadeSalaService } from '../../services/disponibilidade-sala';
 
-/**
- * Página de detalhes de uma sala. Cobre a issue #67: chegar aqui a partir da
- * lista, exibir os dados da sala selecionada e voltar para a lista sem
- * perder o estado da aplicação (navegação via Router, sem reload de página).
- *
- * Também cobre a issue #49: exibir o card do técnico responsável quando a
- * sala tiver um cadastrado.
- *
- * A exibição dos equipamentos (issues #61 e #69) foi extraída para o
- * componente `EquipamentosCard`, reutilizável em outras telas.
- *
- * Também cobre a issue #44: exibir os próximos horários de utilização da
- * sala, em ordem cronológica.
- *
- * Também cobre a issue #12: exibir todas as aulas do dia atual na sala,
- * destacando a que está em andamento.
- * Também cobre a issue #7: o cabeçalho (breadcrumb, nome, badges, botão de
- * voltar e botão "Ver alertas") foi extraído para `CabecalhoSala`.
- *
- * Também cobre a issue #13: o botão "Ver alertas" do cabeçalho abre o
- * `AlertasModal`, que lista os alertas da sala e permite marcá-los como
- * resolvidos.
- *
- * Também cobre a issue #43: exibir alertas de equipamentos indisponíveis no
- * topo da página, antes dos demais dados da sala.
- */
+interface EstadoDetalhes {
+  sala?: SalaResumo;
+  carregando?: boolean;
+  erro?: string;
+  agenda?: AlocacaoSalaApi[];
+  erroAgenda?: string;
+}
+
 @Component({
-    selector: 'app-detalhes-sala',
-    standalone: true,
-    imports: [
-        RouterLink,
-        CabecalhoSala,
-        TecnicoCard,
-        EquipamentosCard,
-        ProximosHorariosCard,
-        AlertasModal,
-        AulasDoDiaCard,
-    ],
-    templateUrl: './detalhes-sala.html',
-    styleUrl: './detalhes-sala.scss',
+  selector: 'app-detalhes-sala',
+  imports: [RouterLink, CabecalhoSala],
+  templateUrl: './detalhes-sala.html',
+  styleUrl: './detalhes-sala.scss',
 })
 export class DetalhesSala {
-    private readonly route = inject(ActivatedRoute);
-    private readonly salasService = inject(SalasService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly salas = inject(SalasApiService);
+  private readonly horarios = inject(DisponibilidadeSalaService);
+  private readonly erros = inject(ApiErrorService);
+  private readonly relogio = inject(RelogioService);
+  private readonly recarregar = new Subject<void>();
+  private readonly agora = toSignal(timer(0, 1000).pipe(map(() => this.relogio.agora())),
+    { initialValue: this.relogio.agora() });
 
-    private readonly id = toSignal(
-        this.route.paramMap.pipe(map((params) => Number(params.get('id')))),
-        { initialValue: NaN },
-    );
-
-    protected readonly sala = computed(() => this.salasService.obterSalaPorId(this.id()));
-
-    /** Controla a visibilidade do `AlertasModal` (issue #13). */
-    protected readonly alertasAbertos = signal(false);
-
-    protected abrirAlertas(): void {
-        this.alertasAbertos.set(true);
+  protected readonly estado = toSignal(combineLatest([
+    this.route.paramMap, this.recarregar.pipe(startWith(undefined)),
+  ]).pipe(switchMap(([params]) => {
+    const parametro = params.get('id') ?? '';
+    const id = Number(parametro);
+    if (!/^\d+$/.test(parametro) || !Number.isSafeInteger(id) || id <= 0) {
+      return of<EstadoDetalhes>({ erro: 'Sala não encontrada. Identificador inválido.' });
     }
-
-    protected fecharAlertas(): void {
-        this.alertasAbertos.set(false);
-    }
-
-    protected resolverAlerta(alertaId: number): void {
-        const salaAtual = this.sala();
-        if (salaAtual) {
-            this.salasService.marcarAlertaComoResolvido(salaAtual.id, alertaId);
+    return this.salas.obterPorId(id).pipe(
+      switchMap(sala => {
+        if (!this.horarios.agendaCompleta) {
+          return of<EstadoDetalhes>({ sala, erroAgenda: 'Não foi possível confirmar a agenda completa desta sala.' });
         }
-    }
+        // Atualiza a agenda e a vigência sem precisar recarregar a página.
+        return timer(0, 60000).pipe(exhaustMap(() => concat(
+          of<EstadoDetalhes>({ sala }),
+          this.horarios.carregar(id).pipe(
+            map(agenda => ({ sala, agenda } as EstadoDetalhes)),
+            catchError(erro => of<EstadoDetalhes>({ sala,
+              erroAgenda: this.erros.mensagem(erro, 'Não foi possível consultar a disponibilidade.') })),
+          ),
+        )));
+      }),
+      catchError(erro => of<EstadoDetalhes>({ erro: erro instanceof HttpErrorResponse && erro.status === 404
+        ? 'Sala não encontrada.' : this.erros.mensagem(erro, 'Não foi possível carregar a sala.') })),
+      startWith<EstadoDetalhes>({ carregando: true }),
+    );
+  })), { initialValue: { carregando: true } as EstadoDetalhes });
+
+  protected readonly disponibilidade = computed(() => {
+    const estado = this.estado();
+    return estado.sala && estado.agenda
+      ? calcularDisponibilidade(estado.sala.id, estado.agenda, this.agora()) : undefined;
+  });
+
+  protected tentarNovamente(): void { this.recarregar.next(); }
 }

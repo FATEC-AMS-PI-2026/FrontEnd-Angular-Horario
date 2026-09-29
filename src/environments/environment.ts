@@ -5,6 +5,7 @@ export const environment = {
     apiUrl: 'https://sua-api-de-producao.com/api',
     // Módulos já integrados ao Java (ver environment.development.ts).
     modulosBackend: [] as string[],
+    agendaSalasCompleta: false,
     linksSistema: {
         sobre: 'https://github.com/FATEC-AMS-PI-2026/FrontEnd-Angular-Horario#readme',
         suporte: 'https://github.com/FATEC-AMS-PI-2026/documents/issues/new',
