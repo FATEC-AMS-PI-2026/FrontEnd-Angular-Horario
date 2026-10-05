@@ -9,6 +9,7 @@
  * `turma`, pedido pelo critério de aceite da #12.
  */
 export interface AulaDoDia {
+  origem?: 'java' | 'local';
   /** Horário de início, no formato `HH:mm`. */
   inicio: string;
   /** Horário de término, no formato `HH:mm`. */

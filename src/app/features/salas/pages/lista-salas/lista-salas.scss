@@ -1,20 +1,17 @@
 .lista-salas {
-    padding: var(--space-lg);
-    background-color: var(--color-bg);
-    min-height: calc(100vh - var(--layout-topbar-height, 80px));
-    width: 100%;
+    padding: var(--space-sm);
+    min-height: var(--page-min-height);
     box-sizing: border-box;
     font-family: var(--font-sans);
     display: flex;
     flex-direction: column;
-    gap: var(--space-md);
+    gap: var(--space-lg);
 }
 
-/* FILTROS PADRONIZADOS COM A TELA DE PROFESSORES */
-.lista-salas__filtros {
+.lista-salas__filtros, .lista-salas__tipos {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-sm);
+    gap: var(--space-2xs);
     align-items: center;
 }
 
@@ -23,65 +20,38 @@
     flex: 1 1 320px;
     display: flex;
     align-items: center;
+}
 
-    .lista-salas__busca-icone {
-        position: absolute;
-        left: var(--space-sm);
-        color: var(--color-placeholder);
-        pointer-events: none;
-    }
+.lista-salas__busca-icone {
+    position: absolute;
+    left: var(--space-sm);
+    color: var(--color-placeholder);
+    pointer-events: none;
+}
+
+.lista-salas__campo-busca, .lista-salas__filtro-predio {
+    box-sizing: border-box;
+    padding: 0.6rem var(--space-md);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    font: inherit;
+    font-size: var(--text-sm);
+    color: var(--color-text);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
 }
 
 .lista-salas__campo-busca {
     width: 100%;
-    padding: 0.6rem var(--space-md) 0.6rem 2.5rem;
-    border: 1px solid var(--color-border-strong);
-    border-radius: var(--radius-md);
-    font-size: var(--text-sm);
-    font-family: inherit;
-    color: var(--color-text);
-    background: var(--color-surface);
-    box-shadow: var(--shadow-card);
-    outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-
-    &::placeholder {
-        color: var(--color-placeholder);
-    }
-
-    &:focus {
-        border-color: var(--color-primary);
-        box-shadow: 0 0 0 3px var(--color-focus-ring);
-    }
+    padding-left: 2.5rem;
+    &::placeholder { color: var(--color-text-subtle); }
 }
 
-.lista-salas__filtro-predio {
-    flex: 0 0 200px;
-    margin-left: auto;
-    padding: 0.6rem var(--space-md);
-    border: 1px solid var(--color-border-strong);
-    border-radius: var(--radius-md);
-    font-size: var(--text-sm);
-    font-family: inherit;
-    color: var(--color-text);
-    background: var(--color-surface);
-    cursor: pointer;
-    box-shadow: var(--shadow-card);
-    outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+.lista-salas__filtro-predio { margin-left: auto; cursor: pointer; }
 
-    &:focus-visible {
-        border-color: var(--color-primary);
-        box-shadow: 0 0 0 3px var(--color-focus-ring);
-        outline: none;
-    }
-}
-
-.lista-salas__tipos {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2xs);
-    align-items: center;
+:is(input, select, button, a):focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
 }
 
 .filtro-chip {
@@ -95,94 +65,53 @@
     font-size: var(--text-sm);
     font-weight: var(--fw-semibold);
     cursor: pointer;
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-
-    &:hover {
-        border-color: var(--color-primary);
-        color: var(--color-text);
-    }
-
-    &:focus-visible {
-        outline: 2px solid var(--color-primary);
-        outline-offset: 2px;
-    }
-
-    &--ativo {
-        background: var(--color-primary);
-        border-color: var(--color-primary);
-        color: var(--color-on-primary);
-    }
+    &:hover { border-color: var(--color-primary); }
+    &--ativo { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-on-primary); }
 }
 
-/* GRADE DE SALAS */
 .grade-salas {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: var(--space-sm);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-xl);
     list-style: none;
-    margin: 0;
+    margin: var(--space-lg) 0 0;
     padding: 0;
 }
 
 .card-sala {
     display: block;
+    height: 100%;
+    box-sizing: border-box;
+    min-height: 245px;
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    padding: 1rem var(--space-md);
+    border-radius: var(--radius-sala);
+    padding: var(--space-sm);
     text-decoration: none;
     color: inherit;
     background: var(--color-surface);
-    box-shadow: var(--shadow-card);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-    &:hover,
-    &:focus-visible {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-card-hover);
-    }
-
-    &__cabecalho {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.5rem;
-
-        h2 {
-            font-size: var(--text-lg);
-            font-weight: var(--fw-bold);
-            color: var(--color-text);
-            margin: 0;
-        }
-    }
-
-    &__local,
-    &__info {
-        margin: 0.35rem 0 0;
-        font-size: var(--text-sm);
-        color: var(--color-text-subtle);
-    }
+    box-shadow: var(--shadow-card-hover);
+    transition: transform 0.2s ease;
+    &:hover { transform: translateY(-2px); }
+    h2 { margin: var(--space-xs) 0 0; font-size: var(--text-lg); color: var(--color-text); }
+    &__cabecalho { display: flex; align-items: flex-start; justify-content: space-between; min-height: 60px; gap: var(--space-2xs); }
+    &__info { min-height: 1.25rem; font-size: var(--text-xs); margin: var(--space-3xs) 0 var(--space-sm); color: var(--color-text-subtle); }
+    &__local { font-size: var(--text-xs); color: var(--color-text-subtle); }
 }
 
-.lista-salas__vazio {
+.lista-salas__vazio, .lista-salas__estado {
     grid-column: 1 / -1;
     color: var(--color-text-subtle);
     text-align: center;
-    padding: var(--space-xl) 0;
+    padding: var(--space-lg) 0;
     font-size: var(--text-md);
+    p { margin: 0 0 var(--space-sm); }
 }
+.lista-salas__estado--erro p { color: var(--color-danger); }
 
-/* CARREGANDO / ERRO DA API (issue #132) */
-.lista-salas__estado {
-    color: var(--color-text-subtle);
-    text-align: center;
-    padding: var(--space-xl) 0;
-    font-size: var(--text-md);
-
-    p {
-        margin: 0 0 var(--space-sm);
-    }
-
-    &--erro p {
-        color: var(--color-danger);
-    }
+@media (max-width: 1150px) {
+    .grade-salas { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-lg); }
+}
+@media (max-width: 650px) {
+    .lista-salas { padding: 0; }
+    .grade-salas { grid-template-columns: minmax(0, 1fr); margin-top: 0; }
 }

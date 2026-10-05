@@ -22,17 +22,21 @@ import { StatusSala } from '../models/sala';
         font-size: 0.8rem;
         font-weight: 600;
         line-height: 1.4;
-        white-space: nowrap;
-        color: #fff;
+        gap: 0.35rem;
+        max-width: 100%;
+        white-space: normal;
       }
       .badge-livre {
-        background: var(--color-status-free);
+        background: var(--tag-verde-bg);
+        color: var(--tag-verde-fg);
       }
       .badge-em-uso {
-        background: var(--color-status-busy);
+        background: var(--color-danger-bg);
+        color: var(--color-danger);
       }
       .badge-manutencao {
-        background: var(--color-status-maintenance);
+        background: var(--color-warning-bg);
+        color: var(--color-warning-fg);
       }
     `,
   ],

@@ -1,5 +1,6 @@
 import { Component, DestroyRef, inject, input, OnInit } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
+import { Router, RouterLink, NavigationEnd } from '@angular/router';
+import { TopbarContextService } from '../../../core/services/topbar-context.service';
 import { filter } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DOCUMENT } from '@angular/common';
@@ -9,11 +10,12 @@ import { FigmaIcon } from '../figma-icon/figma-icon';
 @Component({
     selector: 'app-topbar',
     standalone: true,
-    imports: [FigmaIcon],
+    imports: [FigmaIcon, RouterLink],
     templateUrl: './topbar.html',
     styleUrl: './topbar.scss',
 })
 export class Topbar implements OnInit {
+    protected readonly contexto = inject(TopbarContextService);
     readonly titulo = input<string | null>(null);
     protected readonly busca = inject(SettingsSearchService);
     private readonly document = inject(DOCUMENT);

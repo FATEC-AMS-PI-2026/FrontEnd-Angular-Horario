@@ -1,3 +1,7 @@
+import { signal, WritableSignal } from '@angular/core';
+import { SalaResumo } from '../../models/sala-resumo';
+import { TopbarContextService } from '../../../../core/services/topbar-context.service';
+import { SalasLocaisService } from '../../services/salas-locais';
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -18,7 +22,8 @@ describe('DetalhesSala', () => {
     params = new BehaviorSubject(convertToParamMap({ id: '73' }));
     config = { url: 'http://backend', habilitado: false, modulos: ['salas', 'alocacoes'], agendaSalasCompleta: true };
     TestBed.configureTestingModule({ imports: [DetalhesSala], providers: [
-      provideRouter([]), provideHttpClient(withInterceptors([backendInterceptor])), provideHttpClientTesting(),
+      provideRouter([]),
+      { provide: SalasLocaisService, useValue: { salas: signal([]), catalogo: signal(null), erro: signal(null), carregando: signal(false), carregar: () => {} } }, provideHttpClient(withInterceptors([backendInterceptor])), provideHttpClientTesting(),
       { provide: ActivatedRoute, useValue: { paramMap: params } },
       { provide: BACKEND_CONFIG, useValue: config },
       { provide: RelogioService, useValue: { agora: () => new Date('2026-09-24T13:20:00-03:00') } },
@@ -37,10 +42,14 @@ describe('DetalhesSala', () => {
     }], page: 0, totalPages: 1 });
     fixture.detectChanges();
     const texto = fixture.nativeElement.textContent;
-    expect(texto).toContain('LAB-REAL'); expect(texto).toContain('32 pessoas');
+    expect(texto).toContain('LAB-REAL'); expect(texto).toContain('Capacidade de alunos: 32');
     expect(texto).toContain('Livre até às 15:00');
     expect(texto).not.toContain('Ver alertas'); expect(texto).not.toContain('Bloco A');
+    expect(fixture.nativeElement.querySelector('app-equipamentos-card')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.equipamento__quantidade').textContent.trim()).toBe('');
+    expect(TestBed.inject(TopbarContextService).sala()).toBe('LAB-REAL');
     fixture.destroy();
+    expect(TestBed.inject(TopbarContextService).sala()).toBeNull();
   }));
 
   it('preserva cadastro e não afirma Livre quando a agenda falha', fakeAsync(() => {
@@ -106,5 +115,18 @@ describe('DetalhesSala', () => {
     const fixture = TestBed.createComponent(DetalhesSala); fixture.detectChanges();
     http.expectNone('http://backend/salas/73');
     expect(fixture.nativeElement.querySelector('[role="alert"]')).not.toBeNull(); fixture.destroy();
+  }));
+
+  it('abre uma sala local sem confundir seu ID com o Java e mantém campos ausentes vazios', fakeAsync(() => {
+    const locais = TestBed.inject(SalasLocaisService);
+    (locais.salas as WritableSignal<SalaResumo[]>).set([{ id: 73, nome: 'LAB LOCAL', rotaId: 'local-73', origem: 'local' }]);
+    params.next(convertToParamMap({ id: 'local-73' }));
+    const fixture = TestBed.createComponent(DetalhesSala); fixture.detectChanges(); tick(0); fixture.detectChanges();
+    http.expectNone(r => r.url.startsWith('http://backend'));
+    expect(fixture.nativeElement.textContent).toContain('LAB LOCAL');
+    expect(fixture.nativeElement.querySelector('app-status-sala-badge')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.tecnico-card__avatar').textContent.trim()).toBe('');
+    expect(fixture.nativeElement.querySelector('.cabecalho-sala__resumo strong').textContent.trim()).toBe('');
+    fixture.destroy();
   }));
 });

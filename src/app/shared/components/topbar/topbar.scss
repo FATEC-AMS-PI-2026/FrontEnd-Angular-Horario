@@ -80,3 +80,11 @@
         width: auto;
     }
 }
+
+.topbar__breadcrumb {
+    min-width: 0;
+    a { color: var(--color-text-subtle); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    a:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+    h1 { overflow-wrap: anywhere; }
+}

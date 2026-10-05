@@ -1,21 +1,12 @@
 <section class="aulas-do-dia-card">
-  <h2 class="aulas-do-dia-card__titulo">Aulas do dia</h2>
-
-  <ul class="aulas-do-dia-card__lista">
-    @for (aula of aulasOrdenadas(); track aula.inicio + aula.turma) {
-    <li class="aula-do-dia" [class.aula-do-dia--agora]="estaEmAndamento(aula)">
-      <span class="aula-do-dia__horario">{{ aula.inicio }} – {{ aula.termino }}</span>
-      <span class="aula-do-dia__disciplina">{{ aula.disciplina }}</span>
-      <span class="aula-do-dia__turma">{{ aula.turma }}</span>
-      @if (aula.professor) {
-      <span class="aula-do-dia__professor">{{ aula.professor }}</span>
-      }
-      @if (estaEmAndamento(aula)) {
-      <span class="aula-do-dia__badge">Agora</span>
-      }
-    </li>
-    } @empty {
-    <li class="aulas-do-dia-card__vazio">Nenhuma aula agendada para esta sala hoje.</li>
-    }
+  <h2>Aulas nesta sala hoje</h2>
+  <ul>
+    @for (aula of aulasOrdenadas(); track $index) {
+      <li class="aula-do-dia" [class.aula-do-dia--agora]="estaEmAndamento(aula)">
+        <span class="aula-do-dia__horario"><span>{{ aula.inicio }}</span><span>{{ aula.termino }}</span></span>
+        <div class="aula-do-dia__conteudo"><strong>{{ aula.disciplina }}</strong><p>{{ aula.professor }}@if (aula.professor && aula.turma) { · }{{ aula.turma }}</p></div>
+        @if (estaEmAndamento(aula)) { <span class="aula-do-dia__badge">Agora</span> }
+      </li>
+    } @empty { <li class="aulas-do-dia-card__vazio" aria-label="Sem aulas disponíveis para hoje"></li> }
   </ul>
 </section>

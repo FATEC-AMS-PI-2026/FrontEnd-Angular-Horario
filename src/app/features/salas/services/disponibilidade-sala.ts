@@ -4,10 +4,14 @@ import { EMPTY, expand, map, reduce } from 'rxjs';
 import { BACKEND_CONFIG } from '../../../core/services/backend-config';
 import { PageResponse } from '../../../core/models/page-response';
 import { StatusSala } from '../models/sala';
+import { AulaDoDia } from '../models/aula-do-dia';
 
 /** Recorte do AlocacaoResponse Java usado para disponibilidade da sala inteira. */
 export interface AlocacaoSalaApi {
   id: number;
+  disciplina?: { nome: string };
+  professor?: { nome: string } | null;
+  turma?: { codigo: string };
   sala: { id: number };
   diaSemana: string;
   blocoHorario: { horaInicio: string; horaFim: string };
@@ -41,8 +45,25 @@ function segundos(horario: string): number {
   return h * 3600 + m * 60 + s;
 }
 
+export function aulasJavaDaSala(salaId: number, agenda: AlocacaoSalaApi[], agora: Date): AulaDoDia[] {
+  const m = momentoSaoPaulo(agora);
+  return agenda.filter(a => a.sala?.id === salaId && a.diaSemana === m.dia &&
+    a.quadroHorario?.status === 'ATIVO' && a.quadroHorario.periodoAtividadeQuadro?.status === 'ATIVO' &&
+    a.quadroHorario.periodoAtividadeQuadro.dataInicio <= m.data &&
+    m.data <= a.quadroHorario.periodoAtividadeQuadro.dataFim &&
+    segundos(a.blocoHorario?.horaInicio ?? '') < segundos(a.blocoHorario?.horaFim ?? '')
+  ).map(a => ({ inicio: a.blocoHorario.horaInicio.slice(0, 5), termino: a.blocoHorario.horaFim.slice(0, 5),
+    disciplina: a.disciplina?.nome ?? '', professor: a.professor?.nome, turma: a.turma?.codigo ?? '', origem: 'java' as const }));
+}
+
+/** O Java prevalece nos intervalos em que as duas fontes informam aulas. */
+export function unirAulas(java: AulaDoDia[], locais: AulaDoDia[]): AulaDoDia[] {
+  return [...java, ...locais.filter(l => !java.some(j => j.inicio < l.termino && l.inicio < j.termino))]
+    .sort((a, b) => a.inicio.localeCompare(b.inicio));
+}
+
 /** Intervalos [início, fim); nunca deduz disponibilidade de uma agenda parcial. */
-export function calcularDisponibilidade(salaId: number, alocacoes: AlocacaoSalaApi[], agora: Date): DisponibilidadeSala {
+export function calcularDisponibilidade(salaId: number, alocacoes: AlocacaoSalaApi[], agora: Date, complementares: AulaDoDia[] = []): DisponibilidadeSala {
   const momento = momentoSaoPaulo(agora);
   const horarios: { inicio: number; fim: number; rotulo: string }[] = [];
   for (const aula of alocacoes) {
@@ -63,6 +84,13 @@ export function calcularDisponibilidade(salaId: number, alocacoes: AlocacaoSalaA
     }
     horarios.push({ inicio, fim, rotulo: aula.blocoHorario.horaInicio.slice(0, 5) });
   }
+  // Aulas locais complementam a ocupação conhecida, mas nunca garantem agenda global sozinhas.
+  for (const aula of complementares) {
+    const inicio = segundos(aula.inicio), fim = segundos(aula.termino);
+    if (Number.isFinite(inicio) && Number.isFinite(fim) && inicio < fim) {
+      horarios.push({ inicio, fim, rotulo: aula.inicio.slice(0, 5) });
+    }
+  }
   if (horarios.some(h => h.inicio <= momento.segundos && momento.segundos < h.fim)) {
     return { status: 'Em uso', texto: 'Em uso' };
   }
@@ -77,9 +105,9 @@ export class DisponibilidadeSalaService {
   private readonly config = inject(BACKEND_CONFIG);
   readonly agendaCompleta = this.config.agendaSalasCompleta === true;
 
-  carregar(salaId: number) {
+  carregar(salaId?: number) {
     const pagina = (page: number) => this.http.get<PageResponse<AlocacaoSalaApi>>(
-      `${this.config.url.replace(/\/+$/, '')}/alocacoes`, { params: { sala: salaId, page, size: 200 } }).pipe(
+      `${this.config.url.replace(/\/+$/, '')}/alocacoes`, { params: { ...(salaId === undefined ? {} : { sala: salaId }), page, size: 200 } }).pipe(
         map(p => {
           if (p.page !== page || !Number.isInteger(p.totalPages) || p.totalPages < 0 ||
               !Array.isArray(p.content) || (p.totalPages > page + 1 && p.content.length === 0)) {
