@@ -1,13 +1,19 @@
 <section class="horarios" aria-label="Horários">
 
-    <div class="horarios__dias" role="tablist" aria-label="Filtrar por dia da semana">
-        @for (dia of dias; track dia.valor) {
-        <button type="button" class="filtro-chip" role="tab" [class.filtro-chip--ativo]="diaSelecionado() === dia.valor"
-            [attr.aria-selected]="diaSelecionado() === dia.valor" [attr.aria-label]="dia.nome"
-            (click)="selecionarDia(dia.valor)">
-            {{ dia.rotulo }}
+    <div class="horarios__topo">
+        <div class="horarios__dias" role="tablist" aria-label="Filtrar por dia da semana">
+            @for (dia of dias; track dia.valor) {
+            <button type="button" class="filtro-chip" role="tab" [class.filtro-chip--ativo]="diaSelecionado() === dia.valor"
+                [attr.aria-selected]="diaSelecionado() === dia.valor" [attr.aria-label]="dia.nome"
+                (click)="selecionarDia(dia.valor)">
+                {{ dia.rotulo }}
+            </button>
+            }
+        </div>
+
+        <button type="button" class="botao-adicionar" aria-haspopup="dialog" (click)="abrirModal()">
+            + Adicionar Matéria
         </button>
-        }
     </div>
 
     <div class="horarios__card">
@@ -73,3 +79,8 @@
     </div>
 
 </section>
+
+@if (modalAberto()) {
+<app-adicionar-materia-modal [diaInicial]="diaSelecionado()" (fechar)="fecharModal()"
+    (adicionada)="aulaAdicionada($event)" />
+}

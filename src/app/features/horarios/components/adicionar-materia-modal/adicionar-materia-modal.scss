@@ -1,0 +1,202 @@
+.modal__fundo {
+    position: fixed;
+    inset: 0;
+    background: var(--color-overlay);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-sm);
+    z-index: 100;
+}
+
+.modal {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 560px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: var(--space-lg);
+    box-shadow: var(--shadow-modal);
+    font-family: var(--font-sans);
+    color: var(--color-text);
+    box-sizing: border-box;
+
+    &:focus {
+        outline: none;
+    }
+}
+
+.modal__cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-md);
+
+    h2 {
+        margin: 0;
+        font-size: var(--text-lg);
+        font-weight: var(--fw-bold);
+    }
+}
+
+.modal__fechar {
+    border: none;
+    background: transparent;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--color-text-subtle);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+
+    &:hover,
+    &:focus-visible {
+        background: var(--color-bg);
+        color: var(--color-text);
+    }
+}
+
+/* FORMULÁRIO */
+.formulario {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    margin: 0;
+    padding: 0;
+    border: none;
+    min-width: 0;
+}
+
+.campo__rotulo {
+    padding: 0;
+    font-size: var(--text-sm);
+    font-weight: var(--fw-semibold);
+    color: var(--color-text-muted);
+}
+
+.campo__select {
+    min-height: 2.5rem;
+    padding: 0 var(--space-xs);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font: inherit;
+    font-size: var(--text-md);
+
+    &:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+
+    &--invalido {
+        border-color: var(--color-error);
+    }
+}
+
+.campo__erro,
+.formulario__erro {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--color-error);
+}
+
+.formulario__erro {
+    padding: var(--space-2xs) var(--space-xs);
+    border: 1px solid var(--color-danger-border);
+    border-radius: var(--radius-md);
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+}
+
+/* CHIPS (mesmo visual dos chips de dia da tela de Horários) */
+.opcoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+}
+
+.opcao-chip {
+    min-height: 2rem;
+    padding: 0.35rem var(--space-sm);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    font: inherit;
+    font-size: var(--text-sm);
+    font-weight: var(--fw-semibold);
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+        border-color: var(--color-primary);
+        color: var(--color-text);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+
+    &--horario {
+        font-family: var(--font-mono);
+    }
+
+    &--ativo,
+    &--ativo:hover {
+        background: var(--color-primary);
+        border-color: var(--color-primary);
+        color: var(--color-on-primary);
+    }
+}
+
+/* AÇÕES */
+.formulario__acoes {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-xs);
+    margin-top: var(--space-2xs);
+}
+
+.botao {
+    min-height: 2.5rem;
+    padding: 0 var(--space-lg);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    font: inherit;
+    font-weight: var(--fw-semibold);
+    cursor: pointer;
+
+    &:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+
+    &--secundario {
+        background: var(--color-surface);
+        color: var(--color-text);
+
+        &:hover {
+            background: var(--color-bg);
+        }
+    }
+
+    &--primario {
+        background: var(--color-primary);
+        border-color: var(--color-primary);
+        color: var(--color-on-primary);
+
+        &:hover {
+            background: var(--color-primary-hover);
+            border-color: var(--color-primary-hover);
+        }
+    }
+}

@@ -1,5 +1,13 @@
-import { Injectable, signal } from '@angular/core';
-import { AulaHorario, DiaSemana, IntervaloHorario, ItemHorario } from '../models/item-horario';
+import { computed, Injectable, signal } from '@angular/core';
+import {
+    AulaHorario,
+    BlocoHorario,
+    DiaSemana,
+    IntervaloHorario,
+    ItemHorario,
+    NovaAula,
+    ResultadoAdicao,
+} from '../models/item-horario';
 
 /** Monta uma aula do mock sem repetir `tipo` e `diaSemana` em cada linha. */
 function aula(
@@ -73,12 +81,62 @@ const HORARIOS_MOCK: ItemHorario[] = [
     ...intervalosDoDia('sex'),
 ];
 
+/** Texto exibido quando a matéria adicionada ainda não tem professor/sala conhecidos. */
+export const A_DEFINIR = 'A definir';
+
 @Injectable({ providedIn: 'root' })
 export class HorariosService {
     private readonly itensSignal = signal<ItemHorario[]>(HORARIOS_MOCK);
 
     /** Grade da semana inteira (aulas e intervalos), em qualquer ordem. */
     readonly itens = this.itensSignal.asReadonly();
+
+    private readonly aulas = computed(() =>
+        this.itensSignal().filter((item): item is AulaHorario => item.tipo === 'aula'),
+    );
+
+    /** Matérias oferecidas no dropdown do modal "Adicionar Matéria", em ordem alfabética. */
+    readonly materias = computed(() =>
+        [...new Set(this.aulas().map((aula) => aula.materia))].sort((a, b) => a.localeCompare(b, 'pt-BR')),
+    );
+
+    /** Blocos de aula do turno (sem repetição), em ordem cronológica, para os chips do modal. */
+    readonly blocos = computed<BlocoHorario[]>(() => {
+        const porInicio = new Map<string, BlocoHorario>();
+        for (const aula of this.aulas()) {
+            porInicio.set(aula.inicio, { inicio: aula.inicio, termino: aula.termino });
+        }
+        return [...porInicio.values()].sort((a, b) => a.inicio.localeCompare(b.inicio));
+    });
+
+    /**
+     * Inclui uma aula na grade do aluno (issue #104). Recusa se já existe aula
+     * no mesmo dia e bloco. Professor e sala são reaproveitados de outra aula
+     * da mesma matéria; sem referência, ficam "A definir".
+     *
+     * TODO(integração backend): trocar por um POST na API de grade quando ela
+     * existir, mantendo o mesmo retorno para o modal não precisar mudar.
+     */
+    adicionarAula(nova: NovaAula): ResultadoAdicao {
+        const ocupado = this.aulas().some(
+            (aula) => aula.diaSemana === nova.diaSemana && aula.inicio === nova.bloco.inicio,
+        );
+        if (ocupado) {
+            return { ok: false, erro: 'Já existe uma aula nesse dia e horário.' };
+        }
+
+        const referencia = this.aulas().find((aula) => aula.materia === nova.materia);
+        const aulaNova = aula(
+            nova.diaSemana,
+            nova.bloco.inicio,
+            nova.bloco.termino,
+            nova.materia,
+            referencia?.professor ?? A_DEFINIR,
+            referencia?.sala ?? A_DEFINIR,
+        );
+        this.itensSignal.update((itens) => [...itens, aulaNova]);
+        return { ok: true };
+    }
 
     // TODO(integração backend): quando a API de horários estiver disponível,
     // injetar HttpClient e preencher `itensSignal` a partir dela (mesmo
