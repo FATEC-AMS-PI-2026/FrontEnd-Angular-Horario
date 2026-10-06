@@ -8,7 +8,9 @@
     @if (estado().erroAgenda; as erroAgenda) {
       <div role="alert" class="detalhes-sala__aviso"><p>Disponibilidade indisponível. {{ erroAgenda }}</p><button type="button" (click)="tentarNovamente()">Tentar novamente</button></div>
     } @else if (!estado().agenda && sala.origem !== 'local') { <p role="status">Consultando disponibilidade...</p> }
-    @if (locais.erro(); as erroLocal) { <p role="alert">{{ erroLocal }}</p> }
+    @if (locais.erro(); as erroLocal) {
+      <div role="alert" class="detalhes-sala__aviso"><p>{{ erroLocal }}</p><button type="button" (click)="locais.carregar()">Tentar novamente</button></div>
+    }
     <div class="detalhes-sala__card detalhes-sala__recursos">
       <app-equipamentos-card />
       <app-proximos-horarios-card [horarios]="proximos()" />

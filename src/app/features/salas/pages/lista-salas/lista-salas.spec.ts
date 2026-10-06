@@ -103,4 +103,34 @@ describe('ListaSalas', () => {
     expect(elemento().querySelector('[role="alert"]')).not.toBeNull();
     expect(cards()[0].querySelector('.equipamento__quantidade')?.textContent?.trim()).toBe('');
   });
+
+  it('aguarda o catálogo local antes de declarar a lista vazia', () => {
+    const locais = TestBed.inject(SalasLocaisService);
+    (locais.carregando as WritableSignal<boolean>).set(true);
+    responder([]);
+    expect(elemento().querySelector('[role="status"]')?.textContent).toContain('Carregando');
+    expect(elemento().querySelector('.lista-salas__vazio')).toBeNull();
+
+    (locais.carregando as WritableSignal<boolean>).set(false);
+    fixture.detectChanges();
+    expect(elemento().querySelector('.lista-salas__vazio')?.textContent).toContain('Nenhuma sala');
+  });
+
+  it('permite recuperar a leitura local sem refazer a consulta Java', () => {
+    const locais = TestBed.inject(SalasLocaisService);
+    const recarregar = spyOn(locais, 'carregar');
+    (locais.erro as WritableSignal<string | null>).set('Falha na leitura local');
+    responder([sala(1, 'LAB-01', 'Laboratorio')]);
+    expect(cards().length).toBe(1);
+    elemento().querySelector<HTMLButtonElement>('[role="alert"] button')!.click();
+    expect(recarregar).toHaveBeenCalledTimes(1);
+    http.expectNone(r => r.url === `${BASE}/salas`);
+  });
+
+  it('não apresenta falha de consulta como lista vazia', () => {
+    http.expectOne(r => r.url === `${BASE}/salas`).error(new ProgressEvent('error'));
+    fixture.detectChanges();
+    expect(elemento().querySelector('[role="alert"]')).not.toBeNull();
+    expect(elemento().querySelector('.lista-salas__vazio')).toBeNull();
+  });
 });

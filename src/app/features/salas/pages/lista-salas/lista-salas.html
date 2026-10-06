@@ -54,7 +54,12 @@
     <button type="button" class="filtro-chip" (click)="tentarNovamente()">Tentar novamente</button>
   </div>
   }
-  @if (locais.erro(); as erroLocal) { <p role="alert">{{ erroLocal }}</p> }
+  @if (locais.erro(); as erroLocal) {
+  <div class="lista-salas__estado lista-salas__estado--erro" role="alert">
+    <p>{{ erroLocal }}</p>
+    <button type="button" class="filtro-chip" (click)="locais.carregar()">Tentar novamente</button>
+  </div>
+  }
   @if (!carregando() || salas().length) {
   <ul class="grade-salas">
     @for (sala of salasFiltradas(); track sala.rotaId ?? sala.id) {
@@ -73,7 +78,9 @@
       </a>
     </li>
     } @empty {
+    @if (!carregando() && !erro() && !locais.erro()) {
     <li class="lista-salas__vazio">{{ mensagemVazia() }}</li>
+    }
     }
   </ul>
   }

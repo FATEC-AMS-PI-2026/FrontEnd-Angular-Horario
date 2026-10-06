@@ -12,6 +12,38 @@
     gap: var(--space-md);
 }
 
+/* TOPO: chips à esquerda, botão "+ Adicionar Matéria" (#104) à direita */
+.horarios__topo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+}
+
+.botao-adicionar {
+    min-height: 2.5rem;
+    padding: 0 var(--space-md);
+    border: none;
+    border-radius: var(--radius-md);
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+    font: inherit;
+    font-size: var(--text-sm);
+    font-weight: var(--fw-semibold);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+        background: var(--color-primary-hover);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+}
+
 /* CHIPS DE DIA (mesmo visual do filtro de tipos em lista-salas) */
 .horarios__dias {
     display: flex;

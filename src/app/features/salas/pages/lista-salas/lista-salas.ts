@@ -39,7 +39,7 @@ export class ListaSalas {
     const aulas = unirAulas(aulasJavaDaSala(sala.id, agenda, this.agora()), aulasLocaisDaSala(this.locais.catalogo(), sala.nome, this.agora()));
     return calcularDisponibilidade(sala.id, agenda, this.agora(), aulas.filter(a => a.origem === 'local'));
   }
-  protected readonly carregando = this.salasApi.carregando;
+  protected readonly carregando = computed(() => this.salasApi.carregando() || this.locais.carregando());
   protected readonly erro = this.salasApi.erro;
 
   constructor() {
@@ -134,5 +134,6 @@ export class ListaSalas {
 
   protected tentarNovamente(): void {
     this.salasApi.carregar();
+    this.locais.carregar();
   }
 }

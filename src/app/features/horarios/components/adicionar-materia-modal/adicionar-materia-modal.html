@@ -1,0 +1,67 @@
+<div class="modal__fundo" (click)="fechar.emit()">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="adicionar-materia-titulo" tabindex="-1"
+        (click)="$event.stopPropagation()">
+        <header class="modal__cabecalho">
+            <h2 id="adicionar-materia-titulo">Adicionar Matéria</h2>
+            <button type="button" class="modal__fechar" aria-label="Fechar" (click)="fechar.emit()">✕</button>
+        </header>
+
+        <form class="formulario" novalidate (submit)="$event.preventDefault(); adicionar()">
+            <fieldset class="campo">
+                <legend class="campo__rotulo">Dia da semana</legend>
+                <div class="opcoes" role="radiogroup" aria-label="Dia da semana">
+                    @for (opcao of dias; track opcao.valor) {
+                    <button type="button" class="opcao-chip" role="radio" [class.opcao-chip--ativo]="dia() === opcao.valor"
+                        [attr.aria-checked]="dia() === opcao.valor" [attr.aria-label]="opcao.nome"
+                        (click)="selecionarDia(opcao.valor)">
+                        {{ opcao.rotulo }}
+                    </button>
+                    }
+                </div>
+                @if (faltaDia()) {
+                <p class="campo__erro">Selecione o dia da semana.</p>
+                }
+            </fieldset>
+
+            <div class="campo">
+                <label class="campo__rotulo" for="adicionar-materia-select">Matéria</label>
+                <select id="adicionar-materia-select" class="campo__select" [class.campo__select--invalido]="faltaMateria()"
+                    [value]="materia()" (change)="selecionarMateria($any($event.target).value)">
+                    <option value="" disabled>Selecione a matéria</option>
+                    @for (opcao of materias(); track opcao) {
+                    <option [value]="opcao">{{ opcao }}</option>
+                    }
+                </select>
+                @if (faltaMateria()) {
+                <p class="campo__erro">Selecione a matéria.</p>
+                }
+            </div>
+
+            <fieldset class="campo">
+                <legend class="campo__rotulo">Horário</legend>
+                <div class="opcoes" role="radiogroup" aria-label="Horário">
+                    @for (opcao of blocos(); track opcao.inicio; let i = $index) {
+                    <button type="button" class="opcao-chip opcao-chip--horario" role="radio"
+                        [class.opcao-chip--ativo]="bloco()?.inicio === opcao.inicio"
+                        [attr.aria-checked]="bloco()?.inicio === opcao.inicio"
+                        [attr.aria-label]="opcao.inicio + ' às ' + opcao.termino" (click)="selecionarBloco(opcao)">
+                        {{ rotuloBloco(i, opcao) }}
+                    </button>
+                    }
+                </div>
+                @if (faltaBloco()) {
+                <p class="campo__erro">Selecione o horário.</p>
+                }
+            </fieldset>
+
+            @if (erroEnvio(); as erro) {
+            <p class="formulario__erro" role="alert">{{ erro }}</p>
+            }
+
+            <div class="formulario__acoes">
+                <button type="button" class="botao botao--secundario" (click)="fechar.emit()">Cancelar</button>
+                <button type="submit" class="botao botao--primario">+ Adicionar</button>
+            </div>
+        </form>
+    </div>
+</div>

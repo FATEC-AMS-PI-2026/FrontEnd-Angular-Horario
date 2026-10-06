@@ -100,7 +100,6 @@ export class DetalhesSala {
   protected readonly proximos = computed(() => this.aulas()
     .filter(a => a.inicio > horarioAcademico(this.agora()).slice(0, 5))
     .map(a => ({ inicio: a.inicio, termino: a.termino, atividade: a.disciplina, professor: a.professor })));
-  protected readonly usaHorariosLocais = computed(() => this.aulas().some(a => a.origem === 'local'));
 
   protected tentarNovamente(): void { this.locais.carregar(); this.recarregar.next(); }
 }
