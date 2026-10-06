@@ -17,8 +17,6 @@
       <app-tecnico-card />
       <app-aulas-do-dia-card [aulas]="aulas()" [agora]="agora()" />
     </div>
-    @if (usaHorariosLocais()) { <p class="detalhes-sala__observacao">Inclui horários salvos neste navegador. A agenda local pode não conter todas as aulas da sala.</p> }
-    <p class="detalhes-sala__observacao">Horário de São Paulo. Campos vazios ainda não possuem informações disponíveis.</p>
   }
   @if (!estado().sala) { <a routerLink="/salas">Voltar para a lista de salas</a> }
 </section>

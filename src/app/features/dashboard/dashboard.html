@@ -79,7 +79,6 @@
                     <a routerLink="/salas" class="link-more">Ver todos &rarr;</a>
                 </div>
                 @if (carregado()) {
-                <p class="subtitle">Conforme suas aulas. A disponibilidade geral das salas não foi informada.</p>
                 <div class="room-status-list">
                     @for (sala of statusSalas(); track sala.id) {
                     <div class="room-status-item" [class.status-em_uso]="sala.emAula">
