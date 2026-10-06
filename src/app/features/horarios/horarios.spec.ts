@@ -69,4 +69,38 @@ describe('Horarios', () => {
         clicarChip(fixture, 'Sáb');
         expect(texto(fixture, '.tabela-horarios__vazio')).toEqual(['Nenhuma aula cadastrada para Sábado.']);
     });
+
+    it('abre o modal "Adicionar Matéria" pelo botão e fecha ao cancelar', () => {
+        const fixture = criar(segunda1430);
+        expect(fixture.nativeElement.querySelector('app-adicionar-materia-modal')).toBeNull();
+
+        (fixture.nativeElement.querySelector('.botao-adicionar') as HTMLButtonElement).click();
+        fixture.detectChanges();
+        expect(fixture.nativeElement.querySelector('[role="dialog"]')).not.toBeNull();
+
+        const botoes = fixture.nativeElement.querySelectorAll('.botao') as NodeListOf<HTMLButtonElement>;
+        Array.from(botoes).find((botao) => botao.textContent?.trim() === 'Cancelar')!.click();
+        fixture.detectChanges();
+        expect(fixture.nativeElement.querySelector('app-adicionar-materia-modal')).toBeNull();
+    });
+
+    it('depois de adicionar, fecha o modal e mostra o dia da aula nova na tabela', () => {
+        const fixture = criar(segunda1430);
+        (fixture.nativeElement.querySelector('.botao-adicionar') as HTMLButtonElement).click();
+        fixture.detectChanges();
+
+        const modal = fixture.nativeElement.querySelector('app-adicionar-materia-modal') as HTMLElement;
+        const chips = Array.from(modal.querySelectorAll('.opcao-chip') as NodeListOf<HTMLButtonElement>);
+        chips.find((chip) => chip.textContent?.trim() === 'Sáb')!.click();
+        const select = modal.querySelector('select') as HTMLSelectElement;
+        select.value = 'Banco de Dados';
+        select.dispatchEvent(new Event('change'));
+        chips.find((chip) => chip.textContent?.trim() === '1ª - 13:20')!.click();
+        (modal.querySelector('.botao--primario') as HTMLButtonElement).click();
+        fixture.detectChanges();
+
+        expect(fixture.nativeElement.querySelector('app-adicionar-materia-modal')).toBeNull();
+        expect(texto(fixture, '.filtro-chip--ativo')).toEqual(['Sáb']);
+        expect(texto(fixture, '.tabela-horarios__materia')).toEqual(['Banco de Dados']);
+    });
 });
