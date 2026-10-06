@@ -9,6 +9,8 @@ export interface BackendConfig {
    * passam pelo interceptor mesmo com `habilitado` desligado.
    */
   modulos?: readonly string[];
+  /** Somente quando /alocacoes inclui todos os cursos da sala, sem restrição por usuário. */
+  agendaSalasCompleta?: boolean;
 }
 
 export const BACKEND_CONFIG = new InjectionToken<BackendConfig>('BACKEND_CONFIG', {
@@ -17,6 +19,7 @@ export const BACKEND_CONFIG = new InjectionToken<BackendConfig>('BACKEND_CONFIG'
     habilitado: environment.backendHabilitado,
     url: environment.apiUrl,
     modulos: environment.modulosBackend,
+    agendaSalasCompleta: environment.agendaSalasCompleta,
   }),
 });
 

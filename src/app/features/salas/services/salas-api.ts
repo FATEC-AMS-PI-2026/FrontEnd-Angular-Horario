@@ -4,6 +4,7 @@ import { BACKEND_CONFIG } from '../../../core/services/backend-config';
 import { ApiErrorService } from '../../../core/services/api-error.service';
 import { PageResponse } from '../../../core/models/page-response';
 import { SalaApi, SalaResumo } from '../models/sala-resumo';
+import { map } from 'rxjs';
 
 /**
  * Quantidade pedida por página. O backend pagina por padrão (10 itens), mas a
@@ -17,8 +18,7 @@ function paraSalaResumo(sala: SalaApi): SalaResumo {
 
 /**
  * Listagem de salas vinda do backend Java (`GET /salas`), cobrindo a issue
- * #132. A página de detalhes ainda usa o mock de `SalasService`, porque o
- * backend não tem equipamentos, horários nem alertas da sala (#109).
+ * #132 e detalhes #133. Somente atributos fornecidos pelo Java são mapeados.
  */
 @Injectable({ providedIn: 'root' })
 export class SalasApiService {
@@ -34,6 +34,10 @@ export class SalasApiService {
   readonly carregando = this.carregandoSignal.asReadonly();
   /** Mensagem pronta para a tela quando a última carga falhou. */
   readonly erro = this.erroSignal.asReadonly();
+
+  obterPorId(id: number) {
+    return this.http.get<SalaApi>(`${this.baseUrl}/salas/${id}`).pipe(map(paraSalaResumo));
+  }
 
   carregar(): void {
     this.carregandoSignal.set(true);

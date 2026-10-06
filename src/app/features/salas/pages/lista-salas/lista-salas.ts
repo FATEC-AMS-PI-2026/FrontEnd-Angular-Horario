@@ -2,6 +2,14 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SalasApiService } from '../../services/salas-api';
 import { StatusSalaBadge } from '../../components/status-sala-badge';
+import { SalasLocaisService, unirSalas, aulasLocaisDaSala } from '../../services/salas-locais';
+import { IconeSala } from '../../components/icone-sala';
+import { EquipamentosCard } from '../../components/equipamentos-card/equipamentos-card';
+import { DisponibilidadeSalaService, calcularDisponibilidade, aulasJavaDaSala, unirAulas } from '../../services/disponibilidade-sala';
+import { RelogioService } from '../../services/relogio';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { catchError, exhaustMap, map, of, startWith, timer } from 'rxjs';
+import { SalaResumo } from '../../models/sala-resumo';
 
 /**
  * Página de listagem de salas, com dados do backend Java (issue #132). Cada
@@ -11,14 +19,27 @@ import { StatusSalaBadge } from '../../components/status-sala-badge';
 @Component({
   selector: 'app-lista-salas',
   standalone: true,
-  imports: [RouterLink, StatusSalaBadge],
+  imports: [RouterLink, StatusSalaBadge, IconeSala, EquipamentosCard],
   templateUrl: './lista-salas.html',
   styleUrl: './lista-salas.scss',
 })
 export class ListaSalas {
   private readonly salasApi = inject(SalasApiService);
-  protected readonly salas = this.salasApi.salas;
-  protected readonly carregando = this.salasApi.carregando;
+  protected readonly locais = inject(SalasLocaisService);
+  private readonly horarios = inject(DisponibilidadeSalaService);
+  private readonly relogio = inject(RelogioService);
+  protected readonly salas = computed(() => unirSalas(this.erro() ? [] : this.salasApi.salas(), this.locais.salas()));
+  private readonly agenda = toSignal(this.horarios.agendaCompleta ? timer(0, 60000).pipe(
+    exhaustMap(() => this.horarios.carregar().pipe(catchError(() => of(null)), startWith(null))),
+  ) : of(null));
+  private readonly agora = toSignal(timer(0, 1000).pipe(map(() => this.relogio.agora())), { initialValue: this.relogio.agora() });
+  protected disponibilidade(sala: SalaResumo) {
+    const agenda = this.agenda();
+    if (sala.origem === 'local' || !agenda) return undefined;
+    const aulas = unirAulas(aulasJavaDaSala(sala.id, agenda, this.agora()), aulasLocaisDaSala(this.locais.catalogo(), sala.nome, this.agora()));
+    return calcularDisponibilidade(sala.id, agenda, this.agora(), aulas.filter(a => a.origem === 'local'));
+  }
+  protected readonly carregando = computed(() => this.salasApi.carregando() || this.locais.carregando());
   protected readonly erro = this.salasApi.erro;
 
   constructor() {
@@ -48,7 +69,7 @@ export class ListaSalas {
 
   /** Tipos de sala distintos retornados pelo backend, um chip para cada. */
   protected readonly tipos = computed(() =>
-    Array.from(new Set(this.salas().map((sala) => sala.tipo))).sort((a, b) => a.localeCompare(b)),
+    Array.from(new Set(this.salas().map((sala) => sala.tipo).filter((tipo): tipo is string => !!tipo))).sort((a, b) => a.localeCompare(b)),
   );
 
   /**
@@ -113,5 +134,6 @@ export class ListaSalas {
 
   protected tentarNovamente(): void {
     this.salasApi.carregar();
+    this.locais.carregar();
   }
 }

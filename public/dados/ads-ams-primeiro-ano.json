@@ -1,10 +1,10 @@
 {
   "versao": 1,
-  "titulo": "ADS AMS — 1º ano — Fatec Itu — 2026",
-  "atualizadoEm": "2026-09-21",
+  "titulo": "ADS e PGE AMS — 1º e 2º anos Fatec — 2026",
+  "atualizadoEm": "2026-09-24",
   "vigenciaInicio": "2026-02-09",
   "vigenciaFim": "2026-12-14",
-  "fonte": "Horário.png e Calendário Acadêmico 2026 da Fatec Itu fornecidos pelo usuário. Professores conforme imagem de disciplinas fornecida em 21/09/2026; Língua Inglesa: Lilian Oliveira, informada pelo usuário. Salas não informadas. IDs atribuídos localmente.",
+  "fonte": "Horário.png e Calendário Acadêmico 2026 da Fatec Itu fornecidos pelo usuário. Professores conforme imagem de disciplinas fornecida em 21/09/2026; Língua Inglesa: Lilian Oliveira, informada pelo usuário. Salas não informadas. IDs atribuídos localmente. Grade do 5º ano AMS (2º ano Fatec) e salas do 4º ano AMS (1º ano Fatec) informadas pelo usuário em 24/09/2026. LAB INF 03 da nova imagem corrigido para LAB 02; docentes do segundo ano não informados. Grades do PGE AMS (4º e 5º anos) fornecidas pelo usuário em 24/09/2026; docentes não informados. Sala 9¾ do primeiro ano PGE confirmada pelo usuário; distinta da Sala 09 do segundo ano.",
   "quadroHorario": {
     "id": 1,
     "versao": 1
@@ -13,6 +13,20 @@
     {
       "id": 1,
       "nome": "Análise e Desenvolvimento de Sistemas — AMS",
+      "organizacao": "Anual",
+      "turno": "Tarde",
+      "unidade": "Fatec Itu",
+      "periodos": [
+        1,
+        2
+      ],
+      "cargaHoraria": null,
+      "duracaoSemestres": 4,
+      "coordenador": null
+    },
+    {
+      "id": 2,
+      "nome": "PGE — AMS",
       "organizacao": "Anual",
       "turno": "Tarde",
       "unidade": "Fatec Itu",
@@ -97,6 +111,234 @@
       "nome": "TAP",
       "periodo": 1,
       "cursoId": 1
+    },
+    {
+      "id": 13,
+      "nome": "Programação Multiplataforma",
+      "periodo": 2,
+      "cursoId": 1
+    },
+    {
+      "id": 14,
+      "nome": "Modelagem de Padrões de Projeto",
+      "periodo": 2,
+      "cursoId": 1
+    },
+    {
+      "id": 15,
+      "nome": "Segurança e Defesa Cibernética",
+      "periodo": 2,
+      "cursoId": 1
+    },
+    {
+      "id": 16,
+      "nome": "Sistemas Distribuídos Aplicados à Internet das Coisas",
+      "periodo": 2,
+      "cursoId": 1
+    },
+    {
+      "id": 17,
+      "nome": "Língua Inglesa II",
+      "periodo": 2,
+      "cursoId": 1
+    },
+    {
+      "id": 18,
+      "nome": "Sistemas de Informação e Tecnologias Emergentes",
+      "periodo": 2,
+      "cursoId": 1
+    },
+    {
+      "id": 19,
+      "nome": "Business Intelligence e Big Data",
+      "periodo": 2,
+      "cursoId": 1
+    },
+    {
+      "id": 20,
+      "nome": "Integração e Entrega Contínua (DevOps)",
+      "periodo": 2,
+      "cursoId": 1
+    },
+    {
+      "id": 21,
+      "nome": "Inteligência Artificial e Aprendizagem de Máquina",
+      "periodo": 2,
+      "cursoId": 1
+    },
+    {
+      "id": 22,
+      "nome": "Projeto Integrador II",
+      "periodo": 2,
+      "cursoId": 1
+    },
+    {
+      "id": 23,
+      "nome": "Estatística Aplicada",
+      "periodo": 2,
+      "cursoId": 1
+    },
+    {
+      "id": 24,
+      "nome": "Computação em Nuvem",
+      "periodo": 2,
+      "cursoId": 1
+    },
+    {
+      "id": 25,
+      "nome": "Economia",
+      "periodo": 1,
+      "cursoId": 2
+    },
+    {
+      "id": 26,
+      "nome": "Responsabilidade Social e Ambiental",
+      "periodo": 1,
+      "cursoId": 2
+    },
+    {
+      "id": 27,
+      "nome": "Gestão de Marketing",
+      "periodo": 1,
+      "cursoId": 2
+    },
+    {
+      "id": 28,
+      "nome": "Gestão da Inovação",
+      "periodo": 1,
+      "cursoId": 2
+    },
+    {
+      "id": 29,
+      "nome": "Teoria das Organizações",
+      "periodo": 1,
+      "cursoId": 2
+    },
+    {
+      "id": 30,
+      "nome": "Estatística Aplicada à Gestão",
+      "periodo": 1,
+      "cursoId": 2
+    },
+    {
+      "id": 31,
+      "nome": "Contabilidade e Custos",
+      "periodo": 1,
+      "cursoId": 2
+    },
+    {
+      "id": 32,
+      "nome": "Direito I",
+      "periodo": 1,
+      "cursoId": 2
+    },
+    {
+      "id": 33,
+      "nome": "Projeto Integrador I",
+      "periodo": 1,
+      "cursoId": 2
+    },
+    {
+      "id": 34,
+      "nome": "Língua Inglesa I",
+      "periodo": 1,
+      "cursoId": 2
+    },
+    {
+      "id": 35,
+      "nome": "Comportamento Organizacional",
+      "periodo": 1,
+      "cursoId": 2
+    },
+    {
+      "id": 36,
+      "nome": "Governança Corporativa",
+      "periodo": 1,
+      "cursoId": 2
+    },
+    {
+      "id": 37,
+      "nome": "Língua Espanhola I",
+      "periodo": 1,
+      "cursoId": 2
+    },
+    {
+      "id": 38,
+      "nome": "Gestão de Projetos",
+      "periodo": 2,
+      "cursoId": 2
+    },
+    {
+      "id": 39,
+      "nome": "Gestão de Processos",
+      "periodo": 2,
+      "cursoId": 2
+    },
+    {
+      "id": 40,
+      "nome": "Gestão de Operações Logísticas",
+      "periodo": 2,
+      "cursoId": 2
+    },
+    {
+      "id": 41,
+      "nome": "Língua Inglesa II",
+      "periodo": 2,
+      "cursoId": 2
+    },
+    {
+      "id": 42,
+      "nome": "Gestão da Qualidade",
+      "periodo": 2,
+      "cursoId": 2
+    },
+    {
+      "id": 43,
+      "nome": "Direito II",
+      "periodo": 2,
+      "cursoId": 2
+    },
+    {
+      "id": 44,
+      "nome": "Gestão Financeira e Orçamentária",
+      "periodo": 2,
+      "cursoId": 2
+    },
+    {
+      "id": 45,
+      "nome": "Gestão de Pessoas",
+      "periodo": 2,
+      "cursoId": 2
+    },
+    {
+      "id": 46,
+      "nome": "Gestão Estratégica",
+      "periodo": 2,
+      "cursoId": 2
+    },
+    {
+      "id": 47,
+      "nome": "Gestão Empreendedora",
+      "periodo": 2,
+      "cursoId": 2
+    },
+    {
+      "id": 48,
+      "nome": "Gestão do Conhecimento",
+      "periodo": 2,
+      "cursoId": 2
+    },
+    {
+      "id": 49,
+      "nome": "Projeto Integrador II",
+      "periodo": 2,
+      "cursoId": 2
+    },
+    {
+      "id": 50,
+      "nome": "Língua Espanhola II",
+      "periodo": 2,
+      "cursoId": 2
     }
   ],
   "professores": [
@@ -137,7 +379,40 @@
       "nome": "Lilian Oliveira"
     }
   ],
-  "salas": [],
+  "salas": [
+    {
+      "id": 1,
+      "codigo": "LAB 03"
+    },
+    {
+      "id": 2,
+      "codigo": "Sala 11"
+    },
+    {
+      "id": 3,
+      "codigo": "LAB 02"
+    },
+    {
+      "id": 4,
+      "codigo": "Sala 10"
+    },
+    {
+      "id": 5,
+      "codigo": "LAB 04"
+    },
+    {
+      "id": 6,
+      "codigo": "LAB 05"
+    },
+    {
+      "id": 7,
+      "codigo": "Sala 09"
+    },
+    {
+      "id": 8,
+      "codigo": "Sala 9¾"
+    }
+  ],
   "turmas": [
     {
       "id": 1,
@@ -145,6 +420,30 @@
       "periodo": 1,
       "ano": 2026,
       "cursoId": 1,
+      "turno": "Tarde"
+    },
+    {
+      "id": 2,
+      "codigo": "2º ADS FATEC",
+      "periodo": 2,
+      "ano": 2026,
+      "cursoId": 1,
+      "turno": "Tarde"
+    },
+    {
+      "id": 3,
+      "codigo": "1º PGE FATEC",
+      "periodo": 1,
+      "ano": 2026,
+      "cursoId": 2,
+      "turno": "Tarde"
+    },
+    {
+      "id": 4,
+      "codigo": "2º PGE FATEC",
+      "periodo": 2,
+      "ano": 2026,
+      "cursoId": 2,
       "turno": "Tarde"
     }
   ],
@@ -208,6 +507,196 @@
       "id": 12,
       "disciplinaId": 12,
       "turmaId": 1
+    },
+    {
+      "id": 13,
+      "disciplinaId": 13,
+      "turmaId": 2
+    },
+    {
+      "id": 14,
+      "disciplinaId": 14,
+      "turmaId": 2
+    },
+    {
+      "id": 15,
+      "disciplinaId": 15,
+      "turmaId": 2
+    },
+    {
+      "id": 16,
+      "disciplinaId": 16,
+      "turmaId": 2
+    },
+    {
+      "id": 17,
+      "disciplinaId": 17,
+      "turmaId": 2
+    },
+    {
+      "id": 18,
+      "disciplinaId": 18,
+      "turmaId": 2
+    },
+    {
+      "id": 19,
+      "disciplinaId": 19,
+      "turmaId": 2
+    },
+    {
+      "id": 20,
+      "disciplinaId": 20,
+      "turmaId": 2
+    },
+    {
+      "id": 21,
+      "disciplinaId": 21,
+      "turmaId": 2
+    },
+    {
+      "id": 22,
+      "disciplinaId": 22,
+      "turmaId": 2
+    },
+    {
+      "id": 23,
+      "disciplinaId": 23,
+      "turmaId": 2
+    },
+    {
+      "id": 24,
+      "disciplinaId": 24,
+      "turmaId": 2
+    },
+    {
+      "id": 25,
+      "disciplinaId": 25,
+      "turmaId": 3
+    },
+    {
+      "id": 26,
+      "disciplinaId": 26,
+      "turmaId": 3
+    },
+    {
+      "id": 27,
+      "disciplinaId": 27,
+      "turmaId": 3
+    },
+    {
+      "id": 28,
+      "disciplinaId": 28,
+      "turmaId": 3
+    },
+    {
+      "id": 29,
+      "disciplinaId": 29,
+      "turmaId": 3
+    },
+    {
+      "id": 30,
+      "disciplinaId": 30,
+      "turmaId": 3
+    },
+    {
+      "id": 31,
+      "disciplinaId": 31,
+      "turmaId": 3
+    },
+    {
+      "id": 32,
+      "disciplinaId": 32,
+      "turmaId": 3
+    },
+    {
+      "id": 33,
+      "disciplinaId": 33,
+      "turmaId": 3
+    },
+    {
+      "id": 34,
+      "disciplinaId": 34,
+      "turmaId": 3
+    },
+    {
+      "id": 35,
+      "disciplinaId": 35,
+      "turmaId": 3
+    },
+    {
+      "id": 36,
+      "disciplinaId": 36,
+      "turmaId": 3
+    },
+    {
+      "id": 37,
+      "disciplinaId": 37,
+      "turmaId": 3
+    },
+    {
+      "id": 38,
+      "disciplinaId": 38,
+      "turmaId": 4
+    },
+    {
+      "id": 39,
+      "disciplinaId": 39,
+      "turmaId": 4
+    },
+    {
+      "id": 40,
+      "disciplinaId": 40,
+      "turmaId": 4
+    },
+    {
+      "id": 41,
+      "disciplinaId": 41,
+      "turmaId": 4
+    },
+    {
+      "id": 42,
+      "disciplinaId": 42,
+      "turmaId": 4
+    },
+    {
+      "id": 43,
+      "disciplinaId": 43,
+      "turmaId": 4
+    },
+    {
+      "id": 44,
+      "disciplinaId": 44,
+      "turmaId": 4
+    },
+    {
+      "id": 45,
+      "disciplinaId": 45,
+      "turmaId": 4
+    },
+    {
+      "id": 46,
+      "disciplinaId": 46,
+      "turmaId": 4
+    },
+    {
+      "id": 47,
+      "disciplinaId": 47,
+      "turmaId": 4
+    },
+    {
+      "id": 48,
+      "disciplinaId": 48,
+      "turmaId": 4
+    },
+    {
+      "id": 49,
+      "disciplinaId": 49,
+      "turmaId": 4
+    },
+    {
+      "id": 50,
+      "disciplinaId": 50,
+      "turmaId": 4
     }
   ],
   "alocacoes": [
@@ -215,7 +704,7 @@
       "id": 1,
       "ofertaId": 1,
       "professorId": 6,
-      "salaId": null,
+      "salaId": 1,
       "diaSemana": "SEGUNDA",
       "horaInicio": "13:20",
       "horaFim": "14:10"
@@ -224,7 +713,7 @@
       "id": 2,
       "ofertaId": 1,
       "professorId": 6,
-      "salaId": null,
+      "salaId": 1,
       "diaSemana": "SEGUNDA",
       "horaInicio": "14:10",
       "horaFim": "15:00"
@@ -233,7 +722,7 @@
       "id": 3,
       "ofertaId": 2,
       "professorId": 3,
-      "salaId": null,
+      "salaId": 1,
       "diaSemana": "SEGUNDA",
       "horaInicio": "15:10",
       "horaFim": "16:00"
@@ -242,7 +731,7 @@
       "id": 4,
       "ofertaId": 2,
       "professorId": 3,
-      "salaId": null,
+      "salaId": 1,
       "diaSemana": "SEGUNDA",
       "horaInicio": "16:00",
       "horaFim": "16:50"
@@ -251,7 +740,7 @@
       "id": 5,
       "ofertaId": 3,
       "professorId": 4,
-      "salaId": null,
+      "salaId": 1,
       "diaSemana": "SEGUNDA",
       "horaInicio": "17:00",
       "horaFim": "17:50"
@@ -260,7 +749,7 @@
       "id": 6,
       "ofertaId": 3,
       "professorId": 4,
-      "salaId": null,
+      "salaId": 1,
       "diaSemana": "SEGUNDA",
       "horaInicio": "17:50",
       "horaFim": "18:40"
@@ -269,7 +758,7 @@
       "id": 7,
       "ofertaId": 4,
       "professorId": 1,
-      "salaId": null,
+      "salaId": 1,
       "diaSemana": "TERCA",
       "horaInicio": "13:20",
       "horaFim": "14:10"
@@ -278,7 +767,7 @@
       "id": 8,
       "ofertaId": 4,
       "professorId": 1,
-      "salaId": null,
+      "salaId": 1,
       "diaSemana": "TERCA",
       "horaInicio": "14:10",
       "horaFim": "15:00"
@@ -287,7 +776,7 @@
       "id": 9,
       "ofertaId": 4,
       "professorId": 1,
-      "salaId": null,
+      "salaId": 1,
       "diaSemana": "TERCA",
       "horaInicio": "15:10",
       "horaFim": "16:00"
@@ -296,7 +785,7 @@
       "id": 10,
       "ofertaId": 4,
       "professorId": 1,
-      "salaId": null,
+      "salaId": 1,
       "diaSemana": "TERCA",
       "horaInicio": "16:00",
       "horaFim": "16:50"
@@ -305,7 +794,7 @@
       "id": 11,
       "ofertaId": 5,
       "professorId": 2,
-      "salaId": null,
+      "salaId": 1,
       "diaSemana": "TERCA",
       "horaInicio": "17:00",
       "horaFim": "17:50"
@@ -314,7 +803,7 @@
       "id": 12,
       "ofertaId": 5,
       "professorId": 2,
-      "salaId": null,
+      "salaId": 1,
       "diaSemana": "TERCA",
       "horaInicio": "17:50",
       "horaFim": "18:40"
@@ -323,7 +812,7 @@
       "id": 13,
       "ofertaId": 6,
       "professorId": 7,
-      "salaId": null,
+      "salaId": 2,
       "diaSemana": "QUARTA",
       "horaInicio": "13:20",
       "horaFim": "14:10"
@@ -332,7 +821,7 @@
       "id": 14,
       "ofertaId": 6,
       "professorId": 7,
-      "salaId": null,
+      "salaId": 2,
       "diaSemana": "QUARTA",
       "horaInicio": "14:10",
       "horaFim": "15:00"
@@ -341,7 +830,7 @@
       "id": 15,
       "ofertaId": 7,
       "professorId": 5,
-      "salaId": null,
+      "salaId": 1,
       "diaSemana": "QUARTA",
       "horaInicio": "15:10",
       "horaFim": "16:00"
@@ -350,7 +839,7 @@
       "id": 16,
       "ofertaId": 7,
       "professorId": 5,
-      "salaId": null,
+      "salaId": 1,
       "diaSemana": "QUARTA",
       "horaInicio": "16:00",
       "horaFim": "16:50"
@@ -359,7 +848,7 @@
       "id": 17,
       "ofertaId": 8,
       "professorId": 2,
-      "salaId": null,
+      "salaId": 1,
       "diaSemana": "QUARTA",
       "horaInicio": "17:00",
       "horaFim": "17:50"
@@ -368,7 +857,7 @@
       "id": 18,
       "ofertaId": 8,
       "professorId": 2,
-      "salaId": null,
+      "salaId": 1,
       "diaSemana": "QUARTA",
       "horaInicio": "17:50",
       "horaFim": "18:40"
@@ -377,7 +866,7 @@
       "id": 19,
       "ofertaId": 9,
       "professorId": 8,
-      "salaId": null,
+      "salaId": 2,
       "diaSemana": "QUINTA",
       "horaInicio": "13:20",
       "horaFim": "14:10"
@@ -386,7 +875,7 @@
       "id": 20,
       "ofertaId": 9,
       "professorId": 8,
-      "salaId": null,
+      "salaId": 2,
       "diaSemana": "QUINTA",
       "horaInicio": "14:10",
       "horaFim": "15:00"
@@ -395,7 +884,7 @@
       "id": 21,
       "ofertaId": 2,
       "professorId": 3,
-      "salaId": null,
+      "salaId": 1,
       "diaSemana": "QUINTA",
       "horaInicio": "15:10",
       "horaFim": "16:00"
@@ -404,7 +893,7 @@
       "id": 22,
       "ofertaId": 2,
       "professorId": 3,
-      "salaId": null,
+      "salaId": 1,
       "diaSemana": "QUINTA",
       "horaInicio": "16:00",
       "horaFim": "16:50"
@@ -413,7 +902,7 @@
       "id": 23,
       "ofertaId": 10,
       "professorId": 9,
-      "salaId": null,
+      "salaId": 2,
       "diaSemana": "QUINTA",
       "horaInicio": "17:00",
       "horaFim": "17:50"
@@ -422,7 +911,7 @@
       "id": 24,
       "ofertaId": 10,
       "professorId": 9,
-      "salaId": null,
+      "salaId": 2,
       "diaSemana": "QUINTA",
       "horaInicio": "17:50",
       "horaFim": "18:40"
@@ -431,7 +920,7 @@
       "id": 25,
       "ofertaId": 11,
       "professorId": 1,
-      "salaId": null,
+      "salaId": 1,
       "diaSemana": "SEXTA",
       "horaInicio": "13:20",
       "horaFim": "14:10"
@@ -440,7 +929,7 @@
       "id": 26,
       "ofertaId": 11,
       "professorId": 1,
-      "salaId": null,
+      "salaId": 1,
       "diaSemana": "SEXTA",
       "horaInicio": "14:10",
       "horaFim": "15:00"
@@ -449,7 +938,7 @@
       "id": 27,
       "ofertaId": 3,
       "professorId": 4,
-      "salaId": null,
+      "salaId": 1,
       "diaSemana": "SEXTA",
       "horaInicio": "15:10",
       "horaFim": "16:00"
@@ -458,7 +947,7 @@
       "id": 28,
       "ofertaId": 3,
       "professorId": 4,
-      "salaId": null,
+      "salaId": 1,
       "diaSemana": "SEXTA",
       "horaInicio": "16:00",
       "horaFim": "16:50"
@@ -467,7 +956,7 @@
       "id": 29,
       "ofertaId": 12,
       "professorId": 5,
-      "salaId": null,
+      "salaId": 1,
       "diaSemana": "SEXTA",
       "horaInicio": "17:00",
       "horaFim": "17:50"
@@ -476,7 +965,781 @@
       "id": 30,
       "ofertaId": 12,
       "professorId": 5,
-      "salaId": null,
+      "salaId": 1,
+      "diaSemana": "SEXTA",
+      "horaInicio": "17:50",
+      "horaFim": "18:40"
+    },
+    {
+      "id": 31,
+      "ofertaId": 13,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "SEGUNDA",
+      "horaInicio": "13:20",
+      "horaFim": "14:10"
+    },
+    {
+      "id": 32,
+      "ofertaId": 13,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "SEGUNDA",
+      "horaInicio": "14:10",
+      "horaFim": "15:00"
+    },
+    {
+      "id": 33,
+      "ofertaId": 14,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "SEGUNDA",
+      "horaInicio": "15:10",
+      "horaFim": "16:00"
+    },
+    {
+      "id": 34,
+      "ofertaId": 14,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "SEGUNDA",
+      "horaInicio": "16:00",
+      "horaFim": "16:50"
+    },
+    {
+      "id": 35,
+      "ofertaId": 14,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "SEGUNDA",
+      "horaInicio": "17:00",
+      "horaFim": "17:50"
+    },
+    {
+      "id": 36,
+      "ofertaId": 14,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "SEGUNDA",
+      "horaInicio": "17:50",
+      "horaFim": "18:40"
+    },
+    {
+      "id": 37,
+      "ofertaId": 15,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "TERCA",
+      "horaInicio": "13:20",
+      "horaFim": "14:10"
+    },
+    {
+      "id": 38,
+      "ofertaId": 15,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "TERCA",
+      "horaInicio": "14:10",
+      "horaFim": "15:00"
+    },
+    {
+      "id": 39,
+      "ofertaId": 16,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "TERCA",
+      "horaInicio": "15:10",
+      "horaFim": "16:00"
+    },
+    {
+      "id": 40,
+      "ofertaId": 16,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "TERCA",
+      "horaInicio": "16:00",
+      "horaFim": "16:50"
+    },
+    {
+      "id": 41,
+      "ofertaId": 17,
+      "professorId": null,
+      "salaId": 4,
+      "diaSemana": "TERCA",
+      "horaInicio": "17:00",
+      "horaFim": "17:50"
+    },
+    {
+      "id": 42,
+      "ofertaId": 17,
+      "professorId": null,
+      "salaId": 4,
+      "diaSemana": "TERCA",
+      "horaInicio": "17:50",
+      "horaFim": "18:40"
+    },
+    {
+      "id": 43,
+      "ofertaId": 18,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "QUARTA",
+      "horaInicio": "13:20",
+      "horaFim": "14:10"
+    },
+    {
+      "id": 44,
+      "ofertaId": 18,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "QUARTA",
+      "horaInicio": "14:10",
+      "horaFim": "15:00"
+    },
+    {
+      "id": 45,
+      "ofertaId": 19,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "QUARTA",
+      "horaInicio": "15:10",
+      "horaFim": "16:00"
+    },
+    {
+      "id": 46,
+      "ofertaId": 19,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "QUARTA",
+      "horaInicio": "16:00",
+      "horaFim": "16:50"
+    },
+    {
+      "id": 47,
+      "ofertaId": 20,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "QUARTA",
+      "horaInicio": "17:00",
+      "horaFim": "17:50"
+    },
+    {
+      "id": 48,
+      "ofertaId": 20,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "QUARTA",
+      "horaInicio": "17:50",
+      "horaFim": "18:40"
+    },
+    {
+      "id": 49,
+      "ofertaId": 13,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "QUINTA",
+      "horaInicio": "13:20",
+      "horaFim": "14:10"
+    },
+    {
+      "id": 50,
+      "ofertaId": 13,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "QUINTA",
+      "horaInicio": "14:10",
+      "horaFim": "15:00"
+    },
+    {
+      "id": 51,
+      "ofertaId": 21,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "QUINTA",
+      "horaInicio": "15:10",
+      "horaFim": "16:00"
+    },
+    {
+      "id": 52,
+      "ofertaId": 21,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "QUINTA",
+      "horaInicio": "16:00",
+      "horaFim": "16:50"
+    },
+    {
+      "id": 53,
+      "ofertaId": 22,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "QUINTA",
+      "horaInicio": "17:00",
+      "horaFim": "17:50"
+    },
+    {
+      "id": 54,
+      "ofertaId": 22,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "QUINTA",
+      "horaInicio": "17:50",
+      "horaFim": "18:40"
+    },
+    {
+      "id": 55,
+      "ofertaId": 23,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "SEXTA",
+      "horaInicio": "13:20",
+      "horaFim": "14:10"
+    },
+    {
+      "id": 56,
+      "ofertaId": 23,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "SEXTA",
+      "horaInicio": "14:10",
+      "horaFim": "15:00"
+    },
+    {
+      "id": 57,
+      "ofertaId": 24,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "SEXTA",
+      "horaInicio": "15:10",
+      "horaFim": "16:00"
+    },
+    {
+      "id": 58,
+      "ofertaId": 24,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "SEXTA",
+      "horaInicio": "16:00",
+      "horaFim": "16:50"
+    },
+    {
+      "id": 59,
+      "ofertaId": 22,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "SEXTA",
+      "horaInicio": "17:00",
+      "horaFim": "17:50"
+    },
+    {
+      "id": 60,
+      "ofertaId": 22,
+      "professorId": null,
+      "salaId": 3,
+      "diaSemana": "SEXTA",
+      "horaInicio": "17:50",
+      "horaFim": "18:40"
+    },
+    {
+      "id": 61,
+      "ofertaId": 25,
+      "professorId": null,
+      "salaId": 8,
+      "diaSemana": "SEGUNDA",
+      "horaInicio": "13:20",
+      "horaFim": "14:10"
+    },
+    {
+      "id": 62,
+      "ofertaId": 25,
+      "professorId": null,
+      "salaId": 8,
+      "diaSemana": "SEGUNDA",
+      "horaInicio": "14:10",
+      "horaFim": "15:00"
+    },
+    {
+      "id": 63,
+      "ofertaId": 26,
+      "professorId": null,
+      "salaId": 5,
+      "diaSemana": "SEGUNDA",
+      "horaInicio": "15:10",
+      "horaFim": "16:00"
+    },
+    {
+      "id": 64,
+      "ofertaId": 26,
+      "professorId": null,
+      "salaId": 5,
+      "diaSemana": "SEGUNDA",
+      "horaInicio": "16:00",
+      "horaFim": "16:50"
+    },
+    {
+      "id": 65,
+      "ofertaId": 27,
+      "professorId": null,
+      "salaId": 5,
+      "diaSemana": "SEGUNDA",
+      "horaInicio": "17:00",
+      "horaFim": "17:50"
+    },
+    {
+      "id": 66,
+      "ofertaId": 27,
+      "professorId": null,
+      "salaId": 5,
+      "diaSemana": "SEGUNDA",
+      "horaInicio": "17:50",
+      "horaFim": "18:40"
+    },
+    {
+      "id": 67,
+      "ofertaId": 28,
+      "professorId": null,
+      "salaId": 5,
+      "diaSemana": "TERCA",
+      "horaInicio": "13:20",
+      "horaFim": "14:10"
+    },
+    {
+      "id": 68,
+      "ofertaId": 28,
+      "professorId": null,
+      "salaId": 5,
+      "diaSemana": "TERCA",
+      "horaInicio": "14:10",
+      "horaFim": "15:00"
+    },
+    {
+      "id": 69,
+      "ofertaId": 29,
+      "professorId": null,
+      "salaId": 5,
+      "diaSemana": "TERCA",
+      "horaInicio": "15:10",
+      "horaFim": "16:00"
+    },
+    {
+      "id": 70,
+      "ofertaId": 29,
+      "professorId": null,
+      "salaId": 5,
+      "diaSemana": "TERCA",
+      "horaInicio": "16:00",
+      "horaFim": "16:50"
+    },
+    {
+      "id": 71,
+      "ofertaId": 30,
+      "professorId": null,
+      "salaId": 8,
+      "diaSemana": "TERCA",
+      "horaInicio": "17:00",
+      "horaFim": "17:50"
+    },
+    {
+      "id": 72,
+      "ofertaId": 30,
+      "professorId": null,
+      "salaId": 8,
+      "diaSemana": "TERCA",
+      "horaInicio": "17:50",
+      "horaFim": "18:40"
+    },
+    {
+      "id": 73,
+      "ofertaId": 31,
+      "professorId": null,
+      "salaId": 8,
+      "diaSemana": "QUARTA",
+      "horaInicio": "13:20",
+      "horaFim": "14:10"
+    },
+    {
+      "id": 74,
+      "ofertaId": 31,
+      "professorId": null,
+      "salaId": 8,
+      "diaSemana": "QUARTA",
+      "horaInicio": "14:10",
+      "horaFim": "15:00"
+    },
+    {
+      "id": 75,
+      "ofertaId": 31,
+      "professorId": null,
+      "salaId": 8,
+      "diaSemana": "QUARTA",
+      "horaInicio": "15:10",
+      "horaFim": "16:00"
+    },
+    {
+      "id": 76,
+      "ofertaId": 32,
+      "professorId": null,
+      "salaId": 8,
+      "diaSemana": "QUARTA",
+      "horaInicio": "16:00",
+      "horaFim": "16:50"
+    },
+    {
+      "id": 77,
+      "ofertaId": 32,
+      "professorId": null,
+      "salaId": 8,
+      "diaSemana": "QUARTA",
+      "horaInicio": "17:00",
+      "horaFim": "17:50"
+    },
+    {
+      "id": 78,
+      "ofertaId": 32,
+      "professorId": null,
+      "salaId": 8,
+      "diaSemana": "QUARTA",
+      "horaInicio": "17:50",
+      "horaFim": "18:40"
+    },
+    {
+      "id": 79,
+      "ofertaId": 33,
+      "professorId": null,
+      "salaId": 5,
+      "diaSemana": "QUINTA",
+      "horaInicio": "13:20",
+      "horaFim": "14:10"
+    },
+    {
+      "id": 80,
+      "ofertaId": 33,
+      "professorId": null,
+      "salaId": 5,
+      "diaSemana": "QUINTA",
+      "horaInicio": "14:10",
+      "horaFim": "15:00"
+    },
+    {
+      "id": 81,
+      "ofertaId": 34,
+      "professorId": null,
+      "salaId": 8,
+      "diaSemana": "QUINTA",
+      "horaInicio": "15:10",
+      "horaFim": "16:00"
+    },
+    {
+      "id": 82,
+      "ofertaId": 34,
+      "professorId": null,
+      "salaId": 8,
+      "diaSemana": "QUINTA",
+      "horaInicio": "16:00",
+      "horaFim": "16:50"
+    },
+    {
+      "id": 83,
+      "ofertaId": 35,
+      "professorId": null,
+      "salaId": 8,
+      "diaSemana": "QUINTA",
+      "horaInicio": "17:00",
+      "horaFim": "17:50"
+    },
+    {
+      "id": 84,
+      "ofertaId": 35,
+      "professorId": null,
+      "salaId": 8,
+      "diaSemana": "QUINTA",
+      "horaInicio": "17:50",
+      "horaFim": "18:40"
+    },
+    {
+      "id": 85,
+      "ofertaId": 36,
+      "professorId": null,
+      "salaId": 5,
+      "diaSemana": "SEXTA",
+      "horaInicio": "13:20",
+      "horaFim": "14:10"
+    },
+    {
+      "id": 86,
+      "ofertaId": 36,
+      "professorId": null,
+      "salaId": 5,
+      "diaSemana": "SEXTA",
+      "horaInicio": "14:10",
+      "horaFim": "15:00"
+    },
+    {
+      "id": 87,
+      "ofertaId": 37,
+      "professorId": null,
+      "salaId": 8,
+      "diaSemana": "SEXTA",
+      "horaInicio": "15:10",
+      "horaFim": "16:00"
+    },
+    {
+      "id": 88,
+      "ofertaId": 37,
+      "professorId": null,
+      "salaId": 8,
+      "diaSemana": "SEXTA",
+      "horaInicio": "16:00",
+      "horaFim": "16:50"
+    },
+    {
+      "id": 89,
+      "ofertaId": 38,
+      "professorId": null,
+      "salaId": 6,
+      "diaSemana": "SEGUNDA",
+      "horaInicio": "13:20",
+      "horaFim": "14:10"
+    },
+    {
+      "id": 90,
+      "ofertaId": 38,
+      "professorId": null,
+      "salaId": 6,
+      "diaSemana": "SEGUNDA",
+      "horaInicio": "14:10",
+      "horaFim": "15:00"
+    },
+    {
+      "id": 91,
+      "ofertaId": 39,
+      "professorId": null,
+      "salaId": 6,
+      "diaSemana": "SEGUNDA",
+      "horaInicio": "15:10",
+      "horaFim": "16:00"
+    },
+    {
+      "id": 92,
+      "ofertaId": 39,
+      "professorId": null,
+      "salaId": 6,
+      "diaSemana": "SEGUNDA",
+      "horaInicio": "16:00",
+      "horaFim": "16:50"
+    },
+    {
+      "id": 93,
+      "ofertaId": 40,
+      "professorId": null,
+      "salaId": 7,
+      "diaSemana": "SEGUNDA",
+      "horaInicio": "17:00",
+      "horaFim": "17:50"
+    },
+    {
+      "id": 94,
+      "ofertaId": 40,
+      "professorId": null,
+      "salaId": 7,
+      "diaSemana": "SEGUNDA",
+      "horaInicio": "17:50",
+      "horaFim": "18:40"
+    },
+    {
+      "id": 95,
+      "ofertaId": 41,
+      "professorId": null,
+      "salaId": 7,
+      "diaSemana": "TERCA",
+      "horaInicio": "13:20",
+      "horaFim": "14:10"
+    },
+    {
+      "id": 96,
+      "ofertaId": 41,
+      "professorId": null,
+      "salaId": 7,
+      "diaSemana": "TERCA",
+      "horaInicio": "14:10",
+      "horaFim": "15:00"
+    },
+    {
+      "id": 97,
+      "ofertaId": 42,
+      "professorId": null,
+      "salaId": 7,
+      "diaSemana": "TERCA",
+      "horaInicio": "15:10",
+      "horaFim": "16:00"
+    },
+    {
+      "id": 98,
+      "ofertaId": 42,
+      "professorId": null,
+      "salaId": 7,
+      "diaSemana": "TERCA",
+      "horaInicio": "16:00",
+      "horaFim": "16:50"
+    },
+    {
+      "id": 99,
+      "ofertaId": 43,
+      "professorId": null,
+      "salaId": 7,
+      "diaSemana": "QUARTA",
+      "horaInicio": "13:20",
+      "horaFim": "14:10"
+    },
+    {
+      "id": 100,
+      "ofertaId": 43,
+      "professorId": null,
+      "salaId": 7,
+      "diaSemana": "QUARTA",
+      "horaInicio": "14:10",
+      "horaFim": "15:00"
+    },
+    {
+      "id": 101,
+      "ofertaId": 43,
+      "professorId": null,
+      "salaId": 7,
+      "diaSemana": "QUARTA",
+      "horaInicio": "15:10",
+      "horaFim": "16:00"
+    },
+    {
+      "id": 102,
+      "ofertaId": 44,
+      "professorId": null,
+      "salaId": 7,
+      "diaSemana": "QUARTA",
+      "horaInicio": "16:00",
+      "horaFim": "16:50"
+    },
+    {
+      "id": 103,
+      "ofertaId": 44,
+      "professorId": null,
+      "salaId": 7,
+      "diaSemana": "QUARTA",
+      "horaInicio": "17:00",
+      "horaFim": "17:50"
+    },
+    {
+      "id": 104,
+      "ofertaId": 44,
+      "professorId": null,
+      "salaId": 7,
+      "diaSemana": "QUARTA",
+      "horaInicio": "17:50",
+      "horaFim": "18:40"
+    },
+    {
+      "id": 105,
+      "ofertaId": 45,
+      "professorId": null,
+      "salaId": 7,
+      "diaSemana": "QUINTA",
+      "horaInicio": "13:20",
+      "horaFim": "14:10"
+    },
+    {
+      "id": 106,
+      "ofertaId": 45,
+      "professorId": null,
+      "salaId": 7,
+      "diaSemana": "QUINTA",
+      "horaInicio": "14:10",
+      "horaFim": "15:00"
+    },
+    {
+      "id": 107,
+      "ofertaId": 46,
+      "professorId": null,
+      "salaId": 6,
+      "diaSemana": "QUINTA",
+      "horaInicio": "15:10",
+      "horaFim": "16:00"
+    },
+    {
+      "id": 108,
+      "ofertaId": 46,
+      "professorId": null,
+      "salaId": 6,
+      "diaSemana": "QUINTA",
+      "horaInicio": "16:00",
+      "horaFim": "16:50"
+    },
+    {
+      "id": 109,
+      "ofertaId": 47,
+      "professorId": null,
+      "salaId": 6,
+      "diaSemana": "QUINTA",
+      "horaInicio": "17:00",
+      "horaFim": "17:50"
+    },
+    {
+      "id": 110,
+      "ofertaId": 47,
+      "professorId": null,
+      "salaId": 6,
+      "diaSemana": "QUINTA",
+      "horaInicio": "17:50",
+      "horaFim": "18:40"
+    },
+    {
+      "id": 111,
+      "ofertaId": 48,
+      "professorId": null,
+      "salaId": 6,
+      "diaSemana": "SEXTA",
+      "horaInicio": "13:20",
+      "horaFim": "14:10"
+    },
+    {
+      "id": 112,
+      "ofertaId": 48,
+      "professorId": null,
+      "salaId": 6,
+      "diaSemana": "SEXTA",
+      "horaInicio": "14:10",
+      "horaFim": "15:00"
+    },
+    {
+      "id": 113,
+      "ofertaId": 49,
+      "professorId": null,
+      "salaId": 6,
+      "diaSemana": "SEXTA",
+      "horaInicio": "15:10",
+      "horaFim": "16:00"
+    },
+    {
+      "id": 114,
+      "ofertaId": 49,
+      "professorId": null,
+      "salaId": 6,
+      "diaSemana": "SEXTA",
+      "horaInicio": "16:00",
+      "horaFim": "16:50"
+    },
+    {
+      "id": 115,
+      "ofertaId": 50,
+      "professorId": null,
+      "salaId": 7,
+      "diaSemana": "SEXTA",
+      "horaInicio": "17:00",
+      "horaFim": "17:50"
+    },
+    {
+      "id": 116,
+      "ofertaId": 50,
+      "professorId": null,
+      "salaId": 7,
       "diaSemana": "SEXTA",
       "horaInicio": "17:50",
       "horaFim": "18:40"

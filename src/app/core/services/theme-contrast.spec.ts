@@ -94,11 +94,11 @@ describe('Contraste das telas acadêmicas', () => {
             ]);
             fixture.detectChanges();
             const element: HTMLElement = fixture.nativeElement;
-            const disponivel = element.querySelector('.equipamento__tag--total')!;
-            const nomeDisponivel = element.querySelector('.equipamento--total .equipamento__nome')!;
-            expect(disponivel.textContent).toBe('Disponível');
-            expect(getComputedStyle(disponivel).color).toBe(getComputedStyle(nomeDisponivel).color);
-            verificar(element, '.equipamento__tag, .equipamento__nome, .equipamento__quantidade');
+            const disponivel = element.querySelector('.equipamento__quantidade--total')!;
+            expect(disponivel.textContent?.trim()).toBe('1/1');
+            expect(element.querySelector('.equipamento__quantidade--parcial')?.textContent?.trim()).toBe('27/30');
+            expect(element.querySelector('.equipamento__quantidade--indisponivel')?.textContent?.trim()).toBe('0/1');
+            verificar(element, '.equipamento__nome, .equipamento__quantidade');
         });
     }
 });

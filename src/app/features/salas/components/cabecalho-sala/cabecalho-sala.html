@@ -1,34 +1,18 @@
-<a class="cabecalho-sala__voltar" routerLink="/salas">← Voltar para a lista de salas</a>
-
-<nav class="cabecalho-sala__breadcrumb" aria-label="Você está em">
-  <a routerLink="/salas">Salas</a>
-  <span aria-hidden="true">/</span>
-  <span>{{ sala().nome }}</span>
-</nav>
-
-<div class="cabecalho-sala__topo">
-  <h1>{{ sala().nome }}</h1>
-  <button type="button" class="cabecalho-sala__ver-alertas" (click)="verAlertas.emit()">
-    Ver alertas
-  </button>
-</div>
-
-<div class="cabecalho-sala__badges">
-  <app-status-sala-badge [status]="sala().status" />
-  <span class="cabecalho-sala__badge">{{ sala().predio }}</span>
-  <span class="cabecalho-sala__badge">{{ sala().andar }}º andar</span>
-  <span class="cabecalho-sala__badge">{{ sala().tipo }}</span>
-</div>
-
-<dl class="cabecalho-sala__resumo">
-  <div>
-    <dt>Capacidade</dt>
-    <dd>{{ sala().capacidade }} pessoas</dd>
+<div class="cabecalho-sala">
+  <app-icone-sala [nome]="sala().nome" [tipo]="sala().tipo" />
+  <div class="cabecalho-sala__conteudo">
+    <h2>{{ sala().tipo || sala().nome }}@if (sala().tipo) { <span class="cabecalho-sala__codigo">{{ sala().nome }}</span> }</h2>
+    <div class="cabecalho-sala__badges">
+      <span class="cabecalho-sala__badge">Prédio: <span>{{ sala().predio }}</span></span>
+      <span class="cabecalho-sala__badge">Andar: <span>{{ sala().andar }}</span></span>
+      @if (disponibilidade()?.status; as status) {
+        <app-status-sala-badge [status]="status" [texto]="disponibilidade()?.texto" />
+      } @else { <span class="cabecalho-sala__status-vazio" aria-label="Status não informado"></span> }
+    </div>
+    <div class="cabecalho-sala__resumo">
+      <span>Capacidade de alunos: <strong>{{ sala().capacidade }}</strong></span>
+      <span>Técnico: <strong></strong></span>
+    </div>
   </div>
-  @if (sala().tecnicoResponsavel; as tecnico) {
-  <div>
-    <dt>Técnico responsável</dt>
-    <dd>{{ tecnico.nome }}</dd>
-  </div>
-  }
-</dl>
+  <a class="cabecalho-sala__voltar" routerLink="/salas">Voltar</a>
+</div>

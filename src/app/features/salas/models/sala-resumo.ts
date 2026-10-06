@@ -17,8 +17,11 @@ export interface SalaApi {
 export interface SalaResumo {
   id: number;
   nome: string;
-  capacidade: number;
-  tipo: string;
+  capacidade?: number;
+  tipo?: string;
+  /** IDs das fontes são independentes; salas exclusivas do navegador usam local-{id}. */
+  rotaId?: string;
+  origem?: 'local' | 'java';
   predio?: string;
   andar?: number;
   status?: StatusSala;

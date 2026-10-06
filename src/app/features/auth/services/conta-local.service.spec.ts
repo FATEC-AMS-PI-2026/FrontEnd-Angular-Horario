@@ -77,7 +77,7 @@ describe('Cadastro e login com contas deste navegador', () => {
     await dados.disciplinas('1'); await dados.salvar('1', '1º ano', ['1']);
     const antes = await dados.catalogo();
     await banco.executar<void>('readwrite', store => {
-      store.delete('catalogo-fixo-v2-professores'); store.put(true, 'catalogo-fixo-v1');
+      store.delete('catalogo-fixo-v4-pge'); store.put(true, 'catalogo-fixo-v1');
     });
     const atualizado: CatalogoLocal = { ...catalogo, atualizadoEm: '2026-09-21',
       professores: [{ id: 9, nome: 'Lilian Oliveira' }],
@@ -92,10 +92,58 @@ describe('Cadastro e login com contas deste navegador', () => {
     expect(http.get).not.toHaveBeenCalled();
   });
 
+  it('acrescenta o segundo ano e salas sem perder a grade salva do primeiro ano', async () => {
+    await firstValueFrom(auth.cadastrar({ nome: 'Ana', email: 'ana@cps.sp.gov.br', senha: 'senha123' }));
+    await dados.disciplinas('1'); await dados.salvar('1', '1º ano', ['1']);
+    const antes = await dados.catalogo();
+    await banco.executar<void>('readwrite', store => {
+      store.delete('catalogo-fixo-v4-pge'); store.put(true, 'catalogo-fixo-v2-professores');
+    });
+    const novo = structuredClone(catalogo);
+    novo.salas = [{ id: 1, codigo: 'LAB 03' }, { id: 2, codigo: 'LAB 02' }];
+    novo.alocacoes[0].salaId = 1;
+    novo.disciplinas.push({ id: 2, nome: 'Disciplina segundo ano', periodo: 2, cursoId: 1 });
+    novo.turmas.push({ ...novo.turmas[0], id: 2, codigo: 'ADS2', periodo: 2 });
+    novo.ofertas.push({ id: 2, disciplinaId: 2, turmaId: 2 });
+    novo.alocacoes.push({ ...novo.alocacoes[0], id: 2, ofertaId: 2, salaId: 2 });
+    http.get.and.returnValue(of(novo));
+    await contas.prepararCatalogo();
+    expect((await dados.catalogo())?.revisao).toBe(antes?.revisao);
+    expect((await dados.carregarPerfil()).disciplinasIds).toEqual(['1']);
+    expect((await dados.grade('2026-09-14'))[0].sala?.codigo).toBe('LAB 03');
+    await dados.disciplinas('1'); await dados.salvar('1', '2º ano', ['2']);
+    expect((await dados.grade('2026-09-14'))[0].sala?.codigo).toBe('LAB 02');
+    await expectAsync(dados.salvar('1', '2º ano', ['1', '2'])).toBeRejected();
+  });
+
+  it('acrescenta outro curso sem invalidar ADS e mantém as matrizes separadas', async () => {
+    await firstValueFrom(auth.cadastrar({ nome: 'Ana', email: 'ana@cps.sp.gov.br', senha: 'senha123' }));
+    await dados.disciplinas('1'); await dados.salvar('1', '1º ano', ['1']);
+    const antes = await dados.catalogo();
+    await banco.executar<void>('readwrite', store => {
+      store.delete('catalogo-fixo-v4-pge'); store.put(true, 'catalogo-fixo-v3-salas-segundo-ano');
+    });
+    const novo = structuredClone(catalogo);
+    novo.cursos.push({ ...novo.cursos[0], id: 2, nome: 'PGE — AMS' });
+    novo.disciplinas.push({ id: 2, nome: 'Economia', periodo: 1, cursoId: 2 });
+    novo.turmas.push({ ...novo.turmas[0], id: 2, codigo: 'PGE1', cursoId: 2 });
+    novo.ofertas.push({ id: 2, disciplinaId: 2, turmaId: 2 });
+    novo.salas.push({ id: 1, codigo: 'Sala 9¾' });
+    novo.alocacoes.push({ ...novo.alocacoes[0], id: 2, ofertaId: 2, salaId: 1 });
+    http.get.and.returnValue(of(novo)); await contas.prepararCatalogo();
+    expect((await dados.catalogo())?.revisao).toBe(antes?.revisao);
+    expect((await dados.carregarPerfil()).disciplinasIds).toEqual(['1']);
+    expect((await dados.disciplinas('1')).map(d => d.id)).toEqual(['1']);
+    expect((await dados.disciplinas('2')).map(d => d.id)).toEqual(['2']);
+    await expectAsync(dados.salvar('1', '1º ano', ['2'])).toBeRejected();
+    await dados.salvar('2', '1º ano', ['2']);
+    expect((await dados.grade('2026-09-14'))[0].sala?.codigo).toBe('Sala 9¾');
+  });
+
   it('exige revisão das escolhas se a atualização também mudar os horários', async () => {
     await firstValueFrom(auth.cadastrar({ nome: 'Ana', email: 'ana@cps.sp.gov.br', senha: 'senha123' }));
     await dados.disciplinas('1'); await dados.salvar('1', '1º ano', ['1']);
-    await banco.executar<void>('readwrite', store => store.delete('catalogo-fixo-v2-professores'));
+    await banco.executar<void>('readwrite', store => store.delete('catalogo-fixo-v4-pge'));
     http.get.and.returnValue(of({ ...catalogo,
       alocacoes: catalogo.alocacoes.map(a => ({ ...a, horaInicio: '13:30' })) }));
     await contas.prepararCatalogo();

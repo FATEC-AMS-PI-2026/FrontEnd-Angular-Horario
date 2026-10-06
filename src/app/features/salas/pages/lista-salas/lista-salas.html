@@ -1,4 +1,4 @@
-<section class="lista-salas" aria-labelledby="titulo-lista-salas">
+<section class="lista-salas" aria-label="Lista de salas">
 
   <div class="lista-salas__filtros">
     <div class="lista-salas__busca-wrapper">
@@ -47,30 +47,40 @@
 
   @if (carregando()) {
   <p class="lista-salas__estado" role="status">Carregando salas...</p>
-  } @else if (erro()) {
+  }
+  @if (erro()) {
   <div class="lista-salas__estado lista-salas__estado--erro" role="alert">
     <p>{{ erro() }}</p>
     <button type="button" class="filtro-chip" (click)="tentarNovamente()">Tentar novamente</button>
   </div>
-  } @else {
+  }
+  @if (locais.erro(); as erroLocal) {
+  <div class="lista-salas__estado lista-salas__estado--erro" role="alert">
+    <p>{{ erroLocal }}</p>
+    <button type="button" class="filtro-chip" (click)="locais.carregar()">Tentar novamente</button>
+  </div>
+  }
+  @if (!carregando() || salas().length) {
   <ul class="grade-salas">
-    @for (sala of salasFiltradas(); track sala.id) {
+    @for (sala of salasFiltradas(); track sala.rotaId ?? sala.id) {
     <li>
-      <a class="card-sala" [routerLink]="['/salas', sala.id]">
+      <a class="card-sala" [routerLink]="['/salas', sala.rotaId ?? sala.id]">
         <div class="card-sala__cabecalho">
-          <h2>{{ sala.nome }}</h2>
-          @if (sala.status) {
-          <app-status-sala-badge [status]="sala.status" />
+          <app-icone-sala [nome]="sala.nome" [tipo]="sala.tipo" />
+          @if (disponibilidade(sala); as disponibilidade) {
+            @if (disponibilidade.status; as status) { <app-status-sala-badge [status]="status" /> }
           }
         </div>
-        @if (sala.predio) {
-        <p class="card-sala__local">{{ sala.predio }} · {{ sala.andar }}º andar</p>
-        }
-        <p class="card-sala__info">{{ sala.tipo }} · {{ sala.capacidade }} lugares</p>
+        <h2>{{ sala.nome }}</h2>
+        <p class="card-sala__info">{{ sala.tipo }}@if (sala.tipo && sala.capacidade !== undefined) { · }@if (sala.capacidade !== undefined) { {{ sala.capacidade }} lugares }</p>
+        @if (sala.predio) { <p class="card-sala__local">{{ sala.predio }}@if (sala.andar !== undefined) { · {{ sala.andar }}º andar }</p> }
+        <app-equipamentos-card [compacto]="true" [laboratorio]="(sala.tipo || sala.nome).toLowerCase().includes('lab')" />
       </a>
     </li>
     } @empty {
+    @if (!carregando() && !erro() && !locais.erro()) {
     <li class="lista-salas__vazio">{{ mensagemVazia() }}</li>
+    }
     }
   </ul>
   }

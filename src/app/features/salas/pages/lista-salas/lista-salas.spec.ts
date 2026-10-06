@@ -1,3 +1,5 @@
+import { signal, WritableSignal } from '@angular/core';
+import { SalasLocaisService } from '../../services/salas-locais';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
@@ -5,7 +7,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 
 import { ListaSalas } from './lista-salas';
 import { BACKEND_CONFIG } from '../../../../core/services/backend-config';
-import { SalaApi } from '../../models/sala-resumo';
+import { SalaApi, SalaResumo } from '../../models/sala-resumo';
 
 const BASE = 'https://backend.test';
 
@@ -22,6 +24,7 @@ describe('ListaSalas', () => {
       imports: [ListaSalas],
       providers: [
         provideRouter([]),
+      { provide: SalasLocaisService, useValue: { salas: signal([]), catalogo: signal(null), erro: signal(null), carregando: signal(false), carregar: () => {} } },
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: BACKEND_CONFIG, useValue: { habilitado: false, url: BASE, modulos: ['salas'] } },
@@ -52,7 +55,7 @@ describe('ListaSalas', () => {
 
     expect(cards().length).toBe(2);
     expect(cards()[1].querySelector('h2')?.textContent).toContain('SALA-21');
-    expect(cards()[1].querySelector('.card-sala__info')?.textContent).toContain('Sala · 50 lugares');
+    expect(cards()[1].querySelector('.card-sala__info')?.textContent?.replace(/\s+/g, ' ')).toContain('Sala · 50 lugares');
     // Prédio, andar e status ainda não vêm da API: nada de filtro de prédio, local ou badge.
     expect(elemento().querySelector('.lista-salas__filtro-predio')).toBeNull();
     expect(elemento().querySelector('.card-sala__local')).toBeNull();
@@ -88,5 +91,46 @@ describe('ListaSalas', () => {
     responder([sala(1, 'LAB-01', 'Laboratorio')]);
 
     expect(cards().length).toBe(1);
+  });
+
+  it('mantém salas locais navegáveis quando a API falha', () => {
+    const locais = TestBed.inject(SalasLocaisService);
+    (locais.salas as WritableSignal<SalaResumo[]>).set([{ id: 1, nome: 'LAB 03', rotaId: 'local-1', origem: 'local' }]);
+    http.expectOne(r => r.url === `${BASE}/salas`).error(new ProgressEvent('error'));
+    fixture.detectChanges();
+    expect(cards().length).toBe(1);
+    expect(cards()[0].getAttribute('href')).toBe('/salas/local-1');
+    expect(elemento().querySelector('[role="alert"]')).not.toBeNull();
+    expect(cards()[0].querySelector('.equipamento__quantidade')?.textContent?.trim()).toBe('');
+  });
+
+  it('aguarda o catálogo local antes de declarar a lista vazia', () => {
+    const locais = TestBed.inject(SalasLocaisService);
+    (locais.carregando as WritableSignal<boolean>).set(true);
+    responder([]);
+    expect(elemento().querySelector('[role="status"]')?.textContent).toContain('Carregando');
+    expect(elemento().querySelector('.lista-salas__vazio')).toBeNull();
+
+    (locais.carregando as WritableSignal<boolean>).set(false);
+    fixture.detectChanges();
+    expect(elemento().querySelector('.lista-salas__vazio')?.textContent).toContain('Nenhuma sala');
+  });
+
+  it('permite recuperar a leitura local sem refazer a consulta Java', () => {
+    const locais = TestBed.inject(SalasLocaisService);
+    const recarregar = spyOn(locais, 'carregar');
+    (locais.erro as WritableSignal<string | null>).set('Falha na leitura local');
+    responder([sala(1, 'LAB-01', 'Laboratorio')]);
+    expect(cards().length).toBe(1);
+    elemento().querySelector<HTMLButtonElement>('[role="alert"] button')!.click();
+    expect(recarregar).toHaveBeenCalledTimes(1);
+    http.expectNone(r => r.url === `${BASE}/salas`);
+  });
+
+  it('não apresenta falha de consulta como lista vazia', () => {
+    http.expectOne(r => r.url === `${BASE}/salas`).error(new ProgressEvent('error'));
+    fixture.detectChanges();
+    expect(elemento().querySelector('[role="alert"]')).not.toBeNull();
+    expect(elemento().querySelector('.lista-salas__vazio')).toBeNull();
   });
 });

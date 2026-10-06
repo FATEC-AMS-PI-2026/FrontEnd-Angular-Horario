@@ -9,7 +9,7 @@ import { StatusSala } from '../models/sala';
   selector: 'app-status-sala-badge',
   template: `
     <span class="badge" [class]="classeCor()">
-      {{ status() }}
+      {{ texto() || status() }}
     </span>
   `,
   styles: [
@@ -22,23 +22,28 @@ import { StatusSala } from '../models/sala';
         font-size: 0.8rem;
         font-weight: 600;
         line-height: 1.4;
-        white-space: nowrap;
-        color: #fff;
+        gap: 0.35rem;
+        max-width: 100%;
+        white-space: normal;
       }
       .badge-livre {
-        background: var(--color-status-free);
+        background: var(--tag-verde-bg);
+        color: var(--tag-verde-fg);
       }
       .badge-em-uso {
-        background: var(--color-status-busy);
+        background: var(--color-danger-bg);
+        color: var(--color-danger);
       }
       .badge-manutencao {
-        background: var(--color-status-maintenance);
+        background: var(--color-warning-bg);
+        color: var(--color-warning-fg);
       }
     `,
   ],
 })
 export class StatusSalaBadge {
   readonly status = input.required<StatusSala>();
+  readonly texto = input<string>();
   protected readonly classeCor = computed(() => {
     switch (this.status()) {
       case 'Livre':

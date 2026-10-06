@@ -1,42 +1,16 @@
-<section class="equipamentos-card">
-  <h2 class="equipamentos-card__titulo">Equipamentos</h2>
-
-  <ul class="equipamentos-card__lista">
-    @for (equipamento of equipamentos(); track equipamento.tipo) {
-      <li class="equipamento" [class]="'equipamento--' + disponibilidade(equipamento)">
-        <div class="equipamento__linha">
-          <span class="equipamento__nome">{{ equipamento.tipo }}</span>
-          <span class="equipamento__quantidade">
-            {{ equipamento.quantidadeDisponivel }} de {{ equipamento.quantidadeTotal }} disponíveis
-          </span>
-          @if (disponibilidade(equipamento) === 'total') {
-            <span class="equipamento__tag equipamento__tag--total">Disponível</span>
-          } @else if (disponibilidade(equipamento) === 'parcial') {
-            <span class="equipamento__tag equipamento__tag--parcial">Parcial</span>
-          } @else {
-            <span class="equipamento__tag">Indisponível</span>
-          }
-        </div>
-
-        <div
-          class="equipamento__indicador"
-          role="progressbar"
-          [attr.aria-valuenow]="proporcao(equipamento)"
-          aria-valuemin="0"
-          aria-valuemax="100"
-          [attr.aria-label]="
-            'Disponibilidade de ' + equipamento.tipo + ': ' + equipamento.quantidadeDisponivel +
-            ' de ' + equipamento.quantidadeTotal
-          "
-        >
-          <div
-            class="equipamento__indicador-preenchido"
-            [style.width.%]="proporcao(equipamento)"
-          ></div>
-        </div>
+<section class="equipamentos-card" [class.equipamentos-card--compacto]="compacto()" aria-label="Equipamentos">
+  @if (!compacto()) { <h2>Equipamentos</h2> }
+  <ul>
+    @for (linha of linhas(); track linha.tipo) {
+      <li>
+        <span class="equipamento__nome"><img [src]="'/icons/salas/' + linha.icone + '.png'" alt="" />{{ linha.nome }}</span>
+        <span class="equipamento__quantidade" [class.equipamento__quantidade--total]="linha.dado && linha.dado.quantidadeDisponivel >= linha.dado.quantidadeTotal"
+          [class.equipamento__quantidade--parcial]="linha.dado && linha.dado.quantidadeDisponivel > 0 && linha.dado.quantidadeDisponivel < linha.dado.quantidadeTotal"
+          [class.equipamento__quantidade--indisponivel]="linha.dado?.quantidadeDisponivel === 0"
+          [attr.aria-label]="linha.dado ? linha.dado.quantidadeDisponivel + ' de ' + linha.dado.quantidadeTotal + ' disponíveis' : linha.nome + ': informação não disponível'">
+          @if (linha.dado; as dado) { {{ dado.quantidadeDisponivel }}/{{ dado.quantidadeTotal }} }
+        </span>
       </li>
-    } @empty {
-      <li class="equipamentos-card__vazio">Nenhum equipamento cadastrado nesta sala.</li>
     }
   </ul>
 </section>

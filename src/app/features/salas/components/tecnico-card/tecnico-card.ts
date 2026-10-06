@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { Tecnico } from '../../models/tecnico';
 /**
  * Card com as informações do técnico responsável pela sala. Cobre os
@@ -11,5 +11,6 @@ import { Tecnico } from '../../models/tecnico';
   styleUrl: './tecnico-card.scss',
 })
 export class TecnicoCard {
-  readonly tecnico = input.required<Tecnico>();
+  readonly tecnico = input<Tecnico>();
+  protected readonly iniciais = computed(() => this.tecnico()?.nome.split(/\s+/).filter(Boolean).slice(0, 2).map(n => n[0]).join('') ?? '');
 }
