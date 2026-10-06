@@ -36,7 +36,8 @@
   .cabecalho,
   .linha {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    // Coluna de horário + uma por dia (5, ou 6 quando há aula no sábado).
+    grid-template-columns: repeat(calc(var(--colunas-dias, 5) + 1), minmax(0, 1fr));
   }
 
   .cabecalho {
@@ -91,6 +92,8 @@
 
   .etiqueta-materia {
     display: flex;
+    flex-direction: column;
+    gap: 2px;
     align-items: center;
     justify-content: center;
     width: 100%;
@@ -104,23 +107,29 @@
     font-weight: var(--fw-semibold);
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 
-    // As disciplinas conservam sua identidade; os tokens adaptam a paleta ao tema.
-    @each $disciplina, $cor in (pi: verde, bd: azul, ed: ciano, pm: roxo, ihc: rosa, ds: magenta) {
-      &.cor-#{$disciplina} {
+    // Cores sorteadas a cada carregamento (#115), sempre de dentro da paleta
+    // de tokens (PALETA_MATERIAS), que mantém o contraste nos dois temas.
+    @each $cor in ('verde', 'azul', 'ciano', 'roxo', 'rosa', 'magenta', 'indigo') {
+      &.cor-#{$cor} {
         background: var(--tag-#{$cor}-bg);
         color: var(--tag-#{$cor}-fg);
         border-color: var(--tag-#{$cor}-border);
       }
     }
 
-    &.cor-vazio {
-      background: transparent;
-      color: transparent;
-    }
-
-    &:not(.cor-vazio):hover {
+    &:hover {
       transform: scale(1.03);
       box-shadow: var(--shadow-card-hover);
+    }
+  }
+
+  .etiqueta-materia__professor {
+    font-size: var(--text-xs);
+    font-weight: var(--fw-regular);
+    opacity: 0.85;
+
+    &--a-definir {
+      font-style: italic;
     }
   }
 }
