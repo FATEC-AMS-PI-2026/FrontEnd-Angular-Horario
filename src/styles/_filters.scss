@@ -1,0 +1,86 @@
+// Busca e filtros usados nas listagens, no onboarding e no modal de horários.
+@mixin area {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+@mixin linha {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+@mixin grupo {
+    @include linha;
+    gap: var(--space-2xs);
+}
+
+@mixin campo {
+    min-width: 0;
+    min-height: var(--control-height);
+    padding: var(--control-padding-block) var(--space-md);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: inherit;
+    font-size: var(--text-sm);
+    font-weight: var(--fw-regular);
+    line-height: var(--leading-body);
+    box-shadow: var(--shadow-card);
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &::placeholder { color: var(--color-text-subtle); }
+
+    &:focus-visible {
+        border-color: var(--color-primary);
+        outline: 2px solid var(--color-primary);
+        outline-offset: 3px;
+    }
+}
+
+@mixin chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2xs);
+    min-height: var(--chip-height);
+    padding: var(--chip-padding-block) var(--space-sm);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    font-family: inherit;
+    font-size: var(--text-sm);
+    font-weight: var(--fw-semibold);
+    line-height: var(--leading-body);
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+
+    &:hover { border-color: var(--color-primary); color: var(--color-text); }
+    &:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+}
+
+@mixin chip-ativo {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-on-action);
+}
+
+// Emitidos uma vez no stylesheet global, sem duplicar o CSS em cada componente.
+@mixin utilitarios {
+    .filtro-campo { @include campo; }
+
+    .filtro-campo--busca {
+        width: 100%;
+        padding-left: var(--control-search-inset);
+    }
+
+    .filtro-chip { @include chip; }
+
+    .filtro-chip--ativo,
+    .filtro-chip--ativo:hover { @include chip-ativo; }
+}

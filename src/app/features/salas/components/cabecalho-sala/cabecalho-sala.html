@@ -3,15 +3,14 @@
   <div class="cabecalho-sala__conteudo">
     <h2>{{ sala().tipo || sala().nome }}@if (sala().tipo) { <span class="cabecalho-sala__codigo">{{ sala().nome }}</span> }</h2>
     <div class="cabecalho-sala__badges">
-      <span class="cabecalho-sala__badge">Prédio: <span>{{ sala().predio }}</span></span>
-      <span class="cabecalho-sala__badge">Andar: <span>{{ sala().andar }}</span></span>
+      @if (sala().predio) { <span class="cabecalho-sala__badge">Prédio: <span>{{ sala().predio }}</span></span> }
+      @if (sala().andar !== undefined) { <span class="cabecalho-sala__badge">Andar: <span>{{ sala().andar }}</span></span> }
       @if (disponibilidade()?.status; as status) {
         <app-status-sala-badge [status]="status" [texto]="disponibilidade()?.texto" />
       } @else { <span class="cabecalho-sala__status-vazio" aria-label="Status não informado"></span> }
     </div>
     <div class="cabecalho-sala__resumo">
       <span>Capacidade de alunos: <strong>{{ sala().capacidade }}</strong></span>
-      <span>Técnico: <strong></strong></span>
     </div>
   </div>
   <a class="cabecalho-sala__voltar" routerLink="/salas">Voltar</a>

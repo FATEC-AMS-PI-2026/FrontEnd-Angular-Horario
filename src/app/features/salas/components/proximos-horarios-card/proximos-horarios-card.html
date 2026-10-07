@@ -1,11 +1,22 @@
 <section class="proximos-horarios-card">
   <h2>Próximos horários</h2>
+  @if (carregando()) {
+    <p class="proximos-horarios-card__vazio" role="status">Carregando próximos horários...</p>
+  } @else {
+  @if (indisponivel()) {
+    <p class="proximos-horarios-card__vazio" role="status">Não foi possível consultar todos os horários desta sala.</p>
+  }
+  @if (horarios().length) {
   <ul>
     @for (horario of horarios(); track $index) {
       <li class="proximo-horario">
         <span class="proximo-horario__horario"><span>{{ horario.inicio }}</span><span>{{ horario.termino }}</span></span>
         <div><strong>{{ horario.atividade }}</strong><p>{{ horario.professor }}</p></div>
       </li>
-    } @empty { <li class="proximos-horarios-card__vazio" aria-label="Sem próximos horários disponíveis"></li> }
+    }
   </ul>
+  } @else if (!indisponivel()) {
+    <p class="proximos-horarios-card__vazio" role="status">Nenhuma outra aula cadastrada para esta sala hoje.</p>
+  }
+  }
 </section>

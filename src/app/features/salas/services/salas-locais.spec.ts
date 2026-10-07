@@ -1,6 +1,8 @@
-import { aulasLocaisDaSala, codigoSala, unirSalas } from './salas-locais';
+import { SalasLocaisService, aulasLocaisDaSala, codigoSala, unirSalas } from './salas-locais';
 import { aulasJavaDaSala, unirAulas, calcularDisponibilidade } from './disponibilidade-sala';
-import { CatalogoLocal } from '../../dados-locais/models/catalogo-local';
+import { CatalogoLocal, DadosLocaisError } from '../../dados-locais/models/catalogo-local';
+import { DadosLocaisService } from '../../dados-locais/services/dados-locais.service';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 
 function catalogo(): CatalogoLocal {
  return { versao: 1, titulo: 'Teste', atualizadoEm: '', vigenciaInicio: '2026-08-01', vigenciaFim: '2026-12-20', quadroHorario: {id:1,versao:1},
@@ -44,4 +46,19 @@ describe('Salas: combinação do Java com o catálogo local', () => {
    expect(aulasJavaDaSala(7,[alocacao],agora)[0].disciplina).toBe('');
    expect(aulasJavaDaSala(7,[{...alocacao,disciplina:{nome:'Disciplina Java'},professor:{nome:'Docente Java'},turma:{codigo:'Turma Java'}}],agora)[0].professor).toBe('Docente Java');
  });
+});
+
+describe('SalasLocaisService: falha de armazenamento', () => {
+ it('preserva a orientação do IndexedDB e recupera a leitura numa nova tentativa', fakeAsync(() => {
+   const consultar = jasmine.createSpy('catalogo').and.callFake(() =>
+     Promise.reject(new DadosLocaisError('Feche outras abas do site e tente novamente.')));
+   TestBed.configureTestingModule({ providers: [{ provide: DadosLocaisService, useValue: { catalogo: consultar } }] });
+   const service = TestBed.inject(SalasLocaisService); tick();
+   expect(service.erro()).toBe('Feche outras abas do site e tente novamente.');
+   expect(service.carregando()).toBeFalse();
+   consultar.and.callFake(() => Promise.resolve({ catalogo: catalogo(), revisao: 'teste', importadoEm: '' }));
+   service.carregar(); tick();
+   expect(service.erro()).toBeNull();
+   expect(service.salas()[0].nome).toBe('LAB 01');
+ }));
 });
