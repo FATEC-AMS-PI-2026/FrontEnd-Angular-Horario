@@ -8,8 +8,13 @@ img { width: 26px; height: 26px; object-fit: contain; flex: 0 0 auto; }
 .equipamento__quantidade--total { background: var(--tag-verde-bg); color: var(--tag-verde-fg); }
 .equipamento__quantidade--parcial { background: var(--color-warning-bg); color: var(--color-warning-fg); }
 .equipamento__quantidade--indisponivel { background: var(--color-danger-bg); color: var(--color-danger); }
+.equipamento__tipo { display: block; font-size: var(--text-xs); font-weight: var(--fw-regular); color: var(--color-text-muted); }
+.equipamento__quantidade--neutra { justify-self: start; min-width: 40px; text-align: center; line-height: 24px; color: var(--color-text); }
+.equipamentos-card__mensagem { margin: 0; color: var(--color-text-muted); font-size: var(--text-sm); }
 .equipamentos-card--compacto {
   ul { gap: var(--space-2xs); }
+  .equipamentos-card__mensagem { font-size: var(--text-xs); }
+  .equipamento__quantidade--neutra { line-height: 19px; }
   li { grid-template-columns: minmax(125px, 1.1fr) minmax(55px, 1fr); gap: var(--space-2xs); }
   img { width: 19px; height: 19px; }
   .equipamento__nome { font-size: var(--text-sm); }

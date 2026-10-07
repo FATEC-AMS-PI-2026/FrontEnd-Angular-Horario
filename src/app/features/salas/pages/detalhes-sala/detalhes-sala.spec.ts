@@ -52,6 +52,52 @@ describe('DetalhesSala', () => {
     expect(TestBed.inject(TopbarContextService).sala()).toBeNull();
   }));
 
+  describe('equipamentos vindos de /recurso-sala (#149)', () => {
+    function abrir() {
+      config.modulos = ['salas', 'alocacoes', 'recurso-sala'];
+      config.agendaSalasCompleta = false;
+      const fixture = TestBed.createComponent(DetalhesSala); fixture.detectChanges();
+      const recursos = http.expectOne(r => r.url === 'http://backend/recurso-sala');
+      expect(recursos.request.params.get('salaId')).toBe('73');
+      http.expectOne('http://backend/salas/73').flush(sala); tick(0);
+      fixture.detectChanges();
+      return { fixture, recursos };
+    }
+
+    it('lista os recursos reais da sala com nome, tipo e quantidade', fakeAsync(() => {
+      const { fixture, recursos } = abrir();
+      expect(fixture.nativeElement.textContent).toContain('Carregando equipamentos');
+      recursos.flush({ content: [
+        { id: 1, quantidade: 40, recurso: { id: 2, nome: 'Computador desktop', tipo: { id: 1, nome: 'Equipamento' } } },
+        { id: 2, quantidade: 1, recurso: { id: 1, nome: 'Projetor multimidia', tipo: { id: 1, nome: 'Equipamento' } } },
+      ], page: 0, totalPages: 1 });
+      fixture.detectChanges();
+      const card: HTMLElement = fixture.nativeElement.querySelector('app-equipamentos-card');
+      expect(card.textContent).toContain('Computador desktop');
+      expect(card.textContent).toContain('Projetor multimidia');
+      expect(card.textContent).not.toContain('Wi-fi');
+      const quantidades = Array.from(card.querySelectorAll('.equipamento__quantidade')).map(q => q.textContent?.trim());
+      expect(quantidades).toEqual(['40', '1']);
+      expect(card.querySelector('img')?.getAttribute('src')).toBe('/icons/salas/computador.png');
+    }));
+
+    it('avisa quando a sala não tem recurso cadastrado', fakeAsync(() => {
+      const { fixture, recursos } = abrir();
+      recursos.flush({ content: [], page: 0, totalPages: 0 });
+      fixture.detectChanges();
+      expect(fixture.nativeElement.textContent).toContain('Nenhum equipamento cadastrado');
+      expect(fixture.nativeElement.querySelector('.equipamento__quantidade')).toBeNull();
+    }));
+
+    it('mostra erro só no card quando a consulta de recursos falha', fakeAsync(() => {
+      const { fixture, recursos } = abrir();
+      recursos.flush({}, { status: 500, statusText: 'Erro' });
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector('app-equipamentos-card [role="alert"]')).not.toBeNull();
+      expect(fixture.nativeElement.textContent).toContain('LAB-REAL');
+    }));
+  });
+
   it('preserva cadastro e não afirma Livre quando a agenda falha', fakeAsync(() => {
     const fixture = TestBed.createComponent(DetalhesSala);
     http.expectOne('http://backend/salas/73').flush(sala); tick(0);

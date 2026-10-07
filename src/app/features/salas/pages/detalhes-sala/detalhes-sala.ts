@@ -2,10 +2,12 @@ import { Component, DestroyRef, computed, effect, inject } from '@angular/core';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { catchError, combineLatest, concat, exhaustMap, map, of, startWith, Subject, switchMap, timer } from 'rxjs';
+import { catchError, combineLatest, concat, exhaustMap, map, Observable, of, startWith, Subject, switchMap, timer } from 'rxjs';
 import { SalasApiService } from '../../services/salas-api';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
+import { BackendIndisponivelError } from '../../../../core/services/backend-config';
 import { SalaResumo } from '../../models/sala-resumo';
+import { RecursoSala } from '../../models/recurso-sala';
 import { CabecalhoSala } from '../../components/cabecalho-sala/cabecalho-sala';
 import { RelogioService } from '../../services/relogio';
 import { AlocacaoSalaApi, aulasJavaDaSala, calcularDisponibilidade, DisponibilidadeSalaService, unirAulas } from '../../services/disponibilidade-sala';
@@ -17,6 +19,7 @@ import { AulasDoDiaCard } from '../../components/aulas-do-dia-card/aulas-do-dia-
 import { TecnicoCard } from '../../components/tecnico-card/tecnico-card';
 import { horarioAcademico } from '../../../dashboard/models/grade-dia.model';
 
+interface EstadoRecursos { lista: RecursoSala[] | null; carregando?: boolean; erro?: string }
 interface EstadoDetalhes {
   sala?: SalaResumo;
   carregando?: boolean;
@@ -83,6 +86,22 @@ export class DetalhesSala {
       startWith<EstadoDetalhes>({ carregando: true }),
     );
   })), { initialValue: { carregando: true } as EstadoDetalhes });
+
+  /** Recursos vêm de `/recurso-sala`, separado da sala (#149). Salas só do navegador não têm. */
+  protected readonly recursos = toSignal(combineLatest([
+    this.route.paramMap, this.recarregar.pipe(startWith(undefined)),
+  ]).pipe(switchMap(([params]): Observable<EstadoRecursos> => {
+    const parametro = params.get('id') ?? '';
+    const id = Number(parametro);
+    if (!/^\d+$/.test(parametro) || !Number.isSafeInteger(id) || id <= 0) return of({ lista: null });
+    return this.salas.obterRecursos(id).pipe(
+      map(lista => ({ lista })),
+      // Sem o módulo `recurso-sala` liberado, o card segue no formato antigo em vez de mostrar erro.
+      catchError(erro => of(erro instanceof BackendIndisponivelError ? { lista: null }
+        : { lista: null, erro: this.erros.mensagem(erro, 'Não foi possível carregar os equipamentos.') })),
+      startWith({ lista: null, carregando: true }),
+    );
+  })), { initialValue: { lista: null, carregando: true } as EstadoRecursos });
 
   protected readonly disponibilidade = computed(() => {
     const estado = this.estado();

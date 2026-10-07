@@ -134,3 +134,63 @@ describe('ListaSalas', () => {
     expect(elemento().querySelector('.lista-salas__vazio')).toBeNull();
   });
 });
+
+describe('ListaSalas: equipamentos de /recurso-sala (#149)', () => {
+  let fixture: ComponentFixture<ListaSalas>;
+  let http: HttpTestingController;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [ListaSalas],
+      providers: [
+        provideRouter([]),
+        { provide: SalasLocaisService, useValue: { salas: signal([]), catalogo: signal(null), erro: signal(null), carregando: signal(false), carregar: () => {} } },
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: BACKEND_CONFIG, useValue: { habilitado: false, url: BASE, modulos: ['salas', 'recurso-sala'] } },
+      ],
+    }).compileComponents();
+    http = TestBed.inject(HttpTestingController);
+    fixture = TestBed.createComponent(ListaSalas);
+    fixture.detectChanges();
+    http.expectOne(r => r.url === `${BASE}/salas`).flush({
+      content: [sala(1, 'LAB-01', 'Laboratorio'), sala(3, 'AUD-01', 'Sala')], page: 0, size: 200, totalElements: 2, totalPages: 1,
+    });
+  });
+
+  afterEach(() => http.verify());
+
+  function recurso(salaId: number, nome: string, quantidade: number) {
+    return { id: salaId * 10 + quantidade, quantidade, sala: { id: salaId }, recurso: { id: quantidade, nome, tipo: { id: 1, nome: 'Equipamento' } } };
+  }
+  function cards(): HTMLElement[] {
+    return Array.from(fixture.nativeElement.querySelectorAll('.card-sala'));
+  }
+
+  it('busca os recursos numa chamada só e mostra os de cada sala no card', () => {
+    fixture.detectChanges();
+    expect(cards()[0].textContent).toContain('Carregando equipamentos');
+    const req = http.expectOne(r => r.url === `${BASE}/recurso-sala`);
+    expect(req.request.params.get('salaId')).toBeNull();
+    req.flush({ content: [
+      recurso(1, 'Computador desktop', 40), recurso(1, 'Projetor multimidia', 1),
+      recurso(1, 'Kit Arduino', 10), recurso(1, 'Mesa de reuniao', 12),
+    ], page: 0, totalPages: 1 });
+    fixture.detectChanges();
+    const [lab, aud] = cards();
+    expect(lab.textContent).toContain('Computador desktop');
+    expect(lab.textContent).toContain('Kit Arduino');
+    expect(lab.textContent).not.toContain('Mesa de reuniao');
+    expect(lab.textContent).toContain('+1 outro');
+    expect(lab.textContent).not.toContain('Wi-fi');
+    expect(aud.textContent).toContain('Nenhum equipamento cadastrado');
+  });
+
+  it('avisa no card quando a consulta de recursos falha, sem esconder as salas', () => {
+    http.expectOne(r => r.url === `${BASE}/recurso-sala`).flush({}, { status: 500, statusText: 'Erro' });
+    fixture.detectChanges();
+    expect(cards().length).toBe(2);
+    expect(cards()[0].textContent).toContain('Equipamentos indisponíveis');
+  });
+});
+

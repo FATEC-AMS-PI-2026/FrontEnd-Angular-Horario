@@ -74,7 +74,9 @@
         <h2>{{ sala.nome }}</h2>
         <p class="card-sala__info">{{ sala.tipo }}@if (sala.tipo && sala.capacidade !== undefined) { · }@if (sala.capacidade !== undefined) { {{ sala.capacidade }} lugares }</p>
         @if (sala.predio) { <p class="card-sala__local">{{ sala.predio }}@if (sala.andar !== undefined) { · {{ sala.andar }}º andar }</p> }
-        <app-equipamentos-card [compacto]="true" [laboratorio]="(sala.tipo || sala.nome).toLowerCase().includes('lab')" />
+        <app-equipamentos-card [compacto]="true" [laboratorio]="(sala.tipo || sala.nome).toLowerCase().includes('lab')"
+          [recursos]="recursosDa(sala)" [carregandoRecursos]="sala.origem !== 'local' && carregandoRecursos()"
+          [erroRecursos]="sala.origem !== 'local' ? erroRecursos() : null" />
       </a>
     </li>
     } @empty {

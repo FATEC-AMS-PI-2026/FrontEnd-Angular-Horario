@@ -12,7 +12,8 @@
       <div role="alert" class="detalhes-sala__aviso"><p>{{ erroLocal }}</p><button type="button" (click)="locais.carregar()">Tentar novamente</button></div>
     }
     <div class="detalhes-sala__card detalhes-sala__recursos">
-      <app-equipamentos-card />
+      <app-equipamentos-card [recursos]="recursos().lista" [carregandoRecursos]="recursos().carregando ?? false"
+        [erroRecursos]="recursos().erro ?? null" />
       <app-proximos-horarios-card [horarios]="proximos()" />
     </div>
     <div class="detalhes-sala__card detalhes-sala__agenda">

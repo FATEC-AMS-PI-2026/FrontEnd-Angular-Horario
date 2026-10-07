@@ -7,7 +7,7 @@ export const environment = {
     apiUrl: 'http://localhost:8080',
     // Módulos já integrados ao Java, liberados mesmo com `backendHabilitado`
     // desligado (que continua controlando login/perfil). Ver issue #132.
-    modulosBackend: ['salas', 'alocacoes'],
+    modulosBackend: ['salas', 'alocacoes', 'recurso-sala'],
     // Requer Java no perfil dev com app.security.authorization.enabled=false.
     // Desativar se /alocacoes passar a restringir os resultados por curso.
     agendaSalasCompleta: true,

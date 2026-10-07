@@ -4,6 +4,7 @@ import { BACKEND_CONFIG } from '../../../core/services/backend-config';
 import { ApiErrorService } from '../../../core/services/api-error.service';
 import { PageResponse } from '../../../core/models/page-response';
 import { SalaApi, SalaResumo } from '../models/sala-resumo';
+import { RecursoSala, RecursoSalaApi } from '../models/recurso-sala';
 import { map } from 'rxjs';
 
 /**
@@ -14,6 +15,10 @@ const TAMANHO_PAGINA = 200;
 
 function paraSalaResumo(sala: SalaApi): SalaResumo {
   return { id: sala.id, nome: sala.codigo, capacidade: sala.capacidade, tipo: sala.tipoSala.nome };
+}
+
+function paraRecursoSala(item: RecursoSalaApi): RecursoSala {
+  return { nome: item.recurso.nome, tipo: item.recurso.tipo?.nome ?? null, quantidade: item.quantidade };
 }
 
 /**
@@ -37,6 +42,34 @@ export class SalasApiService {
 
   obterPorId(id: number) {
     return this.http.get<SalaApi>(`${this.baseUrl}/salas/${id}`).pipe(map(paraSalaResumo));
+  }
+
+  private readonly config = inject(BACKEND_CONFIG);
+
+  /** `/recurso-sala` só é consultado quando o módulo foi liberado no environment. */
+  get recursosIntegrados(): boolean {
+    return this.config.habilitado || (this.config.modulos ?? []).includes('recurso-sala');
+  }
+
+  /** Todos os recursos de uma vez, agrupados pelo ID da sala, para os cards da lista (#149). */
+  listarRecursosPorSala() {
+    return this.http
+      .get<PageResponse<RecursoSalaApi>>(`${this.baseUrl}/recurso-sala`, { params: { page: 0, size: TAMANHO_PAGINA } })
+      .pipe(map(pagina => {
+        const porSala = new Map<number, RecursoSala[]>();
+        for (const item of pagina.content) {
+          if (item.sala?.id == null) continue;
+          porSala.set(item.sala.id, [...(porSala.get(item.sala.id) ?? []), paraRecursoSala(item)]);
+        }
+        return porSala;
+      }));
+  }
+
+  /** Os recursos da sala ficam num endpoint separado da sala (`/recurso-sala`), #149. */
+  obterRecursos(salaId: number) {
+    return this.http
+      .get<PageResponse<RecursoSalaApi>>(`${this.baseUrl}/recurso-sala`, { params: { salaId, page: 0, size: TAMANHO_PAGINA } })
+      .pipe(map(pagina => pagina.content.map(paraRecursoSala)));
   }
 
   carregar(): void {

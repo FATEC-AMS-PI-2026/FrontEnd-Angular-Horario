@@ -10,6 +10,7 @@ import { RelogioService } from '../../services/relogio';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, exhaustMap, map, of, startWith, timer } from 'rxjs';
 import { SalaResumo } from '../../models/sala-resumo';
+import { RecursoSala } from '../../models/recurso-sala';
 
 /**
  * Página de listagem de salas, com dados do backend Java (issue #132). Cada
@@ -39,6 +40,20 @@ export class ListaSalas {
     const aulas = unirAulas(aulasJavaDaSala(sala.id, agenda, this.agora()), aulasLocaisDaSala(this.locais.catalogo(), sala.nome, this.agora()));
     return calcularDisponibilidade(sala.id, agenda, this.agora(), aulas.filter(a => a.origem === 'local'));
   }
+  /** Recursos de todas as salas numa só chamada (#149); `null` = card no formato antigo. */
+  private readonly recursosEstado = toSignal(this.salasApi.recursosIntegrados
+    ? this.salasApi.listarRecursosPorSala().pipe(
+      map(mapa => ({ mapa, carregando: false, erro: false })),
+      catchError(() => of({ mapa: null, carregando: false, erro: true })),
+      startWith({ mapa: null, carregando: true, erro: false }))
+    : of({ mapa: null, carregando: false, erro: false }),
+  { initialValue: { mapa: null as Map<number, RecursoSala[]> | null, carregando: false, erro: false } });
+  protected recursosDa(sala: SalaResumo): RecursoSala[] | null {
+    const mapa = this.recursosEstado().mapa;
+    return sala.origem === 'local' || !mapa ? null : mapa.get(sala.id) ?? [];
+  }
+  protected readonly carregandoRecursos = computed(() => this.recursosEstado().carregando);
+  protected readonly erroRecursos = computed(() => this.recursosEstado().erro ? 'Equipamentos indisponíveis no momento.' : null);
   protected readonly carregando = computed(() => this.salasApi.carregando() || this.locais.carregando());
   protected readonly erro = this.salasApi.erro;
 
