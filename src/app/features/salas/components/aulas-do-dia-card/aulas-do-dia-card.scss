@@ -6,4 +6,5 @@ ul { display: grid; gap: var(--space-xs); padding: 0; margin: 0; list-style: non
 .aula-do-dia__conteudo { min-width: 0; overflow-wrap: anywhere; p { margin: var(--space-3xs) 0 0; color: var(--color-text-subtle); font-size: var(--text-sm); } }
 .aula-do-dia__badge { margin-left: auto; align-self: flex-start; border-radius: var(--radius-pill); padding: var(--space-3xs) var(--space-xs); color: var(--color-on-primary); background: var(--color-primary); font-size: var(--text-xs); }
 .aula-do-dia--agora { border-left-color: var(--color-primary); }
-.aulas-do-dia-card__vazio { min-height: 64px; border-radius: var(--radius-sala); background: var(--color-bg); }
+.aulas-do-dia-card__vazio { margin: 0; color: var(--color-text-muted); font-size: var(--text-sm); line-height: 1.5; }
+.aulas-do-dia-card__vazio + ul { margin-top: var(--space-xs); }

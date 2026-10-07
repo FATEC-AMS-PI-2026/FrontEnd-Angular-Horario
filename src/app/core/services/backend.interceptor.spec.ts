@@ -22,11 +22,11 @@ describe('Conexão futura com o backend', () => {
     });
     afterEach(() => http.verify());
 
-    it('bloqueia operações remotas desativadas e apresenta orientação para os dados locais', () => {
+    it('bloqueia operações remotas desativadas e informa a indisponibilidade', () => {
         let erro: unknown;
         client.post('https://backend.test/api/auth/cadastro', {}).subscribe({ error: e => erro = e });
         expect(erro).toBeInstanceOf(BackendIndisponivelError);
-        expect(TestBed.inject(ApiErrorService).mensagem(erro, 'Falha')).toContain('tela de cadastro');
+        expect(TestBed.inject(ApiErrorService).mensagem(erro, 'Falha')).toContain('ainda não está disponível');
         http.expectNone('https://backend.test/api/auth/cadastro');
     });
 

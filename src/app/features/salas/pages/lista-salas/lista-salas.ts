@@ -5,12 +5,19 @@ import { StatusSalaBadge } from '../../components/status-sala-badge';
 import { SalasLocaisService, unirSalas, aulasLocaisDaSala } from '../../services/salas-locais';
 import { IconeSala } from '../../components/icone-sala';
 import { EquipamentosCard } from '../../components/equipamentos-card/equipamentos-card';
-import { DisponibilidadeSalaService, calcularDisponibilidade, aulasJavaDaSala, unirAulas } from '../../services/disponibilidade-sala';
+import { AlocacaoSalaApi, DisponibilidadeSalaService, calcularDisponibilidade, aulasJavaDaSala, unirAulas } from '../../services/disponibilidade-sala';
 import { RelogioService } from '../../services/relogio';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { catchError, exhaustMap, map, of, startWith, timer } from 'rxjs';
+import { Subject, catchError, exhaustMap, map, merge, of, startWith, timer } from 'rxjs';
 import { SalaResumo } from '../../models/sala-resumo';
 import { RecursosSalaService } from '../../services/recursos-sala';
+import { ApiErrorService } from '../../../../core/services/api-error.service';
+
+interface EstadoAgenda {
+  alocacoes: AlocacaoSalaApi[] | null;
+  carregando: boolean;
+  erro: string | null;
+}
 
 /**
  * Página de listagem de salas, com dados do backend Java (issue #132). Cada
@@ -31,14 +38,21 @@ export class ListaSalas {
   protected readonly locais = inject(SalasLocaisService);
   private readonly horarios = inject(DisponibilidadeSalaService);
   private readonly relogio = inject(RelogioService);
+  private readonly erros = inject(ApiErrorService);
+  private readonly recarregarAgenda = new Subject<void>();
   protected readonly salas = computed(() => unirSalas(this.erro() ? [] : this.salasApi.salas(), this.locais.salas()));
-  private readonly agenda = toSignal(this.horarios.agendaCompleta ? timer(0, 60000).pipe(
-    exhaustMap(() => this.horarios.carregar().pipe(catchError(() => of(null)), startWith(null))),
-  ) : of(null));
+  protected readonly estadoAgenda = toSignal(this.horarios.agendaCompleta
+    ? merge(timer(0, 60000), this.recarregarAgenda).pipe(exhaustMap(() => this.horarios.carregar().pipe(
+      map(alocacoes => ({ alocacoes, carregando: false, erro: null } as EstadoAgenda)),
+      catchError(erro => of<EstadoAgenda>({ alocacoes: null, carregando: false,
+        erro: this.erros.mensagem(erro, 'Não foi possível consultar a disponibilidade das salas.') })),
+      startWith<EstadoAgenda>({ alocacoes: null, carregando: true, erro: null }),
+    ))) : of<EstadoAgenda>({ alocacoes: null, carregando: false, erro: null }),
+    { initialValue: { alocacoes: null, carregando: this.horarios.agendaCompleta, erro: null } as EstadoAgenda });
   private readonly agora = toSignal(timer(0, 1000).pipe(map(() => this.relogio.agora())), { initialValue: this.relogio.agora() });
   protected disponibilidade(sala: SalaResumo) {
-    const agenda = this.agenda();
-    if (sala.origem === 'local' || !agenda) return undefined;
+    const agenda = this.estadoAgenda().alocacoes;
+    if (sala.origem === 'local' || !agenda || this.locais.carregando() || this.locais.erro()) return undefined;
     const aulas = unirAulas(aulasJavaDaSala(sala.id, agenda, this.agora()), aulasLocaisDaSala(this.locais.catalogo(), sala.nome, this.agora()));
     return calcularDisponibilidade(sala.id, agenda, this.agora(), aulas.filter(a => a.origem === 'local'));
   }
@@ -140,4 +154,6 @@ export class ListaSalas {
     this.salasApi.carregar();
     this.locais.carregar();
   }
+
+  protected tentarDisponibilidade(): void { this.recarregarAgenda.next(); }
 }

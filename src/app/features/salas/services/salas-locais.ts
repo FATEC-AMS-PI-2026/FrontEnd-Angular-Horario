@@ -5,6 +5,7 @@ import { CatalogoLocal } from '../../dados-locais/models/catalogo-local';
 import { SalaResumo } from '../models/sala-resumo';
 import { AulaDoDia } from '../models/aula-do-dia';
 import { dataAcademica, diaSemana } from '../../dashboard/models/grade-dia.model';
+import { ApiErrorService } from '../../../core/services/api-error.service';
 
 /** Ignora apenas diferenças de separação. Preserva zeros e frações, como Sala 9¾. */
 export const codigoSala = (codigo: string) => codigo.trim().toLocaleUpperCase('pt-BR').replace(/[\s-]+/g, '');
@@ -35,6 +36,7 @@ export function aulasLocaisDaSala(c: CatalogoLocal | null, codigo: string, agora
 @Injectable({ providedIn: 'root' })
 export class SalasLocaisService {
   private readonly dados = inject(DadosLocaisService);
+  private readonly erros = inject(ApiErrorService);
   readonly catalogo = signal<CatalogoLocal | null>(null);
   readonly erro = signal<string | null>(null);
   readonly carregando = signal(true);
@@ -48,7 +50,7 @@ export class SalasLocaisService {
     this.carregando.set(true);
     this.erro.set(null);
     this.dados.catalogo().then(salvo => this.catalogo.set(salvo?.catalogo ?? null))
-      .catch(() => this.erro.set('Não foi possível consultar os dados deste navegador.'))
+      .catch(erro => this.erro.set(this.erros.mensagem(erro, 'Não foi possível consultar os dados deste navegador.')))
       .finally(() => this.carregando.set(false));
   }
 }

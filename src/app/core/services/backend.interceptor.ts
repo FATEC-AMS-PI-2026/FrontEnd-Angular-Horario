@@ -14,7 +14,7 @@ export const backendInterceptor: HttpInterceptorFn = (request, next) => {
     const moduloIntegrado = !!modulo && (config.modulos ?? []).includes(modulo);
     if (!config.habilitado && !moduloIntegrado) {
         return throwError(() => new BackendIndisponivelError(
-            'Esta operação depende do backend, que ainda não está integrado. Crie uma conta neste navegador pela tela de cadastro.',
+            'Esta funcionalidade ainda não está disponível. Tente novamente mais tarde.',
         ));
     }
     // TEMPORÁRIO: excluir a verificação de tokens locais após integrar o backend Java.

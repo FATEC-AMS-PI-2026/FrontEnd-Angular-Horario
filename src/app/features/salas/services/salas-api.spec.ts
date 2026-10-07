@@ -23,7 +23,7 @@ describe('SalasApiService', () => {
 
   afterEach(() => http.verify());
 
-  it('busca GET /salas pedindo tudo numa página e converte para o formato da tela', () => {
+  it('busca GET /salas e converte para o formato da tela', () => {
     service.carregar();
     expect(service.carregando()).toBeTrue();
 
@@ -46,5 +46,41 @@ describe('SalasApiService', () => {
 
     expect(service.carregando()).toBeFalse();
     expect(service.erro()).toContain('Não foi possível conectar ao servidor');
+  });
+
+  it('carrega todas as páginas e só publica a lista completa', () => {
+    const sala = { id: 1, codigo: 'LAB-01', capacidade: 40, tipoSala: { id: 1, nome: 'Laboratório' } };
+    service.carregar();
+    http.expectOne(r => r.params.get('page') === '0').flush({ content: [sala], page: 0, totalPages: 2 });
+    expect(service.salas()).toEqual([]);
+    expect(service.carregando()).toBeTrue();
+    http.expectOne(r => r.params.get('page') === '1').flush({ content: [{ ...sala, id: 2, codigo: 'LAB-02' }], page: 1, totalPages: 2 });
+    expect(service.salas().map(s => s.nome)).toEqual(['LAB-01', 'LAB-02']);
+    expect(service.carregando()).toBeFalse();
+  });
+
+  it('descarta páginas parciais em falhas e cancela consultas substituídas', () => {
+    service.carregar();
+    const antiga = http.expectOne(r => r.params.get('page') === '0');
+    service.carregar();
+    expect(antiga.cancelled).toBeTrue();
+    http.expectOne(r => r.params.get('page') === '0').flush({ content: [{ id: 1 }], page: 0, totalPages: 2 });
+    http.expectOne(r => r.params.get('page') === '1').error(new ProgressEvent('error'));
+    expect(service.salas()).toEqual([]);
+    expect(service.erro()).toBeTruthy();
+    service.carregar();
+    http.expectOne(r => r.params.get('page') === '0').flush({ content: [], page: 0, totalPages: 0 });
+    expect(service.erro()).toBeNull();
+    expect(service.carregando()).toBeFalse();
+  });
+
+  it('trata paginação e cadastros inválidos como erro, não como uma lista vazia válida', () => {
+    service.carregar();
+    http.expectOne(r => r.params.get('page') === '0').flush({ content: [], page: 0, totalPages: 2 });
+    expect(service.erro()).toBeTruthy();
+    service.carregar();
+    http.expectOne(r => r.params.get('page') === '0').flush({ content: [{ id: 1 }], page: 0, totalPages: 1 });
+    expect(service.erro()).toBeTruthy();
+    expect(service.salas()).toEqual([]);
   });
 });
