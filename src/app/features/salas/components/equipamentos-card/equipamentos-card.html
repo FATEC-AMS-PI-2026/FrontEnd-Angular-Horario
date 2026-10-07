@@ -1,40 +1,31 @@
 <section class="equipamentos-card" [class.equipamentos-card--compacto]="compacto()" aria-label="Equipamentos">
   @if (!compacto()) { <h2>Equipamentos</h2> }
-  @if (carregandoRecursos()) {
+  @if (carregando()) {
     <p class="equipamentos-card__mensagem" role="status">Carregando equipamentos...</p>
-  } @else if (erroRecursos(); as erro) {
-    <p class="equipamentos-card__mensagem" role="alert">{{ erro }}</p>
-  } @else if (recursos(); as lista) {
-    @if (lista.length) {
-      <ul>
-        @for (recurso of linhasRecursos(); track recurso.nome) {
-          <li>
-            <span class="equipamento__nome">
-              @if (recurso.icone) { <img [src]="'/icons/salas/' + recurso.icone + '.png'" alt="" /> }
-              <span>{{ recurso.nome }}@if (recurso.tipo && !compacto()) { <small class="equipamento__tipo">{{ recurso.tipo }}</small> }</span>
-            </span>
-            <span class="equipamento__quantidade equipamento__quantidade--neutra"
-              [attr.aria-label]="recurso.quantidade + (recurso.quantidade === 1 ? ' unidade' : ' unidades')">{{ recurso.quantidade }}</span>
-          </li>
-        }
-      </ul>
-      @if (restantes()) { <p class="equipamentos-card__mensagem">+{{ restantes() }} {{ restantes() === 1 ? 'outro' : 'outros' }}</p> }
-    } @else {
-      <p class="equipamentos-card__mensagem" role="status">Nenhum equipamento cadastrado</p>
-    }
+  } @else if (erro(); as mensagem) {
+    <p class="equipamentos-card__mensagem" role="alert">{{ mensagem }}</p>
+  } @else if (equipamentos() === null) {
+    <p class="equipamentos-card__mensagem">Informação de equipamentos não disponível</p>
+  } @else if (!linhas().length) {
+    <p class="equipamentos-card__mensagem" role="status">Nenhum equipamento cadastrado</p>
   } @else {
   <ul>
-    @for (linha of linhas(); track linha.tipo) {
+    @for (linha of linhas(); track linha.chave) {
       <li>
-        <span class="equipamento__nome"><img [src]="'/icons/salas/' + linha.icone + '.png'" alt="" />{{ linha.nome }}</span>
-        <span class="equipamento__quantidade" [class.equipamento__quantidade--total]="linha.dado && linha.dado.quantidadeDisponivel >= linha.dado.quantidadeTotal"
-          [class.equipamento__quantidade--parcial]="linha.dado && linha.dado.quantidadeDisponivel > 0 && linha.dado.quantidadeDisponivel < linha.dado.quantidadeTotal"
-          [class.equipamento__quantidade--indisponivel]="linha.dado?.quantidadeDisponivel === 0"
-          [attr.aria-label]="linha.dado ? linha.dado.quantidadeDisponivel + ' de ' + linha.dado.quantidadeTotal + ' disponíveis' : linha.nome + ': informação não disponível'">
-          @if (linha.dado; as dado) { {{ dado.quantidadeDisponivel }}/{{ dado.quantidadeTotal }} }
+        <span class="equipamento__nome">
+          @if (linha.icone) { <img [src]="'/icons/salas/' + linha.icone + '.png'" alt="" /> }
+          @else { <span class="equipamento__icone-generico" aria-hidden="true">◇</span> }
+          <span>{{ linha.nome }}@if (!compacto() && linha.categoria) { <small>{{ linha.categoria }}</small> }</span>
+        </span>
+        <span class="equipamento__quantidade" [class.equipamento__quantidade--total]="linha.dado.quantidadeDisponivel !== undefined && linha.dado.quantidadeDisponivel >= linha.dado.quantidadeTotal"
+          [class.equipamento__quantidade--parcial]="linha.dado.quantidadeDisponivel !== undefined && linha.dado.quantidadeDisponivel > 0 && linha.dado.quantidadeDisponivel < linha.dado.quantidadeTotal"
+          [class.equipamento__quantidade--indisponivel]="linha.dado.quantidadeDisponivel === 0"
+          [attr.aria-label]="descricao(linha.nome, linha.dado)" [attr.title]="descricao(linha.nome, linha.dado)">
+          @if (linha.dado.quantidadeDisponivel !== undefined) { {{ linha.dado.quantidadeDisponivel }}/}{{ linha.dado.quantidadeTotal }}
         </span>
       </li>
     }
   </ul>
+  @if (restantes()) { <p class="equipamentos-card__mensagem">+{{ restantes() }} {{ restantes() === 1 ? 'outro' : 'outros' }}</p> }
   }
 </section>

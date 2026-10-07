@@ -6,6 +6,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { ListaSalas } from './lista-salas';
+import { RecursosSalaService } from '../../services/recursos-sala';
 import { BACKEND_CONFIG } from '../../../../core/services/backend-config';
 import { SalaApi, SalaResumo } from '../../models/sala-resumo';
 
@@ -27,13 +28,14 @@ describe('ListaSalas', () => {
       { provide: SalasLocaisService, useValue: { salas: signal([]), catalogo: signal(null), erro: signal(null), carregando: signal(false), carregar: () => {} } },
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: BACKEND_CONFIG, useValue: { habilitado: false, url: BASE, modulos: ['salas'] } },
+        { provide: BACKEND_CONFIG, useValue: { habilitado: false, url: BASE, modulos: ['salas', 'recurso-sala'] } },
       ],
     }).compileComponents();
 
     http = TestBed.inject(HttpTestingController);
     fixture = TestBed.createComponent(ListaSalas);
     fixture.detectChanges();
+    http.expectOne(r => r.url === `${BASE}/recurso-sala`).flush({ content: [], page: 0, totalPages: 0 });
   });
 
   afterEach(() => http.verify());
@@ -101,7 +103,9 @@ describe('ListaSalas', () => {
     expect(cards().length).toBe(1);
     expect(cards()[0].getAttribute('href')).toBe('/salas/local-1');
     expect(elemento().querySelector('[role="alert"]')).not.toBeNull();
-    expect(cards()[0].querySelector('.equipamento__quantidade')?.textContent?.trim()).toBe('');
+    expect(cards()[0].querySelector('.equipamento__quantidade')).toBeNull();
+    expect(cards()[0].textContent).toContain('Informação de equipamentos não disponível');
+    expect(cards()[0].textContent).not.toContain('Nenhum equipamento cadastrado');
   });
 
   it('aguarda o catálogo local antes de declarar a lista vazia', () => {
@@ -133,64 +137,35 @@ describe('ListaSalas', () => {
     expect(elemento().querySelector('[role="alert"]')).not.toBeNull();
     expect(elemento().querySelector('.lista-salas__vazio')).toBeNull();
   });
-});
 
-describe('ListaSalas: equipamentos de /recurso-sala (#149)', () => {
-  let fixture: ComponentFixture<ListaSalas>;
-  let http: HttpTestingController;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [ListaSalas],
-      providers: [
-        provideRouter([]),
-        { provide: SalasLocaisService, useValue: { salas: signal([]), catalogo: signal(null), erro: signal(null), carregando: signal(false), carregar: () => {} } },
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        { provide: BACKEND_CONFIG, useValue: { habilitado: false, url: BASE, modulos: ['salas', 'recurso-sala'] } },
-      ],
-    }).compileComponents();
-    http = TestBed.inject(HttpTestingController);
-    fixture = TestBed.createComponent(ListaSalas);
-    fixture.detectChanges();
-    http.expectOne(r => r.url === `${BASE}/salas`).flush({
-      content: [sala(1, 'LAB-01', 'Laboratorio'), sala(3, 'AUD-01', 'Sala')], page: 0, size: 200, totalElements: 2, totalPages: 1,
-    });
+  it('mostra recursos remotos sem atribuí-los a uma sala local com o mesmo ID', () => {
+    const locais = TestBed.inject(SalasLocaisService);
+    (locais.salas as WritableSignal<SalaResumo[]>).set([{ id: 1, nome: 'LAB LOCAL', origem: 'local', rotaId: 'local-1' }]);
+    const recursos = fixture.debugElement.injector.get(RecursosSalaService);
+    recursos.carregar();
+    http.expectOne(r => r.url === `${BASE}/recurso-sala`).flush({ page: 0, totalPages: 1, content: [
+      { id: 1, sala: { id: 1 }, recurso: { id: 1, nome: 'Projetor multimidia', tipo: { id: 1, nome: 'Equipamento' } }, quantidade: 2 },
+    ] });
+    responder([sala(1, 'LAB-01', 'Laboratorio')]);
+    expect(cards()[0].textContent).toContain('Projetor multimidia');
+    expect(cards()[0].querySelector('.equipamento__quantidade')?.textContent?.trim()).toBe('2');
+    expect(cards()[1].textContent).not.toContain('Projetor multimidia');
   });
 
-  afterEach(() => http.verify());
-
-  function recurso(salaId: number, nome: string, quantidade: number) {
-    return { id: salaId * 10 + quantidade, quantidade, sala: { id: salaId }, recurso: { id: quantidade, nome, tipo: { id: 1, nome: 'Equipamento' } } };
-  }
-  function cards(): HTMLElement[] {
-    return Array.from(fixture.nativeElement.querySelectorAll('.card-sala'));
-  }
-
-  it('busca os recursos numa chamada só e mostra os de cada sala no card', () => {
-    fixture.detectChanges();
+  it('distingue erro de recursos do estado vazio e recupera somente os recursos', () => {
+    responder([sala(1, 'LAB-01', 'Laboratorio')]);
+    const recursos = fixture.debugElement.injector.get(RecursosSalaService);
+    recursos.carregar(); fixture.detectChanges();
     expect(cards()[0].textContent).toContain('Carregando equipamentos');
-    const req = http.expectOne(r => r.url === `${BASE}/recurso-sala`);
-    expect(req.request.params.get('salaId')).toBeNull();
-    req.flush({ content: [
-      recurso(1, 'Computador desktop', 40), recurso(1, 'Projetor multimidia', 1),
-      recurso(1, 'Kit Arduino', 10), recurso(1, 'Mesa de reuniao', 12),
-    ], page: 0, totalPages: 1 });
+    expect(cards()[0].textContent).not.toContain('Nenhum equipamento cadastrado');
+    http.expectOne(r => r.url === `${BASE}/recurso-sala`).error(new ProgressEvent('error'));
     fixture.detectChanges();
-    const [lab, aud] = cards();
-    expect(lab.textContent).toContain('Computador desktop');
-    expect(lab.textContent).toContain('Kit Arduino');
-    expect(lab.textContent).not.toContain('Mesa de reuniao');
-    expect(lab.textContent).toContain('+1 outro');
-    expect(lab.textContent).not.toContain('Wi-fi');
-    expect(aud.textContent).toContain('Nenhum equipamento cadastrado');
-  });
-
-  it('avisa no card quando a consulta de recursos falha, sem esconder as salas', () => {
-    http.expectOne(r => r.url === `${BASE}/recurso-sala`).flush({}, { status: 500, statusText: 'Erro' });
+    expect(cards()[0].textContent).toContain('Não foi possível conectar');
+    expect(cards()[0].textContent).not.toContain('Nenhum equipamento cadastrado');
+    elemento().querySelector<HTMLButtonElement>('.lista-salas__estado--erro button')!.click();
+    http.expectOne(r => r.url === `${BASE}/recurso-sala`).flush({ content: [], page: 0, totalPages: 0 });
     fixture.detectChanges();
-    expect(cards().length).toBe(2);
-    expect(cards()[0].textContent).toContain('Equipamentos indisponíveis');
+    expect(cards()[0].textContent).toContain('Nenhum equipamento cadastrado');
+    http.expectNone(r => r.url === `${BASE}/salas`);
   });
 });
-
