@@ -1,36 +1,38 @@
 <div class="pagina-grade">
-    <div class="card cartao-horarios">
+    <div class="card cartao-horarios" [attr.aria-busy]="horariosService.carregando()">
         <h2 class="titulo">Horários da semana</h2>
 
+        @if (horariosService.carregando()) {
+        <p role="status">Carregando sua grade semanal...</p>
+        } @else if (horariosService.erro(); as erro) {
+        <div class="estado-grade">
+            <p role="alert">{{ erro }}</p>
+            <button type="button" class="botao-tentar" (click)="horariosService.carregar()">Tentar novamente</button>
+        </div>
+        } @else if (horariosService.carregado() && !linhas().length) {
+        <p role="status">Você não tem aulas na sua grade semanal.</p>
+        } @else if (horariosService.carregado()) {
         <div class="tabela-scroll" role="region" aria-label="Horários da semana; role horizontalmente para ver todos os dias" tabindex="0">
-          <div class="tabela" [style.--colunas-dias]="dias().length">
+          <div class="tabela" role="table" aria-label="Grade semanal" [style.--colunas-dias]="dias().length">
             <!-- Cabeçalho -->
-            <div class="cabecalho">
-                <div>Horário</div>
+            <div class="cabecalho" role="row">
+                <div role="columnheader">Horário</div>
                 @for (dia of dias(); track dia.valor) {
-                <div>{{ dia.nome }}</div>
+                <div role="columnheader">{{ dia.nome }}</div>
                 }
             </div>
 
             @for (linha of linhas(); track linha.inicio) {
-            @if (linha.intervalo) {
-            <div class="linha linha-intervalo">
-                <div class="coluna-horario">
-                    <span>{{ linha.inicio }}</span>
-                    <span>{{ linha.termino }}</span>
-                </div>
-            </div>
-            } @else {
-            <div class="linha">
-                <div class="coluna-horario">
+            <div class="linha" role="row" [class.linha-intervalo]="linha.intervalo">
+                <div class="coluna-horario" role="rowheader">
                     <span>{{ linha.inicio }}</span>
                     <span>{{ linha.termino }}</span>
                 </div>
 
                 @for (aula of linha.celulas; track $index) {
-                <div class="celula">
+                <div class="celula" role="cell">
                     @if (aula) {
-                    <div class="etiqueta-materia" [class]="'cor-' + corDe(aula)">
+                    <div class="etiqueta-materia" [class]="'cor-' + aula.cor">
                         <span class="etiqueta-materia__nome">{{ aula.materia }}</span>
                         <span class="etiqueta-materia__professor"
                             [class.etiqueta-materia__professor--a-definir]="!temProfessor(aula)">{{ professorDe(aula) }}</span>
@@ -40,8 +42,8 @@
                 }
             </div>
             }
-            }
         </div>
         </div>
+        }
     </div>
 </div>

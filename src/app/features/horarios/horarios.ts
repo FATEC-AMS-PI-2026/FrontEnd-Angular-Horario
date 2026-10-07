@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { RelogioService } from '../salas/services/relogio';
 import { HorariosService } from './services/horarios';
 import { AdicionarMateriaModal } from './components/adicionar-materia-modal/adicionar-materia-modal';
@@ -31,8 +31,8 @@ const DIA_POR_GETDAY: (DiaSemana | null)[] = [null, 'seg', 'ter', 'qua', 'qui', 
     styleUrl: './horarios.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Horarios {
-    private readonly horariosService = inject(HorariosService);
+export class Horarios implements OnInit {
+    protected readonly horariosService = inject(HorariosService);
     private readonly relogio = inject(RelogioService);
 
     protected readonly dias = DIAS_SEMANA;
@@ -88,6 +88,8 @@ export class Horarios {
 
     /** Controla o modal "Adicionar Matéria" (#104). */
     protected readonly modalAberto = signal(false);
+
+    ngOnInit(): void { this.horariosService.carregar(); }
 
     protected selecionarDia(dia: DiaSemana): void {
         this.diaSelecionado.set(dia);

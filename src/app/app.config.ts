@@ -6,6 +6,7 @@ import { routes } from './app.routes';
 import { inject } from '@angular/core';
 import { defer, throwError } from 'rxjs';
 import { CARREGAR_GRADE_DIA, GradeIndisponivelError } from './features/dashboard/services/dashboard.service';
+import { CARREGAR_GRADE_SEMANAL, GradeSemanalIndisponivelError } from './features/horarios/services/grade-semanal-source';
 // TEMPORÁRIO: excluir esta importação local após integrar o backend Java.
 import { DadosLocaisService } from './features/dados-locais/services/dados-locais.service';
 
@@ -21,6 +22,14 @@ export const appConfig: ApplicationConfig = {
                 const local = inject(DadosLocaisService);
                 return (data: string) => local.ativo ? defer(() => local.grade(data))
                     : throwError(() => new GradeIndisponivelError());
+            }
+        },
+        // TEMPORÁRIO: substituir pela fonte Java da grade pessoal quando o contrato existir.
+        {
+            provide: CARREGAR_GRADE_SEMANAL, useFactory: () => {
+                const local = inject(DadosLocaisService);
+                return () => local.ativo ? defer(() => local.gradeSemanal())
+                    : throwError(() => new GradeSemanalIndisponivelError());
             }
         }
     ]

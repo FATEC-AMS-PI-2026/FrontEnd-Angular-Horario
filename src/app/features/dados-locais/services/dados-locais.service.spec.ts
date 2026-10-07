@@ -2,7 +2,11 @@
  * TEMPORÁRIO: excluir este arquivo inteiro após integrar o backend Java.
  * Implementação exclusiva do armazenamento acadêmico e das contas locais no navegador.
  */
+import { inject } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { defer } from 'rxjs';
+import { GradeSemanal } from '../../grade-semanal/grade-semanal';
+import { CARREGAR_GRADE_SEMANAL } from '../../horarios/services/grade-semanal-source';
 import { DadosLocaisService } from './dados-locais.service';
 import { BancoLocalService, NOME_BANCO_LOCAL } from './banco-local.service';
 import { CatalogoLocal } from '../models/catalogo-local';
@@ -34,7 +38,13 @@ describe('Dados locais: IndexedDB real no navegador', () => {
     });
     beforeEach(() => {
         nomeBanco = 'gini-teste-' + crypto.randomUUID();
-        TestBed.configureTestingModule({ providers: [{ provide: NOME_BANCO_LOCAL, useValue: nomeBanco }] });
+        TestBed.configureTestingModule({ imports: [GradeSemanal], providers: [
+            { provide: NOME_BANCO_LOCAL, useValue: nomeBanco },
+            { provide: CARREGAR_GRADE_SEMANAL, useFactory: () => {
+                const local = inject(DadosLocaisService);
+                return () => defer(() => local.gradeSemanal());
+            } },
+        ] });
         dados = TestBed.inject(DadosLocaisService);
         localStorage.removeItem('gini_token');
     });
@@ -110,6 +120,63 @@ describe('Dados locais: IndexedDB real no navegador', () => {
         await expectAsync(dados.grade('2027-01-01')).toBeRejected();
     });
 
+    it('renderiza na grade semanal exatamente as ofertas salvas: regular, DP e adiantada', async () => {
+        const c = catalogo();
+        c.cursos[0].organizacao = 'Semestral';
+        c.cursos[0].periodos = [1, 2, 3, 4];
+        c.disciplinas = [
+            { id: 1, nome: 'Disciplina anterior (DP)', cursoId: 1, periodo: 1 },
+            { id: 2, nome: 'Disciplina regular', cursoId: 1, periodo: 2 },
+            { id: 3, nome: 'Disciplina adiantada', cursoId: 1, periodo: 3 },
+            { id: 4, nome: 'Disciplina não escolhida', cursoId: 1, periodo: 2 },
+        ];
+        c.turmas = c.disciplinas.map(d => ({ ...c.turmas[0], id: d.id, codigo: `ADS${d.id}`, periodo: d.periodo }));
+        c.ofertas = c.disciplinas.map(d => ({ id: d.id, disciplinaId: d.id, turmaId: d.id }));
+        c.alocacoes = c.disciplinas.map((d, indice) => ({
+            id: d.id, ofertaId: d.id, professorId: null, salaId: null,
+            diaSemana: (['SEGUNDA', 'TERCA', 'QUARTA', 'QUINTA'] as const)[indice],
+            horaInicio: '13:20', horaFim: '14:10',
+        }));
+        await dados.importar(c);
+        const perfil = await dados.criarPerfil('Ana');
+        localStorage.setItem('gini_token', dados.prefixo + perfil.id);
+        await dados.disciplinas('1');
+        await dados.salvar('1', '2º semestre', ['1', '2', '3']);
+        const consultar = spyOn(dados, 'gradeSemanal').and.callThrough();
+        const fixture = TestBed.createComponent(GradeSemanal);
+        fixture.detectChanges();
+        // IndexedDB não integra a estabilidade do fixture; aguardar a consulta real.
+        await consultar.calls.mostRecent().returnValue;
+        await fixture.whenStable();
+        fixture.detectChanges();
+        const nomes = () => Array.from(fixture.nativeElement.querySelectorAll('.etiqueta-materia__nome') as NodeListOf<HTMLElement>)
+            .map(el => el.textContent?.trim());
+        expect(nomes()).toEqual(['Disciplina anterior (DP)', 'Disciplina regular', 'Disciplina adiantada']);
+        expect((await dados.carregarPerfil()).disciplinasIds).toEqual(['1', '2', '3']);
+        expect((await dados.gradeSemanal()).map(a => a.diaSemana)).toEqual(['SEGUNDA', 'TERCA', 'QUARTA']);
+
+        // Alterar as escolhas e reabrir a página reconsulta o banco, sem cache da seleção anterior.
+        fixture.destroy();
+        await dados.salvar('1', '2º semestre', ['3']);
+        const reaberta = TestBed.createComponent(GradeSemanal);
+        reaberta.detectChanges();
+        await consultar.calls.mostRecent().returnValue;
+        await reaberta.whenStable(); reaberta.detectChanges();
+        expect(reaberta.nativeElement.textContent).toContain('Disciplina adiantada');
+        expect(reaberta.nativeElement.textContent).not.toContain('Disciplina regular');
+        expect(reaberta.nativeElement.textContent).not.toContain('Disciplina anterior (DP)');
+        reaberta.destroy();
+    });
+
+    it('a matriz recorrente mantém os dias de referência sem aplicar feriados/reposições diárias', async () => {
+        await preparar();
+        const semanal = await dados.gradeSemanal();
+        expect(semanal.length).toBe(2);
+        expect(semanal.every(aula => aula.diaSemana === 'SEGUNDA')).toBeTrue();
+        expect(await dados.grade('2026-09-07')).toEqual([]);
+        expect((await dados.grade('2026-09-19')).every(aula => aula.diaSemana === 'SABADO')).toBeTrue();
+    });
+
     it('não substitui catálogo válido por arquivo inválido e exige revisão após importação', async () => {
         await preparar();
         const antes = await dados.catalogo();
@@ -119,6 +186,7 @@ describe('Dados locais: IndexedDB real no navegador', () => {
         await dados.importar(catalogo());
         expect((await dados.carregarPerfil()).configuracaoInicialConcluida).toBeFalse();
         await expectAsync(dados.grade('2026-09-14')).toBeRejected();
+        await expectAsync(dados.gradeSemanal()).toBeRejected();
         await expectAsync(dados.salvar('1', '1º ano', ['1'])).toBeRejected();
         await dados.disciplinas('1');
         await dados.salvar('1', '1º ano', ['1']);
