@@ -1,5 +1,12 @@
 <section class="aulas-do-dia-card">
   <h2>Aulas nesta sala hoje</h2>
+  @if (carregando()) {
+    <p class="aulas-do-dia-card__vazio" role="status">Carregando aulas de hoje...</p>
+  } @else {
+  @if (indisponivel()) {
+    <p class="aulas-do-dia-card__vazio" role="status">Não foi possível consultar todos os horários desta sala.</p>
+  }
+  @if (aulasOrdenadas().length) {
   <ul>
     @for (aula of aulasOrdenadas(); track $index) {
       <li class="aula-do-dia" [class.aula-do-dia--agora]="estaEmAndamento(aula)">
@@ -7,6 +14,10 @@
         <div class="aula-do-dia__conteudo"><strong>{{ aula.disciplina }}</strong><p>{{ aula.professor }}@if (aula.professor && aula.turma) { · }{{ aula.turma }}</p></div>
         @if (estaEmAndamento(aula)) { <span class="aula-do-dia__badge">Agora</span> }
       </li>
-    } @empty { <li class="aulas-do-dia-card__vazio" aria-label="Sem aulas disponíveis para hoje"></li> }
+    }
   </ul>
+  } @else if (!indisponivel()) {
+    <p class="aulas-do-dia-card__vazio" role="status">Nenhuma aula cadastrada para esta sala hoje.</p>
+  }
+  }
 </section>

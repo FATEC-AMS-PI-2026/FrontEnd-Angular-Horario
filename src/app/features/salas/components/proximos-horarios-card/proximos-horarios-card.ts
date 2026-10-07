@@ -17,4 +17,6 @@ import { ProximoHorario } from '../../models/proximo-horario';
 export class ProximosHorariosCard {
   /** Próximos horários da sala, já ordenados cronologicamente. */
   readonly horarios = input.required<ProximoHorario[]>();
+  readonly carregando = input(false);
+  readonly indisponivel = input(false);
 }

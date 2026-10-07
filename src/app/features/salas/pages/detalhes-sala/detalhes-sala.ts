@@ -90,15 +90,24 @@ export class DetalhesSala {
 
   protected readonly disponibilidade = computed(() => {
     const estado = this.estado();
+    if (this.locais.carregando() || this.locais.erro()) return undefined;
     return estado.sala && estado.agenda
       ? calcularDisponibilidade(estado.sala.id, estado.agenda, this.agora(), this.aulas().filter(a => a.origem === 'local')) : undefined;
   });
+
+  protected readonly erroAgenda = computed(() => {
+    const disponibilidade = this.disponibilidade();
+    return this.estado().erroAgenda ?? (disponibilidade && !disponibilidade.status ? disponibilidade.texto : null);
+  });
+  protected readonly carregandoHorarios = computed(() => this.locais.carregando() ||
+    (this.estado().sala?.origem !== 'local' && !this.estado().agenda && !this.erroAgenda()));
+  protected readonly horariosIndisponiveis = computed(() => !!this.erroAgenda() || !!this.locais.erro());
 
   protected readonly aulas = computed(() => {
     const estado = this.estado();
     if (!estado.sala) return [];
     const java = aulasJavaDaSala(estado.sala.id, estado.agenda ?? [], this.agora());
-    const locais = aulasLocaisDaSala(this.locais.catalogo(), estado.sala.nome, this.agora());
+    const locais = this.locais.erro() ? [] : aulasLocaisDaSala(this.locais.catalogo(), estado.sala.nome, this.agora());
     return unirAulas(java, locais);
   });
   protected readonly proximos = computed(() => this.aulas()

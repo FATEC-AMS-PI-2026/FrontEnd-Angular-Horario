@@ -1,6 +1,6 @@
 import { signal, WritableSignal } from '@angular/core';
 import { SalasLocaisService } from '../../services/salas-locais';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -9,6 +9,7 @@ import { ListaSalas } from './lista-salas';
 import { RecursosSalaService } from '../../services/recursos-sala';
 import { BACKEND_CONFIG } from '../../../../core/services/backend-config';
 import { SalaApi, SalaResumo } from '../../models/sala-resumo';
+import { RelogioService } from '../../services/relogio';
 
 const BASE = 'https://backend.test';
 
@@ -168,4 +169,41 @@ describe('ListaSalas', () => {
     expect(cards()[0].textContent).toContain('Nenhum equipamento cadastrado');
     http.expectNone(r => r.url === `${BASE}/salas`);
   });
+});
+
+describe('ListaSalas: disponibilidade remota', () => {
+  let http: HttpTestingController;
+  beforeEach(() => {
+    TestBed.configureTestingModule({ imports: [ListaSalas], providers: [
+      provideRouter([]), provideHttpClient(), provideHttpClientTesting(),
+      { provide: BACKEND_CONFIG, useValue: { url: BASE, modulos: ['salas', 'alocacoes', 'recurso-sala'], agendaSalasCompleta: true } },
+      { provide: RelogioService, useValue: { agora: () => new Date('2026-10-07T13:00:00-03:00') } },
+      { provide: SalasLocaisService, useValue: { salas: signal([]), catalogo: signal(null), erro: signal(null), carregando: signal(false), carregar: () => {} } },
+    ] });
+    http = TestBed.inject(HttpTestingController);
+  });
+  afterEach(() => http.verify());
+
+  it('avisa sobre falha da agenda e permite repetir somente essa consulta', fakeAsync(() => {
+    const fixture = TestBed.createComponent(ListaSalas); tick(0);
+    http.expectOne(r => r.url === `${BASE}/salas`).flush({ content: [sala(1, 'LAB-01', 'Laboratório')], page: 0, totalPages: 1 });
+    http.expectOne(r => r.url === `${BASE}/recurso-sala`).flush({ content: [], page: 0, totalPages: 0 });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Consultando disponibilidade');
+    http.expectOne(r => r.url === `${BASE}/alocacoes`).error(new ProgressEvent('error'));
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Não foi possível confirmar a disponibilidade');
+    expect(fixture.nativeElement.querySelector('app-status-sala-badge')).toBeNull();
+    expect(fixture.nativeElement.querySelectorAll('.card-sala').length).toBe(1);
+    fixture.nativeElement.querySelector('[role="alert"] button').click();
+    http.expectOne(r => r.url === `${BASE}/alocacoes`).flush({ content: [], page: 0, totalPages: 0 });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-status-sala-badge')).not.toBeNull();
+    http.expectNone(r => r.url === `${BASE}/salas` || r.url === `${BASE}/recurso-sala`);
+    const locais = TestBed.inject(SalasLocaisService);
+    (locais.erro as WritableSignal<string | null>).set('Falha nos horários deste navegador');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-status-sala-badge')).toBeNull();
+    fixture.destroy();
+  }));
 });

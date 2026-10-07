@@ -5,7 +5,7 @@
     <div role="alert"><p>{{ erro }}</p><button type="button" (click)="tentarNovamente()">Tentar novamente</button></div>
   } @else if (estado().sala; as sala) {
     <div class="detalhes-sala__card"><app-cabecalho-sala [sala]="sala" [disponibilidade]="disponibilidade()" /></div>
-    @if (estado().erroAgenda; as erroAgenda) {
+    @if (erroAgenda(); as erroAgenda) {
       <div role="alert" class="detalhes-sala__aviso"><p>Disponibilidade indisponível. {{ erroAgenda }}</p><button type="button" (click)="tentarNovamente()">Tentar novamente</button></div>
     } @else if (!estado().agenda && sala.origem !== 'local') { <p role="status">Consultando disponibilidade...</p> }
     @if (locais.erro(); as erroLocal) {
@@ -19,10 +19,10 @@
           <button type="button" aria-label="Tentar consultar equipamentos novamente" (click)="recursos.carregar(sala.id)">Tentar novamente</button>
         }
       </div>
-      <app-proximos-horarios-card [horarios]="proximos()" />
+      <app-proximos-horarios-card [horarios]="proximos()" [carregando]="carregandoHorarios()" [indisponivel]="horariosIndisponiveis()" />
     </div>
     <div class="detalhes-sala__card detalhes-sala__agenda">
-      <app-aulas-do-dia-card [aulas]="aulas()" [agora]="agora()" />
+      <app-aulas-do-dia-card [aulas]="aulas()" [agora]="agora()" [carregando]="carregandoHorarios()" [indisponivel]="horariosIndisponiveis()" />
     </div>
   }
   @if (!estado().sala) { <a routerLink="/salas">Voltar para a lista de salas</a> }
