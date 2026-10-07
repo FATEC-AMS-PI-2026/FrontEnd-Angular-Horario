@@ -82,6 +82,8 @@
     <div class="footer-actions">
         @if (!setupService.returningUser()) {
         <button class="btn-back" [disabled]="saving()" (click)="voltar()">Voltar</button>
+        } @else if (setupService.periodoConfirmado()) {
+        <button class="btn-back" [disabled]="saving()" (click)="cancelar()">Cancelar</button>
         }
 
         @if (setupService.returningUser()) {

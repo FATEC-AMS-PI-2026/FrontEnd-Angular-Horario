@@ -81,6 +81,22 @@ describe('DisciplineSelection: grade personalizada', () => {
         expect(setup.currentStep()).toBe(4);
     });
 
+    it('troca para "Remover todas" com o período marcado e limpa toda a seleção (#146)', () => {
+        carregar();
+        component.selecionar('dp');
+        const botao = (texto: string) => (Array.from(fixture.nativeElement.querySelectorAll('button')) as HTMLButtonElement[])
+            .find(button => button.textContent?.includes(texto));
+        fixture.detectChanges();
+        botao('Adicionar todas')!.click();
+        fixture.detectChanges();
+        expect(botao('Adicionar todas')).toBeUndefined();
+        botao('Remover todas')!.click();
+        fixture.detectChanges();
+        expect(setup.selectedDisciplinas()).toEqual([]);
+        expect(botao('Remover todas')).toBeUndefined();
+        expect(botao('Adicionar todas')).toBeDefined();
+    });
+
     it('adiciona o período inteiro apesar da busca, sem duplicar ou remover escolhas anteriores', () => {
         carregar();
         component.selecionar('dp');

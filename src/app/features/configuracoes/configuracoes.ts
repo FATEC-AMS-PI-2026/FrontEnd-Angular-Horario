@@ -20,7 +20,7 @@ export class Configuracoes implements OnDestroy {
   protected readonly documento = signal('');
   private readonly dialogo = viewChild.required<ElementRef<HTMLDialogElement>>('dialogo');
   protected readonly geraisVisiveis = computed(() => this.busca.corresponde(
-    'Configurações gerais Alterar senha Relatar problema Notificações Modo Escuro Sair da Conta',
+    'Configurações gerais Alterar ano e disciplinas grade semestre Alterar senha Relatar problema Notificações Modo Escuro Sair da Conta',
   ));
   protected readonly contaVisivel = computed(() => this.busca.corresponde(
     `Conta ${this.session.usuario()?.nome ?? ''} ${this.session.usuario()?.email ?? ''} ${this.session.identificacao()}`,

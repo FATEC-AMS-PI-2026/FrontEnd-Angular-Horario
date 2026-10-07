@@ -10,6 +10,17 @@ export interface PerfilResponse {
     configuracaoInicialConcluida: boolean;
     cursoId: string | null;
     disciplinasIds: string[];
+    /** Período letivo vigente segundo o servidor (ex.: quadro de horários ativo). null = não informado. */
+    periodoLetivoAtual?: string | null;
+    /** Último período letivo em que o aluno confirmou ano/semestre e disciplinas. */
+    periodoLetivoConfirmado?: string | null;
+}
+
+/** O onboarding só volta sozinho quando o servidor informa um período letivo ainda não confirmado. */
+export function periodoLetivoPendente(perfil: PerfilResponse | null): boolean {
+    if (!perfil?.configuracaoInicialConcluida) return true;
+    const atual = perfil.periodoLetivoAtual ?? null;
+    return atual !== null && perfil.periodoLetivoConfirmado !== atual;
 }
 
 export type PeriodicidadeCurso = 'Anual' | 'Semestral';

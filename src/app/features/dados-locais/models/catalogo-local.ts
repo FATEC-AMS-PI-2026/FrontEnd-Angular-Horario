@@ -34,6 +34,8 @@ export interface CatalogoLocal {
 export interface PerfilLocal {
     id: string; nome: string; cursoId: number | null; periodo: number | null;
     ofertasIds: number[]; revisao: string | null;
+    /** Período letivo (ver chavePeriodoLetivo) em que o aluno confirmou a grade pela última vez. */
+    periodoLetivoConfirmado?: string | null;
 }
 export interface CatalogoSalvo { catalogo: CatalogoLocal; revisao: string; importadoEm: string; }
 export class DadosLocaisError extends Error { }
