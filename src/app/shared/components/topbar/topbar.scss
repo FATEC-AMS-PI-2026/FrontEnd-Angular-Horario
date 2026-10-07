@@ -2,11 +2,13 @@
     height: var(--layout-topbar-height);
     display: flex;
     align-items: center;
-    padding: 0 32px;
+    padding: 0 var(--layout-content-padding);
     background: var(--color-surface);
     border-bottom: 1px solid var(--color-border);
 
     &__title {
+        min-width: 0;
+        overflow-wrap: anywhere;
         margin: 0;
         font-weight: var(--fw-bold);
         font-size: var(--text-xl);
@@ -25,18 +27,7 @@
 
 .topbar__busca {
     width: min(18rem, 100%);
-    min-width: 0;
-    padding: var(--space-2xs) var(--space-sm);
-    border: 1px solid var(--color-border-strong);
     border-radius: var(--radius-pill);
-    background: var(--color-surface);
-    color: var(--color-text);
-    font: inherit;
-    font-size: var(--text-sm);
-
-    &::placeholder {
-        color: var(--color-text-subtle);
-    }
 }
 
 .topbar__notificacoes {
@@ -67,7 +58,7 @@
         min-height: var(--layout-topbar-height);
         flex-wrap: wrap;
         gap: var(--space-xs);
-        padding: var(--space-sm);
+        padding: var(--space-sm) var(--layout-content-padding);
     }
 
     .topbar__acoes {

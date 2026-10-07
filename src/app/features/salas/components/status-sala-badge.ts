@@ -17,12 +17,12 @@ import { StatusSala } from '../models/sala';
       .badge {
         display: inline-flex;
         align-items: center;
-        padding: 0.25rem 0.75rem;
-        border-radius: 999px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        line-height: 1.4;
-        gap: 0.35rem;
+        padding: var(--space-3xs) var(--space-xs);
+        border-radius: var(--radius-pill);
+        font-size: var(--text-xs);
+        font-weight: var(--fw-semibold);
+        line-height: var(--leading-body);
+        gap: var(--space-3xs);
         max-width: 100%;
         white-space: normal;
       }

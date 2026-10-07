@@ -1,5 +1,6 @@
+@use 'cards';
+
 .pagina-grade {
-  padding: var(--space-lg);
   background: var(--color-bg);
   color: var(--color-text);
   min-height: var(--page-min-height, 0px);
@@ -11,11 +12,14 @@
   width: 100%;
 
   .titulo {
-    margin: 0 0 var(--space-lg);
-    font-size: var(--text-xl);
-    font-weight: var(--fw-bold);
-    color: var(--color-text);
+    @include cards.card-titulo;
+    margin-bottom: var(--space-md);
   }
+
+  > p,
+  .estado-grade > p { @include cards.card-mensagem; }
+
+  .estado-grade { display: grid; gap: var(--space-sm); justify-items: start; }
 }
 
 .tabela-scroll {
@@ -131,12 +135,6 @@
     &--a-definir {
       font-style: italic;
     }
-  }
-}
-
-@media (max-width: 768px) {
-  .pagina-grade {
-    padding: 0;
   }
 }
 

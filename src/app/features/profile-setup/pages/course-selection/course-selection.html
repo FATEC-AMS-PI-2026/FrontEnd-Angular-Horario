@@ -11,13 +11,14 @@
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
-        <input type="text" placeholder="Buscar curso..." aria-label="Buscar curso" [disabled]="loading()"
+        <input type="text" class="filtro-campo filtro-campo--busca" placeholder="Buscar curso..." aria-label="Buscar curso" [disabled]="loading()"
             [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" />
     </div>
 
     <div class="filter-pills">
         @for (filter of filters; track filter) {
-        <button class="pill-btn" [class.active]="selectedFilter() === filter" (click)="setFilter(filter)">
+        <button class="pill-btn filtro-chip" [class.active]="selectedFilter() === filter"
+            [class.filtro-chip--ativo]="selectedFilter() === filter" (click)="setFilter(filter)">
             {{ filter }}
         </button>
         }

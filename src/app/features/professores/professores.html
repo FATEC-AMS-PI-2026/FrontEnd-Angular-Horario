@@ -8,11 +8,11 @@
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-            <input type="search" class="professores__campo-busca" placeholder="Buscar professor..."
+            <input type="search" class="professores__campo-busca filtro-campo filtro-campo--busca" placeholder="Buscar professor..."
                 aria-label="Buscar professor" autocomplete="off" [value]="termoBusca()" (input)="onBuscar($event)" />
         </div>
 
-        <select class="professores__filtro-cargo" aria-label="Filtrar por cargo" (change)="onFiltrarCargo($event)">
+        <select class="professores__filtro-cargo filtro-campo" aria-label="Filtrar por cargo" (change)="onFiltrarCargo($event)">
             <option value="">Todos os cargos</option>
             @for (cargo of cargos(); track cargo) {
             <option [value]="cargo" [selected]="cargoSelecionado() === cargo">{{ cargo }}</option>
