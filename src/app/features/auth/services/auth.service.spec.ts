@@ -43,7 +43,7 @@ describe('AuthService: fluxo dinâmico', () => {
             const perfil = http.expectOne(`${base}/usuarios/me/perfil`);
             expect(perfil.request.headers.get('Authorization')).toBe('Bearer token-api');
             perfil.flush({ usuario, cursoId: 'ads', disciplinasIds: [], configuracaoInicialConcluida: concluido });
-            expect(next).toHaveBeenCalledOnceWith(concluido ? '/setup/period-selection' : '/setup/course-selection');
+            expect(next).toHaveBeenCalledOnceWith(concluido ? '/dashboard' : '/setup/course-selection');
             expect(TestBed.inject(SessionService).usuario()).toEqual(usuario);
             expect(localStorage.getItem('gini_token')).toBe('token-api');
         });

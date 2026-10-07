@@ -64,7 +64,7 @@ describe('Cadastro e login com contas deste navegador', () => {
     await firstValueFrom(setup.listarDisciplinas()); setup.definirDisciplinas(['1']);
     await firstValueFrom(setup.submitProfile());
     auth.logout();
-    expect(await firstValueFrom(auth.login('ana@cps.sp.gov.br', 'senha123'))).toBe('/setup/period-selection');
+    expect(await firstValueFrom(auth.login('ana@cps.sp.gov.br', 'senha123'))).toBe('/dashboard');
     expect(setup.selectedDisciplinas()).toEqual(['1']);
     expect(TestBed.inject(SessionService).usuario()?.email).toBe('ana@cps.sp.gov.br');
     expect(http.get).toHaveBeenCalledOnceWith('dados/ads-ams-primeiro-ano.json');
@@ -84,7 +84,7 @@ describe('Cadastro e login com contas deste navegador', () => {
       alocacoes: catalogo.alocacoes.map(a => ({ ...a, professorId: 9 })) };
     http.get.and.returnValue(of(atualizado));
     auth.logout();
-    expect(await firstValueFrom(auth.login('ana@cps.sp.gov.br', 'senha123'))).toBe('/setup/period-selection');
+    expect(await firstValueFrom(auth.login('ana@cps.sp.gov.br', 'senha123'))).toBe('/dashboard');
     expect((await dados.catalogo())?.revisao).toBe(antes?.revisao);
     expect((await dados.carregarPerfil()).disciplinasIds).toEqual(['1']);
     expect((await dados.grade('2026-09-14'))[0].professor?.nome).toBe('Lilian Oliveira');
@@ -154,7 +154,7 @@ describe('Cadastro e login com contas deste navegador', () => {
     await firstValueFrom(auth.cadastrar({ nome: 'Ana', email: 'ana@cps.sp.gov.br', senha: 'senha123' }));
     await dados.disciplinas('1'); await dados.salvar('1', '1º ano', ['1']);
     auth.logout();
-    expect(await firstValueFrom(auth.login('ana@cps.sp.gov.br', 'senha123', false))).toBe('/setup/period-selection');
+    expect(await firstValueFrom(auth.login('ana@cps.sp.gov.br', 'senha123', false))).toBe('/dashboard');
     expect(localStorage.getItem('gini_token')).toBeNull();
     expect(sessionStorage.getItem('gini_token')).toContain('gini-local:');
     expect(auth.isLoggedIn()).toBeTrue();
