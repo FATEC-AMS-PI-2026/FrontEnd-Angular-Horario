@@ -6,6 +6,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { ListaSalas } from './lista-salas';
+import { RecursosSalaService } from '../../services/recursos-sala';
 import { BACKEND_CONFIG } from '../../../../core/services/backend-config';
 import { SalaApi, SalaResumo } from '../../models/sala-resumo';
 
@@ -27,13 +28,14 @@ describe('ListaSalas', () => {
       { provide: SalasLocaisService, useValue: { salas: signal([]), catalogo: signal(null), erro: signal(null), carregando: signal(false), carregar: () => {} } },
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: BACKEND_CONFIG, useValue: { habilitado: false, url: BASE, modulos: ['salas'] } },
+        { provide: BACKEND_CONFIG, useValue: { habilitado: false, url: BASE, modulos: ['salas', 'recurso-sala'] } },
       ],
     }).compileComponents();
 
     http = TestBed.inject(HttpTestingController);
     fixture = TestBed.createComponent(ListaSalas);
     fixture.detectChanges();
+    http.expectOne(r => r.url === `${BASE}/recurso-sala`).flush({ content: [], page: 0, totalPages: 0 });
   });
 
   afterEach(() => http.verify());
@@ -101,7 +103,9 @@ describe('ListaSalas', () => {
     expect(cards().length).toBe(1);
     expect(cards()[0].getAttribute('href')).toBe('/salas/local-1');
     expect(elemento().querySelector('[role="alert"]')).not.toBeNull();
-    expect(cards()[0].querySelector('.equipamento__quantidade')?.textContent?.trim()).toBe('');
+    expect(cards()[0].querySelector('.equipamento__quantidade')).toBeNull();
+    expect(cards()[0].textContent).toContain('Informação de equipamentos não disponível');
+    expect(cards()[0].textContent).not.toContain('Nenhum equipamento cadastrado');
   });
 
   it('aguarda o catálogo local antes de declarar a lista vazia', () => {
@@ -132,5 +136,36 @@ describe('ListaSalas', () => {
     fixture.detectChanges();
     expect(elemento().querySelector('[role="alert"]')).not.toBeNull();
     expect(elemento().querySelector('.lista-salas__vazio')).toBeNull();
+  });
+
+  it('mostra recursos remotos sem atribuí-los a uma sala local com o mesmo ID', () => {
+    const locais = TestBed.inject(SalasLocaisService);
+    (locais.salas as WritableSignal<SalaResumo[]>).set([{ id: 1, nome: 'LAB LOCAL', origem: 'local', rotaId: 'local-1' }]);
+    const recursos = fixture.debugElement.injector.get(RecursosSalaService);
+    recursos.carregar();
+    http.expectOne(r => r.url === `${BASE}/recurso-sala`).flush({ page: 0, totalPages: 1, content: [
+      { id: 1, sala: { id: 1 }, recurso: { id: 1, nome: 'Projetor multimidia', tipo: { id: 1, nome: 'Equipamento' } }, quantidade: 2 },
+    ] });
+    responder([sala(1, 'LAB-01', 'Laboratorio')]);
+    expect(cards()[0].textContent).toContain('Projetor multimidia');
+    expect(cards()[0].querySelector('.equipamento__quantidade')?.textContent?.trim()).toBe('2');
+    expect(cards()[1].textContent).not.toContain('Projetor multimidia');
+  });
+
+  it('distingue erro de recursos do estado vazio e recupera somente os recursos', () => {
+    responder([sala(1, 'LAB-01', 'Laboratorio')]);
+    const recursos = fixture.debugElement.injector.get(RecursosSalaService);
+    recursos.carregar(); fixture.detectChanges();
+    expect(cards()[0].textContent).toContain('Carregando equipamentos');
+    expect(cards()[0].textContent).not.toContain('Nenhum equipamento cadastrado');
+    http.expectOne(r => r.url === `${BASE}/recurso-sala`).error(new ProgressEvent('error'));
+    fixture.detectChanges();
+    expect(cards()[0].textContent).toContain('Não foi possível conectar');
+    expect(cards()[0].textContent).not.toContain('Nenhum equipamento cadastrado');
+    elemento().querySelector<HTMLButtonElement>('.lista-salas__estado--erro button')!.click();
+    http.expectOne(r => r.url === `${BASE}/recurso-sala`).flush({ content: [], page: 0, totalPages: 0 });
+    fixture.detectChanges();
+    expect(cards()[0].textContent).toContain('Nenhum equipamento cadastrado');
+    http.expectNone(r => r.url === `${BASE}/salas`);
   });
 });

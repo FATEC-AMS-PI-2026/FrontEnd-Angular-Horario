@@ -1,8 +1,12 @@
 :host { display: block; min-width: 0; }
 h2 { margin: 0 0 var(--space-md); font-size: var(--text-lg); color: var(--color-text); }
+.equipamentos-card__mensagem { margin: var(--space-xs) 0 0; color: var(--color-text-muted); font-size: var(--text-sm); }
 ul { display: grid; gap: var(--space-sm); list-style: none; padding: 0; margin: 0; }
 li { display: grid; grid-template-columns: minmax(160px, 0.9fr) minmax(60px, 1fr); gap: var(--space-sm); align-items: center; }
 .equipamento__nome { display: flex; gap: var(--space-2xs); align-items: center; font-weight: var(--fw-semibold); color: var(--color-text-muted); }
+.equipamento__nome small { display: block; font-size: var(--text-xs); font-weight: var(--fw-regular); }
+.equipamento__nome > span { overflow-wrap: anywhere; }
+.equipamento__icone-generico { width: 26px; flex: 0 0 26px; text-align: center; }
 img { width: 26px; height: 26px; object-fit: contain; flex: 0 0 auto; }
 .equipamento__quantidade { display: block; min-height: 24px; border-radius: var(--radius-pill); background: var(--color-bg); padding: 0 var(--space-xs); font-size: var(--text-sm); font-weight: var(--fw-semibold); }
 .equipamento__quantidade--total { background: var(--tag-verde-bg); color: var(--tag-verde-fg); }
@@ -12,6 +16,7 @@ img { width: 26px; height: 26px; object-fit: contain; flex: 0 0 auto; }
   ul { gap: var(--space-2xs); }
   li { grid-template-columns: minmax(125px, 1.1fr) minmax(55px, 1fr); gap: var(--space-2xs); }
   img { width: 19px; height: 19px; }
+  .equipamento__icone-generico { width: 19px; flex-basis: 19px; }
   .equipamento__nome { font-size: var(--text-sm); }
   .equipamento__quantidade { min-height: 19px; border-radius: 0; font-size: var(--text-xs); }
 }

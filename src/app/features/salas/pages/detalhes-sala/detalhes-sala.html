@@ -12,11 +12,16 @@
       <div role="alert" class="detalhes-sala__aviso"><p>{{ erroLocal }}</p><button type="button" (click)="locais.carregar()">Tentar novamente</button></div>
     }
     <div class="detalhes-sala__card detalhes-sala__recursos">
-      <app-equipamentos-card />
+      <div>
+        <app-equipamentos-card [equipamentos]="sala.origem === 'local' ? null : recursos.daSala(sala.id)"
+          [carregando]="recursos.carregando()" [erro]="recursos.erro()" />
+        @if (recursos.erro()) {
+          <button type="button" aria-label="Tentar consultar equipamentos novamente" (click)="recursos.carregar(sala.id)">Tentar novamente</button>
+        }
+      </div>
       <app-proximos-horarios-card [horarios]="proximos()" />
     </div>
     <div class="detalhes-sala__card detalhes-sala__agenda">
-      <app-tecnico-card />
       <app-aulas-do-dia-card [aulas]="aulas()" [agora]="agora()" />
     </div>
   }

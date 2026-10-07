@@ -10,6 +10,7 @@ import { RelogioService } from '../../services/relogio';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, exhaustMap, map, of, startWith, timer } from 'rxjs';
 import { SalaResumo } from '../../models/sala-resumo';
+import { RecursosSalaService } from '../../services/recursos-sala';
 
 /**
  * Página de listagem de salas, com dados do backend Java (issue #132). Cada
@@ -22,8 +23,10 @@ import { SalaResumo } from '../../models/sala-resumo';
   imports: [RouterLink, StatusSalaBadge, IconeSala, EquipamentosCard],
   templateUrl: './lista-salas.html',
   styleUrl: './lista-salas.scss',
+  providers: [RecursosSalaService],
 })
 export class ListaSalas {
+  protected readonly recursos = inject(RecursosSalaService);
   private readonly salasApi = inject(SalasApiService);
   protected readonly locais = inject(SalasLocaisService);
   private readonly horarios = inject(DisponibilidadeSalaService);
@@ -44,6 +47,7 @@ export class ListaSalas {
 
   constructor() {
     this.salasApi.carregar();
+    this.recursos.carregar();
   }
 
   /** Termo digitado no campo de busca (nome da sala). */

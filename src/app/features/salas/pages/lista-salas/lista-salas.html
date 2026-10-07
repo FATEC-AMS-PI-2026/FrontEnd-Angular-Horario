@@ -61,6 +61,10 @@
   </div>
   }
   @if (!carregando() || salas().length) {
+  @if (recursos.carregando()) { <p role="status" class="lista-salas__estado">Carregando recursos das salas...</p> }
+  @if (recursos.erro(); as erroRecursos) {
+    <div role="alert" class="lista-salas__estado lista-salas__estado--erro"><p>Recursos das salas: {{ erroRecursos }}</p><button type="button" class="filtro-chip" (click)="recursos.carregar()">Tentar novamente</button></div>
+  }
   <ul class="grade-salas">
     @for (sala of salasFiltradas(); track sala.rotaId ?? sala.id) {
     <li>
@@ -74,7 +78,8 @@
         <h2>{{ sala.nome }}</h2>
         <p class="card-sala__info">{{ sala.tipo }}@if (sala.tipo && sala.capacidade !== undefined) { · }@if (sala.capacidade !== undefined) { {{ sala.capacidade }} lugares }</p>
         @if (sala.predio) { <p class="card-sala__local">{{ sala.predio }}@if (sala.andar !== undefined) { · {{ sala.andar }}º andar }</p> }
-        <app-equipamentos-card [compacto]="true" [laboratorio]="(sala.tipo || sala.nome).toLowerCase().includes('lab')" />
+        <app-equipamentos-card [equipamentos]="sala.origem === 'local' ? null : recursos.daSala(sala.id)" [compacto]="true"
+          [carregando]="sala.origem !== 'local' && recursos.carregando()" [erro]="sala.origem === 'local' ? null : recursos.erro()" />
       </a>
     </li>
     } @empty {
