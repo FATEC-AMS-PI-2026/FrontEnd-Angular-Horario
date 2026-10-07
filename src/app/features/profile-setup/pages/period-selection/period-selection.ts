@@ -68,6 +68,13 @@ export class PeriodSelection implements OnInit {
         void this.router.navigate(['/setup/course-selection']);
     }
 
+    /** Só para quem já tem o período confirmado e entrou aqui pelas Configurações (#147). */
+    cancelar(): void {
+        if (this.saving() || !this.setupService.periodoConfirmado()) return;
+        this.setupService.descartarAlteracoes();
+        void this.router.navigate(['/dashboard']);
+    }
+
     concluir(alterarDisciplinas = false): void {
         if (this.loading() || this.saving() || !this.setupService.isSetupComplete() ||
             !this.curso()?.periodos.includes(this.setupService.selectedPeriod() ?? '')) return;

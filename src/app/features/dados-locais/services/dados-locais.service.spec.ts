@@ -7,7 +7,8 @@ import { TestBed } from '@angular/core/testing';
 import { defer } from 'rxjs';
 import { GradeSemanal } from '../../grade-semanal/grade-semanal';
 import { CARREGAR_GRADE_SEMANAL } from '../../horarios/services/grade-semanal-source';
-import { DadosLocaisService } from './dados-locais.service';
+import { DadosLocaisService, chavePeriodoLetivo } from './dados-locais.service';
+import { periodoLetivoPendente } from '../../profile-setup/models/profile.model';
 import { BancoLocalService, NOME_BANCO_LOCAL } from './banco-local.service';
 import { CatalogoLocal } from '../models/catalogo-local';
 import { validarCatalogo } from './validar-catalogo';
@@ -77,6 +78,23 @@ describe('Dados locais: IndexedDB real no navegador', () => {
         expect((await dados.carregarPerfil()).configuracaoInicialConcluida).toBeFalse();
         expect((await dados.carregarPerfil()).disciplinasIds).toEqual([]);
         expect(JSON.stringify(await dados.catalogo())).not.toContain('Ana');
+    });
+
+    it('registra o período letivo confirmado e volta a pedir quando a vigência do quadro muda (#148)', async () => {
+        await dados.importar(catalogo());
+        const perfil = await dados.criarPerfil('Ana');
+        localStorage.setItem('gini_token', dados.prefixo + perfil.id);
+        const antes = await dados.carregarPerfil();
+        expect(antes.periodoLetivoAtual).toBe(chavePeriodoLetivo(catalogo()));
+        expect(antes.periodoLetivoConfirmado).toBeNull();
+        await dados.disciplinas('1');
+        const salvo = await dados.salvar('1', '1º ano', ['1', '2']);
+        expect(salvo.periodoLetivoConfirmado).toBe(salvo.periodoLetivoAtual);
+        expect(periodoLetivoPendente(await dados.carregarPerfil())).toBeFalse();
+        expect(periodoLetivoPendente(await dados.carregarPerfil())).toBeFalse();
+        const proximo = chavePeriodoLetivo({ ...catalogo(), vigenciaInicio: '2027-02-08', vigenciaFim: '2027-12-13' });
+        expect(proximo).not.toBe(chavePeriodoLetivo(catalogo()));
+        expect(periodoLetivoPendente({ ...salvo, periodoLetivoAtual: proximo })).toBeTrue();
     });
 
     for (const organizacao of ['Anual', 'Semestral'] as const) {

@@ -10,6 +10,11 @@ import { CatalogoLocal, CatalogoSalvo, DadosLocaisError, PerfilLocal } from '../
 import { CursoDetalhes, Disciplina, PerfilResponse, rotuloPeriodo } from '../../profile-setup/models/profile.model';
 import { AlocacaoResponse, diaSemana } from '../../dashboard/models/grade-dia.model';
 
+/** Identifica o período letivo do catálogo pelo quadro de horários e sua vigência, sem datas fixas no front. */
+export function chavePeriodoLetivo(catalogo: CatalogoLocal): string {
+    return `${catalogo.quadroHorario.id}:${catalogo.vigenciaInicio ?? ''}:${catalogo.vigenciaFim ?? ''}`;
+}
+
 /** Fonte local independente do Java. Não autentica usuários nem armazena senhas. */
 @Injectable({ providedIn: 'root' })
 export class DadosLocaisService {
@@ -68,6 +73,8 @@ export class DadosLocaisService {
             cursoId: valido && curso ? String(curso.id) : null,
             disciplinasIds: valido ? perfil.ofertasIds.map(String) : [],
             configuracaoInicialConcluida: valido && !!curso && !!perfil.periodo && perfil.ofertasIds.length > 0,
+            periodoLetivoAtual: chavePeriodoLetivo(salvo.catalogo),
+            periodoLetivoConfirmado: valido ? perfil.periodoLetivoConfirmado ?? null : null,
         };
     }
 
@@ -149,7 +156,10 @@ export class DadosLocaisService {
         if (numeroPeriodo === undefined) throw new DadosLocaisError('Selecione um período disponível para este curso.');
         const ofertasIds = [...new Set(ids.map(Number))];
         this.validarEscolhas(salvo.catalogo, Number(cursoId), numeroPeriodo, ofertasIds);
-        const atualizado = { ...perfil, cursoId: Number(cursoId), periodo: numeroPeriodo, ofertasIds, revisao: salvo.revisao };
+        const atualizado: PerfilLocal = {
+            ...perfil, cursoId: Number(cursoId), periodo: numeroPeriodo, ofertasIds, revisao: salvo.revisao,
+            periodoLetivoConfirmado: chavePeriodoLetivo(salvo.catalogo),
+        };
         let mudou = false;
         await this.banco.executar<void>('readwrite', store => {
             const catalogo = store.get('catalogo');

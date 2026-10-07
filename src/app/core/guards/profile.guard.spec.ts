@@ -18,6 +18,7 @@ describe('profileGuard: proteção das jornadas', () => {
     const perfil = {
         usuario: { nome: 'Ana', email: 'ana@cps.sp.gov.br', curso: 'ADS', periodo: '1º período' },
         cursoId: 'ads', disciplinasIds: ['bd'], configuracaoInicialConcluida: true,
+        periodoLetivoAtual: '2026', periodoLetivoConfirmado: '2025',
     };
     beforeEach(async () => {
         localStorage.removeItem('gini_token');
@@ -45,11 +46,11 @@ describe('profileGuard: proteção das jornadas', () => {
         localStorage.removeItem('gini_usuario');
     });
 
-    function carregar(concluido: boolean): void {
+    function carregar(concluido: boolean, confirmado = '2025'): void {
         localStorage.setItem('gini_token', 'token');
         setup.carregarPerfil().subscribe();
         http.expectOne(environment.apiUrl + '/usuarios/me/perfil').flush({
-            ...perfil, configuracaoInicialConcluida: concluido,
+            ...perfil, configuracaoInicialConcluida: concluido, periodoLetivoConfirmado: confirmado,
             cursoId: concluido ? 'ads' : null,
             usuario: { ...perfil.usuario, periodo: concluido ? '1º período' : '' },
         });
@@ -73,14 +74,26 @@ describe('profileGuard: proteção das jornadas', () => {
         expect(TestBed.inject(Router).url).toBe('/setup/period-selection');
     });
 
-    it('pula curso no retorno e exige confirmação antes do início', async () => {
+    it('a partir do segundo acesso no mesmo período letivo vai direto ao início (#148)', async () => {
+        carregar(true, '2026');
+        expect(setup.destinoAposLogin()).toBe('/dashboard');
+        await harness.navigateByUrl('/dashboard');
+        expect(TestBed.inject(Router).url).toBe('/dashboard');
+        // Acesso voluntário pela Configurações (#147) continua liberado.
+        await harness.navigateByUrl('/setup/period-selection');
+        expect(TestBed.inject(Router).url).toBe('/setup/period-selection');
+        await harness.navigateByUrl('/setup/discipline-selection');
+        expect(TestBed.inject(Router).url).toBe('/setup/discipline-selection');
+    });
+
+    it('pula curso no retorno e exige confirmação quando começa um novo período letivo', async () => {
         carregar(true);
         await harness.navigateByUrl('/setup/course-selection');
         expect(TestBed.inject(Router).url).toBe('/setup/period-selection');
         await harness.navigateByUrl('/dashboard');
         expect(TestBed.inject(Router).url).toBe('/setup/period-selection');
         setup.confirmarPeriodo().subscribe();
-        http.expectOne(environment.apiUrl + '/usuarios/me/perfil/periodo').flush(perfil);
+        http.expectOne(environment.apiUrl + '/usuarios/me/perfil/periodo').flush({ ...perfil, periodoLetivoConfirmado: '2026' });
         await harness.navigateByUrl('/dashboard');
         expect(TestBed.inject(Router).url).toBe('/dashboard');
     });

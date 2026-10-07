@@ -47,11 +47,19 @@
             <div class="lista-cabecalho">
                 <h3>{{ filtroPeriodo() || 'Todos os ' + setupService.nomePeriodos() }}</h3>
                 <span>{{ visiveis().length }} disciplinas encontradas</span>
-                <button type="button" class="btn-secondary" (click)="adicionarTodas()"
+                @if (modoRemoverTodas()) {
+                <button type="button" class="btn-secondary" (click)="alternarTodas()"
+                    [disabled]="saving() || loading()"
+                    title="Desmarcar todas as disciplinas selecionadas, de todos os {{ setupService.nomePeriodos() }}">
+                    Remover todas as disciplinas
+                </button>
+                } @else {
+                <button type="button" class="btn-secondary" (click)="alternarTodas()"
                     [disabled]="!podeAdicionarTodas()"
                     [title]="filtroPeriodo() ? 'Adicionar todas as disciplinas do ' + filtroPeriodo() : 'Selecione um ' + setupService.nomePeriodo() + ' para adicionar suas disciplinas'">
                     Adicionar todas as disciplinas
                 </button>
+                }
             </div>
             <fieldset class="disciplinas" [disabled]="saving()">
                 <legend>Selecione as disciplinas para sua grade</legend>

@@ -3,7 +3,7 @@ import { Observable, defer, of, map, tap, throwError } from 'rxjs';
 import { SessionService, obterTokenSessao } from '../../../core/services/session.service';
 import { PerfilRemotoService } from './perfil-remoto.service';
 import { Course } from '../models/course.model';
-import { CursoDetalhes, Disciplina, PerfilResponse } from '../models/profile.model';
+import { CursoDetalhes, Disciplina, PerfilResponse, periodoLetivoPendente } from '../models/profile.model';
 // TEMPORÁRIO: excluir esta importação de armazenamento local após integrar o backend Java.
 import { DadosLocaisService } from '../../dados-locais/services/dados-locais.service';
 
@@ -18,7 +18,8 @@ export class ProfileSetupService {
     readonly perfil = this.perfilAtual.asReadonly();
     readonly returningUser = computed(() => this.perfil()?.configuracaoInicialConcluida === true);
     readonly currentStep = signal(2);
-    readonly periodoConfirmado = signal(false);
+    /** Vem do perfil salvo: só fica pendente na primeira vez ou quando o servidor anuncia um novo período letivo. */
+    readonly periodoConfirmado = computed(() => !periodoLetivoPendente(this.perfil()));
     readonly selectedCourseId = signal<string | null>(null);
     readonly selectedCourse = signal<string | null>(null);
     private readonly periodicidade = signal<CursoDetalhes['periodicidade'] | null>(null);
@@ -32,7 +33,6 @@ export class ProfileSetupService {
         // TEMPORÁRIO: excluir este desvio para o armazenamento local após integrar o backend Java.
         if (this.local.ativo) {
             return defer(() => this.local.carregarPerfil()).pipe(tap(perfil => {
-                if (this.loadedToken !== token || !perfil.configuracaoInicialConcluida) this.periodoConfirmado.set(false);
                 this.loadedToken = token;
                 this.perfilAtual.set(perfil);
                 this.selectedCourseId.set(perfil.cursoId);
@@ -50,7 +50,6 @@ export class ProfileSetupService {
                 throw new Error('Perfil retornado pela API é inválido.');
             }
             this.loadedToken = token;
-            this.periodoConfirmado.set(false);
             this.perfilAtual.set(perfil);
             this.selectedCourseId.set(perfil.cursoId);
             this.selectedCourse.set(perfil.usuario.curso || null);
@@ -67,7 +66,8 @@ export class ProfileSetupService {
     }
 
     destinoAposLogin(): string {
-        return this.returningUser() ? '/setup/period-selection' : '/setup/course-selection';
+        if (!this.returningUser()) return '/setup/course-selection';
+        return this.periodoConfirmado() ? '/dashboard' : '/setup/period-selection';
     }
 
     listarCursos(): Observable<Course[]> {
@@ -106,7 +106,6 @@ export class ProfileSetupService {
     setCourse(curso: string, id: string): void {
         if (id !== this.selectedCourseId()) {
             this.periodicidade.set(null);
-            this.periodoConfirmado.set(false);
             this.selectedPeriod.set(null);
             this.selectedDisciplinas.set([]);
         }
@@ -135,7 +134,6 @@ export class ProfileSetupService {
                 throw new Error('Perfil não configurado.');
             }
             this.atualizarPerfil(perfil);
-            this.periodoConfirmado.set(true);
         }));
     }
 
@@ -151,14 +149,20 @@ export class ProfileSetupService {
                     throw new Error('A configuração do perfil não foi concluída.');
                 }
                 this.atualizarPerfil(perfil);
-                this.periodoConfirmado.set(true);
             }));
+    }
+
+    /** Volta período e disciplinas ao que está salvo no perfil (ex.: desistiu de alterar pela Configurações). */
+    descartarAlteracoes(): void {
+        const perfil = this.perfil();
+        if (!perfil) return;
+        this.selectedPeriod.set(perfil.usuario.periodo || null);
+        this.selectedDisciplinas.set([...perfil.disciplinasIds]);
     }
 
     limpar(): void {
         this.loadedToken = null;
         this.periodicidade.set(null);
-        this.periodoConfirmado.set(false);
         this.perfilAtual.set(null);
         this.selectedCourseId.set(null);
         this.selectedCourse.set(null);
@@ -172,7 +176,6 @@ export class ProfileSetupService {
         return defer(() => this.local.salvar(this.selectedCourseId(), this.selectedPeriod(),
             this.selectedDisciplinas(), confirmar)).pipe(tap(perfil => {
                 this.atualizarPerfil(perfil);
-                this.periodoConfirmado.set(true);
             }));
     }
 

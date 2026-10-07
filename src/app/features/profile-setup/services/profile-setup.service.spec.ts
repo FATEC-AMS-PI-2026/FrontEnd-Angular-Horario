@@ -52,9 +52,29 @@ describe('ProfileSetupService', () => {
         const request = http.expectOne(`${base}/usuarios/me/perfil/periodo`);
         expect(request.request.method).toBe('PATCH');
         expect(request.request.body).toEqual({ periodo: '3º período' });
-        expect(service.periodoConfirmado()).toBeFalse();
         request.flush({ ...perfil, usuario: { ...perfil.usuario, periodo: '3º período' } });
         expect(service.periodoConfirmado()).toBeTrue();
+        expect(service.selectedDisciplinas()).toEqual(['bd']);
+    });
+
+    it('decide pelo período letivo vindo do servidor se o onboarding volta sozinho (#148)', () => {
+        service.garantirPerfil().subscribe();
+        http.expectOne(`${base}/usuarios/me/perfil`).flush({ ...perfil, periodoLetivoAtual: '2027', periodoLetivoConfirmado: '2026' });
+        expect(service.periodoConfirmado()).toBeFalse();
+        expect(service.destinoAposLogin()).toBe('/setup/period-selection');
+        service.confirmarPeriodo().subscribe();
+        http.expectOne(`${base}/usuarios/me/perfil/periodo`).flush({ ...perfil, periodoLetivoAtual: '2027', periodoLetivoConfirmado: '2027' });
+        expect(service.periodoConfirmado()).toBeTrue();
+        expect(service.destinoAposLogin()).toBe('/dashboard');
+    });
+
+    it('descarta período e disciplinas alterados, voltando ao perfil salvo (#147)', () => {
+        service.garantirPerfil().subscribe();
+        http.expectOne(`${base}/usuarios/me/perfil`).flush(perfil);
+        service.setPeriod('3º período');
+        service.definirDisciplinas([]);
+        service.descartarAlteracoes();
+        expect(service.selectedPeriod()).toBe('2º período');
         expect(service.selectedDisciplinas()).toEqual(['bd']);
     });
 

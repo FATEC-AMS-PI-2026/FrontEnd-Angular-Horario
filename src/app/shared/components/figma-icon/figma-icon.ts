@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
 
-export type FigmaIconName = 'lock' | 'alert' | 'bell' | 'moon' | 'logout' | 'chevron' | 'info' | 'shield' | 'file' | 'external';
+export type FigmaIconName = 'lock' | 'alert' | 'bell' | 'moon' | 'logout' | 'chevron' | 'info' | 'shield' | 'file' | 'external' | 'calendar';
 
 @Component({
   selector: 'app-figma-icon',

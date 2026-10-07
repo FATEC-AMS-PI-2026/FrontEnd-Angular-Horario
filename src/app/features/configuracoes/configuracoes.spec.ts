@@ -32,6 +32,11 @@ describe('Configurações', () => {
     expect(element.querySelector('.conta__curso')?.textContent).toContain('ADS · 3º período');
   });
 
+  it('oferece voltar à escolha de ano e disciplinas (#147)', () => {
+    const link = Array.from(element.querySelectorAll('a')).find(a => a.textContent?.includes('Alterar ano e disciplinas'));
+    expect(link?.getAttribute('href')).toBe('/setup/period-selection');
+  });
+
   it('alterna notificações e tema pelos controles da tela', () => {
     element.querySelector<HTMLInputElement>('#modo-escuro')!.click();
     element.querySelector<HTMLInputElement>('#notificacoes')!.click();
