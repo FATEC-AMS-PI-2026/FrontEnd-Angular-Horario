@@ -11,7 +11,8 @@
                 <legend class="campo__rotulo">Dia da semana</legend>
                 <div class="opcoes" role="radiogroup" aria-label="Dia da semana">
                     @for (opcao of dias; track opcao.valor) {
-                    <button type="button" class="opcao-chip" role="radio" [class.opcao-chip--ativo]="dia() === opcao.valor"
+                    <button type="button" class="opcao-chip filtro-chip" role="radio" [class.opcao-chip--ativo]="dia() === opcao.valor"
+                        [class.filtro-chip--ativo]="dia() === opcao.valor"
                         [attr.aria-checked]="dia() === opcao.valor" [attr.aria-label]="opcao.nome"
                         (click)="selecionarDia(opcao.valor)">
                         {{ opcao.rotulo }}
@@ -41,8 +42,9 @@
                 <legend class="campo__rotulo">Horário</legend>
                 <div class="opcoes" role="radiogroup" aria-label="Horário">
                     @for (opcao of blocos(); track opcao.inicio; let i = $index) {
-                    <button type="button" class="opcao-chip opcao-chip--horario" role="radio"
+                    <button type="button" class="opcao-chip opcao-chip--horario filtro-chip" role="radio"
                         [class.opcao-chip--ativo]="bloco()?.inicio === opcao.inicio"
+                        [class.filtro-chip--ativo]="bloco()?.inicio === opcao.inicio"
                         [attr.aria-checked]="bloco()?.inicio === opcao.inicio"
                         [attr.aria-label]="opcao.inicio + ' às ' + opcao.termino" (click)="selecionarBloco(opcao)">
                         {{ rotuloBloco(i, opcao) }}

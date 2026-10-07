@@ -48,21 +48,33 @@
     font-size: var(--text-lg);
     font-weight: var(--fw-bold);
     color: var(--color-text);
+    line-height: var(--leading-heading);
+}
+
+// Mensagens de carregamento, erro e vazio dentro de cards.
+@mixin card-mensagem {
+    margin: 0;
+    padding: 0;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    line-height: var(--leading-body);
 }
 
 // ---------- Classes utilitárias globais (uso direto no HTML) ----------
-.card {
-    @include card-base;
-}
+@mixin utilitarios {
+    .card {
+        @include card-base;
+    }
 
-.card--interativo {
-    @include card-interativo;
-}
+    .card--interativo {
+        @include card-interativo;
+    }
 
-.card--selecionado {
-    @include card-selecionado;
-}
+    .card--selecionado {
+        @include card-selecionado;
+    }
 
-.card__titulo {
-    @include card-titulo;
+    .card__titulo {
+        @include card-titulo;
+    }
 }

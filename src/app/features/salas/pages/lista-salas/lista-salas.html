@@ -8,12 +8,12 @@
         <circle cx="11" cy="11" r="8"></circle>
         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
       </svg>
-      <input type="search" class="lista-salas__campo-busca" placeholder="Buscar sala pelo nome..."
+      <input type="search" class="lista-salas__campo-busca filtro-campo filtro-campo--busca" placeholder="Buscar sala pelo nome..."
         aria-label="Buscar sala pelo nome" autocomplete="off" [value]="termoBusca()" (input)="onBuscar($event)" />
     </div>
 
     @if (predios().length) {
-    <select class="lista-salas__filtro-predio" aria-label="Filtrar por prédio" (change)="onFiltrarPredio($event)">
+    <select class="lista-salas__filtro-predio filtro-campo" aria-label="Filtrar por prédio" (change)="onFiltrarPredio($event)">
       <option value="">Todos os prédios</option>
       @for (predio of predios(); track predio) {
         <option [value]="predio">{{ predio }}</option>

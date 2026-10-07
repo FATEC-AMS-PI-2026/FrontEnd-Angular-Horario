@@ -1,22 +1,18 @@
+@use 'filters';
+
 .lista-salas {
-    padding: var(--space-sm);
+    @include filters.area;
     min-height: var(--page-min-height);
     box-sizing: border-box;
     font-family: var(--font-sans);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-lg);
 }
 
-.lista-salas__filtros, .lista-salas__tipos {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2xs);
-    align-items: center;
-}
+.lista-salas__filtros { @include filters.linha; }
+.lista-salas__tipos { @include filters.grupo; }
 
 .lista-salas__busca-wrapper {
     position: relative;
+    min-width: 0;
     flex: 1 1 320px;
     display: flex;
     align-items: center;
@@ -29,24 +25,6 @@
     pointer-events: none;
 }
 
-.lista-salas__campo-busca, .lista-salas__filtro-predio {
-    box-sizing: border-box;
-    padding: 0.6rem var(--space-md);
-    border: 1px solid var(--color-border-strong);
-    border-radius: var(--radius-md);
-    font: inherit;
-    font-size: var(--text-sm);
-    color: var(--color-text);
-    background: var(--color-surface);
-    box-shadow: var(--shadow-card);
-}
-
-.lista-salas__campo-busca {
-    width: 100%;
-    padding-left: 2.5rem;
-    &::placeholder { color: var(--color-text-subtle); }
-}
-
 .lista-salas__filtro-predio { margin-left: auto; cursor: pointer; }
 
 :is(input, select, button, a):focus-visible {
@@ -54,27 +32,12 @@
     outline-offset: 3px;
 }
 
-.filtro-chip {
-    min-height: 2rem;
-    padding: 0.35rem var(--space-sm);
-    border: 1px solid var(--color-border-strong);
-    border-radius: var(--radius-pill);
-    background: var(--color-surface);
-    color: var(--color-text-muted);
-    font: inherit;
-    font-size: var(--text-sm);
-    font-weight: var(--fw-semibold);
-    cursor: pointer;
-    &:hover { border-color: var(--color-primary); }
-    &--ativo { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-on-primary); }
-}
-
 .grade-salas {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--space-xl);
     list-style: none;
-    margin: var(--space-lg) 0 0;
+    margin: 0;
     padding: 0;
 }
 
@@ -112,6 +75,5 @@
     .grade-salas { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-lg); }
 }
 @media (max-width: 650px) {
-    .lista-salas { padding: 0; }
-    .grade-salas { grid-template-columns: minmax(0, 1fr); margin-top: 0; }
+    .grade-salas { grid-template-columns: minmax(0, 1fr); }
 }

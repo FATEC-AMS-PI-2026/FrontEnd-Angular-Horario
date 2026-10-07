@@ -1,25 +1,23 @@
+@use 'cards';
+@use 'filters';
+
 .professores {
-    padding: var(--space-lg);
+    @include filters.area;
     background-color: var(--color-bg);
-    min-height: calc(100vh - var(--layout-topbar-height, 80px));
+    min-height: var(--page-min-height, 0px);
     width: 100%;
     box-sizing: border-box;
     font-family: var(--font-sans);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-md);
 }
 
 /* FILTROS (CAMPO DE BUSCA E SELECT) */
 .professores__filtros {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-sm);
-    align-items: center;
+    @include filters.linha;
 }
 
 .professores__busca-wrapper {
     position: relative;
+    min-width: 0;
     flex: 1 1 320px;
     display: flex;
     align-items: center;
@@ -32,87 +30,15 @@
     }
 }
 
-.professores__campo-busca {
-    width: 100%;
-    padding: 0.6rem var(--space-md) 0.6rem 2.5rem;
-    border: 1px solid var(--color-border-strong);
-    border-radius: var(--radius-md);
-    font-size: var(--text-sm);
-    font-family: inherit;
-    color: var(--color-text);
-    background: var(--color-surface);
-    box-shadow: var(--shadow-card);
-    outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-
-    &::placeholder {
-        color: var(--color-placeholder);
-    }
-
-    &:focus {
-        border-color: var(--color-primary);
-        box-shadow: 0 0 0 3px var(--color-focus-ring);
-    }
-}
-
 .professores__filtro-cargo {
     flex: 0 0 180px;
     margin-left: auto;
-    padding: 0.6rem var(--space-md);
-    border: 1px solid var(--color-border-strong);
-    border-radius: var(--radius-md);
-    font-size: var(--text-sm);
-    font-family: inherit;
-    color: var(--color-text);
-    background: var(--color-surface);
     cursor: pointer;
-    box-shadow: var(--shadow-card);
-    outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-
-    &:focus {
-        border-color: var(--color-primary);
-        box-shadow: 0 0 0 3px var(--color-focus-ring);
-    }
-}
-
-.professores__filtros + .professores__cursos {
-    margin-top: calc(var(--space-2xs) * -1);
 }
 
 /* CHIPS DE CURSO */
 .professores__cursos {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2xs);
-}
-
-.curso-chip {
-    min-height: 2rem;
-    padding: 0.35rem 1rem;
-    border: 1px solid var(--color-border-strong);
-    border-radius: var(--radius-pill);
-    background: var(--color-surface);
-    color: var(--color-text-muted);
-    font-family: inherit;
-    font-size: var(--text-sm);
-    font-weight: var(--fw-semibold);
-    cursor: pointer;
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-
-    &:hover {
-        border-color: var(--color-placeholder);
-    }
-
-    &--ativo {
-        background: var(--color-primary);
-        border-color: var(--color-primary);
-        color: var(--color-on-primary);
-
-        &:hover {
-            border-color: var(--color-primary-hover);
-        }
-    }
+    @include filters.grupo;
 }
 
 /* LISTA HORIZONTAL DE CARDS DE PROFESSOR */
@@ -148,7 +74,7 @@
     }
 
     >li {
-        flex: 0 0 340px; // Proporção idêntica ao Figma
+        flex: 0 0 min(340px, 100%);
         display: flex;
         scroll-snap-align: start;
     }
@@ -234,27 +160,18 @@
 
 /* CARD DE AULAS (SUPERFÍCIE UNIFICADA DO FIGMA) */
 .aulas-professor {
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    padding: var(--space-lg);
-    box-shadow: var(--shadow-card);
+    @include cards.card-base;
     display: flex;
     flex-direction: column;
     gap: var(--space-md);
 }
 
 .aulas-professor__titulo {
-    margin: 0;
-    font-size: var(--text-lg);
-    font-weight: var(--fw-bold);
-    color: var(--color-text);
+    @include cards.card-titulo;
 }
 
 .aulas-professor__vazio {
-    color: var(--color-text-subtle);
-    margin: 0;
-    font-size: var(--text-sm);
+    @include cards.card-mensagem;
 }
 
 .dia-aulas {
@@ -300,6 +217,8 @@
     }
 
     &__info {
+        min-width: 0;
+        overflow-wrap: anywhere;
         display: flex;
         flex-direction: column;
         gap: 0.1rem;
