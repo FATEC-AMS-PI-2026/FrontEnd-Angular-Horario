@@ -1,6 +1,15 @@
 /* Estilos globais e tokens de identidade visual do GINI (ver briefing, seção 8.3) */
 @use './styles/tokens';
 @use './styles/cards';
+@use './styles/auth';
+@use './styles/filters';
+
+@include cards.utilitarios;
+@include filters.utilitarios;
+
+html {
+    scrollbar-gutter: stable;
+}
 
 * {
     box-sizing: border-box;
@@ -14,4 +23,24 @@ body {
     font-size: var(--text-md);
     color: var(--color-text);
     background: var(--color-bg);
+}
+
+body {
+    line-height: var(--leading-body);
+}
+
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    line-height: var(--leading-heading);
 }

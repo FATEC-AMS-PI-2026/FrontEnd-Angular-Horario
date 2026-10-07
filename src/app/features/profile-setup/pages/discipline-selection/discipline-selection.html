@@ -26,19 +26,23 @@
     <div class="grade-layout">
         <div class="catalogo">
             <div class="filtros">
-                <label for="busca-disciplina">Buscar disciplina</label>
-                <input #campoBusca id="busca-disciplina" type="search" placeholder="Busque pelo nome da disciplina"
-                    [value]="busca()" (input)="busca.set(campoBusca.value)" [disabled]="saving()" />
+                <div class="filtros__busca">
+                    <label for="busca-disciplina">Buscar disciplina</label>
+                    <input #campoBusca class="filtro-campo" id="busca-disciplina" type="search" placeholder="Busque pelo nome da disciplina"
+                        [value]="busca()" (input)="busca.set(campoBusca.value)" [disabled]="saving()" />
+                </div>
                 <div class="periodos" role="group" [attr.aria-label]="'Filtrar disciplinas por ' + setupService.nomePeriodo()">
                     @for (periodo of periodos(); track periodo) {
-                    <button type="button" class="pill" [class.active]="filtroPeriodo() === periodo"
+                    <button type="button" class="pill filtro-chip" [class.active]="filtroPeriodo() === periodo"
+                        [class.filtro-chip--ativo]="filtroPeriodo() === periodo"
                         [attr.aria-pressed]="filtroPeriodo() === periodo" [disabled]="saving()"
                         (click)="filtroPeriodo.set(periodo)">
                         {{ periodo }}
                         @if (periodo === setupService.selectedPeriod()) { <span>Atual</span> }
                     </button>
                     }
-                    <button type="button" class="pill" [class.active]="filtroPeriodo() === null"
+                    <button type="button" class="pill filtro-chip" [class.active]="filtroPeriodo() === null"
+                        [class.filtro-chip--ativo]="filtroPeriodo() === null"
                         [attr.aria-pressed]="filtroPeriodo() === null" [disabled]="saving()"
                         (click)="filtroPeriodo.set(null)">Todos os {{ setupService.nomePeriodos() }}</button>
                 </div>
@@ -47,11 +51,19 @@
             <div class="lista-cabecalho">
                 <h3>{{ filtroPeriodo() || 'Todos os ' + setupService.nomePeriodos() }}</h3>
                 <span>{{ visiveis().length }} disciplinas encontradas</span>
-                <button type="button" class="btn-secondary" (click)="adicionarTodas()"
+                @if (modoRemoverTodas()) {
+                <button type="button" class="btn-secondary" (click)="alternarTodas()"
+                    [disabled]="saving() || loading()"
+                    title="Desmarcar todas as disciplinas selecionadas, de todos os {{ setupService.nomePeriodos() }}">
+                    Remover todas as disciplinas
+                </button>
+                } @else {
+                <button type="button" class="btn-secondary" (click)="alternarTodas()"
                     [disabled]="!podeAdicionarTodas()"
                     [title]="filtroPeriodo() ? 'Adicionar todas as disciplinas do ' + filtroPeriodo() : 'Selecione um ' + setupService.nomePeriodo() + ' para adicionar suas disciplinas'">
                     Adicionar todas as disciplinas
                 </button>
+                }
             </div>
             <fieldset class="disciplinas" [disabled]="saving()">
                 <legend>Selecione as disciplinas para sua grade</legend>

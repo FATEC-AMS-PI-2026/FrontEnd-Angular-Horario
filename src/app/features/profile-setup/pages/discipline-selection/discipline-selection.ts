@@ -34,6 +34,9 @@ export class DisciplineSelection implements OnInit {
         this.carregado() && !this.loading() && !this.saving() &&
         this.disciplinasDoPeriodo().some(item =>
             !this.setupService.selectedDisciplinas().includes(item.id)));
+    /** Com o período todo marcado (ou sem período no filtro), o botão passa a limpar a seleção (#146). */
+    readonly modoRemoverTodas = computed(() =>
+        !this.podeAdicionarTodas() && this.setupService.selectedDisciplinas().length > 0);
     readonly selecionadas = computed(() => {
         const ids = new Set(this.setupService.selectedDisciplinas());
         return this.disciplinas().filter(disciplina => ids.has(disciplina.id));
@@ -126,6 +129,16 @@ export class DisciplineSelection implements OnInit {
             ...this.setupService.selectedDisciplinas(),
             ...this.disciplinasDoPeriodo().map(item => item.id),
         ]);
+    }
+
+    removerTodas(): void {
+        if (!this.carregado() || this.loading() || this.saving() || !this.modoRemoverTodas()) return;
+        this.setupService.definirDisciplinas([]);
+    }
+
+    alternarTodas(): void {
+        if (this.modoRemoverTodas()) this.removerTodas();
+        else this.adicionarTodas();
     }
 
     limparFiltros(): void {

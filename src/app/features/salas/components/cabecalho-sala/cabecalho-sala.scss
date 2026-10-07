@@ -9,4 +9,7 @@ h2 { margin: 0 0 var(--space-xs); font-size: var(--text-lg); color: var(--color-
 .cabecalho-sala__resumo { display: flex; flex-wrap: wrap; gap: var(--space-sm); margin-top: var(--space-sm); color: var(--color-text-subtle); font-size: var(--text-sm); strong { color: var(--color-text-muted); } }
 .cabecalho-sala__voltar { padding: var(--space-3xs) var(--space-md); border: 1px solid var(--color-border-strong); border-radius: var(--radius-pill); text-decoration: none; color: var(--color-text); font-size: var(--text-sm); font-weight: var(--fw-semibold); background: var(--color-bg); }
 a:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
-@media (max-width: 600px) { .cabecalho-sala { flex-wrap: wrap; } .cabecalho-sala__voltar { margin-left: auto; } }
+@media (max-width: 600px) {
+  .cabecalho-sala { display: grid; grid-template-columns: auto minmax(0, 1fr); }
+  .cabecalho-sala__voltar { grid-column: 2; justify-self: end; }
+}

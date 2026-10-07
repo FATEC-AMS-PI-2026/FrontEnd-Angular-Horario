@@ -1,4 +1,6 @@
 @use 'cards';
+@use 'setup';
+@use 'filters';
 
 .discipline-selection {
     display: flex;
@@ -47,7 +49,12 @@ p {
 
 .filtros {
     display: grid;
-    gap: var(--space-xs);
+    gap: var(--space-lg);
+
+    &__busca {
+        display: grid;
+        gap: var(--space-2xs);
+    }
 
     label {
         font-weight: var(--fw-semibold);
@@ -56,46 +63,15 @@ p {
 
     input {
         width: 100%;
-        border: 1px solid var(--color-border-strong);
-        border-radius: var(--radius-md);
-        padding: var(--space-xs) var(--space-sm);
-        background: var(--color-surface);
-        color: var(--color-text);
-        font: inherit;
     }
 }
 
 .periodos {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2xs);
+    @include filters.grupo;
 }
 
-button {
-    font: inherit;
-    cursor: pointer;
-}
-
-.pill {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2xs);
-    padding: var(--space-2xs) var(--space-xs);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-pill);
-    background: var(--color-surface);
-    color: var(--color-text-muted);
-    font-size: var(--text-sm);
-
-    span {
-        font-size: var(--text-xs);
-    }
-
-    &.active {
-        background: var(--color-primary);
-        color: var(--color-on-primary);
-        border-color: var(--color-primary);
-    }
+.pill span {
+    font-size: var(--text-xs);
 }
 
 .lista-cabecalho {
@@ -290,25 +266,17 @@ button {
 }
 
 .footer-actions {
-    margin-top: auto;
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-xs);
+    @include setup.acoes;
 }
 
 .btn-primary,
 .btn-secondary {
-    padding: var(--space-xs) var(--space-lg);
-    border: 1px solid var(--color-border-strong);
-    border-radius: var(--radius-md);
-    background: var(--color-surface);
-    color: var(--color-text);
-    font-weight: var(--fw-semibold);
+    @include setup.botao;
 }
 
 .btn-primary {
     background: var(--color-primary);
-    color: var(--color-on-primary);
+    color: var(--color-on-action);
     border-color: var(--color-primary);
 }
 

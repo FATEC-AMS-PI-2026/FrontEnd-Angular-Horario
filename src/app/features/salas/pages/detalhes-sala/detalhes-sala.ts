@@ -14,8 +14,8 @@ import { TopbarContextService } from '../../../../core/services/topbar-context.s
 import { EquipamentosCard } from '../../components/equipamentos-card/equipamentos-card';
 import { ProximosHorariosCard } from '../../components/proximos-horarios-card/proximos-horarios-card';
 import { AulasDoDiaCard } from '../../components/aulas-do-dia-card/aulas-do-dia-card';
-import { TecnicoCard } from '../../components/tecnico-card/tecnico-card';
 import { horarioAcademico } from '../../../dashboard/models/grade-dia.model';
+import { RecursosSalaService } from '../../services/recursos-sala';
 
 interface EstadoDetalhes {
   sala?: SalaResumo;
@@ -27,11 +27,13 @@ interface EstadoDetalhes {
 
 @Component({
   selector: 'app-detalhes-sala',
-  imports: [RouterLink, CabecalhoSala, EquipamentosCard, ProximosHorariosCard, AulasDoDiaCard, TecnicoCard],
+  imports: [RouterLink, CabecalhoSala, EquipamentosCard, ProximosHorariosCard, AulasDoDiaCard],
   templateUrl: './detalhes-sala.html',
   styleUrl: './detalhes-sala.scss',
+  providers: [RecursosSalaService],
 })
 export class DetalhesSala {
+  protected readonly recursos = inject(RecursosSalaService);
   private readonly route = inject(ActivatedRoute);
   private readonly salas = inject(SalasApiService);
   private readonly horarios = inject(DisponibilidadeSalaService);
@@ -51,6 +53,7 @@ export class DetalhesSala {
   protected readonly estado = toSignal(combineLatest([
     this.route.paramMap, this.recarregar.pipe(startWith(undefined)),
   ]).pipe(switchMap(([params]) => {
+    this.recursos.limpar();
     const parametro = params.get('id') ?? '';
     if (/^local-[1-9]\d*$/.test(parametro)) {
       return this.locaisCarregando.pipe(map(carregando => {
@@ -65,6 +68,7 @@ export class DetalhesSala {
     }
     return this.salas.obterPorId(id).pipe(
       switchMap(sala => {
+        this.recursos.carregar(sala.id);
         if (!this.horarios.agendaCompleta) {
           return of<EstadoDetalhes>({ sala, erroAgenda: 'Não foi possível confirmar a agenda completa desta sala.' });
         }
@@ -86,15 +90,24 @@ export class DetalhesSala {
 
   protected readonly disponibilidade = computed(() => {
     const estado = this.estado();
+    if (this.locais.carregando() || this.locais.erro()) return undefined;
     return estado.sala && estado.agenda
       ? calcularDisponibilidade(estado.sala.id, estado.agenda, this.agora(), this.aulas().filter(a => a.origem === 'local')) : undefined;
   });
+
+  protected readonly erroAgenda = computed(() => {
+    const disponibilidade = this.disponibilidade();
+    return this.estado().erroAgenda ?? (disponibilidade && !disponibilidade.status ? disponibilidade.texto : null);
+  });
+  protected readonly carregandoHorarios = computed(() => this.locais.carregando() ||
+    (this.estado().sala?.origem !== 'local' && !this.estado().agenda && !this.erroAgenda()));
+  protected readonly horariosIndisponiveis = computed(() => !!this.erroAgenda() || !!this.locais.erro());
 
   protected readonly aulas = computed(() => {
     const estado = this.estado();
     if (!estado.sala) return [];
     const java = aulasJavaDaSala(estado.sala.id, estado.agenda ?? [], this.agora());
-    const locais = aulasLocaisDaSala(this.locais.catalogo(), estado.sala.nome, this.agora());
+    const locais = this.locais.erro() ? [] : aulasLocaisDaSala(this.locais.catalogo(), estado.sala.nome, this.agora());
     return unirAulas(java, locais);
   });
   protected readonly proximos = computed(() => this.aulas()

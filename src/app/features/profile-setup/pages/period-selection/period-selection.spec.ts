@@ -111,4 +111,25 @@ describe('PeriodSelection', () => {
         http.expectOne(environment.apiUrl + '/usuarios/me/perfil/periodo').flush(perfil);
         expect(navigate).toHaveBeenCalledOnceWith(['/setup/discipline-selection']);
     });
+    it('cancela pela Configurações descartando a troca de período (#147)', () => {
+        setup.carregarPerfil('token').subscribe();
+        http.expectOne(environment.apiUrl + '/usuarios/me/perfil').flush(perfil);
+        fixture.detectChanges();
+        component.selecionar('2º semestre');
+        const cancelar = (Array.from(fixture.nativeElement.querySelectorAll('button')) as HTMLButtonElement[])
+            .find(button => button.textContent?.trim() === 'Cancelar');
+        cancelar!.click();
+        expect(setup.selectedPeriod()).toBe('1º semestre');
+        expect(navigate).toHaveBeenCalledOnceWith(['/dashboard']);
+        http.expectNone(environment.apiUrl + '/usuarios/me/perfil/periodo');
+    });
+    it('não oferece cancelar quando um novo período letivo precisa ser confirmado (#148)', () => {
+        setup.carregarPerfil('token').subscribe();
+        http.expectOne(environment.apiUrl + '/usuarios/me/perfil').flush({ ...perfil, periodoLetivoAtual: '2027', periodoLetivoConfirmado: '2026' });
+        fixture.detectChanges();
+        const textos = (Array.from(fixture.nativeElement.querySelectorAll('button')) as HTMLButtonElement[]).map(b => b.textContent?.trim());
+        expect(textos).not.toContain('Cancelar');
+        component.cancelar();
+        expect(navigate).not.toHaveBeenCalled();
+    });
 });

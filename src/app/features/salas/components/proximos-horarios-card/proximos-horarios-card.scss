@@ -1,6 +1,9 @@
+@use 'cards';
+
 :host { display: block; min-width: 0; }
-h2 { color: var(--color-text-muted); margin: 0 0 var(--space-md); font-size: var(--text-lg); }
+h2 { @include cards.card-titulo; margin-bottom: var(--space-md); }
 ul { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-sm); }
 .proximo-horario { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-sm); align-items: center; padding: var(--space-xs); border-radius: var(--radius-sala); background: var(--color-primary-pale); color: var(--color-text); font-size: var(--text-sm); overflow-wrap: anywhere; p { margin: var(--space-3xs) 0 0; color: var(--color-text-muted); font-size: var(--text-xs); } }
 .proximo-horario__horario { display: grid; gap: var(--space-3xs); color: var(--color-text-muted); font-family: var(--font-mono); font-size: var(--text-xs); }
-.proximos-horarios-card__vazio { min-height: 150px; }
+.proximos-horarios-card__vazio { @include cards.card-mensagem; }
+.proximos-horarios-card__vazio + ul { margin-top: var(--space-xs); }

@@ -27,6 +27,8 @@ export class AulasDoDiaCard {
   /** Aulas do dia na sala, em qualquer ordem — o componente ordena. */
   readonly aulas = input.required<AulaDoDia[]>();
   readonly agora = input<Date>();
+  readonly carregando = input(false);
+  readonly indisponivel = input(false);
 
   /** Aulas ordenadas por horário de início crescente (critério de aceite). */
   protected readonly aulasOrdenadas = computed(() =>
