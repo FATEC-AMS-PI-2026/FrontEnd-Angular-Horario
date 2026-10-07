@@ -1,10 +1,10 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable, catchError, map, throwError } from 'rxjs';
 import { BACKEND_CONFIG } from '../../../core/services/backend-config';
 import { AulaHorario, ItemHorario } from '../models/item-horario';
 import { Turma } from '../models/turma';
-import { comIntervalos, ler, ordenarTurmas, paraAulaHorario, paraTurma, quadroAtivo } from './mapeadores-backend';
+import { comIntervalos, ler, ordenarTurmas, paraAulaHorario, paraTurma, quadroAtivo, turmasDasAlocacoes } from './mapeadores-backend';
 
 /** O backend pagina por padrão (10 itens); como as telas não paginam, pedimos tudo de uma vez. */
 const TAMANHO_PAGINA = 200;
@@ -35,7 +35,11 @@ export class TurmasHorariosApiService {
     private readonly http = inject(HttpClient);
     private readonly baseUrl = inject(BACKEND_CONFIG).url.replace(/\/+$/, '');
 
-    /** Turmas do curso (ex.: ADS), opcionalmente de um ano letivo e período, ordenadas. */
+    /**
+     * Turmas do curso (ex.: ADS), opcionalmente de um ano letivo e período, ordenadas.
+     * Se `/turmas` falhar no servidor (no PostgreSQL ele dá 500 por um bug do
+     * backend com filtro vazio), as turmas são deduzidas de `/alocacoes`.
+     */
     listarTurmasDoCurso(cursoId: number, filtro: { ano?: number; periodo?: number } = {}): Observable<Turma[]> {
         const params: Record<string, number> = { [CONTRATO.turmas.filtroCurso]: cursoId, page: 0, size: TAMANHO_PAGINA };
         if (filtro.ano !== undefined) params['ano'] = filtro.ano;
@@ -44,6 +48,16 @@ export class TurmasHorariosApiService {
             map(pagina => ordenarTurmas(conteudo(pagina)
                 .map(paraTurma)
                 .filter((turma): turma is Turma => turma !== null))),
+            catchError((erro: unknown) => erro instanceof HttpErrorResponse && erro.status >= 500
+                ? this.turmasPelasAlocacoes(cursoId, filtro)
+                : throwError(() => erro)),
+        );
+    }
+
+    private turmasPelasAlocacoes(cursoId: number, filtro: { ano?: number; periodo?: number }): Observable<Turma[]> {
+        const params = { page: 0, size: TAMANHO_PAGINA };
+        return this.http.get<unknown>(`${this.baseUrl}/${CONTRATO.alocacoes.rota}`, { params }).pipe(
+            map(pagina => turmasDasAlocacoes(conteudo(pagina), cursoId, filtro)),
         );
     }
 

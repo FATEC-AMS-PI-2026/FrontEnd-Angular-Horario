@@ -82,10 +82,36 @@ describe('TurmasHorariosApiService (#150)', () => {
         expect(itens).toEqual([]);
     });
 
-    it('deixa o erro HTTP para quem chamou tratar', () => {
+    it('com 500 em /turmas (bug do backend no PostgreSQL) deduz as turmas do curso pelas alocações', () => {
+        let turmas: Turma[] = [];
+        service.listarTurmasDoCurso(1).subscribe(t => turmas = t);
+        http.expectOne(r => r.url === `${BASE}/turmas`)
+            .flush({ message: 'function lower(bytea) does not exist' }, { status: 500, statusText: 'Erro' });
+        const req = http.expectOne(r => r.url === `${BASE}/alocacoes`);
+        expect(req.request.params.has('turma')).toBeFalse();
+        expect(req.request.params.get('size')).toBe('200');
+        req.flush(pagina([
+            { ...ALOCACAO_REAL, turma: { id: 4, codigo: '2/2026-ADS', periodo: 2, ano: 2026, numeroAlunos: 38, curso: { id: 1 } } },
+            ALOCACAO_REAL,
+            { ...ALOCACAO_REAL, id: 9 },
+            { ...ALOCACAO_REAL, turma: { id: 1, codigo: '2/2026', periodo: 2, ano: 2026, curso: { id: 2 } } },
+        ]));
+        expect(turmas.map(t => t.codigo)).toEqual(['1/2026', '2/2026-ADS']);
+    });
+
+    it('propaga o erro quando o plano B também falha', () => {
         let status = 0;
         service.listarTurmasDoCurso(1).subscribe({ error: e => status = e.status });
-        http.expectOne(r => r.url === `${BASE}/turmas`).flush({ message: 'erro' }, { status: 500, statusText: 'Erro' });
-        expect(status).toBe(500);
+        http.expectOne(r => r.url === `${BASE}/turmas`).flush({}, { status: 500, statusText: 'Erro' });
+        http.expectOne(r => r.url === `${BASE}/alocacoes`).flush({}, { status: 503, statusText: 'Indisponível' });
+        expect(status).toBe(503);
+    });
+
+    it('não usa o plano B para erro do cliente (ex.: 400) e deixa o erro para quem chamou', () => {
+        let status = 0;
+        service.listarTurmasDoCurso(1).subscribe({ error: e => status = e.status });
+        http.expectOne(r => r.url === `${BASE}/turmas`).flush({ message: 'erro' }, { status: 400, statusText: 'Erro' });
+        http.expectNone(r => r.url === `${BASE}/alocacoes`);
+        expect(status).toBe(400);
     });
 });

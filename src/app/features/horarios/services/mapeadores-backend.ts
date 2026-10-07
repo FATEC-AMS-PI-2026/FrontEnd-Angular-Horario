@@ -113,6 +113,29 @@ export function paraTurma(registro: unknown): Turma | null {
     };
 }
 
+/**
+ * Turmas de um curso deduzidas das alocações. Plano B para quando `/turmas`
+ * falha: no PostgreSQL o filtro de texto vazio do backend dá 500
+ * (`lower(bytea)`), enquanto `/alocacoes` funciona. Só aparecem turmas com
+ * pelo menos uma aula alocada.
+ */
+export function turmasDasAlocacoes(
+    alocacoes: unknown[], cursoId: number, filtro: { ano?: number; periodo?: number } = {},
+): Turma[] {
+    const porId = new Map<number, Turma>();
+    for (const alocacao of alocacoes) {
+        const turma = paraTurma(ler(alocacao, 'turma'));
+        if (!turma || porId.has(turma.id)) continue;
+        // A turma da alocação às vezes vem sem curso; nesse caso vale o curso do quadro horário.
+        const curso = turma.cursoId ?? numero(ler(ler(alocacao, 'quadroHorario'), 'curso'), 'id');
+        if (curso !== cursoId) continue;
+        if (filtro.ano !== undefined && turma.ano !== filtro.ano) continue;
+        if (filtro.periodo !== undefined && turma.periodo !== filtro.periodo) continue;
+        porId.set(turma.id, { ...turma, cursoId: curso });
+    }
+    return ordenarTurmas([...porId.values()]);
+}
+
 export function ordenarTurmas(turmas: Turma[]): Turma[] {
     return [...turmas].sort((a, b) => a.ano - b.ano || a.periodo - b.periodo ||
         a.codigo.localeCompare(b.codigo, 'pt-BR', { numeric: true }));

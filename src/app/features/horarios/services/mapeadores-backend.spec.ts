@@ -1,6 +1,6 @@
 import {
     INTERVALO_MAXIMO_MIN, comIntervalos, ler, nomeProfessor, nomeSala, ordenarTurmas, paraAulaHorario,
-    paraDiaSemana, paraHora, paraTurma, quadroAtivo,
+    paraDiaSemana, paraHora, paraTurma, quadroAtivo, turmasDasAlocacoes,
 } from './mapeadores-backend';
 import { AulaHorario, PROFESSOR_A_DEFINIR } from '../models/item-horario';
 
@@ -103,6 +103,21 @@ describe('mapeadores do backend (#150)', () => {
         expect(paraTurma({ id: 10, codigo: '4º ANO', periodo: 1, ano: 2026, numero_alunos: 35, curso: { id: 1, nome: 'AMS' } }))
             .toEqual({ id: 10, codigo: '4º ANO', periodo: 1, ano: 2026, numeroAlunos: 35, cursoId: 1, cursoNome: 'AMS' });
         expect(paraTurma({ id: 3, codigo: '', periodo: 1, ano: 2026 })).toBeNull();
+    });
+
+    it('deduz as turmas de um curso pelas alocações, sem repetir e respeitando ano/período', () => {
+        const alocacoes = [
+            ALOCACAO_REAL,
+            { ...ALOCACAO_REAL, id: 2 },
+            { ...ALOCACAO_REAL, turma: { id: 4, codigo: '2/2026-ADS', periodo: 2, ano: 2026, curso: { id: 1 } } },
+            { ...ALOCACAO_REAL, turma: { id: 1, codigo: '2/2026', periodo: 2, ano: 2026, curso: { id: 2 } } },
+            // Turma sem curso: usa o curso do quadro horário.
+            { ...ALOCACAO_REAL, turma: { id: 8, codigo: '3/2026', periodo: 3, ano: 2026 }, quadroHorario: { curso: { id: 1 } } },
+        ];
+        expect(turmasDasAlocacoes(alocacoes, 1).map(t => t.id)).toEqual([2, 4, 8]);
+        expect(turmasDasAlocacoes(alocacoes, 1, { periodo: 2 }).map(t => t.id)).toEqual([4]);
+        expect(turmasDasAlocacoes(alocacoes, 1, { ano: 2027 })).toEqual([]);
+        expect(turmasDasAlocacoes(alocacoes, 1).find(t => t.id === 8)?.cursoId).toBe(1);
     });
 
     it('ordena turmas por ano, período e código', () => {
