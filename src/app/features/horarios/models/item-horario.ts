@@ -17,6 +17,12 @@ export const DIAS_SEMANA: { valor: DiaSemana; rotulo: string; nome: string }[] =
     { valor: 'sab', rotulo: 'Sáb', nome: 'Sábado' },
 ];
 
+/**
+ * Texto exibido quando a aula ainda não tem professor (#114). No backend da
+ * turma o professor não é ator e o futuro `/motor-quadro` nem o devolve (#150).
+ */
+export const PROFESSOR_A_DEFINIR = 'Professor a definir';
+
 /** Uma aula na grade do aluno, exibida como uma linha da tabela de Horários. */
 export interface AulaHorario {
     tipo: 'aula';

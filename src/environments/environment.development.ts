@@ -7,7 +7,9 @@ export const environment = {
     apiUrl: 'http://localhost:8080',
     // Módulos já integrados ao Java, liberados mesmo com `backendHabilitado`
     // desligado (que continua controlando login/perfil). Ver issue #132.
-    modulosBackend: ['salas', 'alocacoes', 'recurso-sala'],
+    // `turmas` (#150) dá 500 no Postgres (bug lower(bytea) do backend); nesse caso o
+    // TurmasHorariosApiService deduz as turmas de `alocacoes`. No H2 funciona direto.
+    modulosBackend: ['salas', 'alocacoes', 'recurso-sala', 'turmas'],
     // Requer Java no perfil dev com app.security.authorization.enabled=false.
     // Desativar se /alocacoes passar a restringir os resultados por curso.
     agendaSalasCompleta: true,

@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { HorariosService } from '../horarios/services/horarios';
-import { AulaHorario, DiaSemana } from '../horarios/models/item-horario';
+import { AulaHorario, DiaSemana, PROFESSOR_A_DEFINIR } from '../horarios/models/item-horario';
 import { atribuirCores, CorMateria, embaralhar, PALETA_MATERIAS } from '../../shared/utils/cores-materia';
 
-/** Texto do card quando a aula ainda não tem professor atribuído (#114). */
-export const PROFESSOR_A_DEFINIR = 'Professor a definir';
+/** Mantido aqui por compatibilidade; a fonte é `item-horario.ts` (#150). */
+export { PROFESSOR_A_DEFINIR };
 
 /** Uma linha da grade: um horário com a aula de cada dia, ou um intervalo. */
 interface LinhaGrade {
