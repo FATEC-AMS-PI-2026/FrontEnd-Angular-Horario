@@ -1,0 +1,33 @@
+@use 'cards';
+
+:host { display: block; min-width: 0; }
+.exemplo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-lg);
+  min-width: 0;
+  color: var(--color-text);
+  > .card { min-width: 0; }
+  p { @include cards.card-mensagem; margin-top: var(--space-sm); }
+  a { color: var(--color-primary); }
+  &__introducao { display: grid; gap: var(--space-sm); p { margin: 0; } }
+  &__selecao {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-md);
+    label { display: grid; gap: var(--space-2xs); min-width: 0; font-size: var(--text-sm); }
+    p, button { grid-column: 1 / -1; margin: 0; }
+    button { justify-self: start; }
+  }
+  &__selecao &__falha { display: flex; align-items: center; grid-column: 1 / -1; input { flex: 0 0 auto; } }
+  & &__resultado { padding: var(--space-sm); background: var(--color-primary-pale); border-radius: var(--radius-md); }
+  &__tabela-scroll { margin-top: var(--space-sm); overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+  th, td { padding: var(--space-xs); text-align: left; border-bottom: 1px solid var(--color-border); white-space: nowrap; }
+  th { color: var(--color-text-muted); }
+  &__legenda { text-align: left; color: var(--color-text-subtle); margin-bottom: var(--space-sm); }
+  &__intervalo { background: var(--color-bg); color: var(--color-text-subtle); }
+  &__consultas { overflow-wrap: anywhere; summary { cursor: pointer; font-weight: var(--fw-semibold); } ol { padding-left: var(--space-md); } code { font-family: var(--font-mono); font-size: var(--text-xs); } }
+  :is(a, select, input, button, summary, [tabindex]):focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+}
+@media (max-width: 650px) { .exemplo__selecao { grid-template-columns: minmax(0, 1fr); } }

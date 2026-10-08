@@ -44,6 +44,14 @@
     }
 }
 
+.horarios__acoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    align-items: center;
+    a { text-decoration: none; }
+}
+
 /* CHIPS DE DIA (mesmo visual do filtro de tipos em lista-salas) */
 .horarios__dias {
     @include filters.grupo;
