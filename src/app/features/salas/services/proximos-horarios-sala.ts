@@ -1,4 +1,5 @@
 import { horarioAcademico } from '../../dashboard/models/grade-dia.model';
+import { INTERVALO_MAXIMO_MIN } from '../../horarios/services/mapeadores-backend';
 import { AulaDoDia } from '../models/aula-do-dia';
 import { ProximoHorario } from '../models/proximo-horario';
 
@@ -19,6 +20,8 @@ function horario(minuto: number): string {
  * Intercala aulas futuras e lacunas da agenda de hoje entre 08:00 e 21:30.
  * A aula em andamento permanece em "Aulas nesta sala hoje", mas ocupa seu
  * intervalo neste cálculo. Consulta incompleta ou inválida não comprova lacunas.
+ * Pausas entre duas aulas de até INTERVALO_MAXIMO_MIN não viram "Sala vazia",
+ * seguindo a mesma regra usada nas consultas de horários das turmas.
  */
 export function proximosHorariosDaSala(aulas: AulaDoDia[], agora: Date, agendaDisponivel: boolean): ProximoHorario[] {
   const momento = minutos(horarioAcademico(agora).slice(0, 5));
@@ -35,15 +38,20 @@ export function proximosHorariosDaSala(aulas: AulaDoDia[], agora: Date, agendaDi
   if (!agendaDisponivel || validas.length !== aulas.length) return proximos;
 
   let cursor = Math.max(ABERTURA, momento);
+  let terminoAnterior: number | undefined;
   const adicionarVazio = (termino: number) => proximos.push({
     tipo: 'vazio', inicio: horario(cursor), termino: horario(termino), atividade: 'Sala vazia',
   });
   for (const aula of noPeriodo) {
     const inicio = Math.max(ABERTURA, aula.inicio);
     const termino = Math.min(ENCERRAMENTO, aula.termino);
-    if (inicio > cursor) adicionarVazio(inicio);
+    // Usa a duração inteira da lacuna, mesmo quando o relógio está dentro dela.
+    // Antes da primeira aula não há intervalo; o vazio final também é preservado.
+    const intervalo = terminoAnterior !== undefined && inicio - terminoAnterior <= INTERVALO_MAXIMO_MIN;
+    if (inicio > cursor && !intervalo) adicionarVazio(inicio);
     // Une a ocupação de aulas sobrepostas ou contíguas sem criar falsos vazios.
     cursor = Math.max(cursor, termino);
+    terminoAnterior = Math.max(terminoAnterior ?? termino, termino);
   }
   if (cursor < ENCERRAMENTO) adicionarVazio(ENCERRAMENTO);
   return proximos.sort((a, b) => a.inicio.localeCompare(b.inicio));

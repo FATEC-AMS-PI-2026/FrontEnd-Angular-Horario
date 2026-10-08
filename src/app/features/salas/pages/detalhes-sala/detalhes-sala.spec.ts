@@ -114,6 +114,28 @@ describe('DetalhesSala', () => {
     fixture.destroy();
   }));
 
+  it('oculta pausas de 10 e 30 minutos no card, mas mantém a lacuna de 31 minutos', fakeAsync(() => {
+    let instante = new Date('2026-09-24T13:20:00-03:00');
+    spyOn(TestBed.inject(RelogioService), 'agora').and.callFake(() => instante);
+    const fixture = TestBed.createComponent(DetalhesSala);
+    http.expectOne('http://backend/salas/73').flush(sala); tick(0);
+    const aulas = [['13:20', '15:00'], ['15:10', '16:00'], ['16:30', '17:00'], ['17:31', '18:00']];
+    http.expectOne(r => r.url.endsWith('/alocacoes')).flush({ content: aulas.map(([inicio, termino], i) => ({
+      id: i + 1, sala: { id: 73 }, diaSemana: 'QUINTA', disciplina: { nome: `Disciplina ${i + 1}` },
+      blocoHorario: { horaInicio: inicio, horaFim: termino },
+      quadroHorario: { status: 'ATIVO', periodoAtividadeQuadro: { status: 'ATIVO', dataInicio: '2026-08-01', dataFim: '2026-12-20' } },
+    })), page: 0, totalPages: 1 });
+    fixture.detectChanges();
+    const tela: HTMLElement = fixture.nativeElement;
+    const vazios = () => Array.from(tela.querySelectorAll('.proximo-horario--vazio'), elemento =>
+      Array.from(elemento.querySelectorAll('.proximo-horario__horario span'), span => span.textContent));
+    expect(vazios()).toEqual([['17:00', '17:31'], ['18:00', '21:30']]);
+    instante = new Date('2026-09-24T15:05:00-03:00'); tick(1000); fixture.detectChanges();
+    expect(vazios()).toEqual([['17:00', '17:31'], ['18:00', '21:30']]);
+    expect(fixture.nativeElement.querySelector('app-proximos-horarios-card').textContent).toContain('Disciplina 2');
+    fixture.destroy();
+  }));
+
   it('cancela a requisição anterior ao mudar de sala e rejeita ID inválido', fakeAsync(() => {
     const fixture = TestBed.createComponent(DetalhesSala);
     const anterior = http.expectOne('http://backend/salas/73');

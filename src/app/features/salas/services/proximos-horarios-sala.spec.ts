@@ -9,10 +9,10 @@ describe('Próximos horários da sala', () => {
   const blocos = (aulas: AulaDoDia[], hora: string, completa = true) =>
     proximosHorariosDaSala(aulas, agora(hora), completa).map(item => [item.tipo, item.inicio, item.termino]);
 
-  it('ordena aulas e inclui vazios antes, entre e depois delas dentro do expediente', () => {
+  it('ordena aulas e inclui vazios antes/depois delas, sem confundir a pausa com sala vazia', () => {
     expect(blocos([aula('15:10', '16:50'), aula('13:20', '15:00')], '07:00')).toEqual([
       ['vazio', '08:00', '13:20'], ['aula', '13:20', '15:00'],
-      ['vazio', '15:00', '15:10'], ['aula', '15:10', '16:50'], ['vazio', '16:50', '21:30'],
+      ['aula', '15:10', '16:50'], ['vazio', '16:50', '21:30'],
     ]);
     const dados = proximosHorariosDaSala([aula('13:20', '15:00', 'Programação')], agora('08:00'), true);
     expect(dados[1].atividade).toBe('Programação');
@@ -24,6 +24,43 @@ describe('Próximos horários da sala', () => {
   it('mostra um único vazio em um dia sem aulas, começando às 8h ou no momento atual', () => {
     expect(blocos([], '07:00')).toEqual([['vazio', '08:00', '21:30']]);
     expect(blocos([], '13:20')).toEqual([['vazio', '13:20', '21:30']]);
+  });
+
+  it('oculta pausas de 5, 10, 20 e 30 minutos entre aulas, mesmo com disciplinas diferentes', () => {
+    for (const minutos of [5, 10, 20, 30]) {
+      const inicio = `15:${minutos.toString().padStart(2, '0')}`;
+      expect(blocos([aula('13:20', '15:00', 'Disciplina A'), aula(inicio, '16:50', 'Disciplina B')], '08:00')).toEqual([
+        ['vazio', '08:00', '13:20'], ['aula', '13:20', '15:00'],
+        ['aula', inicio, '16:50'], ['vazio', '16:50', '21:30'],
+      ]);
+    }
+  });
+
+  it('preserva lacunas acima de 30 minutos sem reduzi-las ao tempo restante no relógio', () => {
+    const aulas = [aula('13:00', '14:00'), aula('14:31', '16:00')];
+    expect(blocos(aulas, '08:00')).toEqual([
+      ['vazio', '08:00', '13:00'], ['aula', '13:00', '14:00'],
+      ['vazio', '14:00', '14:31'], ['aula', '14:31', '16:00'], ['vazio', '16:00', '21:30'],
+    ]);
+    expect(blocos(aulas, '14:25')).toEqual([
+      ['vazio', '14:25', '14:31'], ['aula', '14:31', '16:00'], ['vazio', '16:00', '21:30'],
+    ]);
+    expect(blocos([aula('13:00', '14:00'), aula('14:30', '16:00')], '14:25')).toEqual([
+      ['aula', '14:30', '16:00'], ['vazio', '16:00', '21:30'],
+    ]);
+  });
+
+  it('mantém períodos curtos antes da primeira aula e depois da última', () => {
+    expect(blocos([aula('08:10', '21:20')], '07:00')).toEqual([
+      ['vazio', '08:00', '08:10'], ['aula', '08:10', '21:20'], ['vazio', '21:20', '21:30'],
+    ]);
+  });
+
+  it('mede a pausa a partir do término da ocupação sobreposta mais longa', () => {
+    expect(blocos([aula('13:00', '15:00'), aula('13:30', '14:00'), aula('15:10', '16:00')], '08:00')).toEqual([
+      ['vazio', '08:00', '13:00'], ['aula', '13:00', '15:00'],
+      ['aula', '13:30', '14:00'], ['aula', '15:10', '16:00'], ['vazio', '16:00', '21:30'],
+    ]);
   });
 
   it('começa o vazio atual no relógio e mantém a aula em andamento ocupando a sala', () => {
