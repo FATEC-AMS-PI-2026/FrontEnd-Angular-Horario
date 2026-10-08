@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { HorariosService } from '../horarios/services/horarios';
-import { AulaHorario } from '../horarios/models/item-horario';
+import { AulaHorario, PROFESSOR_A_DEFINIR } from '../horarios/models/item-horario';
 
-export const PROFESSOR_A_DEFINIR = 'Professor a definir';
+/** Mantido aqui por compatibilidade; a fonte é `item-horario.ts` (#150). */
+export { PROFESSOR_A_DEFINIR };
 
 /** A página só apresenta a matriz e as cores fornecidas pelo Service. */
 @Component({
