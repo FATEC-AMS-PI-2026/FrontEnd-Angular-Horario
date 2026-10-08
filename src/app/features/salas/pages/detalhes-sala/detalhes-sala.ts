@@ -14,7 +14,7 @@ import { TopbarContextService } from '../../../../core/services/topbar-context.s
 import { EquipamentosCard } from '../../components/equipamentos-card/equipamentos-card';
 import { ProximosHorariosCard } from '../../components/proximos-horarios-card/proximos-horarios-card';
 import { AulasDoDiaCard } from '../../components/aulas-do-dia-card/aulas-do-dia-card';
-import { horarioAcademico } from '../../../dashboard/models/grade-dia.model';
+import { proximosHorariosDaSala } from '../../services/proximos-horarios-sala';
 import { RecursosSalaService } from '../../services/recursos-sala';
 
 interface EstadoDetalhes {
@@ -110,9 +110,8 @@ export class DetalhesSala {
     const locais = this.locais.erro() ? [] : aulasLocaisDaSala(this.locais.catalogo(), estado.sala.nome, this.agora());
     return unirAulas(java, locais);
   });
-  protected readonly proximos = computed(() => this.aulas()
-    .filter(a => a.inicio > horarioAcademico(this.agora()).slice(0, 5))
-    .map(a => ({ inicio: a.inicio, termino: a.termino, atividade: a.disciplina, professor: a.professor })));
+  protected readonly proximos = computed(() => proximosHorariosDaSala(this.aulas(), this.agora(),
+    !this.carregandoHorarios() && !this.horariosIndisponiveis()));
 
   protected tentarNovamente(): void { this.locais.carregar(); this.recarregar.next(); }
 }

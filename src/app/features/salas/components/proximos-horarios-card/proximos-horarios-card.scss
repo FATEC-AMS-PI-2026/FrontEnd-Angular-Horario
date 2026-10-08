@@ -5,5 +5,6 @@ h2 { @include cards.card-titulo; margin-bottom: var(--space-md); }
 ul { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-sm); }
 .proximo-horario { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-sm); align-items: center; padding: var(--space-xs); border-radius: var(--radius-sala); background: var(--color-primary-pale); color: var(--color-text); font-size: var(--text-sm); overflow-wrap: anywhere; p { margin: var(--space-3xs) 0 0; color: var(--color-text-muted); font-size: var(--text-xs); } }
 .proximo-horario__horario { display: grid; gap: var(--space-3xs); color: var(--color-text-muted); font-family: var(--font-mono); font-size: var(--text-xs); }
+.proximo-horario--vazio { background: var(--color-sala-vazia-bg); }
 .proximos-horarios-card__vazio { @include cards.card-mensagem; }
 .proximos-horarios-card__vazio + ul { margin-top: var(--space-xs); }

@@ -75,6 +75,7 @@ describe('DetalhesSala', () => {
     expect(fixture.nativeElement.querySelector('app-proximos-horarios-card').textContent).toContain('Não foi possível consultar');
     expect(fixture.nativeElement.textContent).not.toContain('Nenhuma outra aula cadastrada');
     expect(fixture.nativeElement.textContent).not.toContain('Nenhuma aula cadastrada para esta sala');
+    expect(fixture.nativeElement.querySelector('.proximo-horario--vazio')).toBeNull();
     expect(fixture.nativeElement.querySelector('app-status-sala-badge')).toBeNull();
     fixture.destroy();
   }));
@@ -91,11 +92,15 @@ describe('DetalhesSala', () => {
     fixture.detectChanges(); expect(fixture.nativeElement.textContent).toContain('Livre até às 15:00');
     instante = new Date('2026-09-24T15:00:00-03:00'); tick(1000); fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Em uso');
-    expect(fixture.nativeElement.querySelector('app-proximos-horarios-card').textContent).toContain('Nenhuma outra aula cadastrada para esta sala hoje.');
+    const vazio = fixture.nativeElement.querySelector('.proximo-horario--vazio');
+    expect(vazio.textContent).toContain('Sala vazia');
+    expect(vazio.textContent).toContain('16:00');
+    expect(vazio.textContent).toContain('21:30');
     expect(fixture.nativeElement.querySelector('app-aulas-do-dia-card').textContent).not.toContain('Nenhuma aula cadastrada para esta sala');
     tick(59000);
     http.expectOne(r => r.url.endsWith('/alocacoes')).error(new ProgressEvent('error'));
     fixture.detectChanges(); expect(fixture.nativeElement.querySelector('app-status-sala-badge')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.proximo-horario--vazio')).toBeNull();
     fixture.destroy(); tick(60000); http.expectNone(r => r.url.endsWith('/alocacoes'));
   }));
 
@@ -125,6 +130,7 @@ describe('DetalhesSala', () => {
     const fixture = TestBed.createComponent(DetalhesSala);
     http.expectOne('http://backend/salas/73').flush(sala); tick(0); fixture.detectChanges();
     http.expectNone(r => r.url.endsWith('/alocacoes'));
+    expect(fixture.nativeElement.querySelector('.proximo-horario--vazio')).toBeNull();
     expect(fixture.nativeElement.querySelector('app-status-sala-badge')).toBeNull(); fixture.destroy();
   }));
 
@@ -186,22 +192,28 @@ describe('DetalhesSala', () => {
     fixture.destroy();
   }));
 
-  it('confirma os estados vazios somente após consultar a agenda e o catálogo local', fakeAsync(() => {
+  it('confirma Sala vazia somente após consultar a agenda e o catálogo local', fakeAsync(() => {
     const locais = TestBed.inject(SalasLocaisService);
     (locais.carregando as WritableSignal<boolean>).set(true);
     const fixture = TestBed.createComponent(DetalhesSala);
     http.expectOne('http://backend/salas/73').flush(sala); tick(0);
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('app-proximos-horarios-card').textContent).toContain('Carregando próximos horários');
+    expect(fixture.nativeElement.querySelector('.proximo-horario--vazio')).toBeNull();
     http.expectOne(r => r.url.endsWith('/alocacoes')).flush({ content: [], page: 0, totalPages: 0 });
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).not.toContain('Nenhuma outra aula cadastrada');
+    expect(fixture.nativeElement.querySelector('.proximo-horario--vazio')).toBeNull();
     expect(fixture.nativeElement.querySelector('app-status-sala-badge')).toBeNull();
     (locais.carregando as WritableSignal<boolean>).set(false); fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('Nenhuma outra aula cadastrada para esta sala hoje.');
+    const vazio = fixture.nativeElement.querySelector('.proximo-horario--vazio');
+    expect(vazio.textContent).toContain('Sala vazia');
+    expect(vazio.textContent).toContain('13:20');
+    expect(vazio.textContent).toContain('21:30');
     expect(fixture.nativeElement.textContent).toContain('Nenhuma aula cadastrada para esta sala hoje.');
     (locais.erro as WritableSignal<string | null>).set('Falha na consulta do navegador'); fixture.detectChanges();
     expect(fixture.nativeElement.textContent).not.toContain('Nenhuma outra aula cadastrada');
+    expect(fixture.nativeElement.querySelector('.proximo-horario--vazio')).toBeNull();
     expect(fixture.nativeElement.querySelector('app-status-sala-badge')).toBeNull();
     fixture.destroy();
   }));
@@ -215,6 +227,7 @@ describe('DetalhesSala', () => {
     }], page: 0, totalPages: 1 });
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('horários inválidos');
+    expect(fixture.nativeElement.querySelector('.proximo-horario--vazio')).toBeNull();
     expect(fixture.nativeElement.textContent).not.toContain('Nenhuma outra aula cadastrada');
     expect(fixture.nativeElement.querySelector('app-status-sala-badge')).toBeNull();
     fixture.destroy();

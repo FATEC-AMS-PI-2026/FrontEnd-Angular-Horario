@@ -42,6 +42,7 @@
     --color-status-free: #3b6d11;
     --color-status-busy: #e24b4a;
     --color-status-maintenance: #ef9f27;
+    --color-sala-vazia-bg: #b7cef0; // intervalo sem aula no card de próximos horários (Figma)
 
     // ---------- Neutros (escala de cinza) ----------
     --color-text: #111827; // texto principal — era #1a1a1a no styles.scss, mas
@@ -152,6 +153,7 @@
     --color-primary: #4dbfa0;
     --color-primary-hover: #74d2b8;
     --color-primary-pale: #153d32;
+    --color-sala-vazia-bg: #263f63;
     --color-text: #f3f4f6;
     --color-text-muted: #d1d5db;
     --color-text-subtle: #b0b8c5;
