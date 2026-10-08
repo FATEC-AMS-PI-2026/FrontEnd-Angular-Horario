@@ -1,12 +1,12 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, catchError, map, throwError } from 'rxjs';
-import { BACKEND_CONFIG } from '../../../core/services/backend-config';
+import { EMPTY, Observable, catchError, defer, expand, map, reduce, throwError } from 'rxjs';
+import { BACKEND_CONFIG, BackendIndisponivelError } from '../../../core/services/backend-config';
 import { AulaHorario, ItemHorario } from '../models/item-horario';
 import { Turma } from '../models/turma';
 import { comIntervalos, ler, ordenarTurmas, paraAulaHorario, paraTurma, quadroAtivo, turmasDasAlocacoes } from './mapeadores-backend';
 
-/** O backend pagina por padrão (10 itens); como as telas não paginam, pedimos tudo de uma vez. */
+/** Limite por requisição; todas as páginas são lidas antes de publicar o resultado. */
 const TAMANHO_PAGINA = 200;
 
 /**
@@ -20,10 +20,7 @@ const CONTRATO = {
     alocacoes: { rota: 'alocacoes', filtroTurma: 'turma' },
 } as const;
 
-function conteudo(pagina: unknown): unknown[] {
-    const itens = ler(pagina, 'content');
-    return Array.isArray(itens) ? itens : [];
-}
+interface PaginaApi { content: unknown[]; page: number; totalPages: number; }
 
 /**
  * Turmas de um curso e horários de cada turma vindos do backend Java (#150).
@@ -33,7 +30,38 @@ function conteudo(pagina: unknown): unknown[] {
 @Injectable({ providedIn: 'root' })
 export class TurmasHorariosApiService {
     private readonly http = inject(HttpClient);
-    private readonly baseUrl = inject(BACKEND_CONFIG).url.replace(/\/+$/, '');
+    private readonly config = inject(BACKEND_CONFIG);
+    private readonly baseUrl = this.config.url.replace(/\/+$/, '');
+
+    private consultarTodas(rota: string, filtros: Record<string, number> = {}): Observable<unknown[]> {
+        return defer(() => {
+            if (!this.config.habilitado && !(this.config.modulos ?? []).includes(rota)) {
+                return throwError(() => new BackendIndisponivelError('Consulta ao backend não habilitada.'));
+            }
+            let totalEsperado: number | undefined;
+            const pagina = (page: number) => this.http.get<unknown>(`${this.baseUrl}/${rota}`, {
+                params: { ...filtros, page, size: TAMANHO_PAGINA },
+            }).pipe(map(resposta => {
+                const content = ler(resposta, 'content');
+                const numero = ler(resposta, 'page');
+                const totalPages = ler(resposta, 'totalPages');
+                if (!Array.isArray(content) || numero !== page || typeof totalPages !== 'number' ||
+                    !Number.isSafeInteger(totalPages) || totalPages < 0 ||
+                    (totalPages === 0 ? page !== 0 || content.length > 0 : page >= totalPages) ||
+                    (page + 1 < totalPages && !content.length) ||
+                    (totalEsperado !== undefined && totalPages !== totalEsperado)) {
+                    throw new Error('Paginação incompleta de turmas ou horários.');
+                }
+                totalEsperado = totalPages;
+                return { content, page, totalPages } as PaginaApi;
+            }));
+            return pagina(0).pipe(
+                expand(p => p.page + 1 < p.totalPages ? pagina(p.page + 1) : EMPTY, 1),
+                map(p => p.content),
+                reduce((todos, itens) => todos.concat(itens), [] as unknown[]),
+            );
+        });
+    }
 
     /**
      * Turmas do curso (ex.: ADS), opcionalmente de um ano letivo e período, ordenadas.
@@ -41,13 +69,29 @@ export class TurmasHorariosApiService {
      * backend com filtro vazio), as turmas são deduzidas de `/alocacoes`.
      */
     listarTurmasDoCurso(cursoId: number, filtro: { ano?: number; periodo?: number } = {}): Observable<Turma[]> {
-        const params: Record<string, number> = { [CONTRATO.turmas.filtroCurso]: cursoId, page: 0, size: TAMANHO_PAGINA };
+        if (!Number.isSafeInteger(cursoId) || cursoId <= 0 ||
+            [filtro.ano, filtro.periodo].some(valor =>
+                valor !== undefined && (!Number.isSafeInteger(valor) || valor <= 0))) {
+            return throwError(() => new Error('Curso, ano ou período inválido.'));
+        }
+        const params: Record<string, number> = { [CONTRATO.turmas.filtroCurso]: cursoId };
         if (filtro.ano !== undefined) params['ano'] = filtro.ano;
         if (filtro.periodo !== undefined) params['periodo'] = filtro.periodo;
-        return this.http.get<unknown>(`${this.baseUrl}/${CONTRATO.turmas.rota}`, { params }).pipe(
-            map(pagina => ordenarTurmas(conteudo(pagina)
-                .map(paraTurma)
-                .filter((turma): turma is Turma => turma !== null))),
+        return this.consultarTodas(CONTRATO.turmas.rota, params).pipe(
+            map(registros => {
+                const porId = new Map<number, Turma>();
+                for (const registro of registros) {
+                    const status = ler(ler(registro, 'curso'), 'status');
+                    if (typeof status === 'string' && status !== 'ATIVO') continue;
+                    const turma = paraTurma(registro);
+                    if (!turma) throw new Error('Cadastro de turma inválido.');
+                    if (turma.cursoId !== cursoId ||
+                        (filtro.ano !== undefined && turma.ano !== filtro.ano) ||
+                        (filtro.periodo !== undefined && turma.periodo !== filtro.periodo)) continue;
+                    porId.set(turma.id, turma);
+                }
+                return ordenarTurmas([...porId.values()]);
+            }),
             catchError((erro: unknown) => erro instanceof HttpErrorResponse && erro.status >= 500
                 ? this.turmasPelasAlocacoes(cursoId, filtro)
                 : throwError(() => erro)),
@@ -55,17 +99,20 @@ export class TurmasHorariosApiService {
     }
 
     private turmasPelasAlocacoes(cursoId: number, filtro: { ano?: number; periodo?: number }): Observable<Turma[]> {
-        const params = { page: 0, size: TAMANHO_PAGINA };
-        return this.http.get<unknown>(`${this.baseUrl}/${CONTRATO.alocacoes.rota}`, { params }).pipe(
-            map(pagina => turmasDasAlocacoes(conteudo(pagina), cursoId, filtro)),
+        return this.consultarTodas(CONTRATO.alocacoes.rota).pipe(
+            map(alocacoes => turmasDasAlocacoes(alocacoes, cursoId, filtro)),
         );
     }
 
     /** Aulas da turma no quadro ativo, já com os intervalos, no formato da tela de Horários. */
     listarHorariosDaTurma(turmaId: number): Observable<ItemHorario[]> {
-        const params = { [CONTRATO.alocacoes.filtroTurma]: turmaId, page: 0, size: TAMANHO_PAGINA };
-        return this.http.get<unknown>(`${this.baseUrl}/${CONTRATO.alocacoes.rota}`, { params }).pipe(
-            map(pagina => comIntervalos(conteudo(pagina)
+        if (!Number.isSafeInteger(turmaId) || turmaId <= 0) {
+            return throwError(() => new Error('Turma inválida.'));
+        }
+        const params = { [CONTRATO.alocacoes.filtroTurma]: turmaId };
+        return this.consultarTodas(CONTRATO.alocacoes.rota, params).pipe(
+            map(alocacoes => comIntervalos(alocacoes
+                .filter(alocacao => ler(ler(alocacao, 'turma'), 'id') === turmaId)
                 .filter(quadroAtivo)
                 .map(paraAulaHorario)
                 .filter((aula): aula is AulaHorario => aula !== null))),

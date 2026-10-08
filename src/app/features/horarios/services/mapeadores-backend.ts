@@ -52,8 +52,9 @@ export function paraDiaSemana(valor: unknown): DiaSemana | null {
 /** "13:20:00" → "13:20". Retorna null para horário inválido. */
 export function paraHora(valor: unknown): string | null {
     if (typeof valor !== 'string') return null;
-    const partes = /^(\d{2}):(\d{2})(?::\d{2}(?:\.\d+)?)?$/.exec(valor.trim());
-    if (!partes || Number(partes[1]) > 23 || Number(partes[2]) > 59) return null;
+    const partes = /^(\d{2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?$/.exec(valor.trim());
+    if (!partes || Number(partes[1]) > 23 || Number(partes[2]) > 59 ||
+        (partes[3] !== undefined && Number(partes[3]) > 59)) return null;
     return `${partes[1]}:${partes[2]}`;
 }
 
@@ -103,11 +104,17 @@ export function paraTurma(registro: unknown): Turma | null {
     const codigo = texto(registro, 'codigo');
     const periodo = numero(registro, 'periodo');
     const ano = numero(registro, 'ano');
-    if (id === null || !codigo || periodo === null || ano === null) return null;
+    if (id === null || !Number.isSafeInteger(id) || id <= 0 || !codigo ||
+        periodo === null || !Number.isSafeInteger(periodo) || periodo <= 0 ||
+        ano === null || !Number.isSafeInteger(ano) || ano <= 0) return null;
     const curso = ler(registro, 'curso');
+    const statusCurso = texto(curso, 'status');
+    if (statusCurso && statusCurso !== 'ATIVO') return null;
+    const numeroAlunos = numero(registro, 'numeroAlunos');
+    if (numeroAlunos !== null && (!Number.isSafeInteger(numeroAlunos) || numeroAlunos < 0)) return null;
     return {
         id, codigo, periodo, ano,
-        numeroAlunos: numero(registro, 'numeroAlunos'),
+        numeroAlunos,
         cursoId: numero(curso, 'id'),
         cursoNome: texto(curso, 'nome'),
     };
@@ -124,6 +131,7 @@ export function turmasDasAlocacoes(
 ): Turma[] {
     const porId = new Map<number, Turma>();
     for (const alocacao of alocacoes) {
+        if (!quadroAtivo(alocacao)) continue;
         const turma = paraTurma(ler(alocacao, 'turma'));
         if (!turma || porId.has(turma.id)) continue;
         // A turma da alocação às vezes vem sem curso; nesse caso vale o curso do quadro horário.
@@ -155,8 +163,8 @@ export function comIntervalos(aulas: AulaHorario[]): ItemHorario[] {
     const ordenadas = [...aulas].sort((a, b) =>
         ordemDia.indexOf(a.diaSemana) - ordemDia.indexOf(b.diaSemana) || a.inicio.localeCompare(b.inicio));
     const itens: ItemHorario[] = [];
-    ordenadas.forEach((aula, i) => {
-        const anterior = ordenadas[i - 1];
+    let anterior: AulaHorario | undefined;
+    ordenadas.forEach(aula => {
         if (anterior?.diaSemana === aula.diaSemana) {
             const lacuna = minutos(aula.inicio) - minutos(anterior.termino);
             if (lacuna > 0 && lacuna <= INTERVALO_MAXIMO_MIN) {
@@ -167,6 +175,10 @@ export function comIntervalos(aulas: AulaHorario[]): ItemHorario[] {
             }
         }
         itens.push(aula);
+        // A aula que termina mais tarde delimita a ocupação, mesmo com sobreposição.
+        if (!anterior || anterior.diaSemana !== aula.diaSemana || aula.termino > anterior.termino) {
+            anterior = aula;
+        }
     });
     return itens;
 }

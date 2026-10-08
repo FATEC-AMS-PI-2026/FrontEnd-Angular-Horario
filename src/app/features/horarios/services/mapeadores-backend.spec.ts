@@ -57,6 +57,7 @@ describe('mapeadores do backend (#150)', () => {
         expect(paraHora('13:20:00')).toBe('13:20');
         expect(paraHora('07:05')).toBe('07:05');
         expect(paraHora('25:00:00')).toBeNull();
+        expect(paraHora('13:20:99')).toBeNull();
         expect(paraHora(null)).toBeNull();
     });
 
@@ -103,6 +104,10 @@ describe('mapeadores do backend (#150)', () => {
         expect(paraTurma({ id: 10, codigo: '4º ANO', periodo: 1, ano: 2026, numero_alunos: 35, curso: { id: 1, nome: 'AMS' } }))
             .toEqual({ id: 10, codigo: '4º ANO', periodo: 1, ano: 2026, numeroAlunos: 35, cursoId: 1, cursoNome: 'AMS' });
         expect(paraTurma({ id: 3, codigo: '', periodo: 1, ano: 2026 })).toBeNull();
+        expect(paraTurma({ ...ALOCACAO_REAL.turma, id: 0 })).toBeNull();
+        expect(paraTurma({ ...ALOCACAO_REAL.turma, periodo: 1.5 })).toBeNull();
+        expect(paraTurma({ ...ALOCACAO_REAL.turma, numeroAlunos: -1 })).toBeNull();
+        expect(paraTurma({ ...ALOCACAO_REAL.turma, curso: { id: 1, status: 'INATIVO' } })).toBeNull();
     });
 
     it('deduz as turmas de um curso pelas alocações, sem repetir e respeitando ano/período', () => {
@@ -128,6 +133,25 @@ describe('mapeadores do backend (#150)', () => {
             { ...base, id: 1, ano: 2026, periodo: 1, codigo: '1/2026' },
         ]).map(t => t.id);
         expect(ordem).toEqual([1, 2, 3]);
+    });
+
+    it('descarta quadros e cursos inativos ao deduzir as turmas', () => {
+        expect(turmasDasAlocacoes([
+            { ...ALOCACAO_REAL, quadroHorario: { status: 'INATIVO' } },
+            { ...ALOCACAO_REAL, quadroHorario: { status: 'ATIVO', periodoAtividadeQuadro: { status: 'INATIVO' } } },
+            { ...ALOCACAO_REAL, turma: { ...ALOCACAO_REAL.turma, curso: { id: 1, status: 'INATIVO' } } },
+        ], 1)).toEqual([]);
+    });
+
+    it('não insere intervalo dentro de uma aula mais longa que sobrepõe outra', () => {
+        const itens = comIntervalos([
+            aula('seg', '13:00', '15:00', 'A'),
+            aula('seg', '13:30', '14:00', 'B'),
+            aula('seg', '14:10', '14:30', 'C'),
+            aula('seg', '15:10', '16:00', 'D'),
+        ]);
+        expect(itens.filter(i => i.tipo === 'intervalo').map(i => `${i.inicio}-${i.termino}`))
+            .toEqual(['15:00-15:10']);
     });
 
     it(`ordena por dia e horário e só cria intervalo para lacunas de até ${INTERVALO_MAXIMO_MIN} min`, () => {
