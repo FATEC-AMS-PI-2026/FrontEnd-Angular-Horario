@@ -65,7 +65,7 @@ describe('DisponibilidadeSalaService', () => {
     primeira.flush({ content: [aula()], page: 0, totalPages: 2 });
     expect(recebido).not.toHaveBeenCalled();
     http.expectOne(r => r.params.get('page') === '1' && r.params.get('sala') === '7')
-      .flush({ content: [aula('17:00', '18:00')], page: 1, totalPages: 2 });
+      .flush({ content: [{ ...aula('17:00', '18:00'), id: 2 }], page: 1, totalPages: 2 });
     expect(recebido.calls.mostRecent().args[0].length).toBe(2);
   });
   it('não entrega agenda parcial quando uma página falha', () => {
@@ -74,5 +74,27 @@ describe('DisponibilidadeSalaService', () => {
     http.expectOne(r => r.params.get('page') === '0').flush({ content: [aula()], page: 0, totalPages: 2 });
     http.expectOne(r => r.params.get('page') === '1').flush({}, { status: 500, statusText: 'Error' });
     expect(recebido).not.toHaveBeenCalled(); expect(erro).toHaveBeenCalled();
+  });
+
+  it('rejeita alocações sem sala, de outra sala ou duplicadas sem informar Livre', () => {
+    for (const content of [
+      [{ ...aula(), sala: null }], [{ ...aula(), sala: { id: 8 } }], [aula(), aula()],
+    ]) {
+      const recebido = jasmine.createSpy(); const erro = jasmine.createSpy();
+      service.carregar(7).subscribe({ next: recebido, error: erro });
+      http.expectOne(r => r.url.endsWith('/alocacoes')).flush({ content, page: 0, totalPages: 1 });
+      expect(recebido).not.toHaveBeenCalled(); expect(erro).toHaveBeenCalled();
+    }
+  });
+
+  it('rejeita paginação que muda durante a consulta ou declara zero páginas com alocações', () => {
+    const erro = jasmine.createSpy(); const recebido = jasmine.createSpy();
+    service.carregar().subscribe({ next: recebido, error: erro });
+    http.expectOne(r => r.params.get('page') === '0').flush({ content: [aula()], page: 0, totalPages: 2 });
+    http.expectOne(r => r.params.get('page') === '1').flush({ content: [], page: 1, totalPages: 1 });
+    expect(recebido).not.toHaveBeenCalled(); expect(erro).toHaveBeenCalledTimes(1);
+    service.carregar().subscribe({ next: recebido, error: erro });
+    http.expectOne(r => r.params.get('page') === '0').flush({ content: [aula()], page: 0, totalPages: 0 });
+    expect(recebido).not.toHaveBeenCalled(); expect(erro).toHaveBeenCalledTimes(2);
   });
 });

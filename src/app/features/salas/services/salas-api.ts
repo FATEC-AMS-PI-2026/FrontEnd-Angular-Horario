@@ -54,13 +54,17 @@ export class SalasApiService {
     this.erroSignal.set(null);
     this.salasSignal.set([]);
 
+    let totalEsperado: number | undefined;
     const pagina = (page: number) => this.http.get<PageResponse<SalaApi>>(`${this.baseUrl}/salas`, {
       params: { page, size: TAMANHO_PAGINA },
     }).pipe(map(p => {
-      if (p.page !== page || !Number.isInteger(p.totalPages) || p.totalPages < 0 ||
-          !Array.isArray(p.content) || (p.totalPages > page + 1 && !p.content.length)) {
+      if (!p || p.page !== page || !Number.isSafeInteger(p.totalPages) || p.totalPages < 0 ||
+          !Array.isArray(p.content) || (p.totalPages > page + 1 && !p.content.length) ||
+          (p.totalPages === 0 ? page !== 0 || p.content.length > 0 : page >= p.totalPages) ||
+          (totalEsperado !== undefined && totalEsperado !== p.totalPages)) {
         throw new Error('Paginação incompleta da lista de salas.');
       }
+      totalEsperado = p.totalPages;
       return p;
     }));
     this.consulta = pagina(0).pipe(

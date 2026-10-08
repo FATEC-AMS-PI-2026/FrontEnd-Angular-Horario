@@ -8,22 +8,31 @@ import { ApiErrorService } from '../../core/services/api-error.service';
 import { DashboardService, GradeIndisponivelError } from './services/dashboard.service';
 import { AlocacaoResponse, dataAcademica, horarioAcademico } from './models/grade-dia.model';
 import { intervalosDaGrade } from './models/intervalos-grade';
+import { ConsultaSalasService } from '../salas/services/consulta-salas';
+import { SalasApiService } from '../salas/services/salas-api';
+import { StatusSalaBadge } from '../salas/components/status-sala-badge';
+import { codigoSala } from '../salas/services/salas-locais';
+import { RelogioService } from '../salas/services/relogio';
+import { mapearSalasHoje } from './services/salas-hoje';
 
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [CommonModule, RouterLink],
+    imports: [CommonModule, RouterLink, StatusSalaBadge],
     templateUrl: './dashboard.html',
     styleUrl: './dashboard.scss',
+    providers: [ConsultaSalasService, SalasApiService],
 })
 export class Dashboard implements OnInit {
     readonly session = inject(SessionService);
+    readonly salas = inject(ConsultaSalasService);
+    private readonly relogio = inject(RelogioService);
     private readonly service = inject(DashboardService);
     private readonly apiError = inject(ApiErrorService);
     private readonly destroyRef = inject(DestroyRef);
     private requisicao?: Subscription;
     private dataSolicitada = '';
-    readonly agora = signal(new Date());
+    readonly agora = signal(this.relogio.agora());
     readonly alocacoes = signal<AlocacaoResponse[]>([]);
     readonly loading = signal(false);
     readonly carregado = signal(false);
@@ -60,28 +69,18 @@ export class Dashboard implements OnInit {
         { title: 'Próxima aula', value: this.proxima()?.blocoHorario.horaInicio.slice(0, 5) ?? '—', subtitle: this.proxima()?.disciplina.nome ?? 'Sem próxima aula hoje', professor: this.proxima() ? this.nomeProfessor(this.proxima()!) : null },
         { title: 'Aula em andamento', value: (this.emAndamento()[0]?.blocoHorario.horaInicio ?? this.intervaloAtual()?.horaInicio)?.slice(0, 5) ?? '—', subtitle: this.emAndamento().map(item => item.disciplina.nome).join(' · ') || (this.intervaloAtual() ? '(intervalo)' : 'Nenhuma aula neste momento') },
     ]);
-    readonly salasHoje = computed(() => {
-        const salas = new Map<number, { id: number; codigo: string; disciplinas: Set<string> }>();
-        for (const item of this.alocacoes()) {
-            if (!item.sala) continue;
-            const sala = salas.get(item.sala.id) ?? { ...item.sala, disciplinas: new Set<string>() };
-            sala.disciplinas.add(item.disciplina.nome);
-            salas.set(item.sala.id, sala);
-        }
-        return [...salas.values()].map(sala => ({
-            ...sala, disciplinas: [...sala.disciplinas].join(' · '),
-        }));
+    readonly salasHoje = computed(() => mapearSalasHoje(this.alocacoes(), this.salas.salas()));
+    readonly statusSalas = computed(() => {
+        const hoje = new Set(this.salasHoje().map(sala => sala.chave));
+        return [...this.salas.salas()].sort((a, b) =>
+            Number(hoje.has(codigoSala(b.nome))) - Number(hoje.has(codigoSala(a.nome))) ||
+            a.nome.localeCompare(b.nome, 'pt-BR', { numeric: true }))
+            .slice(0, 4).map(sala => ({ sala, disponibilidade: this.salas.disponibilidade(sala, this.agora()) }));
     });
-    readonly statusSalas = computed(() => this.salasHoje().map(sala => {
-        const aulas = this.emAndamento().filter(item => item.sala?.id === sala.id);
-        return {
-            ...sala,
-            emAula: aulas.length > 0,
-            professor: [...new Set(aulas.map(item => item.professor?.nome ?? 'Professor não informado'))].join(' · '),
-            // A grade pessoal não comprova disponibilidade global nem manutenção da sala.
-            label: aulas.length ? 'Sua aula em andamento' : 'Sem aula sua agora',
-        };
-    }));
+    readonly avisoSalas = computed(() => {
+        const falhas = [this.salas.erro(), this.salas.estadoAgenda().erro].filter(Boolean);
+        return falhas.length ? [...new Set(falhas)].join(' ') : null;
+    });
 
     nomeProfessor(aula: AlocacaoResponse): string {
         return aula.professor?.nome?.trim() || 'Professor a definir';
@@ -89,8 +88,8 @@ export class Dashboard implements OnInit {
 
     ngOnInit(): void {
         this.carregar();
-        timer(30_000, 30_000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-            this.agora.set(new Date());
+        timer(1000, 1000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+            this.agora.set(this.relogio.agora());
             if (dataAcademica(this.agora()) !== this.dataSolicitada) this.carregar();
         });
     }

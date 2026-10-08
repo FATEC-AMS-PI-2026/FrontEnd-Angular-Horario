@@ -1,10 +1,12 @@
-import { Type } from '@angular/core';
+import { Type, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { EquipamentosCard } from '../../features/salas/components/equipamentos-card/equipamentos-card';
 import { Dashboard } from '../../features/dashboard/dashboard';
 import { GradeSemanal } from '../../features/grade-semanal/grade-semanal';
 import { Professores } from '../../features/professores/professores';
+import { ConsultaSalasService } from '../../features/salas/services/consulta-salas';
+import { SalaResumo } from '../../features/salas/models/sala-resumo';
 
 // Mede as cores realmente renderizadas, incluindo herança de fundo e opacidade.
 function rgb(cor: string): number[] {
@@ -54,7 +56,22 @@ describe('Contraste das telas acadêmicas', () => {
     for (const tema of ['light', 'dark']) {
         async function montar<T>(component: Type<T>) {
             document.documentElement.dataset['theme'] = tema;
-            await TestBed.configureTestingModule({ imports: [component], providers: [provideRouter([])] }).compileComponents();
+            TestBed.configureTestingModule({ imports: [component], providers: [provideRouter([])] });
+            if (component === Dashboard) {
+                const salas: SalaResumo[] = [
+                    { id: 1, nome: 'LAB Livre', status: 'Livre' },
+                    { id: 2, nome: 'LAB Em uso', status: 'Em uso' },
+                    { id: 3, nome: 'LAB Manutenção', status: 'Manutenção' },
+                ];
+                TestBed.overrideComponent(Dashboard, { set: { providers: [
+                    { provide: ConsultaSalasService, useValue: {
+                        salas: signal(salas), carregando: signal(false), erro: signal(null),
+                        estadoAgenda: signal({ carregando: false, erro: null }), locais: { erro: signal(null) },
+                        disponibilidade: (sala: SalaResumo) => ({ status: sala.status, texto: sala.status }),
+                    } },
+                ] } });
+            }
+            await TestBed.compileComponents();
             const fixture = TestBed.createComponent(component);
             fixture.detectChanges();
             return fixture;
@@ -62,6 +79,7 @@ describe('Contraste das telas acadêmicas', () => {
 
         it(`mantém textos de aulas, professores, intervalos e status legíveis no dashboard (${tema})`, async () => {
             const fixture = await montar(Dashboard);
+            expect(fixture.nativeElement.querySelectorAll('app-status-sala-badge').length).toBe(3);
             verificar(fixture.nativeElement, '.schedule-item span, .schedule-item strong, .room-status-item strong, .room-status-item span, .room-status-item .badge, .banner h2, .banner p');
         });
 

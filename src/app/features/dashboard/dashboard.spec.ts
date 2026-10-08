@@ -8,6 +8,16 @@ import { CARREGAR_GRADE_DIA, CarregarGradeDia, DashboardService } from './servic
 import { AlocacaoResponse, dataAcademica, diaSemana } from './models/grade-dia.model';
 import { SessionService } from '../../core/services/session.service';
 import { intervalosDaGrade } from './models/intervalos-grade';
+import { signal } from '@angular/core';
+import { ConsultaSalasService } from '../salas/services/consulta-salas';
+import { SalaResumo } from '../salas/models/sala-resumo';
+
+function salasIndisponiveis() {
+    return { salas: signal<SalaResumo[]>([]), carregando: signal(false), erro: signal(null),
+        estadoAgenda: signal({ alocacoes: null, carregando: false, erro: null }),
+        locais: { erro: signal(null), carregar: () => {} }, disponibilidade: () => undefined,
+        tentarNovamente: () => {} };
+}
 
 describe('Dashboard', () => {
     let component: Dashboard;
@@ -17,7 +27,9 @@ describe('Dashboard', () => {
         await TestBed.configureTestingModule({
             imports: [Dashboard],
             providers: [provideRouter([])]
-        })
+        }).overrideComponent(Dashboard, { set: { providers: [
+            { provide: ConsultaSalasService, useValue: salasIndisponiveis() },
+        ] } })
             .compileComponents();
 
         fixture = TestBed.createComponent(Dashboard);
@@ -75,7 +87,9 @@ describe('Dashboard: grade do serviço', () => {
         TestBed.configureTestingModule({
             imports: [Dashboard], providers: [provideRouter([]),
             { provide: CARREGAR_GRADE_DIA, useValue: carregar }]
-        });
+        }).overrideComponent(Dashboard, { set: { providers: [
+            { provide: ConsultaSalasService, useValue: salasIndisponiveis() },
+        ] } });
         TestBed.inject(SessionService).iniciar('teste', {
             nome: 'Ana', email: 'ana@example.test', curso: 'ADS', periodo: '3º período',
         });
@@ -120,7 +134,7 @@ describe('Dashboard: grade do serviço', () => {
         expect(component.alocacoes().map(item => item.id)).toEqual([1, 2, 3]);
         expect(component.stats().map(item => item.value)).toEqual(['3', '2', '14:10', '13:20']);
         expect(component.salasHoje().length).toBe(1);
-        expect(component.statusSalas()[0].professor).toBe('Professor 1');
+        expect(component.statusSalas()).toEqual([]);
         expect(fixture.nativeElement.textContent).toContain('Olá, Ana!');
     });
 
@@ -130,7 +144,9 @@ describe('Dashboard: grade do serviço', () => {
         component.agora.set(new Date('2026-09-14T14:10:00-03:00'));
         expect(component.emAndamento()).toEqual([]);
         expect(component.proxima()?.id).toBe(2);
-        expect(component.statusSalas()[0].label).toBe('Sem aula sua agora');
+        expect(component.statusSalas()).toEqual([]);
+        fixture.detectChanges();
+        expect(fixture.nativeElement.querySelector('app-status-sala-badge')).toBeNull();
         component.agora.set(new Date('2026-09-14T16:00:00-03:00'));
         expect(component.proxima()).toBeUndefined();
         expect(component.stats()[3].subtitle).toBe('Nenhuma aula neste momento');

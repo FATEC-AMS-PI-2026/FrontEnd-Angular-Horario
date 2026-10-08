@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { EMPTY, expand, map, reduce } from 'rxjs';
+import { EMPTY, defer, expand, map, reduce } from 'rxjs';
 import { BACKEND_CONFIG } from '../../../core/services/backend-config';
 import { PageResponse } from '../../../core/models/page-response';
 import { StatusSala } from '../models/sala';
@@ -106,20 +106,38 @@ export class DisponibilidadeSalaService {
   readonly agendaCompleta = this.config.agendaSalasCompleta === true;
 
   carregar(salaId?: number) {
-    const pagina = (page: number) => this.http.get<PageResponse<AlocacaoSalaApi>>(
-      `${this.config.url.replace(/\/+$/, '')}/alocacoes`, { params: { ...(salaId === undefined ? {} : { sala: salaId }), page, size: 200 } }).pipe(
-        map(p => {
-          if (p.page !== page || !Number.isInteger(p.totalPages) || p.totalPages < 0 ||
-              !Array.isArray(p.content) || (p.totalPages > page + 1 && p.content.length === 0)) {
-            throw new Error('Paginação incompleta da agenda da sala.');
+    return defer(() => {
+      let totalEsperado: number | undefined;
+      const pagina = (page: number) => this.http.get<PageResponse<AlocacaoSalaApi>>(
+        `${this.config.url.replace(/\/+$/, '')}/alocacoes`, { params: { ...(salaId === undefined ? {} : { sala: salaId }), page, size: 200 } }).pipe(
+          map(p => {
+            if (!p || p.page !== page || !Number.isSafeInteger(p.totalPages) || p.totalPages < 0 ||
+                !Array.isArray(p.content) || (p.totalPages > page + 1 && p.content.length === 0) ||
+                (p.totalPages === 0 ? page !== 0 || p.content.length > 0 : page >= p.totalPages) ||
+                (totalEsperado !== undefined && totalEsperado !== p.totalPages)) {
+              throw new Error('Paginação incompleta da agenda da sala.');
+            }
+            totalEsperado = p.totalPages;
+            // Sem a sala de uma alocação, não é possível garantir que outra sala esteja livre.
+            if (p.content.some(a => !a || !Number.isSafeInteger(a.id) || a.id <= 0 ||
+                !Number.isSafeInteger(a.sala?.id) || a.sala.id <= 0 ||
+                (salaId !== undefined && a.sala.id !== salaId))) {
+              throw new Error('Alocações inválidas na agenda da sala.');
+            }
+            return p;
+          }),
+        );
+      return pagina(0).pipe(
+        expand(p => p.page + 1 < p.totalPages ? pagina(p.page + 1) : EMPTY),
+        map(p => p.content),
+        reduce((todas, itens) => todas.concat(itens), [] as AlocacaoSalaApi[]),
+        map(alocacoes => {
+          if (new Set(alocacoes.map(a => a.id)).size !== alocacoes.length) {
+            throw new Error('Alocações duplicadas na agenda da sala.');
           }
-          return p;
+          return alocacoes;
         }),
       );
-    return pagina(0).pipe(
-      expand(p => p.page + 1 < p.totalPages ? pagina(p.page + 1) : EMPTY),
-      map(p => p.content),
-      reduce((todas, itens) => todas.concat(itens), [] as AlocacaoSalaApi[]),
-    );
+    });
   }
 }
