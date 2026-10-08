@@ -206,4 +206,46 @@ describe('ListaSalas: disponibilidade remota', () => {
     expect(fixture.nativeElement.querySelector('app-status-sala-badge')).toBeNull();
     fixture.destroy();
   }));
+
+  it('reúne três falhas remotas num aviso sem repetir a causa e recupera as três fontes', fakeAsync(() => {
+    const fixture = TestBed.createComponent(ListaSalas); tick(0);
+    http.expectOne(r => r.url === `${BASE}/salas`).error(new ProgressEvent('error'));
+    http.expectOne(r => r.url === `${BASE}/alocacoes`).error(new ProgressEvent('error'));
+    http.expectOne(r => r.url === `${BASE}/recurso-sala`).error(new ProgressEvent('error'));
+    fixture.detectChanges();
+    const tela: HTMLElement = fixture.nativeElement;
+    expect(tela.querySelectorAll('[role="alert"]').length).toBe(1);
+    const aviso = tela.querySelector('[role="alert"]')!;
+    expect(aviso.textContent).toContain('cadastro, disponibilidade, equipamentos');
+    expect(aviso.textContent?.match(/Não foi possível conectar ao servidor/g)?.length).toBe(1);
+    expect(tela.querySelector('.lista-salas__vazio')).toBeNull();
+    aviso.querySelector<HTMLButtonElement>('button')!.click();
+    http.expectOne(r => r.url === `${BASE}/salas`).flush({ content: [sala(1, 'LAB-01', 'Laboratório')], page: 0, totalPages: 1 });
+    http.expectOne(r => r.url === `${BASE}/recurso-sala`).flush({ content: [], page: 0, totalPages: 0 });
+    http.expectOne(r => r.url === `${BASE}/alocacoes`).flush({ content: [], page: 0, totalPages: 0 });
+    fixture.detectChanges();
+    expect(tela.querySelector('[role="alert"]')).toBeNull();
+    expect(tela.querySelectorAll('.card-sala').length).toBe(1);
+    fixture.destroy();
+  }));
+
+  it('mantém falha local separada e preserva causas remotas diferentes', fakeAsync(() => {
+    const fixture = TestBed.createComponent(ListaSalas); tick(0);
+    http.expectOne(r => r.url === `${BASE}/salas`).error(new ProgressEvent('error'));
+    http.expectOne(r => r.url === `${BASE}/alocacoes`).flush(null, { status: 403, statusText: 'Forbidden' });
+    http.expectOne(r => r.url === `${BASE}/recurso-sala`).flush(null, { status: 401, statusText: 'Unauthorized' });
+    const locais = TestBed.inject(SalasLocaisService);
+    (locais.erro as WritableSignal<string | null>).set('Falha na leitura local');
+    const carregarLocal = spyOn(locais, 'carregar');
+    fixture.detectChanges();
+    const alertas: NodeListOf<HTMLElement> = fixture.nativeElement.querySelectorAll('[role="alert"]');
+    expect(alertas.length).toBe(2);
+    expect(alertas[0].textContent).toContain('Não foi possível conectar');
+    expect(alertas[0].textContent).toContain('não tem permissão');
+    expect(alertas[0].textContent).toContain('Sua sessão expirou');
+    alertas[1].querySelector<HTMLButtonElement>('button')!.click();
+    expect(carregarLocal).toHaveBeenCalledTimes(1);
+    http.expectNone(() => true);
+    fixture.destroy();
+  }));
 });
