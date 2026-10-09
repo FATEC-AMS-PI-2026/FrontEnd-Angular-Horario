@@ -93,24 +93,26 @@
                 @if (salas.carregando()) { <p role="status">Carregando salas...</p> }
                 @if (salas.estadoAgenda().carregando) { <p role="status">Consultando disponibilidade das salas...</p> }
                 <div class="room-status-list">
-                    @for (item of statusSalas(); track item.sala.rotaId ?? item.sala.id) {
-                    <a class="room-status-item" [routerLink]="['/salas', item.sala.rotaId ?? item.sala.id]"
-                        [class.status-livre]="item.disponibilidade?.status === 'Livre'"
-                        [class.status-em_uso]="item.disponibilidade?.status === 'Em uso'"
-                        [class.status-manutencao]="item.disponibilidade?.status === 'Manutenção'">
-                        <div class="room-info">
-                            <strong>{{ item.sala.nome }}</strong>
-                            <span>{{ item.disponibilidade?.texto || 'Disponibilidade indisponível' }}</span>
-                        </div>
-                        @if (item.disponibilidade?.status; as status) { <app-status-sala-badge [status]="status" /> }
-                    </a>
+                    @for (grupo of gruposSalas(); track grupo.titulo) {
+                    <div class="room-status-group">
+                        @if (grupo.titulo) { <h4 class="room-group-title">{{ grupo.titulo }}</h4> }
+                        @for (item of grupo.itens; track item.sala.rotaId ?? item.sala.id) {
+                        <a class="room-status-item" [routerLink]="['/salas', item.sala.rotaId ?? item.sala.id]"
+                            [class.status-livre]="item.disponibilidade?.status === 'Livre'"
+                            [class.status-em_uso]="item.disponibilidade?.status === 'Em uso'"
+                            [class.status-manutencao]="item.disponibilidade?.status === 'Manutenção'">
+                            <div class="room-info">
+                                <strong>{{ item.sala.nome }}</strong>
+                                <span>{{ item.disponibilidade?.texto || 'Disponibilidade indisponível' }}</span>
+                            </div>
+                            @if (item.disponibilidade?.status; as status) { <app-status-sala-badge [status]="status" /> }
+                        </a>
+                        }
+                    </div>
                     } @empty {
                     @if (!salas.carregando() && !avisoSalas() && !salas.locais.erro()) { <p role="status">Nenhuma sala cadastrada.</p> }
                     }
                 </div>
-                @if (salas.salas().length > statusSalas().length) {
-                    <p class="card-note">Mostrando {{ statusSalas().length }} de {{ salas.salas().length }} salas.</p>
-                }
             </div>
 
             <div class="card card--today-rooms" [attr.aria-busy]="loading() || salas.carregando()">

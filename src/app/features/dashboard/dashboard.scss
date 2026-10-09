@@ -221,10 +221,6 @@
     overflow-wrap: anywhere;
 }
 
-.card-note {
-    margin-top: var(--space-sm);
-}
-
 .room-status-item,
 .today-room-item a {
     text-decoration: none;
@@ -238,7 +234,32 @@
 .room-status-list {
     display: flex;
     flex-direction: column;
-    gap: var(--space-2xs);
+    gap: var(--space-sm);
+    max-height: 20rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    // Folga interna para o contorno de foco não ser cortado pela rolagem.
+    margin: calc(-1 * var(--space-2xs));
+    padding: var(--space-2xs);
+
+    .room-status-group {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2xs);
+    }
+
+    .room-group-title {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        margin: 0;
+        padding-block: var(--space-3xs);
+        background: var(--color-surface);
+        color: var(--color-text-muted);
+        font-size: var(--text-xs);
+        font-weight: var(--fw-semibold);
+        line-height: var(--leading-heading);
+    }
 
     .room-status-item {
         display: flex;

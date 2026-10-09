@@ -7,6 +7,9 @@ import { GradeSemanal } from '../../features/grade-semanal/grade-semanal';
 import { Professores } from '../../features/professores/professores';
 import { ConsultaSalasService } from '../../features/salas/services/consulta-salas';
 import { SalaResumo } from '../../features/salas/models/sala-resumo';
+import { CARREGAR_GRADE_SEMANAL } from '../../features/horarios/services/grade-semanal-source';
+import { AlocacaoResponse } from '../../features/dashboard/models/grade-dia.model';
+import { of } from 'rxjs';
 
 // Mede as cores realmente renderizadas, incluindo herança de fundo e opacidade.
 function rgb(cor: string): number[] {
@@ -63,6 +66,8 @@ describe('Contraste das telas acadêmicas', () => {
                     { id: 2, nome: 'LAB Em uso', status: 'Em uso' },
                     { id: 3, nome: 'LAB Manutenção', status: 'Manutenção' },
                 ];
+                TestBed.configureTestingModule({ providers: [{ provide: CARREGAR_GRADE_SEMANAL,
+                    useValue: () => of([{ sala: { id: 1, codigo: 'LAB Livre' } } as AlocacaoResponse]) }] });
                 TestBed.overrideComponent(Dashboard, { set: { providers: [
                     { provide: ConsultaSalasService, useValue: {
                         salas: signal(salas), carregando: signal(false), erro: signal(null),
@@ -80,7 +85,7 @@ describe('Contraste das telas acadêmicas', () => {
         it(`mantém textos de aulas, professores, intervalos e status legíveis no dashboard (${tema})`, async () => {
             const fixture = await montar(Dashboard);
             expect(fixture.nativeElement.querySelectorAll('app-status-sala-badge').length).toBe(3);
-            verificar(fixture.nativeElement, '.schedule-item span, .schedule-item strong, .room-status-item strong, .room-status-item span, .room-status-item .badge, .banner h2, .banner p');
+            verificar(fixture.nativeElement, '.schedule-item span, .schedule-item strong, .room-status-item strong, .room-status-item span, .room-status-item .badge, .room-group-title, .banner h2, .banner p');
         });
 
         it(`mantém as seis cores de disciplinas, cabeçalho e horários legíveis na grade (${tema})`, async () => {

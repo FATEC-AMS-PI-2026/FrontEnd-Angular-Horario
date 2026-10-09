@@ -2,7 +2,7 @@ import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angula
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subscription, finalize, timer } from 'rxjs';
+import { Subscription, defer, finalize, take, timer } from 'rxjs';
 import { SessionService } from '../../core/services/session.service';
 import { ApiErrorService } from '../../core/services/api-error.service';
 import { DashboardService, GradeIndisponivelError } from './services/dashboard.service';
@@ -14,6 +14,8 @@ import { StatusSalaBadge } from '../salas/components/status-sala-badge';
 import { codigoSala } from '../salas/services/salas-locais';
 import { RelogioService } from '../salas/services/relogio';
 import { mapearSalasHoje } from './services/salas-hoje';
+import { CARREGAR_GRADE_SEMANAL } from '../horarios/services/grade-semanal-source';
+import { SalaResumo } from '../salas/models/sala-resumo';
 
 @Component({
     selector: 'app-dashboard',
@@ -30,12 +32,16 @@ export class Dashboard implements OnInit {
     private readonly service = inject(DashboardService);
     private readonly apiError = inject(ApiErrorService);
     private readonly destroyRef = inject(DestroyRef);
+    private readonly carregarGradeSemanal = inject(CARREGAR_GRADE_SEMANAL, { optional: true });
     private requisicao?: Subscription;
+    private requisicaoSemana?: Subscription;
     private dataSolicitada = '';
     readonly agora = signal(this.relogio.agora());
     readonly alocacoes = signal<AlocacaoResponse[]>([]);
     readonly loading = signal(false);
     readonly carregado = signal(false);
+    /** Códigos das salas da grade pessoal recorrente; só definem a ordem do status. */
+    readonly salasDaSemana = signal<string[]>([]);
     readonly indisponivel = signal(false);
     readonly errorMessage = signal('');
     readonly currentDay = computed(() => new Intl.DateTimeFormat('pt-BR', {
@@ -70,12 +76,22 @@ export class Dashboard implements OnInit {
         { title: 'Aula em andamento', value: (this.emAndamento()[0]?.blocoHorario.horaInicio ?? this.intervaloAtual()?.horaInicio)?.slice(0, 5) ?? '—', subtitle: this.emAndamento().map(item => item.disciplina.nome).join(' · ') || (this.intervaloAtual() ? '(intervalo)' : 'Nenhuma aula neste momento') },
     ]);
     readonly salasHoje = computed(() => mapearSalasHoje(this.alocacoes(), this.salas.salas()));
+    /** Salas do aluno primeiro (as de hoje antes das demais da semana), depois as outras. */
     readonly statusSalas = computed(() => {
         const hoje = new Set(this.salasHoje().map(sala => sala.chave));
-        return [...this.salas.salas()].sort((a, b) =>
-            Number(hoje.has(codigoSala(b.nome))) - Number(hoje.has(codigoSala(a.nome))) ||
+        const semana = new Set(this.salasDaSemana());
+        const ordem = (sala: SalaResumo) => hoje.has(codigoSala(sala.nome)) ? 0 : semana.has(codigoSala(sala.nome)) ? 1 : 2;
+        return [...this.salas.salas()].sort((a, b) => ordem(a) - ordem(b) ||
             a.nome.localeCompare(b.nome, 'pt-BR', { numeric: true }))
-            .slice(0, 4).map(sala => ({ sala, disponibilidade: this.salas.disponibilidade(sala, this.agora()) }));
+            .map(sala => ({ sala, doAluno: ordem(sala) < 2, disponibilidade: this.salas.disponibilidade(sala, this.agora()) }));
+    });
+    readonly gruposSalas = computed(() => {
+        const itens = this.statusSalas();
+        if (!itens.some(item => item.doAluno)) return itens.length ? [{ titulo: null, itens }] : [];
+        return [
+            { titulo: 'Suas salas', itens: itens.filter(item => item.doAluno) },
+            { titulo: 'Outras salas', itens: itens.filter(item => !item.doAluno) },
+        ].filter(grupo => grupo.itens.length);
     });
     readonly avisoSalas = computed(() => {
         const falhas = [this.salas.erro(), this.salas.estadoAgenda().erro].filter(Boolean);
@@ -95,6 +111,7 @@ export class Dashboard implements OnInit {
     }
 
     carregar(): void {
+        this.carregarSalasDaSemana();
         this.requisicao?.unsubscribe();
         this.dataSolicitada = dataAcademica(this.agora());
         this.loading.set(true);
@@ -118,6 +135,20 @@ export class Dashboard implements OnInit {
                         'Não foi possível carregar suas aulas. Tente novamente.'));
                 }
             },
+        });
+    }
+
+    private carregarSalasDaSemana(): void {
+        this.requisicaoSemana?.unsubscribe();
+        if (!this.carregarGradeSemanal) return;
+        this.requisicaoSemana = defer(() => this.carregarGradeSemanal!()).pipe(
+            take(1), takeUntilDestroyed(this.destroyRef),
+        ).subscribe({
+            next: alocacoes => this.salasDaSemana.set(Array.isArray(alocacoes)
+                ? [...new Set(alocacoes.flatMap(aula => aula?.sala?.codigo?.trim() ? [codigoSala(aula.sala.codigo)] : []))]
+                : []),
+            // Sem a grade semanal, a prioridade recai nas salas de hoje; a falha aparece em Horários.
+            error: () => this.salasDaSemana.set([]),
         });
     }
 }

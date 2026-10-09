@@ -3,11 +3,12 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { BACKEND_CONFIG } from '../../core/services/backend-config';
 import { Dashboard } from './dashboard';
 import { AlocacaoResponse } from './models/grade-dia.model';
 import { CARREGAR_GRADE_DIA } from './services/dashboard.service';
+import { CARREGAR_GRADE_SEMANAL } from '../horarios/services/grade-semanal-source';
 import { mapearSalasHoje } from './services/salas-hoje';
 import { RelogioService } from '../salas/services/relogio';
 import { SalasLocaisService } from '../salas/services/salas-locais';
@@ -38,18 +39,21 @@ describe('Dashboard: salas integradas', () => {
     let fixture: ComponentFixture<Dashboard>;
     let http: HttpTestingController;
     let instante: Date;
+    let gradeSemanal: () => Observable<AlocacaoResponse[]>;
     let locais: { salas: ReturnType<typeof signal<SalaResumo[]>>; catalogo: ReturnType<typeof signal<null>>;
         erro: ReturnType<typeof signal<string | null>>; carregando: ReturnType<typeof signal<boolean>>;
         carregar: jasmine.Spy };
 
     beforeEach(() => {
         instante = new Date('2026-10-08T14:20:00-03:00');
+        gradeSemanal = () => of([pessoal]);
         locais = { salas: signal<SalaResumo[]>([]), catalogo: signal(null), erro: signal<string | null>(null),
             carregando: signal(false), carregar: jasmine.createSpy('carregarLocal') };
         TestBed.configureTestingModule({ imports: [Dashboard], providers: [
             provideRouter([]), provideHttpClient(), provideHttpClientTesting(),
             { provide: BACKEND_CONFIG, useValue: { url: BASE, modulos: ['salas', 'alocacoes'], agendaSalasCompleta: true } },
             { provide: CARREGAR_GRADE_DIA, useValue: () => of([pessoal]) },
+            { provide: CARREGAR_GRADE_SEMANAL, useValue: () => gradeSemanal() },
             { provide: RelogioService, useValue: { agora: () => instante } },
             { provide: SalasLocaisService, useValue: locais },
         ] });
@@ -71,6 +75,7 @@ describe('Dashboard: salas integradas', () => {
         req.flush({ content: alocacoes, page: 0, totalPages: alocacoes.length ? 1 : 0 });
     }
     const tela = (): HTMLElement => fixture.nativeElement;
+    const textos = (seletor: string) => Array.from(tela().querySelectorAll(seletor)).map(el => el.textContent?.trim());
 
     it('usa a agenda de todas as turmas para Em uso e associa o cadastro por código, sem confundir IDs', fakeAsync(() => {
         abrir(); cadastro();
@@ -143,16 +148,30 @@ describe('Dashboard: salas integradas', () => {
         fixture.destroy();
     }));
 
-    it('mostra infraestrutura sem depender da grade pessoal e prioriza as salas de hoje no resumo', fakeAsync(() => {
+    it('lista todas as salas com rolagem, primeiro as do aluno (hoje antes da semana) e depois as outras', fakeAsync(() => {
+        gradeSemanal = () => of([pessoal, { ...pessoal, id: 2, diaSemana: 'SEGUNDA', sala: { id: 6, codigo: 'auditório' } }]);
         abrir();
-        cadastro([salaApi(1, 'Sala 01'), salaApi(2, 'Sala 02'), salaApi(3, 'Sala 03'), salaApi(4, 'Sala 04'), salaApi()]);
+        cadastro([salaApi(1, 'Sala 01'), salaApi(2, 'Sala 02'), salaApi(6, 'Auditório'), salaApi(), salaApi(3, 'Sala 03')]);
         agenda([]); fixture.detectChanges();
-        expect(tela().querySelectorAll('.room-status-item').length).toBe(4);
-        expect(tela().querySelector('.room-status-item')?.textContent).toContain('LAB-03');
-        expect(tela().querySelector('.card-note')?.textContent).toContain('4 de 5');
+        expect(textos('.room-status-item strong')).toEqual(['LAB-03', 'Auditório', 'Sala 01', 'Sala 02', 'Sala 03']);
+        expect(textos('.room-group-title')).toEqual(['Suas salas', 'Outras salas']);
+        expect(textos('.room-status-group:first-child .room-status-item strong')).toEqual(['LAB-03', 'Auditório']);
+        expect(getComputedStyle(tela().querySelector('.room-status-list')!).overflowY).toBe('auto');
         fixture.componentInstance.alocacoes.set([]); fixture.detectChanges();
-        expect(tela().querySelectorAll('.room-status-item').length).toBe(4);
+        expect(textos('.room-status-item strong')).toEqual(['Auditório', 'LAB-03', 'Sala 01', 'Sala 02', 'Sala 03']);
         expect(tela().querySelector('.today-rooms-list')?.textContent).toContain('Nenhuma sala vinculada');
+        fixture.componentInstance.salasDaSemana.set([]); fixture.detectChanges();
+        expect(textos('.room-status-item strong')).toEqual(['Auditório', 'LAB-03', 'Sala 01', 'Sala 02', 'Sala 03']);
+        expect(tela().querySelector('.room-group-title')).toBeNull();
+        fixture.destroy();
+    }));
+
+    it('sem a grade semanal, mantém as salas de hoje primeiro e não cria outro aviso', fakeAsync(() => {
+        gradeSemanal = () => throwError(() => new Error('Falha na grade semanal'));
+        abrir(); cadastro([salaApi(6, 'Auditório'), salaApi()]); agenda([]); fixture.detectChanges();
+        expect(textos('.room-status-item strong')).toEqual(['LAB-03', 'Auditório']);
+        expect(textos('.room-group-title')).toEqual(['Suas salas', 'Outras salas']);
+        expect(tela().querySelector('.card--rooms [role="alert"]')).toBeNull();
         fixture.destroy();
     }));
 
