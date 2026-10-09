@@ -8,6 +8,7 @@ import { ApiErrorService } from '../../core/services/api-error.service';
 import { DashboardService, GradeIndisponivelError } from './services/dashboard.service';
 import { AlocacaoResponse, dataAcademica, horarioAcademico } from './models/grade-dia.model';
 import { intervalosDaGrade } from './models/intervalos-grade';
+import { atribuirCores, embaralhar, PALETA_MATERIAS } from '../../shared/utils/cores-materia';
 
 @Component({
     selector: 'app-dashboard',
@@ -29,6 +30,10 @@ export class Dashboard implements OnInit {
     readonly carregado = signal(false);
     readonly indisponivel = signal(false);
     readonly errorMessage = signal('');
+    // Sorteada de novo a cada carregamento, para a cor não ficar presa à matéria (#113).
+    private readonly paleta = signal(embaralhar(PALETA_MATERIAS));
+    readonly cores = computed(() =>
+        atribuirCores(this.alocacoes().map(aula => aula.disciplina.nome), this.paleta()));
     readonly currentDay = computed(() => new Intl.DateTimeFormat('pt-BR', {
         timeZone: 'America/Sao_Paulo', weekday: 'long',
     }).format(this.agora()));
@@ -50,9 +55,9 @@ export class Dashboard implements OnInit {
     readonly horarios = computed(() => [
         ...this.alocacoes().map(aula => ({
             id: `aula-${aula.id}`, horaInicio: aula.blocoHorario.horaInicio,
-            horaFim: aula.blocoHorario.horaFim, aula
+            horaFim: aula.blocoHorario.horaFim, aula, cor: this.cores().get(aula.disciplina.nome)
         })),
-        ...this.intervalos().map(intervalo => ({ ...intervalo, aula: null })),
+        ...this.intervalos().map(intervalo => ({ ...intervalo, aula: null, cor: undefined })),
     ].sort((a, b) => a.horaInicio.localeCompare(b.horaInicio)));
     readonly stats = computed(() => [
         { title: 'Aulas hoje', value: String(this.alocacoes().length), subtitle: this.currentDay() },
@@ -103,6 +108,7 @@ export class Dashboard implements OnInit {
         this.indisponivel.set(false);
         this.errorMessage.set('');
         this.alocacoes.set([]);
+        this.paleta.set(embaralhar(PALETA_MATERIAS));
         this.requisicao = this.service.carregarDia(this.dataSolicitada).pipe(
             takeUntilDestroyed(this.destroyRef),
             finalize(() => this.loading.set(false)),
