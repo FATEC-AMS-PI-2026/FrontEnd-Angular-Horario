@@ -58,6 +58,17 @@ export class ListaSalas {
   }
   protected readonly carregando = computed(() => this.salasApi.carregando() || this.locais.carregando());
   protected readonly erro = this.salasApi.erro;
+  protected readonly avisoRemoto = computed(() => {
+    const falhas = [
+      { nome: 'cadastro', erro: this.erro(), prefixo: '' },
+      { nome: 'disponibilidade', erro: this.estadoAgenda().erro, prefixo: 'Não foi possível confirmar a disponibilidade das salas. ' },
+      { nome: 'equipamentos', erro: this.recursos.erro(), prefixo: 'Recursos das salas: ' },
+    ].filter(falha => !!falha.erro);
+    if (!falhas.length) return null;
+    if (falhas.length === 1) return falhas[0].prefixo + falhas[0].erro;
+    const mensagens = [...new Set(falhas.map(falha => falha.erro))].join(' ');
+    return `Não foi possível atualizar os dados das salas (${falhas.map(falha => falha.nome).join(', ')}). ${mensagens}`;
+  });
 
   constructor() {
     this.salasApi.carregar();
@@ -151,8 +162,10 @@ export class ListaSalas {
   }
 
   protected tentarNovamente(): void {
-    this.salasApi.carregar();
-    this.locais.carregar();
+    // Uma ação recupera as fontes remotas que falharam, preservando as já carregadas.
+    if (this.erro()) this.salasApi.carregar();
+    if (this.estadoAgenda().erro) this.tentarDisponibilidade();
+    if (this.recursos.erro()) this.recursos.carregar();
   }
 
   protected tentarDisponibilidade(): void { this.recarregarAgenda.next(); }

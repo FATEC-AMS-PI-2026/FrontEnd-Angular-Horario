@@ -9,9 +9,9 @@
   @if (horarios().length) {
   <ul>
     @for (horario of horarios(); track $index) {
-      <li class="proximo-horario">
+      <li class="proximo-horario" [class.proximo-horario--vazio]="horario.tipo === 'vazio'">
         <span class="proximo-horario__horario"><span>{{ horario.inicio }}</span><span>{{ horario.termino }}</span></span>
-        <div><strong>{{ horario.atividade }}</strong><p>{{ horario.professor }}</p></div>
+        <div><strong>{{ horario.atividade }}</strong>@if (horario.professor) { <p>{{ horario.professor }}</p> }</div>
       </li>
     }
   </ul>

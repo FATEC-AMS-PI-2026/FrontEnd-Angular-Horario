@@ -47,6 +47,7 @@ export class Topbar implements OnInit {
     private setTitleBasedOnRoute(url: string) {
         // Rotas principais
         if (url.includes('/dashboard')) this.title = 'Início';
+        else if (url.includes('/exemplo-turmas')) this.title = 'Exemplo de turmas';
         else if (url.includes('/grade-semanal')) this.title = 'Grade Semanal';
         else if (url.includes('/salas')) this.title = 'Salas';
         else if (url.includes('/horarios')) this.title = 'Horários';

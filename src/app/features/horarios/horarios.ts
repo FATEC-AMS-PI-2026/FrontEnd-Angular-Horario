@@ -1,8 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { RelogioService } from '../salas/services/relogio';
 import { HorariosService } from './services/horarios';
 import { AdicionarMateriaModal } from './components/adicionar-materia-modal/adicionar-materia-modal';
 import { AulaHorario, DiaSemana, DIAS_SEMANA, ItemHorario } from './models/item-horario';
+import { RouterLink } from '@angular/router';
+import { EXEMPLO_TURMAS_DISPONIVEL } from './exemplo-turmas.routes';
 
 /** Status exibido na coluna "Status": badge verde, badge cinza ou traço. */
 export type StatusAula = 'em-andamento' | 'proxima' | 'nenhum';
@@ -26,13 +28,14 @@ const DIA_POR_GETDAY: (DiaSemana | null)[] = [null, 'seg', 'ter', 'qua', 'qui', 
 @Component({
     selector: 'app-horarios',
     standalone: true,
-    imports: [AdicionarMateriaModal],
+    imports: [AdicionarMateriaModal, RouterLink],
     templateUrl: './horarios.html',
     styleUrl: './horarios.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Horarios {
-    private readonly horariosService = inject(HorariosService);
+export class Horarios implements OnInit {
+    protected readonly exemploDisponivel = EXEMPLO_TURMAS_DISPONIVEL;
+    protected readonly horariosService = inject(HorariosService);
     private readonly relogio = inject(RelogioService);
 
     protected readonly dias = DIAS_SEMANA;
@@ -88,6 +91,8 @@ export class Horarios {
 
     /** Controla o modal "Adicionar Matéria" (#104). */
     protected readonly modalAberto = signal(false);
+
+    ngOnInit(): void { this.horariosService.carregar(); }
 
     protected selecionarDia(dia: DiaSemana): void {
         this.diaSelecionado.set(dia);

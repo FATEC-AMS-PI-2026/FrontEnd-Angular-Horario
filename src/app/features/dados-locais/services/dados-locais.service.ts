@@ -186,17 +186,34 @@ export class DadosLocaisService {
             const turma = c.turmas.find(t => t.id === oferta.turmaId)!;
             const reposicao = c.calendario?.reposicoes.find(r => r.data === data && r.turno === turma.turno);
             return a.diaSemana === (reposicao?.diaSemana ?? diaSemana(data)) && perfil.ofertasIds.includes(a.ofertaId);
-        }).map(a => {
-            const oferta = c.ofertas.find(o => o.id === a.ofertaId)!;
-            const minutos = (hora: string) => Number(hora.slice(0, 2)) * 60 + Number(hora.slice(3));
-            return {
-                id: a.id, disciplina: c.disciplinas.find(d => d.id === oferta.disciplinaId)!,
-                turma: c.turmas.find(t => t.id === oferta.turmaId)!,
-                professor: c.professores.find(p => p.id === a.professorId) ?? null,
-                sala: c.salas.find(s => s.id === a.salaId) ?? null, diaSemana: diaSemana(data),
-                quadroHorario: c.quadroHorario,
-                blocoHorario: { id: a.id, horaInicio: a.horaInicio, horaFim: a.horaFim, duracao: minutos(a.horaFim) - minutos(a.horaInicio) }
-            };
-        });
+        }).map(a => this.alocacao(c, a, diaSemana(data)));
+    }
+
+    /** Matriz recorrente das escolhas salvas, incluindo outros períodos.
+     * Feriados e reposições pertencem à consulta diária, não à matriz semanal. */
+    async gradeSemanal(): Promise<AlocacaoResponse[]> {
+        const { salvo, perfil } = await this.contexto();
+        if (perfil.revisao !== salvo.revisao) {
+            throw new DadosLocaisError('A grade foi atualizada. Saia e entre novamente para revisar suas disciplinas.');
+        }
+        if (!perfil.ofertasIds.length) return [];
+        this.validarEscolhas(salvo.catalogo, perfil.cursoId!, perfil.periodo!, perfil.ofertasIds);
+        return salvo.catalogo.alocacoes.filter(a => perfil.ofertasIds.includes(a.ofertaId))
+            .map(a => this.alocacao(salvo.catalogo, a));
+    }
+
+    private alocacao(c: CatalogoLocal, a: CatalogoLocal['alocacoes'][number],
+        dia = a.diaSemana): AlocacaoResponse {
+        const oferta = c.ofertas.find(o => o.id === a.ofertaId)!;
+        const minutos = (hora: string) => Number(hora.slice(0, 2)) * 60 + Number(hora.slice(3));
+        return {
+            id: a.id, disciplina: c.disciplinas.find(d => d.id === oferta.disciplinaId)!,
+            turma: c.turmas.find(t => t.id === oferta.turmaId)!,
+            professor: c.professores.find(p => p.id === a.professorId) ?? null,
+            sala: c.salas.find(s => s.id === a.salaId) ?? null, diaSemana: dia,
+            quadroHorario: c.quadroHorario,
+            blocoHorario: { id: a.id, horaInicio: a.horaInicio, horaFim: a.horaFim,
+                duracao: minutos(a.horaFim) - minutos(a.horaInicio) }
+        };
     }
 }

@@ -1,0 +1,53 @@
+<section class="exemplo" aria-label="Exemplo de consultas de turmas">
+  <div class="card exemplo__introducao">
+    <h2 class="card__titulo">Do curso aos horários da turma</h2>
+    <p>Dados ilustrativos para visualizar as consultas do PR 37. Este exemplo não altera sua grade e funciona sem o Java.</p>
+    <a routerLink="/horarios">Voltar aos meus horários</a>
+  </div>
+
+  <div class="card exemplo__selecao" [attr.aria-busy]="carregando()">
+    <label>1. Escolha o curso
+      <select class="filtro-campo" [value]="cursoId()" (change)="selecionarCurso($event)">
+        @for (curso of cursos; track curso.id) { <option [value]="curso.id">{{ curso.nome }}</option> }
+      </select>
+    </label>
+    <label>2. Escolha a turma
+      <select class="filtro-campo" [disabled]="!turmas().length || carregando()" [value]="turmaId() ?? ''" (change)="selecionarTurma($event)">
+        <option value="">Selecione uma turma</option>
+        @for (turma of turmas(); track turma.id) { <option [value]="turma.id">{{ turma.codigo }} · período {{ turma.periodo }} · {{ turma.ano }}</option> }
+      </select>
+    </label>
+    <label class="exemplo__falha"><input type="checkbox" [checked]="transporte.falharTurmas()" (change)="simularFalha($event)" /> Simular falha na consulta de turmas</label>
+    @if (carregando()) { <p role="status">Carregando {{ turmaId() ? 'horários' : 'turmas' }}...</p> }
+    @if (erro(); as mensagem) { <p role="alert">{{ mensagem }}</p><button class="filtro-chip" (click)="carregarTurmas()">Tentar novamente</button> }
+    @if (usouAlternativa() && !carregando() && !erro()) { <p class="exemplo__resultado" role="status">A consulta de turmas falhou. O mesmo Service recuperou as turmas pelas alocações, usando somente o curso escolhido.</p> }
+  </div>
+
+  <div class="card">
+    <h2 class="card__titulo">3. Horários da turma escolhida</h2>
+    @if (!turmaId()) { <p>Selecione uma turma para ver suas aulas.</p> }
+    @else if (!carregando() && !erro()) {
+      <div class="exemplo__tabela-scroll" tabindex="0" role="region" aria-label="Horários da turma; role horizontalmente se necessário">
+        <table>
+          <caption class="exemplo__legenda">Dados convertidos pelo Service do PR 37</caption>
+          <thead><tr><th>Dia</th><th>Horário</th><th>Disciplina</th><th>Professor</th><th>Sala</th></tr></thead>
+          <tbody>
+            @for (item of itens(); track $index) {
+              <tr [class.exemplo__intervalo]="item.tipo === 'intervalo'">
+                <td>{{ nomeDia(item.diaSemana) }}</td><td>{{ item.inicio }} – {{ item.termino }}</td>
+                @if (item.tipo === 'aula') { <td>{{ item.materia }}</td><td>{{ item.professor }}</td><td>{{ item.sala }}</td> }
+                @else { <td colspan="3">Intervalo calculado entre as aulas</td> }
+              </tr>
+            } @empty { <tr><td colspan="5">Nenhuma aula nesta turma.</td></tr> }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+
+  <details class="card exemplo__consultas">
+    <summary>Ver consultas do exemplo</summary>
+    <p>Respostas simuladas, uma linha por página: o Service percorre todas as páginas antes de apresentar os dados.</p>
+    <ol>@for (consulta of transporte.consultas(); track $index) { <li><code>GET {{ consulta.caminho }}</code> → {{ consulta.status }}</li> }</ol>
+  </details>
+</section>

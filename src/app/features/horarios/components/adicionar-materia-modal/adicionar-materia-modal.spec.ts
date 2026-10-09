@@ -3,6 +3,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AdicionarMateriaModal } from './adicionar-materia-modal';
 import { HorariosService } from '../../services/horarios';
 import { DiaSemana } from '../../models/item-horario';
+import { of } from 'rxjs';
+import { CARREGAR_GRADE_SEMANAL } from '../../services/grade-semanal-source';
+import { gradeTeste } from '../../testing/grade-semanal.fixture';
 
 function criar(diaInicial: DiaSemana | null = null): ComponentFixture<AdicionarMateriaModal> {
     const fixture = TestBed.createComponent(AdicionarMateriaModal);
@@ -37,6 +40,13 @@ function clicarBotao(fixture: ComponentFixture<AdicionarMateriaModal>, rotulo: s
 }
 
 describe('AdicionarMateriaModal', () => {
+    beforeEach(() => {
+        TestBed.configureTestingModule({ providers: [
+            { provide: CARREGAR_GRADE_SEMANAL, useValue: () => of(gradeTeste()) },
+        ] });
+        TestBed.inject(HorariosService).carregar();
+    });
+
     it('mostra chips de dia, matérias do service e chips de horário no formato "1ª - 13:20"', () => {
         const fixture = criar();
         const service = TestBed.inject(HorariosService);

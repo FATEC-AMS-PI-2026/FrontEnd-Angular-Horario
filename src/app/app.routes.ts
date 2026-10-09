@@ -5,6 +5,7 @@ import { Dashboard } from './features/dashboard/dashboard';
 import { GradeSemanal } from './features/grade-semanal/grade-semanal';
 import { profileGuard } from './core/guards/profile.guard';
 import { guestGuard } from './core/guards/guest.guard';
+import { ROTAS_EXEMPLO_TURMAS } from './features/horarios/exemplo-turmas.routes';
 export const routes: Routes = [
     { path: 'login', component: Login, canActivate: [guestGuard] },
 
@@ -66,6 +67,7 @@ export const routes: Routes = [
                     import('./features/horarios/horarios').then((m) => m.Horarios),
             },
             { path: 'grade-semanal', component: GradeSemanal },
+            ...ROTAS_EXEMPLO_TURMAS,
             {
                 path: 'salas',
                 loadComponent: () =>

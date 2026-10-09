@@ -6,7 +6,9 @@ export interface IntervaloGrade { id: string; horaInicio: string; horaFim: strin
  * horaInicio/horaFim/duracao em BlocoHorarioResponse. Substituir esta inferência se
  * o contrato futuro passar a fornecer intervalos explícitos.
  */
-export function intervalosDaGrade(alocacoes: AlocacaoResponse[]): IntervaloGrade[] {
+export function intervalosDaGrade(alocacoes: readonly {
+    blocoHorario: Pick<AlocacaoResponse['blocoHorario'], 'horaInicio' | 'horaFim'>;
+}[]): IntervaloGrade[] {
     const normalizar = (hora: string) => hora.length === 5 ? `${hora}:00` : hora;
     const aulas = alocacoes.map(a => ({ inicio: normalizar(a.blocoHorario.horaInicio), fim: normalizar(a.blocoHorario.horaFim) }))
         .sort((a, b) => a.inicio.localeCompare(b.inicio));

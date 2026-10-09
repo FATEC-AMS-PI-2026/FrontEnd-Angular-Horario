@@ -11,12 +11,24 @@
             }
         </div>
 
-        <button type="button" class="botao-adicionar" aria-haspopup="dialog" (click)="abrirModal()">
-            + Adicionar Matéria
-        </button>
+        <div class="horarios__acoes">
+            @if (exemploDisponivel) {
+                <a class="filtro-chip" routerLink="/exemplo-turmas">Ver exemplo de turmas</a>
+            }
+            <button type="button" class="botao-adicionar" aria-haspopup="dialog"
+                [disabled]="!horariosService.carregado()" (click)="abrirModal()">
+                + Adicionar Matéria
+            </button>
+        </div>
     </div>
 
-    <div class="horarios__card">
+    <div class="horarios__card" [attr.aria-busy]="horariosService.carregando()">
+        @if (horariosService.carregando()) {
+        <p role="status">Carregando seus horários...</p>
+        } @else if (horariosService.erro(); as erro) {
+        <p role="alert">{{ erro }}</p>
+        <button type="button" class="botao-adicionar" (click)="horariosService.carregar()">Tentar novamente</button>
+        } @else if (horariosService.carregado()) {
         <table class="tabela-horarios">
             <caption class="visualmente-oculto">Aulas de {{ nomeDiaSelecionado() }}</caption>
             <thead>
@@ -35,8 +47,8 @@
                 <tr class="tabela-horarios__aula" [class.tabela-horarios__aula--agora]="statusDe(item) === 'em-andamento'">
                     <td class="tabela-horarios__horario">{{ item.inicio }} – {{ item.termino }}</td>
                     <td class="tabela-horarios__materia">{{ item.materia }}</td>
-                    <td>{{ item.professor }}</td>
-                    <td>{{ item.sala }}</td>
+                    <td>{{ item.professor || 'Professor a definir' }}</td>
+                    <td>{{ item.sala || 'Sala não informada' }}</td>
                     <td>
                         @switch (statusDe(item)) {
                         @case ('em-andamento') {
@@ -76,6 +88,7 @@
                 }
             </tbody>
         </table>
+        }
     </div>
 
 </section>

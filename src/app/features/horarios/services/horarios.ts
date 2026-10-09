@@ -1,145 +1,179 @@
-import { computed, Injectable, signal } from '@angular/core';
-import {
-    AulaHorario,
-    BlocoHorario,
-    DiaSemana,
-    IntervaloHorario,
-    ItemHorario,
-    NovaAula,
-    ResultadoAdicao,
-} from '../models/item-horario';
+import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { defer, Subscription, take, throwError } from 'rxjs';
+import { ApiErrorService } from '../../../core/services/api-error.service';
+import { obterTokenSessao } from '../../../core/services/session.service';
+import { atribuirCores, embaralhar, PALETA_MATERIAS } from '../../../shared/utils/cores-materia';
+import { AlocacaoResponse } from '../../dashboard/models/grade-dia.model';
+import { intervalosDaGrade } from '../../dashboard/models/intervalos-grade';
+import { AulaGrade, DiaGrade, LinhaGrade } from '../models/grade-semanal';
+import { AulaHorario, BlocoHorario, DiaSemana, DIAS_SEMANA, ItemHorario, NovaAula, ResultadoAdicao } from '../models/item-horario';
+import { CARREGAR_GRADE_SEMANAL, GradeSemanalIndisponivelError } from './grade-semanal-source';
 
-/** Monta uma aula do mock sem repetir `tipo` e `diaSemana` em cada linha. */
-function aula(
-    diaSemana: DiaSemana,
-    inicio: string,
-    termino: string,
-    materia: string,
-    professor: string,
-    sala: string,
-): AulaHorario {
-    return { tipo: 'aula', diaSemana, inicio, termino, materia, professor, sala };
-}
-
-function intervalo(diaSemana: DiaSemana, inicio: string, termino: string): IntervaloHorario {
-    return { tipo: 'intervalo', diaSemana, inicio, termino };
-}
-
-/**
- * Intervalos fixos da tarde (mesmos horários da `GradeSemanal`), repetidos
- * em todos os dias que têm aula.
- */
-function intervalosDoDia(diaSemana: DiaSemana): IntervaloHorario[] {
-    return [intervalo(diaSemana, '15:00', '15:10'), intervalo(diaSemana, '16:50', '17:00')];
-}
-
-/**
- * Dados de exemplo enquanto o backend não está integrado. Segue as mesmas
- * matérias e horários da `GradeSemanal` e do `Dashboard` para as telas
- * ficarem coerentes entre si. Sábado fica sem aulas de propósito, para
- * exercitar o estado vazio da tabela.
- */
-const HORARIOS_MOCK: ItemHorario[] = [
-    aula('seg', '13:20', '14:10', 'Projeto Integrador I', 'Prof. Glauco Todesco', 'Lab. 03'),
-    aula('seg', '14:10', '15:00', 'Projeto Integrador I', 'Prof. Glauco Todesco', 'Lab. 03'),
-    aula('seg', '15:10', '16:00', 'Banco de Dados', 'Prof. Renato', 'Lab. 01'),
-    aula('seg', '16:00', '16:50', 'Banco de Dados', 'Prof. Renato', 'Lab. 01'),
-    aula('seg', '17:00', '17:50', 'Interação Humano-Computador', 'Prof. Renato', 'Sala 12'),
-    aula('seg', '17:50', '18:40', 'Interação Humano-Computador', 'Prof. Renato', 'Sala 12'),
-    ...intervalosDoDia('seg'),
-
-    aula('ter', '13:20', '14:10', 'Banco de Dados', 'Prof. Renato', 'Lab. 01'),
-    aula('ter', '14:10', '15:00', 'Banco de Dados', 'Prof. Renato', 'Lab. 01'),
-    aula('ter', '15:10', '16:00', 'Interação Humano-Computador', 'Prof. Renato', 'Sala 12'),
-    aula('ter', '16:00', '16:50', 'Interação Humano-Computador', 'Prof. Renato', 'Sala 12'),
-    aula('ter', '17:00', '17:50', 'Desenvolvimento de Software', 'Prof. Glauco Todesco', 'Lab. 03'),
-    aula('ter', '17:50', '18:40', 'Desenvolvimento de Software', 'Prof. Glauco Todesco', 'Lab. 03'),
-    ...intervalosDoDia('ter'),
-
-    aula('qua', '13:20', '14:10', 'Estrutura de Dados', 'Prof. Marcos', 'Lab. 02'),
-    aula('qua', '14:10', '15:00', 'Estrutura de Dados', 'Prof. Marcos', 'Lab. 02'),
-    aula('qua', '15:10', '16:00', 'Programação Mobile', 'Prof. Ana', 'Lab. 04'),
-    aula('qua', '16:00', '16:50', 'Programação Mobile', 'Prof. Ana', 'Lab. 04'),
-    aula('qua', '17:00', '17:50', 'Projeto Integrador I', 'Prof. Glauco Todesco', 'Lab. 03'),
-    aula('qua', '17:50', '18:40', 'Projeto Integrador I', 'Prof. Glauco Todesco', 'Lab. 03'),
-    ...intervalosDoDia('qua'),
-
-    aula('qui', '13:20', '14:10', 'Programação Mobile', 'Prof. Ana', 'Lab. 04'),
-    aula('qui', '14:10', '15:00', 'Programação Mobile', 'Prof. Ana', 'Lab. 04'),
-    aula('qui', '15:10', '16:00', 'Desenvolvimento de Software', 'Prof. Glauco Todesco', 'Lab. 03'),
-    aula('qui', '16:00', '16:50', 'Desenvolvimento de Software', 'Prof. Glauco Todesco', 'Lab. 03'),
-    aula('qui', '17:00', '17:50', 'Banco de Dados', 'Prof. Renato', 'Lab. 01'),
-    aula('qui', '17:50', '18:40', 'Banco de Dados', 'Prof. Renato', 'Lab. 01'),
-    ...intervalosDoDia('qui'),
-
-    aula('sex', '13:20', '14:10', 'Projeto Integrador I', 'Prof. Glauco Todesco', 'Lab. 03'),
-    aula('sex', '14:10', '15:00', 'Projeto Integrador I', 'Prof. Glauco Todesco', 'Lab. 03'),
-    aula('sex', '15:10', '16:00', 'Estrutura de Dados', 'Prof. Marcos', 'Lab. 02'),
-    aula('sex', '16:00', '16:50', 'Estrutura de Dados', 'Prof. Marcos', 'Lab. 02'),
-    aula('sex', '17:00', '17:50', 'Interação Humano-Computador', 'Prof. Renato', 'Sala 12'),
-    aula('sex', '17:50', '18:40', 'Interação Humano-Computador', 'Prof. Renato', 'Sala 12'),
-    ...intervalosDoDia('sex'),
-];
+const DIA_DA_ALOCACAO: Partial<Record<AlocacaoResponse['diaSemana'], DiaSemana>> = {
+    SEGUNDA: 'seg', TERCA: 'ter', QUARTA: 'qua', QUINTA: 'qui', SEXTA: 'sex', SABADO: 'sab',
+};
 
 /** Texto exibido quando a matéria adicionada ainda não tem professor/sala conhecidos. */
 export const A_DEFINIR = 'A definir';
 
 @Injectable({ providedIn: 'root' })
 export class HorariosService {
-    private readonly itensSignal = signal<ItemHorario[]>(HORARIOS_MOCK);
+    private readonly fonte = inject(CARREGAR_GRADE_SEMANAL, { optional: true });
+    private readonly erros = inject(ApiErrorService);
+    private readonly destroyRef = inject(DestroyRef);
+    private pedido?: Subscription;
+    private sessaoConsultada: string | null = null;
+    private assinaturaGrade: string | null = null;
+    private aulasAdicionadas: AulaHorario[] = [];
+    private readonly aulas = signal<AulaHorario[]>([]);
+    private readonly paleta = signal(embaralhar(PALETA_MATERIAS));
 
-    /** Grade da semana inteira (aulas e intervalos), em qualquer ordem. */
-    readonly itens = this.itensSignal.asReadonly();
+    readonly carregando = signal(false);
+    readonly carregado = signal(false);
+    readonly erro = signal<string | null>(null);
 
-    private readonly aulas = computed(() =>
-        this.itensSignal().filter((item): item is AulaHorario => item.tipo === 'aula'),
-    );
+    /** Aulas e lacunas reais de cada dia, sem intervalos fixos. */
+    readonly itens = computed<ItemHorario[]>(() => DIAS_SEMANA.flatMap(dia => {
+        const aulas = this.aulas().filter(aula => aula.diaSemana === dia.valor);
+        const lacunas = intervalosDaGrade(aulas.map(aula => ({
+            blocoHorario: { horaInicio: aula.inicio, horaFim: aula.termino },
+        })));
+        return [...aulas, ...lacunas.map(lacuna => ({
+            tipo: 'intervalo' as const, diaSemana: dia.valor,
+            inicio: lacuna.horaInicio.slice(0, 5), termino: lacuna.horaFim.slice(0, 5),
+        }))].sort((a, b) => a.inicio.localeCompare(b.inicio));
+    }));
 
-    /** Matérias oferecidas no dropdown do modal "Adicionar Matéria", em ordem alfabética. */
     readonly materias = computed(() =>
-        [...new Set(this.aulas().map((aula) => aula.materia))].sort((a, b) => a.localeCompare(b, 'pt-BR')),
+        [...new Set(this.aulas().map(aula => aula.materia))].sort((a, b) => a.localeCompare(b, 'pt-BR')),
     );
 
-    /** Blocos de aula do turno (sem repetição), em ordem cronológica, para os chips do modal. */
     readonly blocos = computed<BlocoHorario[]>(() => {
-        const porInicio = new Map<string, BlocoHorario>();
+        const blocos = new Map<string, BlocoHorario>();
         for (const aula of this.aulas()) {
-            porInicio.set(aula.inicio, { inicio: aula.inicio, termino: aula.termino });
+            blocos.set(`${aula.inicio}-${aula.termino}`, { inicio: aula.inicio, termino: aula.termino });
         }
-        return [...porInicio.values()].sort((a, b) => a.inicio.localeCompare(b.inicio));
+        return [...blocos.values()].sort((a, b) => a.inicio.localeCompare(b.inicio) || a.termino.localeCompare(b.termino));
     });
 
-    /**
-     * Inclui uma aula na grade do aluno (issue #104). Recusa se já existe aula
-     * no mesmo dia e bloco. Professor e sala são reaproveitados de outra aula
-     * da mesma matéria; sem referência, ficam "A definir".
-     *
-     * TODO(integração backend): trocar por um POST na API de grade quando ela
-     * existir, mantendo o mesmo retorno para o modal não precisar mudar.
-     */
-    adicionarAula(nova: NovaAula): ResultadoAdicao {
-        const ocupado = this.aulas().some(
-            (aula) => aula.diaSemana === nova.diaSemana && aula.inicio === nova.bloco.inicio,
-        );
-        if (ocupado) {
-            return { ok: false, erro: 'Já existe uma aula nesse dia e horário.' };
-        }
+    /** Segunda a sexta sempre presentes; sábado acompanha as alocações. */
+    readonly dias = computed<DiaGrade[]>(() => DIAS_SEMANA
+        .filter(dia => dia.valor !== 'sab' || this.aulas().some(aula => aula.diaSemana === 'sab'))
+        .map(dia => ({ valor: dia.valor, nome: dia.nome.replace('-feira', '') })),
+    );
 
-        const referencia = this.aulas().find((aula) => aula.materia === nova.materia);
-        const aulaNova = aula(
-            nova.diaSemana,
-            nova.bloco.inicio,
-            nova.bloco.termino,
-            nova.materia,
-            referencia?.professor ?? A_DEFINIR,
-            referencia?.sala ?? A_DEFINIR,
-        );
-        this.itensSignal.update((itens) => [...itens, aulaNova]);
-        return { ok: true };
+    private readonly aulasColoridas = computed<AulaGrade[]>(() => {
+        const cores = atribuirCores(this.aulas().map(aula => aula.materia), this.paleta());
+        return this.aulas().map(aula => ({ ...aula, cor: cores.get(aula.materia)! }));
+    });
+
+    /** Usa todas as fronteiras dos blocos para não perder aulas de durações distintas. */
+    readonly linhas = computed<LinhaGrade[]>(() => {
+        const aulas = this.aulasColoridas();
+        const limites = [...new Set(aulas.flatMap(aula => [aula.inicio, aula.termino]))].sort();
+        return limites.slice(0, -1).map((inicio, indice) => {
+            const termino = limites[indice + 1];
+            const celulas = this.dias().map(dia => aulas.find(aula =>
+                aula.diaSemana === dia.valor && aula.inicio <= inicio && termino <= aula.termino) ?? null);
+            return { inicio, termino, intervalo: celulas.every(celula => celula === null), celulas };
+        });
+    });
+
+    /** Reconsulta as escolhas persistidas a cada entrada na página e nova tentativa. */
+    carregar(): void {
+        const sessao = obterTokenSessao();
+        if (this.carregando() && this.sessaoConsultada === sessao) return;
+        this.pedido?.unsubscribe();
+        if (this.sessaoConsultada !== sessao) {
+            this.aulasAdicionadas = [];
+            this.assinaturaGrade = null;
+        }
+        this.sessaoConsultada = sessao;
+        this.carregando.set(true);
+        this.carregado.set(false);
+        this.erro.set(null);
+        this.aulas.set([]);
+        // Mantém a regra da #115: sorteio por carregamento, estável nas interações.
+        this.paleta.set(embaralhar(PALETA_MATERIAS));
+        this.pedido = defer(() => this.fonte ? this.fonte()
+            : throwError(() => new GradeSemanalIndisponivelError()))
+            .pipe(take(1), takeUntilDestroyed(this.destroyRef)).subscribe({
+                next: alocacoes => {
+                    if (obterTokenSessao() !== sessao) { this.sessaoMudou(); return; }
+                    try {
+                        const aulas = this.mapear(alocacoes);
+                        const assinatura = JSON.stringify(alocacoes.map(a => a.id).sort((a, b) => a - b))
+                            + JSON.stringify(aulas);
+                        // A #104 mantém inclusões em memória entre as duas telas enquanto a
+                        // grade salva é a mesma; trocar escolhas/conta descarta essas inclusões.
+                        if (assinatura !== this.assinaturaGrade) this.aulasAdicionadas = [];
+                        this.assinaturaGrade = assinatura;
+                        this.aulas.set([...aulas, ...this.aulasAdicionadas]);
+                        this.carregado.set(true);
+                        this.carregando.set(false);
+                    } catch (error) { this.falhar(error); }
+                },
+                error: error => obterTokenSessao() === sessao ? this.falhar(error) : this.sessaoMudou(),
+                complete: () => {
+                    if (this.carregando()) this.falhar(new Error('A fonte não retornou a grade.'));
+                },
+            });
     }
 
-    // TODO(integração backend): quando a API de horários estiver disponível,
-    // injetar HttpClient e preencher `itensSignal` a partir dela (mesmo
-    // padrão de `ProfessoresService`). O componente só depende do signal
-    // `itens`, então não precisa mudar.
+    private sessaoMudou(): void {
+        this.falhar(new Error('Sessão alterada.'));
+    }
+
+    private falhar(error: unknown): void {
+        this.aulas.set([]);
+        this.carregando.set(false);
+        this.carregado.set(false);
+        this.erro.set(error instanceof GradeSemanalIndisponivelError
+            ? 'A grade semanal ainda não está disponível para esta conta.'
+            : this.erros.mensagem(error, 'Não foi possível carregar sua grade semanal. Tente novamente.'));
+    }
+
+    private mapear(alocacoes: AlocacaoResponse[]): AulaHorario[] {
+        const horario = /^(?:[01]\d|2[0-3]):[0-5]\d(?::00)?$/;
+        if (!Array.isArray(alocacoes) || alocacoes.some(a => !a || !Number.isSafeInteger(a.id)
+            || !a.disciplina?.nome?.trim() || !DIA_DA_ALOCACAO[a.diaSemana]
+            || !horario.test(a.blocoHorario?.horaInicio) || !horario.test(a.blocoHorario?.horaFim)
+            || a.blocoHorario.horaInicio.slice(0, 5) >= a.blocoHorario.horaFim.slice(0, 5))
+            || new Set(alocacoes.map(a => a.id)).size !== alocacoes.length) {
+            throw new Error('Resposta da grade semanal inválida.');
+        }
+        const aulas = alocacoes.map<AulaHorario>(a => ({
+            tipo: 'aula', diaSemana: DIA_DA_ALOCACAO[a.diaSemana]!,
+            inicio: a.blocoHorario.horaInicio.slice(0, 5), termino: a.blocoHorario.horaFim.slice(0, 5),
+            materia: a.disciplina.nome, professor: a.professor?.nome?.trim() || '',
+            sala: a.sala?.codigo?.trim() || '',
+        })).sort((a, b) => DIAS_SEMANA.findIndex(dia => dia.valor === a.diaSemana)
+            - DIAS_SEMANA.findIndex(dia => dia.valor === b.diaSemana) || a.inicio.localeCompare(b.inicio));
+        for (let i = 1; i < aulas.length; i++) {
+            const anterior = aulas[i - 1], atual = aulas[i];
+            if (anterior.diaSemana === atual.diaSemana && atual.inicio < anterior.termino) {
+                throw new Error('Alocações sobrepostas na grade semanal.');
+            }
+        }
+        return aulas;
+    }
+
+    /** Mantém a inclusão em memória da #104; a persistência depende de contrato próprio. */
+    adicionarAula(nova: NovaAula): ResultadoAdicao {
+        if (!this.carregado() || this.sessaoConsultada !== obterTokenSessao()) {
+            return { ok: false, erro: 'Carregue sua grade antes de adicionar uma aula.' };
+        }
+        const ocupado = this.aulas().some(aula => aula.diaSemana === nova.diaSemana
+            && aula.inicio < nova.bloco.termino && nova.bloco.inicio < aula.termino);
+        if (ocupado) return { ok: false, erro: 'Já existe uma aula nesse dia e horário.' };
+        const referencia = this.aulas().find(aula => aula.materia === nova.materia);
+        const adicionada: AulaHorario = {
+            tipo: 'aula', diaSemana: nova.diaSemana, inicio: nova.bloco.inicio, termino: nova.bloco.termino,
+            materia: nova.materia, professor: referencia?.professor || A_DEFINIR, sala: referencia?.sala || A_DEFINIR,
+        };
+        this.aulasAdicionadas.push(adicionada);
+        this.aulas.update(aulas => [...aulas, adicionada]);
+        return { ok: true };
+    }
 }

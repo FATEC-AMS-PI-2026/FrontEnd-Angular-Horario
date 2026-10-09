@@ -2,12 +2,18 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { Horarios } from './horarios';
 import { RelogioService } from '../salas/services/relogio';
+import { of } from 'rxjs';
+import { CARREGAR_GRADE_SEMANAL } from './services/grade-semanal-source';
+import { gradeTeste } from './testing/grade-semanal.fixture';
 
 /** Cria o componente com o "agora" fixo, para o status não depender do relógio real. */
 function criar(agora: Date): ComponentFixture<Horarios> {
     TestBed.configureTestingModule({
         imports: [Horarios],
-        providers: [{ provide: RelogioService, useValue: { agora: () => agora } }],
+        providers: [
+            { provide: RelogioService, useValue: { agora: () => agora } },
+            { provide: CARREGAR_GRADE_SEMANAL, useValue: () => of(gradeTeste()) },
+        ],
     });
     const fixture = TestBed.createComponent(Horarios);
     fixture.detectChanges();

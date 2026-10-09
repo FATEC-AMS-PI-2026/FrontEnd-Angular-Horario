@@ -48,9 +48,9 @@
   @if (carregando()) {
   <p class="lista-salas__estado" role="status">Carregando salas...</p>
   }
-  @if (erro()) {
+  @if (avisoRemoto(); as aviso) {
   <div class="lista-salas__estado lista-salas__estado--erro" role="alert">
-    <p>{{ erro() }}</p>
+    <p>{{ aviso }}</p>
     <button type="button" class="filtro-chip" (click)="tentarNovamente()">Tentar novamente</button>
   </div>
   }
@@ -63,16 +63,8 @@
   @if (!carregando() || salas().length) {
   @if (estadoAgenda().carregando) {
     <p role="status" class="lista-salas__estado">Consultando disponibilidade das salas...</p>
-  } @else if (estadoAgenda().erro; as erroAgenda) {
-    <div role="alert" class="lista-salas__estado lista-salas__estado--erro">
-      <p>Não foi possível confirmar a disponibilidade das salas. {{ erroAgenda }}</p>
-      <button type="button" class="filtro-chip" (click)="tentarDisponibilidade()">Tentar novamente</button>
-    </div>
   }
   @if (recursos.carregando()) { <p role="status" class="lista-salas__estado">Carregando recursos das salas...</p> }
-  @if (recursos.erro(); as erroRecursos) {
-    <div role="alert" class="lista-salas__estado lista-salas__estado--erro"><p>Recursos das salas: {{ erroRecursos }}</p><button type="button" class="filtro-chip" (click)="recursos.carregar()">Tentar novamente</button></div>
-  }
   <ul class="grade-salas">
     @for (sala of salasFiltradas(); track sala.rotaId ?? sala.id) {
     @let disponibilidadeSala = disponibilidade(sala);
