@@ -169,6 +169,16 @@
             color: var(--tag-indigo-fg);
             gap: var(--space-sm);
 
+            // Cores sorteadas a cada carregamento (#113), sempre de dentro da paleta
+            // de tokens (PALETA_MATERIAS), que mantém o contraste nos dois temas.
+            @each $cor in ('verde', 'azul', 'ciano', 'roxo', 'rosa', 'magenta', 'indigo') {
+                &.cor-#{$cor} {
+                    background-color: var(--tag-#{$cor}-bg);
+                    border-color: var(--tag-#{$cor}-border);
+                    color: var(--tag-#{$cor}-fg);
+                }
+            }
+
             .time-block {
                 flex-shrink: 0;
                 display: flex;

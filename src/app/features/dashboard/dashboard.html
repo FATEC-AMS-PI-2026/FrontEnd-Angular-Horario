@@ -50,7 +50,8 @@
             @if (carregado()) {
             <div class="schedule-list">
                 @for (item of horarios(); track item.id) {
-                <div class="schedule-item" [class.schedule-item--class]="item.aula"
+                <div class="schedule-item" [class]="item.cor ? 'cor-' + item.cor : ''"
+                    [class.schedule-item--class]="item.aula"
                     [class.schedule-item--interval]="!item.aula">
                     @if (item.aula; as aula) {
                     <div class="time-block">
