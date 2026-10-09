@@ -8,6 +8,7 @@ import { CARREGAR_GRADE_DIA, CarregarGradeDia, DashboardService } from './servic
 import { AlocacaoResponse, dataAcademica, diaSemana } from './models/grade-dia.model';
 import { SessionService } from '../../core/services/session.service';
 import { intervalosDaGrade } from './models/intervalos-grade';
+import { PALETA_MATERIAS } from '../../shared/utils/cores-materia';
 
 describe('Dashboard', () => {
     let component: Dashboard;
@@ -176,6 +177,21 @@ describe('Dashboard: grade do serviço', () => {
             aula(3, '16:10', '17:00'), aula(1, '13:20', '15:00'), aula(2, '14:00', '14:50'),
         ]);
         expect(intervalos.map(i => [i.horaInicio, i.horaFim])).toEqual([['15:00:00', '16:10:00']]);
+    });
+
+    it('pinta as aulas com cores da paleta, repetindo a cor só na mesma disciplina (#113)', () => {
+        const repetida = { ...aula(3, '15:10', '16:00'), disciplina: { id: 1, nome: 'Disciplina 1', periodo: 3 } };
+        resposta.next([aula(1, '13:20', '14:10'), aula(2, '14:10', '15:00'), repetida]);
+        resposta.complete();
+        fixture.detectChanges();
+        const cores = component.horarios().filter(item => item.aula).map(item => item.cor!);
+        expect(cores.every(cor => PALETA_MATERIAS.includes(cor))).toBeTrue();
+        expect(cores[0]).not.toBe(cores[1]);
+        expect(cores[2]).toBe(cores[0]);
+        const itens = fixture.nativeElement.querySelectorAll('.schedule-item--class');
+        expect(itens[0].classList).toContain(`cor-${cores[0]}`);
+        expect(itens[0].classList).toContain('schedule-item');
+        expect(fixture.nativeElement.querySelector('.schedule-item--interval').className).not.toContain('cor-');
     });
 
     it('mostra ausência de aulas apenas após resposta vazia bem-sucedida', () => {
