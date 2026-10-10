@@ -67,8 +67,8 @@ describe('ListaSalas', () => {
     expect(elemento().querySelector('app-status-sala-badge')).toBeNull();
   });
 
-  it('deixa Auditório fora do Prédio 1 e permite encontrá-lo nos filtros de todos ou de tipo', () => {
-    responder([sala(1, 'LAB-01', 'Laboratório'), sala(2, 'AUD-01', 'Auditório')]);
+  it('deixa AUD-01 fora do Prédio 1 mesmo com tipo Sala e preserva os demais filtros', () => {
+    responder([sala(1, 'LAB-01', 'Laboratório'), sala(3, 'AUD-01', 'Sala', 120)]);
     expect(cards().length).toBe(2);
     expect(cards()[1].querySelector('.card-sala__local')).toBeNull();
     const filtro = elemento().querySelector<HTMLSelectElement>('.lista-salas__filtro-predio')!;
@@ -79,7 +79,7 @@ describe('ListaSalas', () => {
 
     filtro.value = ''; filtro.dispatchEvent(new Event('change')); fixture.detectChanges();
     const auditório = Array.from(elemento().querySelectorAll<HTMLButtonElement>('.lista-salas__tipos button'))
-      .find(chip => chip.textContent?.trim() === 'Auditório')!;
+      .find(chip => chip.textContent?.trim() === 'Sala')!;
     auditório.click(); fixture.detectChanges();
     expect(cards().length).toBe(1);
     expect(cards()[0].textContent).toContain('AUD-01');

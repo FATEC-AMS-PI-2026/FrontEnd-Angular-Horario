@@ -40,17 +40,18 @@ describe('SalasApiService', () => {
     expect(service.salas()).toEqual([{ id: 7, nome: 'REUN-01', capacidade: 12, tipo: 'Sala de Reuniao', predio: 'Prédio 1' }]);
   });
 
-  it('mantém Auditório sem prédio pelo tipo ou código, inclusive na consulta de detalhes', () => {
+  it('mantém Auditório sem prédio pelo código AUD mesmo com tipo Sala, ou pelo nome/tipo', () => {
     service.carregar();
     http.expectOne(r => r.url === 'https://backend.test/salas').flush({ content: [
-      { id: 1, codigo: 'AUD-01', capacidade: 100, tipoSala: { id: 1, nome: 'Auditório' } },
+      { id: 1, codigo: 'AUD-01', capacidade: 120, tipoSala: { id: 2, nome: 'Sala' } },
       { id: 2, codigo: 'auditorio', capacidade: 100, tipoSala: { id: 2, nome: 'Espaço' } },
+      { id: 3, codigo: 'ESPACO-01', capacidade: 100, tipoSala: { id: 3, nome: 'Auditório' } },
     ], page: 0, totalPages: 1 });
     expect(service.salas().every(sala => sala.predio === undefined)).toBeTrue();
 
     service.obterPorId(1).subscribe(sala => expect(sala.predio).toBeUndefined());
     http.expectOne('https://backend.test/salas/1').flush({
-      id: 1, codigo: 'AUD-01', capacidade: 100, tipoSala: { id: 1, nome: 'Auditório' },
+      id: 1, codigo: 'AUD-01', capacidade: 120, tipoSala: { id: 2, nome: 'Sala' },
     });
   });
 

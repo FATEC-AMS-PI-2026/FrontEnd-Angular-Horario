@@ -65,12 +65,12 @@ describe('DetalhesSala', () => {
     expect(TestBed.inject(TopbarContextService).sala()).toBeNull();
   }));
 
-  it('exibe os detalhes do Auditório sem prédio ou andar', fakeAsync(() => {
+  it('exibe os detalhes de AUD-01 sem prédio ou andar mesmo com tipo Sala', fakeAsync(() => {
     config.agendaSalasCompleta = false;
     const fixture = TestBed.createComponent(DetalhesSala);
-    http.expectOne('http://backend/salas/73').flush({ ...sala, codigo: 'AUD-01', tipoSala: { id: 3, nome: 'Auditório' } });
+    http.expectOne('http://backend/salas/73').flush({ ...sala, codigo: 'AUD-01', tipoSala: { id: 2, nome: 'Sala' } });
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('app-cabecalho-sala').textContent).toContain('Auditório');
+    expect(fixture.nativeElement.querySelector('app-cabecalho-sala').textContent).toContain('AUD-01');
     expect(fixture.nativeElement.querySelector('.cabecalho-sala__badge')).toBeNull();
     expect(fixture.nativeElement.textContent).not.toContain('Prédio');
     fixture.destroy();

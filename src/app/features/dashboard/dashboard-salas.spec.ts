@@ -93,15 +93,15 @@ describe('Dashboard: salas integradas', () => {
         fixture.destroy();
     }));
 
-    it('mostra Auditório nas salas de hoje sem atribuir prédio', fakeAsync(() => {
-        abrir(); cadastro([{ ...salaApi(6, 'AUD-01'), tipoSala: { id: 3, nome: 'Auditório' } }]);
+    it('mostra AUD-01 nas salas de hoje sem prédio mesmo com tipo Sala', fakeAsync(() => {
+        abrir(); cadastro([{ ...salaApi(3, 'AUD-01'), tipoSala: { id: 2, nome: 'Sala' } }]);
         agenda([]);
-        fixture.componentInstance.alocacoes.set([{ ...pessoal, sala: { id: 6, codigo: 'AUD-01' } }]);
+        fixture.componentInstance.alocacoes.set([{ ...pessoal, sala: { id: 3, codigo: 'AUD-01' } }]);
         fixture.detectChanges();
         const card = tela().querySelector('.today-room-item')!;
         expect(card.textContent).toContain('AUD-01');
         expect(card.textContent).not.toContain('Prédio');
-        expect(card.querySelector('a')?.getAttribute('href')).toBe('/salas/6');
+        expect(card.querySelector('a')?.getAttribute('href')).toBe('/salas/3');
         fixture.destroy();
     }));
 
