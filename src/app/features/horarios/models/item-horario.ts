@@ -1,3 +1,5 @@
+import type { AlocacaoResponse } from '../../dashboard/models/grade-dia.model';
+
 /**
  * Dia da semana exibido nos chips da tela de Horários. Domingo não aparece
  * porque não há aulas nesse dia (critério de aceite da issue #103: Seg a Sáb).
@@ -37,6 +39,8 @@ export interface AulaHorario {
     professor: string;
     /** Sala/laboratório onde a aula acontece, ex.: "Lab. 03". */
     sala: string;
+    /** Aula excepcional retornada para uma data do calendário acadêmico. */
+    reposicao?: AlocacaoResponse['reposicao'];
 }
 
 /**

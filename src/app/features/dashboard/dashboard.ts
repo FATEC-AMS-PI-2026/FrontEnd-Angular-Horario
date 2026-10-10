@@ -53,6 +53,9 @@ export class Dashboard implements OnInit {
         timeZone: 'America/Sao_Paulo', weekday: 'long',
     }).format(this.agora()));
     readonly currentTime = computed(() => horarioAcademico(this.agora()).slice(0, 5));
+    readonly currentDate = computed(() => new Intl.DateTimeFormat('pt-BR', {
+        timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', year: 'numeric',
+    }).format(this.agora()));
     readonly emAndamento = computed(() => {
         const hora = horarioAcademico(this.agora());
         return this.alocacoes().filter(item =>

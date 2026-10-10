@@ -130,10 +130,13 @@ describe('Dados locais: IndexedDB real no navegador', () => {
         expect(segunda.length).toBe(1);
         expect(segunda[0].professor).toBeNull();
         expect(segunda[0].sala).toBeNull();
+        expect(segunda[0].reposicao).toBeUndefined();
         expect(await dados.grade('2026-09-07')).toEqual([]);
         const sabado = await dados.grade('2026-09-19');
         expect(sabado.length).toBe(1);
         expect(sabado[0].diaSemana).toBe('SABADO');
+        expect(sabado[0].reposicao).toEqual({ data: '2026-09-19', diaSemana: 'SEGUNDA', turno: 'Tarde' });
+        expect(await dados.grade('2026-09-26')).toEqual([]);
         expect(await dados.grade('2026-09-20')).toEqual([]);
         await expectAsync(dados.grade('2027-01-01')).toBeRejected();
     });
@@ -191,8 +194,44 @@ describe('Dados locais: IndexedDB real no navegador', () => {
         const semanal = await dados.gradeSemanal();
         expect(semanal.length).toBe(2);
         expect(semanal.every(aula => aula.diaSemana === 'SEGUNDA')).toBeTrue();
+        expect(semanal.every(aula => aula.reposicao === undefined)).toBeTrue();
         expect(await dados.grade('2026-09-07')).toEqual([]);
         expect((await dados.grade('2026-09-19')).every(aula => aula.diaSemana === 'SABADO')).toBeTrue();
+    });
+
+    it('explica a reposição de quinta em 10/10 sem criar sábado recorrente ou incluir outro turno', async () => {
+        const c = catalogo();
+        c.alocacoes.forEach(aula => aula.diaSemana = 'QUINTA');
+        c.calendario!.reposicoes = [{ data: '2026-10-10', diaSemana: 'QUINTA', turno: 'Tarde' }];
+        c.disciplinas.push({ id: 3, nome: 'Disciplina noturna', cursoId: 1, periodo: 1 });
+        c.turmas.push({ ...c.turmas[0], id: 2, codigo: 'ADS1N', turno: 'Noite' });
+        c.ofertas.push({ id: 3, disciplinaId: 3, turmaId: 2 });
+        c.alocacoes.push({ ...c.alocacoes[0], id: 3, ofertaId: 3, horaInicio: '19:00', horaFim: '19:50' });
+        await dados.importar(c);
+        const perfil = await dados.criarPerfil('Ana');
+        localStorage.setItem('gini_token', dados.prefixo + perfil.id);
+        await dados.disciplinas('1');
+        await dados.salvar('1', '1º ano', ['1', '2', '3']);
+
+        const diario = await dados.grade('2026-10-10');
+        expect(diario.map(aula => aula.id)).toEqual([1, 2]);
+        expect(diario.every(aula => aula.diaSemana === 'SABADO' &&
+            aula.reposicao?.diaSemana === 'QUINTA' && aula.reposicao.turno === 'Tarde')).toBeTrue();
+        expect(await dados.grade('2026-10-17')).toEqual([]);
+        const semanal = await dados.gradeSemanal();
+        expect(semanal.map(aula => aula.id)).toEqual([1, 2, 3]);
+        expect(semanal.every(aula => aula.diaSemana === 'QUINTA' && !aula.reposicao)).toBeTrue();
+
+        const consultar = spyOn(dados, 'gradeSemanal').and.callThrough();
+        const fixture = TestBed.createComponent(GradeSemanal);
+        fixture.detectChanges();
+        await consultar.calls.mostRecent().returnValue;
+        await fixture.whenStable(); fixture.detectChanges();
+        const cabecalhos = Array.from(fixture.nativeElement.querySelectorAll('[role=columnheader]') as NodeListOf<HTMLElement>)
+            .map(el => el.textContent?.trim());
+        expect(cabecalhos).toEqual(['Horário', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']);
+        expect(fixture.nativeElement.querySelector('.aviso-calendario')).toBeNull();
+        fixture.destroy();
     });
 
     it('não substitui catálogo válido por arquivo inválido e exige revisão após importação', async () => {

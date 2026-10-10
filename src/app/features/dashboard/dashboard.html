@@ -2,7 +2,7 @@
     <section class="banner">
         <div class="banner__left">
             <h2>{{ session.usuario()?.nome ? 'Olá, ' + session.usuario()!.nome + '!' : 'Olá!' }} 👋</h2>
-            <p>{{ currentDay() }} · {{ session.identificacao() }}</p>
+            <p>{{ currentDay() }}, {{ currentDate() }} · {{ session.identificacao() }}</p>
             @if (carregado()) { <p>Você tem {{ alocacoes().length }} aulas hoje.</p> }
         </div>
         <div class="banner__right">
@@ -43,7 +43,7 @@
         <div class="card card--schedule">
             <div class="card__header">
                 <div>
-                    <h3>Horários de hoje</h3><span class="subtitle">{{ currentDay() }}</span>
+                    <h3>Horários de hoje</h3><span class="subtitle">{{ currentDay() }}, {{ currentDate() }}</span>
                 </div>
                 <a routerLink="/grade-semanal" class="link-more">Ver todos &rarr;</a>
             </div>
@@ -63,6 +63,7 @@
                         <span>{{ nomeProfessor(aula) }} · {{ aula.sala?.codigo || 'Sala
                             não informada' }}</span>
                     </div>
+                    @if (aula.reposicao) { <span class="reposicao-aula">Reposição de aula</span> }
                     } @else {
                     <span title="Tempo entre suas aulas">{{ item.horaInicio.slice(0, 5) }}–{{ item.horaFim.slice(0, 5)
                         }} · (intervalo)</span>

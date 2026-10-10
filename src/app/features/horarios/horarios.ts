@@ -1,4 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { timer } from 'rxjs';
+import { dataAcademica, diaSemana, horarioAcademico } from '../dashboard/models/grade-dia.model';
 import { RelogioService } from '../salas/services/relogio';
 import { HorariosService } from './services/horarios';
 import { AdicionarMateriaModal } from './components/adicionar-materia-modal/adicionar-materia-modal';
@@ -15,8 +18,9 @@ function paraMinutos(horario: string): number {
     return horas * 60 + minutos;
 }
 
-/** `Date.getDay()` (0 = domingo) → dia da grade. Domingo não tem chip. */
-const DIA_POR_GETDAY: (DiaSemana | null)[] = [null, 'seg', 'ter', 'qua', 'qui', 'sex', 'sab'];
+const DIA_ACADEMICO: Partial<Record<ReturnType<typeof diaSemana>, DiaSemana>> = {
+    SEGUNDA: 'seg', TERCA: 'ter', QUARTA: 'qua', QUINTA: 'qui', SEXTA: 'sex', SABADO: 'sab',
+};
 
 /**
  * Página "Horários" (issue #103): chips de Seg a Sáb para escolher o dia e
@@ -33,30 +37,37 @@ const DIA_POR_GETDAY: (DiaSemana | null)[] = [null, 'seg', 'ter', 'qua', 'qui', 
     styleUrl: './horarios.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Horarios implements OnInit {
+export class Horarios implements OnInit, OnDestroy {
     protected readonly exemploDisponivel = EXEMPLO_TURMAS_DISPONIVEL;
     protected readonly horariosService = inject(HorariosService);
     private readonly relogio = inject(RelogioService);
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly agora = signal(this.relogio.agora());
 
     protected readonly dias = DIAS_SEMANA;
 
     /** Dia de hoje na grade, ou `null` no domingo. */
-    private readonly hoje = DIA_POR_GETDAY[this.relogio.agora().getDay()];
+    private readonly hoje = computed(() => DIA_ACADEMICO[diaSemana(dataAcademica(this.agora()))] ?? null);
 
     /** Dia selecionado nos chips. Abre no dia de hoje (segunda, se for domingo). */
-    protected readonly diaSelecionado = signal<DiaSemana>(this.hoje ?? 'seg');
+    protected readonly diaSelecionado = signal<DiaSemana>(this.hoje() ?? 'seg');
+    protected readonly dataSelecionada = computed(() => {
+        // Calcular a semana em UTC a partir da data de São Paulo, sem depender do fuso do navegador.
+        const data = new Date(`${dataAcademica(this.agora())}T12:00:00Z`);
+        const indiceDia = DIAS_SEMANA.findIndex(dia => dia.valor === this.diaSelecionado()) + 1;
+        data.setUTCDate(data.getUTCDate() + indiceDia - (data.getUTCDay() || 7));
+        return data.toISOString().slice(0, 10);
+    });
+    protected readonly carregando = computed(() => this.horariosService.carregando() || this.horariosService.carregandoDia());
+    protected readonly carregado = computed(() => this.horariosService.carregado() && this.horariosService.carregadoDia());
+    protected readonly erro = computed(() => this.horariosService.erro() || this.horariosService.erroDia());
 
     protected readonly nomeDiaSelecionado = computed(
         () => DIAS_SEMANA.find((dia) => dia.valor === this.diaSelecionado())?.nome ?? '',
     );
 
     /** Aulas e intervalos do dia selecionado, em ordem cronológica. */
-    protected readonly itensDoDia = computed(() =>
-        this.horariosService
-            .itens()
-            .filter((item) => item.diaSemana === this.diaSelecionado())
-            .sort((a, b) => paraMinutos(a.inicio) - paraMinutos(b.inicio)),
-    );
+    protected readonly itensDoDia = this.horariosService.itensDia;
 
     /**
      * Status de cada aula do dia selecionado. Só existe "Em andamento" e
@@ -67,10 +78,9 @@ export class Horarios implements OnInit {
     protected readonly statusPorAula = computed(() => {
         const status = new Map<AulaHorario, StatusAula>();
         const aulas = this.itensDoDia().filter((item): item is AulaHorario => item.tipo === 'aula');
-        const ehHoje = this.diaSelecionado() === this.hoje;
+        const ehHoje = this.diaSelecionado() === this.hoje();
 
-        const agora = this.relogio.agora();
-        const minutosAgora = agora.getHours() * 60 + agora.getMinutes();
+        const minutosAgora = paraMinutos(horarioAcademico(this.agora()));
         let proximaMarcada = false;
 
         for (const aula of aulas) {
@@ -92,10 +102,25 @@ export class Horarios implements OnInit {
     /** Controla o modal "Adicionar Matéria" (#104). */
     protected readonly modalAberto = signal(false);
 
-    ngOnInit(): void { this.horariosService.carregar(); }
+    ngOnInit(): void {
+        this.carregar();
+        timer(1000, 1000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+            const dataAnterior = this.dataSelecionada();
+            this.agora.set(this.relogio.agora());
+            if (dataAnterior !== this.dataSelecionada()) this.carregar();
+        });
+    }
+
+    ngOnDestroy(): void { this.horariosService.cancelarDia(); }
+
+    protected carregar(): void {
+        this.horariosService.carregar();
+        this.horariosService.carregarDia(this.dataSelecionada());
+    }
 
     protected selecionarDia(dia: DiaSemana): void {
         this.diaSelecionado.set(dia);
+        this.horariosService.carregarDia(this.dataSelecionada());
     }
 
     protected abrirModal(): void {
@@ -108,7 +133,7 @@ export class Horarios implements OnInit {
 
     /** Depois de adicionar, mostra o dia da aula nova para o aluno ver o resultado. */
     protected aulaAdicionada(dia: DiaSemana): void {
-        this.diaSelecionado.set(dia);
+        this.selecionarDia(dia);
         this.modalAberto.set(false);
     }
 

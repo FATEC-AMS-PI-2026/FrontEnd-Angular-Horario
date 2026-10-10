@@ -137,6 +137,30 @@ describe('Dashboard: grade do serviço', () => {
         expect(component.salasHoje().length).toBe(1);
         expect(component.statusSalas()).toEqual([]);
         expect(fixture.nativeElement.textContent).toContain('Olá, Ana!');
+        expect(fixture.nativeElement.querySelector('[aria-label="Reposição de aulas"]')).toBeNull();
+    });
+
+    it('identifica cada reposição à direita do card e remove o rótulo ao trocar para um dia regular', () => {
+        const reposicao = { data: '2026-10-10', diaSemana: 'QUINTA' as const, turno: 'Tarde' };
+        const aulas = [aula(1, '13:20', '14:10'), aula(2, '14:10', '15:00')]
+            .map(item => ({ ...item, diaSemana: 'SABADO' as const, reposicao }));
+        carregar.and.returnValue(of(aulas));
+        component.agora.set(new Date('2026-10-10T13:20:00-03:00'));
+        component.carregar(); fixture.detectChanges();
+        const tela: HTMLElement = fixture.nativeElement;
+        expect(tela.querySelector('.aviso-calendario')).toBeNull();
+        expect(tela.querySelector('[aria-label="Reposição de aulas"]')).toBeNull();
+        expect(tela.querySelector('.banner__left')?.textContent).toContain('sábado, 10/10/2026');
+        expect(tela.querySelectorAll('.schedule-item--class').length).toBe(2);
+        expect(Array.from(tela.querySelectorAll('.schedule-item--class > .reposicao-aula:last-child')).map(el => el.textContent))
+            .toEqual(['Reposição de aula', 'Reposição de aula']);
+        expect(tela.querySelector('.time-block .reposicao-aula')).toBeNull();
+
+        carregar.and.returnValue(of([aula(1, '13:20', '14:10')]));
+        component.agora.set(new Date('2026-10-19T13:20:00-03:00'));
+        component.carregar(); fixture.detectChanges();
+        expect(tela.querySelector('[aria-label="Reposição de aulas"]')).toBeNull();
+        expect(tela.querySelector('.reposicao-aula')).toBeNull();
     });
 
     it('distingue fim da aula, intervalo e fim do dia sem inventar disponibilidade das salas', () => {
@@ -261,5 +285,19 @@ describe('Dashboard: grade do serviço', () => {
         const data = dataAcademica(new Date('2026-09-15T01:00:00Z'));
         expect(data).toBe('2026-09-14');
         expect(diaSemana(data)).toBe('SEGUNDA');
+    });
+
+    it('rejeita contexto de reposição de outra data, dia inválido ou sem turno', () => {
+        const service = TestBed.inject(DashboardService);
+        for (const reposicao of [
+            { data: '2026-09-19', diaSemana: 'SEGUNDA' as const, turno: 'Tarde' },
+            { data: '2026-09-14', diaSemana: 'INVALIDO' as AlocacaoResponse['diaSemana'], turno: 'Tarde' },
+            { data: '2026-09-14', diaSemana: 'SEGUNDA' as const, turno: '   ' },
+        ]) {
+            carregar.and.returnValue(of([{ ...aula(1, '13:20', '14:10'), reposicao }]));
+            const erro = jasmine.createSpy('erro');
+            service.carregarDia('2026-09-14').subscribe({ next: () => fail('Não deveria aceitar'), error: erro });
+            expect(erro).toHaveBeenCalled();
+        }
     });
 });

@@ -181,12 +181,16 @@ export class DadosLocaisService {
         if (data < c.vigenciaInicio || data > c.vigenciaFim) throw new DadosLocaisError('A data de hoje está fora da vigência da grade disponível.');
         this.validarEscolhas(c, perfil.cursoId!, perfil.periodo!, perfil.ofertasIds);
         if (c.calendario?.semAula.some(s => s.inicio <= data && data <= s.fim)) return [];
-        return c.alocacoes.filter(a => {
+        const dia = diaSemana(data);
+        return c.alocacoes.filter(a => perfil.ofertasIds.includes(a.ofertaId)).flatMap(a => {
             const oferta = c.ofertas.find(o => o.id === a.ofertaId)!;
             const turma = c.turmas.find(t => t.id === oferta.turmaId)!;
             const reposicao = c.calendario?.reposicoes.find(r => r.data === data && r.turno === turma.turno);
-            return a.diaSemana === (reposicao?.diaSemana ?? diaSemana(data)) && perfil.ofertasIds.includes(a.ofertaId);
-        }).map(a => this.alocacao(c, a, diaSemana(data)));
+            if (a.diaSemana !== (reposicao?.diaSemana ?? dia)) return [];
+            const aula = this.alocacao(c, a, dia);
+            // Preservar a origem da aula para a tela explicar a exceção à semana regular.
+            return [{ ...aula, ...(reposicao ? { reposicao: { ...reposicao } } : {}) }];
+        });
     }
 
     /** Matriz recorrente das escolhas salvas, incluindo outros períodos.

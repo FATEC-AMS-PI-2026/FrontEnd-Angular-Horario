@@ -1,6 +1,6 @@
 import { Injectable, InjectionToken, inject } from '@angular/core';
 import { Observable, defer, map, throwError } from 'rxjs';
-import { AlocacaoResponse, diaSemana } from '../models/grade-dia.model';
+import { AlocacaoResponse, DIAS_SEMANA, diaSemana } from '../models/grade-dia.model';
 
 /** O adaptador deverá retornar todas as alocações vigentes do aluno autenticado
  * para a data solicitada, já resolvendo turma, versão do quadro e paginação.
@@ -25,6 +25,9 @@ export class DashboardService {
                 (item.professor !== null && (!Number.isSafeInteger(item.professor?.id) || !item.professor.nome)) ||
                 (item.sala !== null && (!Number.isSafeInteger(item.sala?.id) || !item.sala.codigo)) ||
                 item.diaSemana !== diaSemana(data) ||
+                (item.reposicao !== undefined && (!item.reposicao || item.reposicao.data !== data ||
+                    !DIAS_SEMANA.includes(item.reposicao.diaSemana) ||
+                    typeof item.reposicao.turno !== 'string' || !item.reposicao.turno.trim())) ||
                 !horario.test(item.blocoHorario?.horaInicio) || !horario.test(item.blocoHorario?.horaFim) ||
                 item.blocoHorario.horaInicio >= item.blocoHorario.horaFim)) {
                 throw new Error('Resposta da grade inválida.');
