@@ -5,6 +5,7 @@ import { ApiErrorService } from '../../../core/services/api-error.service';
 import { PageResponse } from '../../../core/models/page-response';
 import { SalaApi, SalaResumo } from '../models/sala-resumo';
 import { EMPTY, Subscription, expand, map, reduce } from 'rxjs';
+import { predioDaSala } from './localizacao-sala';
 
 /**
  * Quantidade pedida por página. A tela apresenta a lista completa, depois
@@ -19,12 +20,14 @@ function paraSalaResumo(sala: SalaApi): SalaResumo {
       typeof sala.tipoSala?.nome !== 'string' || !sala.tipoSala.nome.trim()) {
     throw new Error('Cadastro de sala inválido.');
   }
-  return { id: sala.id, nome: sala.codigo, capacidade: sala.capacidade, tipo: sala.tipoSala.nome };
+  return { id: sala.id, nome: sala.codigo, capacidade: sala.capacidade, tipo: sala.tipoSala.nome,
+    predio: predioDaSala(sala.codigo, sala.tipoSala.nome) };
 }
 
 /**
  * Listagem de salas vinda do backend Java (`GET /salas`), cobrindo a issue
- * #132 e detalhes #133. Somente atributos fornecidos pelo Java são mapeados.
+ * #132 e detalhes #133. O prédio segue a localização confirmada pelo usuário;
+ * os demais atributos são fornecidos pelo Java.
  */
 @Injectable({ providedIn: 'root' })
 export class SalasApiService {

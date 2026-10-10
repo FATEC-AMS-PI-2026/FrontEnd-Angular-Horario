@@ -57,8 +57,7 @@ export class ListaSalas {
 
   /**
    * Lista de prédios distintos, derivada das salas cadastradas, para popular
-   * o filtro. Fica vazia enquanto o backend não informar o prédio (#109), e
-   * aí o filtro nem aparece.
+   * o filtro. O Auditório não tem prédio e aparece na opção de todos.
    */
   protected readonly predios = computed(() => {
     const nomes = this.salas()

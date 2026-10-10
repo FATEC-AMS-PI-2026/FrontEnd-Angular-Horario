@@ -50,7 +50,7 @@ describe('DetalhesSala', () => {
     expect(texto).toContain('LAB-REAL'); expect(texto).toContain('Capacidade de alunos: 32');
     expect(texto).toContain('Livre até às 15:00');
     expect(texto).not.toContain('Ver alertas'); expect(texto).not.toContain('Bloco A');
-    expect(texto).not.toContain('Prédio:'); expect(texto).not.toContain('Andar:');
+    expect(texto).toContain('Prédio 1'); expect(texto).not.toContain('Andar:');
     expect(texto).not.toContain('Técnico:');
     expect(fixture.nativeElement.querySelector('app-equipamentos-card')).not.toBeNull();
     expect(texto).toContain('Carregando equipamentos');
@@ -63,6 +63,17 @@ describe('DetalhesSala', () => {
     expect(TestBed.inject(TopbarContextService).sala()).toBe('LAB-REAL');
     fixture.destroy();
     expect(TestBed.inject(TopbarContextService).sala()).toBeNull();
+  }));
+
+  it('exibe os detalhes do Auditório sem prédio ou andar', fakeAsync(() => {
+    config.agendaSalasCompleta = false;
+    const fixture = TestBed.createComponent(DetalhesSala);
+    http.expectOne('http://backend/salas/73').flush({ ...sala, codigo: 'AUD-01', tipoSala: { id: 3, nome: 'Auditório' } });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-cabecalho-sala').textContent).toContain('Auditório');
+    expect(fixture.nativeElement.querySelector('.cabecalho-sala__badge')).toBeNull();
+    expect(fixture.nativeElement.textContent).not.toContain('Prédio');
+    fixture.destroy();
   }));
 
   it('preserva cadastro e não afirma Livre quando a agenda falha', fakeAsync(() => {

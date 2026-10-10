@@ -48,7 +48,17 @@ describe('Salas: combinação do Java com o catálogo local', () => {
  });
 });
 
-describe('SalasLocaisService: falha de armazenamento', () => {
+describe('SalasLocaisService', () => {
+ it('identifica Prédio 1 no catálogo existente e mantém Auditório separado sem modificar o catálogo', fakeAsync(() => {
+   const c = catalogo();
+   c.salas.push({id:91,codigo:'Auditório'}, {id:92,codigo:'AUDITORIO'});
+   TestBed.configureTestingModule({ providers: [{ provide: DadosLocaisService,
+     useValue: { catalogo: () => Promise.resolve({ catalogo: c }) } }] });
+   const service = TestBed.inject(SalasLocaisService); tick();
+   expect(service.salas().map(sala => sala.predio)).toEqual(['Prédio 1', undefined, undefined]);
+   expect(service.salas().map(sala => sala.rotaId)).toEqual(['local-90', 'local-91', 'local-92']);
+   expect(c.salas[0]).toEqual({id:90,codigo:'LAB 01'});
+ }));
  it('preserva a orientação do IndexedDB e recupera a leitura numa nova tentativa', fakeAsync(() => {
    const consultar = jasmine.createSpy('catalogo').and.callFake(() =>
      Promise.reject(new DadosLocaisError('Feche outras abas do site e tente novamente.')));

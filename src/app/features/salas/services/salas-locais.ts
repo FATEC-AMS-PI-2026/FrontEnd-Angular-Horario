@@ -6,6 +6,7 @@ import { SalaResumo } from '../models/sala-resumo';
 import { AulaDoDia } from '../models/aula-do-dia';
 import { dataAcademica, diaSemana } from '../../dashboard/models/grade-dia.model';
 import { ApiErrorService } from '../../../core/services/api-error.service';
+import { predioDaSala } from './localizacao-sala';
 
 /** Ignora apenas diferenças de separação. Preserva zeros e frações, como Sala 9¾. */
 export const codigoSala = (codigo: string) => codigo.trim().toLocaleUpperCase('pt-BR').replace(/[\s-]+/g, '');
@@ -41,7 +42,7 @@ export class SalasLocaisService {
   readonly erro = signal<string | null>(null);
   readonly carregando = signal(true);
   readonly salas = computed<SalaResumo[]>(() => this.catalogo()?.salas.map(s => ({
-    id: s.id, nome: s.codigo, rotaId: `local-${s.id}`, origem: 'local',
+    id: s.id, nome: s.codigo, rotaId: `local-${s.id}`, origem: 'local', predio: predioDaSala(s.codigo),
   })) ?? []);
 
   constructor() { this.carregar(); }

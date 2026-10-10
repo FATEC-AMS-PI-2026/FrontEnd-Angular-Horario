@@ -59,10 +59,31 @@ describe('ListaSalas', () => {
     expect(cards().length).toBe(2);
     expect(cards()[1].querySelector('h2')?.textContent).toContain('SALA-21');
     expect(cards()[1].querySelector('.card-sala__info')?.textContent?.replace(/\s+/g, ' ')).toContain('Sala · 50 lugares');
-    // Prédio, andar e status ainda não vêm da API: nada de filtro de prédio, local ou badge.
-    expect(elemento().querySelector('.lista-salas__filtro-predio')).toBeNull();
-    expect(elemento().querySelector('.card-sala__local')).toBeNull();
+    expect(elemento().querySelector('.lista-salas__filtro-predio')?.textContent).toContain('Prédio 1');
+    expect(Array.from(elemento().querySelectorAll('.card-sala__local'), local => local.textContent?.trim()))
+      .toEqual(['Prédio 1', 'Prédio 1']);
+    // Andar e status não são deduzidos do prédio.
+    expect(elemento().textContent).not.toContain('andar');
     expect(elemento().querySelector('app-status-sala-badge')).toBeNull();
+  });
+
+  it('deixa Auditório fora do Prédio 1 e permite encontrá-lo nos filtros de todos ou de tipo', () => {
+    responder([sala(1, 'LAB-01', 'Laboratório'), sala(2, 'AUD-01', 'Auditório')]);
+    expect(cards().length).toBe(2);
+    expect(cards()[1].querySelector('.card-sala__local')).toBeNull();
+    const filtro = elemento().querySelector<HTMLSelectElement>('.lista-salas__filtro-predio')!;
+    expect(Array.from(filtro.options, opcao => opcao.value)).toEqual(['', 'Prédio 1']);
+    filtro.value = 'Prédio 1'; filtro.dispatchEvent(new Event('change')); fixture.detectChanges();
+    expect(cards().length).toBe(1);
+    expect(cards()[0].textContent).toContain('LAB-01');
+
+    filtro.value = ''; filtro.dispatchEvent(new Event('change')); fixture.detectChanges();
+    const auditório = Array.from(elemento().querySelectorAll<HTMLButtonElement>('.lista-salas__tipos button'))
+      .find(chip => chip.textContent?.trim() === 'Auditório')!;
+    auditório.click(); fixture.detectChanges();
+    expect(cards().length).toBe(1);
+    expect(cards()[0].textContent).toContain('AUD-01');
+    expect(cards()[0].querySelector('.card-sala__local')).toBeNull();
   });
 
   it('cria um chip por tipo retornado e filtra por ele', () => {

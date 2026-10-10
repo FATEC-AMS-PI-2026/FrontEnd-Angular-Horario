@@ -88,7 +88,20 @@ describe('Dashboard: salas integradas', () => {
         expect(salaHoje.getAttribute('href')).toBe('/salas/71');
         expect(salaHoje.textContent).toContain('LAB-03');
         expect(tela().querySelector('.today-room-item')?.textContent).toContain('Engenharia de Software');
+        expect(tela().querySelector('.today-room-item')?.textContent).toContain('Prédio 1');
         expect(tela().querySelector('.today-room-item')?.textContent).not.toContain('Aula de outra turma');
+        fixture.destroy();
+    }));
+
+    it('mostra Auditório nas salas de hoje sem atribuir prédio', fakeAsync(() => {
+        abrir(); cadastro([{ ...salaApi(6, 'AUD-01'), tipoSala: { id: 3, nome: 'Auditório' } }]);
+        agenda([]);
+        fixture.componentInstance.alocacoes.set([{ ...pessoal, sala: { id: 6, codigo: 'AUD-01' } }]);
+        fixture.detectChanges();
+        const card = tela().querySelector('.today-room-item')!;
+        expect(card.textContent).toContain('AUD-01');
+        expect(card.textContent).not.toContain('Prédio');
+        expect(card.querySelector('a')?.getAttribute('href')).toBe('/salas/6');
         fixture.destroy();
     }));
 
@@ -197,7 +210,7 @@ describe('Dashboard: salas integradas', () => {
 
 describe('Salas de hoje: vínculo entre fontes', () => {
     it('agrupa pelo código, preserva localização conhecida e não associa IDs coincidentes', () => {
-        const cadastro: SalaResumo = { id: 71, nome: 'LAB-03', predio: 'Prédio B', andar: 0 };
+        const cadastro: SalaResumo = { id: 71, nome: 'LAB-03', predio: 'Prédio 1', andar: 0 };
         const salas = mapearSalasHoje([pessoal, { ...pessoal, id: 2, sala: { id: 9, codigo: 'lab-03' } }],
             [{ id: 1, nome: 'Outra sala' }, cadastro]);
         expect(salas.length).toBe(1);
