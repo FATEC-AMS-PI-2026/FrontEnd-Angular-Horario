@@ -254,6 +254,20 @@ describe('Dashboard: grade do serviço', () => {
         expect(component.carregado()).toBeTrue();
     });
 
+    it('mostra erro e permite nova tentativa quando a consulta termina sem emitir uma resposta', () => {
+        resposta.complete(); fixture.detectChanges();
+        expect(component.loading()).toBeFalse();
+        expect(component.carregado()).toBeFalse();
+        expect(fixture.nativeElement.querySelector('[role="alert"]')).not.toBeNull();
+        expect(fixture.nativeElement.querySelectorAll('.stat-card').length).toBe(0);
+        expect(fixture.nativeElement.textContent).not.toContain('Você não tem aulas programadas');
+        carregar.and.returnValue(of([]));
+        fixture.nativeElement.querySelector('button').click(); fixture.detectChanges();
+        expect(component.errorMessage()).toBe('');
+        expect(component.carregado()).toBeTrue();
+        expect(fixture.nativeElement.textContent).toContain('Você não tem aulas programadas');
+    });
+
     it('cancela consulta anterior na troca de dia e ignora respostas atrasadas', () => {
         const nova = new Subject<AlocacaoResponse[]>();
         carregar.and.returnValue(nova);

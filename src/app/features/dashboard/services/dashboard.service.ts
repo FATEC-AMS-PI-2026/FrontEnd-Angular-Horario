@@ -1,5 +1,5 @@
 import { Injectable, InjectionToken, inject } from '@angular/core';
-import { Observable, defer, map, throwError } from 'rxjs';
+import { Observable, defer, map, throwError, throwIfEmpty } from 'rxjs';
 import { AlocacaoResponse, DIAS_SEMANA, diaSemana } from '../models/grade-dia.model';
 
 /** O adaptador deverá retornar todas as alocações vigentes do aluno autenticado
@@ -37,6 +37,6 @@ export class DashboardService {
             }
             return [...alocacoes].sort((a, b) =>
                 a.blocoHorario.horaInicio.localeCompare(b.blocoHorario.horaInicio) || a.id - b.id);
-        }));
+        }), throwIfEmpty(() => new Error('Consulta da grade encerrada sem resposta.')));
     }
 }
