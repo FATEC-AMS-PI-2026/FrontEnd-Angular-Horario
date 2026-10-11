@@ -7,6 +7,9 @@ import { EquipamentosCard } from '../../components/equipamentos-card/equipamento
 import { SalaResumo } from '../../models/sala-resumo';
 import { RecursosSalaService } from '../../services/recursos-sala';
 import { ConsultaSalasService } from '../../services/consulta-salas';
+import { equipamentosLocaisDaSala } from '../../services/salas-locais';
+
+const chaveTipo = (tipo: string) => tipo.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
 
 /**
  * Página de listagem de salas, com dados do backend Java (issue #132). Cada
@@ -22,6 +25,8 @@ import { ConsultaSalasService } from '../../services/consulta-salas';
   providers: [RecursosSalaService, ConsultaSalasService, SalasApiService],
 })
 export class ListaSalas {
+  // TEMPORÁRIO: inventário do armazenamento interno, removível com o adaptador local.
+  protected readonly equipamentosLocais = equipamentosLocaisDaSala;
   protected readonly recursos = inject(RecursosSalaService);
   private readonly consulta = inject(ConsultaSalasService);
   protected readonly locais = this.consulta.locais;
@@ -66,10 +71,14 @@ export class ListaSalas {
     return Array.from(new Set(nomes)).sort((a, b) => a.localeCompare(b));
   });
 
-  /** Tipos de sala distintos retornados pelo backend, um chip para cada. */
-  protected readonly tipos = computed(() =>
-    Array.from(new Set(this.salas().map((sala) => sala.tipo).filter((tipo): tipo is string => !!tipo))).sort((a, b) => a.localeCompare(b)),
-  );
+  /** Um chip por tipo nas duas fontes, unificando diferenças de caixa e acentuação. */
+  protected readonly tipos = computed(() => {
+    const tipos = new Map<string, string>();
+    for (const sala of this.salas()) {
+      if (sala.tipo && !tipos.has(chaveTipo(sala.tipo))) tipos.set(chaveTipo(sala.tipo), sala.tipo);
+    }
+    return [...tipos.values()].sort((a, b) => a.localeCompare(b));
+  });
 
   /**
    * Lista de salas já filtrada pelo termo, prédio e tipo selecionados.
@@ -90,7 +99,7 @@ export class ListaSalas {
     }
 
     if (tipo) {
-      salas = salas.filter((sala) => sala.tipo === tipo);
+      salas = salas.filter((sala) => !!sala.tipo && chaveTipo(sala.tipo) === chaveTipo(tipo));
     }
 
     if (termo) {

@@ -11,6 +11,8 @@ import { DetalhesSala } from './detalhes-sala';
 import { BACKEND_CONFIG } from '../../../../core/services/backend-config';
 import { backendInterceptor } from '../../../../core/services/backend.interceptor';
 import { RelogioService } from '../../services/relogio';
+import { CatalogoLocal } from '../../../dados-locais/models/catalogo-local';
+import { catalogoSalaLocal } from '../../testing/catalogo-local.fixture';
 
 const sala = { id: 73, codigo: 'LAB-REAL', capacidade: 32, tipoSala: { id: 2, nome: 'Laboratório' } };
 
@@ -200,7 +202,7 @@ describe('DetalhesSala', () => {
     expect(fixture.nativeElement.querySelector('[role="alert"]')).not.toBeNull(); fixture.destroy();
   }));
 
-  it('abre uma sala local sem confundir seu ID com o Java e mantém campos ausentes vazios', fakeAsync(() => {
+  it('abre uma sala local sem confundir o ID com o Java e mostra o inventário temporário', fakeAsync(() => {
     const locais = TestBed.inject(SalasLocaisService);
     (locais.salas as WritableSignal<SalaResumo[]>).set([{ id: 73, nome: 'LAB LOCAL', rotaId: 'local-73', origem: 'local' }]);
     params.next(convertToParamMap({ id: 'local-73' }));
@@ -209,8 +211,36 @@ describe('DetalhesSala', () => {
     expect(fixture.nativeElement.textContent).toContain('LAB LOCAL');
     expect(fixture.nativeElement.querySelector('app-status-sala-badge')).toBeNull();
     expect(fixture.nativeElement.querySelector('app-tecnico-card')).toBeNull();
-    expect(fixture.nativeElement.textContent).toContain('Informação de equipamentos não disponível');
+    expect(Array.from(fixture.nativeElement.querySelectorAll('.equipamento__quantidade'),
+      (el: unknown) => (el as HTMLElement).textContent?.trim())).toEqual(['1', '40']);
+    expect(fixture.nativeElement.textContent).toContain('Computadores');
     expect(fixture.nativeElement.querySelector('.cabecalho-sala__resumo strong').textContent.trim()).toBe('');
+    fixture.destroy();
+  }));
+
+  it('atualiza ocupação e equipamentos nos detalhes locais e retira o status em falha de leitura', fakeAsync(() => {
+    const c = catalogoSalaLocal(); c.salas.push({ id: 91, codigo: 'Sala 11' });
+    const locais = TestBed.inject(SalasLocaisService);
+    (locais.catalogo as WritableSignal<CatalogoLocal | null>).set(c);
+    (locais.salas as WritableSignal<SalaResumo[]>).set(c.salas.map(s => ({
+      id: s.id, nome: s.codigo, origem: 'local', rotaId: `local-${s.id}`,
+    })));
+    let instante = new Date('2026-10-05T13:20:00-03:00');
+    spyOn(TestBed.inject(RelogioService), 'agora').and.callFake(() => instante);
+    params.next(convertToParamMap({ id: 'local-90' }));
+    const fixture = TestBed.createComponent(DetalhesSala); fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-status-sala-badge').textContent).toContain('Em uso');
+    expect(fixture.nativeElement.querySelector('app-equipamentos-card').textContent).toContain('Computadores');
+    instante = new Date('2026-10-05T14:00:00-03:00'); tick(1000); fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-status-sala-badge').textContent).toContain('Livre');
+    params.next(convertToParamMap({ id: 'local-91' })); fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-equipamentos-card').textContent).toContain('Televisão');
+    expect(fixture.nativeElement.querySelector('app-equipamentos-card').textContent).not.toContain('Computadores');
+    expect(fixture.nativeElement.querySelector('app-status-sala-badge').textContent).toContain('Livre');
+    (locais.erro as WritableSignal<string | null>).set('Falha na leitura local'); fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-status-sala-badge')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.proximo-horario--vazio')).toBeNull();
+    http.expectNone(r => r.url.startsWith('http://backend/'));
     fixture.destroy();
   }));
 

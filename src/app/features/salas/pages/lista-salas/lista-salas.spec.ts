@@ -10,6 +10,8 @@ import { RecursosSalaService } from '../../services/recursos-sala';
 import { BACKEND_CONFIG } from '../../../../core/services/backend-config';
 import { SalaApi, SalaResumo } from '../../models/sala-resumo';
 import { RelogioService } from '../../services/relogio';
+import { CatalogoLocal } from '../../../dados-locais/models/catalogo-local';
+import { catalogoSalaLocal } from '../../testing/catalogo-local.fixture';
 
 const BASE = 'https://backend.test';
 
@@ -26,6 +28,7 @@ describe('ListaSalas', () => {
       imports: [ListaSalas],
       providers: [
         provideRouter([]),
+        { provide: RelogioService, useValue: { agora: () => new Date('2026-10-05T13:20:00-03:00') } },
       { provide: SalasLocaisService, useValue: { salas: signal([]), catalogo: signal(null), erro: signal(null), carregando: signal(false), carregar: () => {} } },
         provideHttpClient(),
         provideHttpClientTesting(),
@@ -103,6 +106,18 @@ describe('ListaSalas', () => {
     expect(cards()[0].textContent).toContain('MAKER-01');
   });
 
+  it('agrupa laboratórios Java e locais no mesmo filtro mesmo com diferenças de acento e caixa', () => {
+    const locais = TestBed.inject(SalasLocaisService);
+    (locais.salas as WritableSignal<SalaResumo[]>).set([
+      { id: 90, nome: 'LAB 02', tipo: 'Laboratório', origem: 'local', rotaId: 'local-90' },
+    ]);
+    responder([sala(1, 'LAB-01', 'Laboratorio'), sala(2, 'Sala 11', 'Sala')]);
+    const chips = Array.from(elemento().querySelectorAll<HTMLButtonElement>('.lista-salas__tipos button'));
+    expect(chips.map(chip => chip.textContent?.trim())).toEqual(['Todos', 'Laboratorio', 'Sala']);
+    chips[1].click(); fixture.detectChanges();
+    expect(Array.from(cards(), card => card.querySelector('h2')?.textContent)).toEqual(['LAB-01', 'LAB 02']);
+  });
+
   it('mostra o erro e permite tentar novamente', () => {
     http.expectOne((req) => req.url === `${BASE}/salas`).error(new ProgressEvent('error'), { status: 0 });
     fixture.detectChanges();
@@ -125,8 +140,9 @@ describe('ListaSalas', () => {
     expect(cards().length).toBe(1);
     expect(cards()[0].getAttribute('href')).toBe('/salas/local-1');
     expect(elemento().querySelector('[role="alert"]')).not.toBeNull();
-    expect(cards()[0].querySelector('.equipamento__quantidade')).toBeNull();
-    expect(cards()[0].textContent).toContain('Informação de equipamentos não disponível');
+    expect(Array.from(cards()[0].querySelectorAll('.equipamento__quantidade'), el => el.textContent?.trim())).toEqual(['1', '40']);
+    expect(cards()[0].textContent).toContain('Projetor multimidia');
+    expect(cards()[0].textContent).toContain('Computadores');
     expect(cards()[0].textContent).not.toContain('Nenhum equipamento cadastrado');
   });
 
@@ -171,7 +187,28 @@ describe('ListaSalas', () => {
     responder([sala(1, 'LAB-01', 'Laboratorio')]);
     expect(cards()[0].textContent).toContain('Projetor multimidia');
     expect(cards()[0].querySelector('.equipamento__quantidade')?.textContent?.trim()).toBe('2');
-    expect(cards()[1].textContent).not.toContain('Projetor multimidia');
+    expect(Array.from(cards()[1].querySelectorAll('.equipamento__quantidade'), el => el.textContent?.trim())).toEqual(['1', '40']);
+    expect(cards()[1].textContent).toContain('Computadores');
+  });
+
+  it('mostra inventário e status de cada sala local mesmo sem uma agenda Java habilitada', () => {
+    const c = catalogoSalaLocal(); c.salas.push({ id: 91, codigo: 'Sala 11' });
+    const locais = TestBed.inject(SalasLocaisService);
+    (locais.catalogo as WritableSignal<CatalogoLocal | null>).set(c);
+    (locais.salas as WritableSignal<SalaResumo[]>).set(c.salas.map(s => ({
+      id: s.id, nome: s.codigo, origem: 'local', rotaId: `local-${s.id}`,
+    })));
+    responder([]);
+    expect(cards()[0].querySelector('app-status-sala-badge')?.textContent).toContain('Em uso');
+    expect(cards()[1].querySelector('app-status-sala-badge')?.textContent).toContain('Livre');
+    expect(Array.from(cards()[0].querySelectorAll('.equipamento__quantidade'), el => el.textContent?.trim())).toEqual(['1', '40']);
+    expect(Array.from(cards()[1].querySelectorAll('.equipamento__quantidade'), el => el.textContent?.trim())).toEqual(['1', '1']);
+    expect(cards()[1].textContent).toContain('Televisão');
+    (locais.carregando as WritableSignal<boolean>).set(true); fixture.detectChanges();
+    expect(elemento().querySelector('app-status-sala-badge')).toBeNull();
+    (locais.carregando as WritableSignal<boolean>).set(false);
+    (locais.erro as WritableSignal<string | null>).set('Falha na leitura local'); fixture.detectChanges();
+    expect(elemento().querySelector('app-status-sala-badge')).toBeNull();
   });
 
   it('distingue erro de recursos do estado vazio e recupera somente os recursos', () => {

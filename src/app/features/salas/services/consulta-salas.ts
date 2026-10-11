@@ -4,7 +4,7 @@ import { Subject, catchError, exhaustMap, map, merge, of, startWith, timer } fro
 import { ApiErrorService } from '../../../core/services/api-error.service';
 import { SalaResumo } from '../models/sala-resumo';
 import { SalasApiService } from './salas-api';
-import { SalasLocaisService, aulasLocaisDaSala, unirSalas } from './salas-locais';
+import { SalasLocaisService, aulasLocaisDaSala, disponibilidadeLocalDaSala, unirSalas } from './salas-locais';
 import { AlocacaoSalaApi, DisponibilidadeSala, DisponibilidadeSalaService, aulasJavaDaSala, calcularDisponibilidade, unirAulas } from './disponibilidade-sala';
 import { RelogioService } from './relogio';
 
@@ -42,8 +42,11 @@ export class ConsultaSalasService {
   disponibilidade(sala: SalaResumo, agora = this.agora()): DisponibilidadeSala | undefined {
     // Manutenção só pode ser informada pelo cadastro, nunca inferida dos recursos.
     if (sala.status === 'Manutenção') return { status: sala.status, texto: 'Manutenção' };
+    if (this.locais.carregando() || this.locais.erro()) return undefined;
+    // TEMPORÁRIO: o usuário solicitou ocupação simples da agenda interna para salas exclusivas locais.
+    if (sala.origem === 'local') return disponibilidadeLocalDaSala(this.locais.catalogo(), sala, agora);
     const agenda = this.estadoAgenda().alocacoes;
-    if (sala.origem === 'local' || !agenda || this.locais.carregando() || this.locais.erro()) return undefined;
+    if (!agenda) return undefined;
     return calcularDisponibilidade(sala.id, agenda, agora, this.aulas(sala, agora).filter(a => a.origem === 'local'));
   }
 

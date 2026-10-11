@@ -15,6 +15,8 @@ import { SalasLocaisService } from '../salas/services/salas-locais';
 import { SalaApi, SalaResumo } from '../salas/models/sala-resumo';
 import { AlocacaoSalaApi } from '../salas/services/disponibilidade-sala';
 import { ConsultaSalasService } from '../salas/services/consulta-salas';
+import { CatalogoLocal } from '../dados-locais/models/catalogo-local';
+import { catalogoSalaLocal } from '../salas/testing/catalogo-local.fixture';
 
 const BASE = 'https://backend.test';
 const salaApi = (id = 71, codigo = 'LAB-03'): SalaApi => ({
@@ -40,14 +42,14 @@ describe('Dashboard: salas integradas', () => {
     let http: HttpTestingController;
     let instante: Date;
     let gradeSemanal: () => Observable<AlocacaoResponse[]>;
-    let locais: { salas: ReturnType<typeof signal<SalaResumo[]>>; catalogo: ReturnType<typeof signal<null>>;
+    let locais: { salas: ReturnType<typeof signal<SalaResumo[]>>; catalogo: ReturnType<typeof signal<CatalogoLocal | null>>;
         erro: ReturnType<typeof signal<string | null>>; carregando: ReturnType<typeof signal<boolean>>;
         carregar: jasmine.Spy };
 
     beforeEach(() => {
         instante = new Date('2026-10-08T14:20:00-03:00');
         gradeSemanal = () => of([pessoal]);
-        locais = { salas: signal<SalaResumo[]>([]), catalogo: signal(null), erro: signal<string | null>(null),
+        locais = { salas: signal<SalaResumo[]>([]), catalogo: signal<CatalogoLocal | null>(null), erro: signal<string | null>(null),
             carregando: signal(false), carregar: jasmine.createSpy('carregarLocal') };
         TestBed.configureTestingModule({ imports: [Dashboard], providers: [
             provideRouter([]), provideHttpClient(), provideHttpClientTesting(),
@@ -158,6 +160,27 @@ describe('Dashboard: salas integradas', () => {
         const statusLocal = tela().querySelector('a[href="/salas/local-71"]')!;
         expect(statusLocal.textContent).toContain('Disponibilidade indisponível');
         expect(statusLocal.querySelector('app-status-sala-badge')).toBeNull();
+        fixture.destroy();
+    }));
+
+    it('mostra o status temporário local mesmo com falha Java e atualiza pelo relógio sem confundir IDs', fakeAsync(() => {
+        const c = catalogoSalaLocal();
+        c.salas[0] = { id: 71, codigo: 'LAB 02' };
+        c.alocacoes[0] = { ...c.alocacoes[0], salaId: 71, diaSemana: 'QUINTA', horaInicio: '14:00', horaFim: '15:00' };
+        locais.catalogo.set(c);
+        locais.salas.set([{ id: 71, nome: 'LAB 02', origem: 'local', rotaId: 'local-71' }]);
+        abrir(); cadastro();
+        http.expectOne(r => r.url === `${BASE}/alocacoes`).error(new ProgressEvent('error'));
+        fixture.detectChanges();
+        const statusLocal = () => tela().querySelector('a[href="/salas/local-71"] app-status-sala-badge');
+        expect(statusLocal()?.textContent).toContain('Em uso');
+        expect(tela().querySelector('a[href="/salas/71"] app-status-sala-badge')).toBeNull();
+        instante = new Date('2026-10-08T15:00:00-03:00'); tick(1000); fixture.detectChanges();
+        expect(statusLocal()?.textContent).toContain('Livre');
+        locais.carregando.set(true); fixture.detectChanges();
+        expect(statusLocal()).toBeNull();
+        locais.carregando.set(false); locais.erro.set('Falha local'); fixture.detectChanges();
+        expect(statusLocal()).toBeNull();
         fixture.destroy();
     }));
 
