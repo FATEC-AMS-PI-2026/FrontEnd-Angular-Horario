@@ -63,6 +63,25 @@ describe('SalasApiService', () => {
     expect(service.erro()).toContain('Não foi possível conectar ao servidor');
   });
 
+  it('aceita tipo_sala e paginação snake_case, mantendo o Auditório sem prédio', () => {
+    service.carregar();
+    http.expectOne(r => r.params.get('page') === '0').flush({
+      content: [{ id: 1, codigo: 'LAB-01', capacidade: 40, tipo_sala: { id: 1, nome: 'Laboratorio' } }],
+      page: 0, total_pages: 2, total_elements: 1,
+    });
+    expect(service.salas()).toEqual([]);
+    http.expectOne(r => r.params.get('page') === '1').flush({
+      content: [{ id: 3, codigo: 'AUD-01', capacidade: 120, tipo_sala: { id: 2, nome: 'Sala' } }],
+      page: 1, total_pages: 2, total_elements: 1,
+    });
+    expect(service.erro()).toBeNull();
+    expect(service.salas().map(s => [s.nome, s.predio])).toEqual([['LAB-01', 'Prédio 1'], ['AUD-01', undefined]]);
+    service.obterPorId(3).subscribe(s => expect(s.predio).toBeUndefined());
+    http.expectOne('https://backend.test/salas/3').flush({
+      id: 3, codigo: 'AUD-01', capacidade: 120, tipo_sala: { id: 2, nome: 'Sala' },
+    });
+  });
+
   it('carrega todas as páginas e só publica a lista completa', () => {
     const sala = { id: 1, codigo: 'LAB-01', capacidade: 40, tipoSala: { id: 1, nome: 'Laboratório' } };
     service.carregar();

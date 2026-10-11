@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { EMPTY, defer, expand, map, reduce } from 'rxjs';
 import { BACKEND_CONFIG } from '../../../core/services/backend-config';
-import { PageResponse } from '../../../core/models/page-response';
+import { ler, paginaDaApi } from '../../../shared/utils/resposta-api';
 import { StatusSala } from '../models/sala';
 import { AulaDoDia } from '../models/aula-do-dia';
 
@@ -27,6 +27,33 @@ export interface DisponibilidadeSala {
 }
 
 const DIAS = ['DOMINGO', 'SEGUNDA', 'TERCA', 'QUARTA', 'QUINTA', 'SEXTA', 'SABADO'];
+
+function paraAlocacaoSala(registro: unknown, filtroSala?: number): AlocacaoSalaApi {
+  const id = ler(registro, 'id'), salaId = ler(ler(registro, 'sala'), 'id');
+  if (typeof id !== 'number' || !Number.isSafeInteger(id) || id <= 0 ||
+      typeof salaId !== 'number' || !Number.isSafeInteger(salaId) || salaId <= 0 ||
+      (filtroSala !== undefined && salaId !== filtroSala)) {
+    throw new Error('Alocações inválidas na agenda da sala.');
+  }
+  const texto = (objeto: unknown, campo: string): string => {
+    const valor = ler(objeto, campo);
+    return typeof valor === 'string' ? valor : '';
+  };
+  const bloco = ler(registro, 'blocoHorario'), quadro = ler(registro, 'quadroHorario');
+  const periodo = ler(quadro, 'periodoAtividadeQuadro');
+  // Campos ausentes permanecem incompletos: não assumir quadro ativo, vigência ou dia.
+  return {
+    id, sala: { id: salaId },
+    disciplina: { nome: texto(ler(registro, 'disciplina'), 'nome') },
+    professor: { nome: texto(ler(registro, 'professor'), 'nome') },
+    turma: { codigo: texto(ler(registro, 'turma'), 'codigo') },
+    diaSemana: texto(registro, 'diaSemana').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toUpperCase(),
+    blocoHorario: { horaInicio: texto(bloco, 'horaInicio'), horaFim: texto(bloco, 'horaFim') },
+    quadroHorario: { status: texto(quadro, 'status'), periodoAtividadeQuadro: {
+      status: texto(periodo, 'status'), dataInicio: texto(periodo, 'dataInicio'), dataFim: texto(periodo, 'dataFim'),
+    } },
+  };
+}
 
 export function momentoSaoPaulo(agora: Date) {
   const partes = new Intl.DateTimeFormat('en-CA', {
@@ -108,23 +135,13 @@ export class DisponibilidadeSalaService {
   carregar(salaId?: number) {
     return defer(() => {
       let totalEsperado: number | undefined;
-      const pagina = (page: number) => this.http.get<PageResponse<AlocacaoSalaApi>>(
-        `${this.config.url.replace(/\/+$/, '')}/alocacoes`, { params: { ...(salaId === undefined ? {} : { sala: salaId }), page, size: 200 } }).pipe(
-          map(p => {
-            if (!p || p.page !== page || !Number.isSafeInteger(p.totalPages) || p.totalPages < 0 ||
-                !Array.isArray(p.content) || (p.totalPages > page + 1 && p.content.length === 0) ||
-                (p.totalPages === 0 ? page !== 0 || p.content.length > 0 : page >= p.totalPages) ||
-                (totalEsperado !== undefined && totalEsperado !== p.totalPages)) {
-              throw new Error('Paginação incompleta da agenda da sala.');
-            }
+      const pagina = (page: number) => this.http.get<unknown>(
+        `${this.config.url.replace(/\/+$/, '')}/alocacoes`, { params: { ...(salaId === undefined ? {} : { id_sala: salaId }), page, size: 200 } }).pipe(
+          map(resposta => {
+            const p = paginaDaApi(resposta, page, totalEsperado);
             totalEsperado = p.totalPages;
             // Sem a sala de uma alocação, não é possível garantir que outra sala esteja livre.
-            if (p.content.some(a => !a || !Number.isSafeInteger(a.id) || a.id <= 0 ||
-                !Number.isSafeInteger(a.sala?.id) || a.sala.id <= 0 ||
-                (salaId !== undefined && a.sala.id !== salaId))) {
-              throw new Error('Alocações inválidas na agenda da sala.');
-            }
-            return p;
+            return { ...p, content: p.content.map(a => paraAlocacaoSala(a, salaId)) };
           }),
         );
       return pagina(0).pipe(

@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { BACKEND_CONFIG } from '../../../core/services/backend-config';
 import { ApiErrorService } from '../../../core/services/api-error.service';
-import { PageResponse } from '../../../core/models/page-response';
-import { SalaApi, SalaResumo } from '../models/sala-resumo';
+import { SalaResumo } from '../models/sala-resumo';
+import { ler, paginaDaApi } from '../../../shared/utils/resposta-api';
 import { EMPTY, Subscription, expand, map, reduce } from 'rxjs';
 import { predioDaSala } from './localizacao-sala';
 
@@ -13,15 +13,16 @@ import { predioDaSala } from './localizacao-sala';
  */
 const TAMANHO_PAGINA = 200;
 
-function paraSalaResumo(sala: SalaApi): SalaResumo {
-  if (!sala || !Number.isSafeInteger(sala.id) || sala.id <= 0 ||
-      typeof sala.codigo !== 'string' || !sala.codigo.trim() ||
-      !Number.isSafeInteger(sala.capacidade) || sala.capacidade < 0 ||
-      typeof sala.tipoSala?.nome !== 'string' || !sala.tipoSala.nome.trim()) {
+function paraSalaResumo(sala: unknown): SalaResumo {
+  const id = ler(sala, 'id'), codigo = ler(sala, 'codigo'), capacidade = ler(sala, 'capacidade');
+  const tipo = ler(ler(sala, 'tipoSala'), 'nome');
+  if (typeof id !== 'number' || !Number.isSafeInteger(id) || id <= 0 ||
+      typeof codigo !== 'string' || !codigo.trim() ||
+      typeof capacidade !== 'number' || !Number.isSafeInteger(capacidade) || capacidade < 0 ||
+      typeof tipo !== 'string' || !tipo.trim()) {
     throw new Error('Cadastro de sala inválido.');
   }
-  return { id: sala.id, nome: sala.codigo, capacidade: sala.capacidade, tipo: sala.tipoSala.nome,
-    predio: predioDaSala(sala.codigo, sala.tipoSala.nome) };
+  return { id, nome: codigo, capacidade, tipo, predio: predioDaSala(codigo, tipo) };
 }
 
 /**
@@ -48,7 +49,7 @@ export class SalasApiService {
   constructor() { inject(DestroyRef).onDestroy(() => this.consulta?.unsubscribe()); }
 
   obterPorId(id: number) {
-    return this.http.get<SalaApi>(`${this.baseUrl}/salas/${id}`).pipe(map(paraSalaResumo));
+    return this.http.get<unknown>(`${this.baseUrl}/salas/${id}`).pipe(map(paraSalaResumo));
   }
 
   carregar(): void {
@@ -58,22 +59,17 @@ export class SalasApiService {
     this.salasSignal.set([]);
 
     let totalEsperado: number | undefined;
-    const pagina = (page: number) => this.http.get<PageResponse<SalaApi>>(`${this.baseUrl}/salas`, {
+    const pagina = (page: number) => this.http.get<unknown>(`${this.baseUrl}/salas`, {
       params: { page, size: TAMANHO_PAGINA },
-    }).pipe(map(p => {
-      if (!p || p.page !== page || !Number.isSafeInteger(p.totalPages) || p.totalPages < 0 ||
-          !Array.isArray(p.content) || (p.totalPages > page + 1 && !p.content.length) ||
-          (p.totalPages === 0 ? page !== 0 || p.content.length > 0 : page >= p.totalPages) ||
-          (totalEsperado !== undefined && totalEsperado !== p.totalPages)) {
-        throw new Error('Paginação incompleta da lista de salas.');
-      }
+    }).pipe(map(resposta => {
+      const p = paginaDaApi(resposta, page, totalEsperado);
       totalEsperado = p.totalPages;
       return p;
     }));
     this.consulta = pagina(0).pipe(
       expand(p => p.page + 1 < p.totalPages ? pagina(p.page + 1) : EMPTY),
       map(p => p.content),
-      reduce((todas, itens) => todas.concat(itens), [] as SalaApi[]),
+      reduce((todas, itens) => todas.concat(itens), [] as unknown[]),
       map(salas => {
         const convertidas = salas.map(paraSalaResumo);
         if (new Set(convertidas.map(s => s.id)).size !== convertidas.length) {
