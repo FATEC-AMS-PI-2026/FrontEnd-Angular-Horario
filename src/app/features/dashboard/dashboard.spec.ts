@@ -8,7 +8,17 @@ import { CARREGAR_GRADE_DIA, CarregarGradeDia, DashboardService } from './servic
 import { AlocacaoResponse, dataAcademica, diaSemana } from './models/grade-dia.model';
 import { SessionService } from '../../core/services/session.service';
 import { intervalosDaGrade } from './models/intervalos-grade';
+import { signal } from '@angular/core';
+import { ConsultaSalasService } from '../salas/services/consulta-salas';
+import { SalaResumo } from '../salas/models/sala-resumo';
 import { PALETA_MATERIAS } from '../../shared/utils/cores-materia';
+
+function salasIndisponiveis() {
+    return { salas: signal<SalaResumo[]>([]), carregando: signal(false), erro: signal(null),
+        estadoAgenda: signal({ alocacoes: null, carregando: false, erro: null }),
+        locais: { erro: signal(null), carregar: () => {} }, disponibilidade: () => undefined,
+        tentarNovamente: () => {} };
+}
 
 describe('Dashboard', () => {
     let component: Dashboard;
@@ -18,7 +28,9 @@ describe('Dashboard', () => {
         await TestBed.configureTestingModule({
             imports: [Dashboard],
             providers: [provideRouter([])]
-        })
+        }).overrideComponent(Dashboard, { set: { providers: [
+            { provide: ConsultaSalasService, useValue: salasIndisponiveis() },
+        ] } })
             .compileComponents();
 
         fixture = TestBed.createComponent(Dashboard);
@@ -76,7 +88,9 @@ describe('Dashboard: grade do serviço', () => {
         TestBed.configureTestingModule({
             imports: [Dashboard], providers: [provideRouter([]),
             { provide: CARREGAR_GRADE_DIA, useValue: carregar }]
-        });
+        }).overrideComponent(Dashboard, { set: { providers: [
+            { provide: ConsultaSalasService, useValue: salasIndisponiveis() },
+        ] } });
         TestBed.inject(SessionService).iniciar('teste', {
             nome: 'Ana', email: 'ana@example.test', curso: 'ADS', periodo: '3º período',
         });
@@ -121,8 +135,32 @@ describe('Dashboard: grade do serviço', () => {
         expect(component.alocacoes().map(item => item.id)).toEqual([1, 2, 3]);
         expect(component.stats().map(item => item.value)).toEqual(['3', '2', '14:10', '13:20']);
         expect(component.salasHoje().length).toBe(1);
-        expect(component.statusSalas()[0].professor).toBe('Professor 1');
+        expect(component.statusSalas()).toEqual([]);
         expect(fixture.nativeElement.textContent).toContain('Olá, Ana!');
+        expect(fixture.nativeElement.querySelector('[aria-label="Reposição de aulas"]')).toBeNull();
+    });
+
+    it('identifica cada reposição à direita do card e remove o rótulo ao trocar para um dia regular', () => {
+        const reposicao = { data: '2026-10-10', diaSemana: 'QUINTA' as const, turno: 'Tarde' };
+        const aulas = [aula(1, '13:20', '14:10'), aula(2, '14:10', '15:00')]
+            .map(item => ({ ...item, diaSemana: 'SABADO' as const, reposicao }));
+        carregar.and.returnValue(of(aulas));
+        component.agora.set(new Date('2026-10-10T13:20:00-03:00'));
+        component.carregar(); fixture.detectChanges();
+        const tela: HTMLElement = fixture.nativeElement;
+        expect(tela.querySelector('.aviso-calendario')).toBeNull();
+        expect(tela.querySelector('[aria-label="Reposição de aulas"]')).toBeNull();
+        expect(tela.querySelector('.banner__left')?.textContent).toContain('sábado, 10/10/2026');
+        expect(tela.querySelectorAll('.schedule-item--class').length).toBe(2);
+        expect(Array.from(tela.querySelectorAll('.schedule-item--class > .reposicao-aula:last-child')).map(el => el.textContent))
+            .toEqual(['Reposição de aula', 'Reposição de aula']);
+        expect(tela.querySelector('.time-block .reposicao-aula')).toBeNull();
+
+        carregar.and.returnValue(of([aula(1, '13:20', '14:10')]));
+        component.agora.set(new Date('2026-10-19T13:20:00-03:00'));
+        component.carregar(); fixture.detectChanges();
+        expect(tela.querySelector('[aria-label="Reposição de aulas"]')).toBeNull();
+        expect(tela.querySelector('.reposicao-aula')).toBeNull();
     });
 
     it('distingue fim da aula, intervalo e fim do dia sem inventar disponibilidade das salas', () => {
@@ -131,7 +169,9 @@ describe('Dashboard: grade do serviço', () => {
         component.agora.set(new Date('2026-09-14T14:10:00-03:00'));
         expect(component.emAndamento()).toEqual([]);
         expect(component.proxima()?.id).toBe(2);
-        expect(component.statusSalas()[0].label).toBe('Sem aula sua agora');
+        expect(component.statusSalas()).toEqual([]);
+        fixture.detectChanges();
+        expect(fixture.nativeElement.querySelector('app-status-sala-badge')).toBeNull();
         component.agora.set(new Date('2026-09-14T16:00:00-03:00'));
         expect(component.proxima()).toBeUndefined();
         expect(component.stats()[3].subtitle).toBe('Nenhuma aula neste momento');
@@ -214,6 +254,20 @@ describe('Dashboard: grade do serviço', () => {
         expect(component.carregado()).toBeTrue();
     });
 
+    it('mostra erro e permite nova tentativa quando a consulta termina sem emitir uma resposta', () => {
+        resposta.complete(); fixture.detectChanges();
+        expect(component.loading()).toBeFalse();
+        expect(component.carregado()).toBeFalse();
+        expect(fixture.nativeElement.querySelector('[role="alert"]')).not.toBeNull();
+        expect(fixture.nativeElement.querySelectorAll('.stat-card').length).toBe(0);
+        expect(fixture.nativeElement.textContent).not.toContain('Você não tem aulas programadas');
+        carregar.and.returnValue(of([]));
+        fixture.nativeElement.querySelector('button').click(); fixture.detectChanges();
+        expect(component.errorMessage()).toBe('');
+        expect(component.carregado()).toBeTrue();
+        expect(fixture.nativeElement.textContent).toContain('Você não tem aulas programadas');
+    });
+
     it('cancela consulta anterior na troca de dia e ignora respostas atrasadas', () => {
         const nova = new Subject<AlocacaoResponse[]>();
         carregar.and.returnValue(nova);
@@ -245,5 +299,19 @@ describe('Dashboard: grade do serviço', () => {
         const data = dataAcademica(new Date('2026-09-15T01:00:00Z'));
         expect(data).toBe('2026-09-14');
         expect(diaSemana(data)).toBe('SEGUNDA');
+    });
+
+    it('rejeita contexto de reposição de outra data, dia inválido ou sem turno', () => {
+        const service = TestBed.inject(DashboardService);
+        for (const reposicao of [
+            { data: '2026-09-19', diaSemana: 'SEGUNDA' as const, turno: 'Tarde' },
+            { data: '2026-09-14', diaSemana: 'INVALIDO' as AlocacaoResponse['diaSemana'], turno: 'Tarde' },
+            { data: '2026-09-14', diaSemana: 'SEGUNDA' as const, turno: '   ' },
+        ]) {
+            carregar.and.returnValue(of([{ ...aula(1, '13:20', '14:10'), reposicao }]));
+            const erro = jasmine.createSpy('erro');
+            service.carregarDia('2026-09-14').subscribe({ next: () => fail('Não deveria aceitar'), error: erro });
+            expect(erro).toHaveBeenCalled();
+        }
     });
 });

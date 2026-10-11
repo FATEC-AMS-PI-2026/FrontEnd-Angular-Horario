@@ -81,4 +81,31 @@ describe('Conexão futura com o backend', () => {
         expect(bloqueado).toBeTrue();
         http.expectNone('https://backend.test/api?pagina=1');
     });
+
+    it('preserva a habilitação por módulo nas URLs relativas do proxy de desenvolvimento', () => {
+        config.url = '/api';
+        config.modulos = ['salas', 'alocacoes', 'recursos-salas'];
+        for (const modulo of config.modulos) {
+            client.get(`/api/${modulo}?page=0`).subscribe();
+            http.expectOne(`/api/${modulo}?page=0`).flush({});
+        }
+        let erro: unknown;
+        client.post('/api/auth/login', {}).subscribe({ error: e => erro = e });
+        expect(erro).toBeInstanceOf(BackendIndisponivelError);
+        http.expectNone('/api/auth/login');
+        client.get('/api-public/catalogo').subscribe();
+        http.expectOne('/api-public/catalogo').flush({});
+    });
+
+    // TEMPORÁRIO: excluir este teste após remover os tokens da persistência local.
+    it('impede o envio de token local ao Java através do proxy', () => {
+        config.url = '/api';
+        config.modulos = ['salas'];
+        let erro: unknown;
+        client.get('/api/salas', { headers: { Authorization: 'Bearer gini-local:perfil' } })
+            .subscribe({ error: e => erro = e });
+        expect(erro).toBeInstanceOf(BackendIndisponivelError);
+        expect(TestBed.inject(ApiErrorService).mensagem(erro, 'Falha')).toContain('Um perfil local');
+        http.expectNone('/api/salas');
+    });
 });
