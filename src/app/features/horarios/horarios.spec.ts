@@ -164,6 +164,71 @@ describe('Horarios', () => {
         fixture.destroy();
     }));
 
+    it('acompanha a troca do relógio de sexta para a reposição de sábado e de volta', fakeAsync(() => {
+        let agora = new Date('2026-10-23T14:30:00-03:00');
+        const reposicao = { data: '2026-10-24', diaSemana: 'SEXTA' as const, turno: 'Tarde' };
+        const carregar = jasmine.createSpy<CarregarGradeDia>('gradeDia').and.callFake(data => of(
+            data === reposicao.data
+                ? gradeTeste().filter(aula => aula.diaSemana === 'SEXTA')
+                    .map(aula => ({ ...aula, diaSemana: 'SABADO' as const, reposicao }))
+                : gradeTeste().filter(aula => aula.diaSemana === diaSemana(data))));
+        const fixture = criar(() => agora, carregar);
+        expect(texto(fixture, '.filtro-chip--ativo')).toEqual(['Sex']);
+        expect(texto(fixture, '.status-badge--andamento')).toEqual(['Em andamento']);
+        expect(carregar).toHaveBeenCalledOnceWith('2026-10-23');
+
+        agora = new Date('2026-10-24T14:30:00-03:00');
+        tick(1000); fixture.detectChanges();
+        expect(texto(fixture, '.filtro-chip--ativo')).toEqual(['Sáb']);
+        expect(carregar.calls.mostRecent().args).toEqual(['2026-10-24']);
+        expect(texto(fixture, '.status-badge--andamento')).toEqual(['Em andamento']);
+        expect(texto(fixture, '.tabela-horarios__aula--agora .tabela-horarios__horario')).toEqual(['14:10 – 15:00']);
+        expect(texto(fixture, '.status-reposicao').length).toBe(6);
+
+        agora = new Date('2026-10-23T14:30:00-03:00');
+        tick(1000); fixture.detectChanges();
+        expect(texto(fixture, '.filtro-chip--ativo')).toEqual(['Sex']);
+        expect(carregar.calls.mostRecent().args).toEqual(['2026-10-23']);
+        expect(texto(fixture, '.status-badge--andamento')).toEqual(['Em andamento']);
+        expect(texto(fixture, '.status-reposicao')).toEqual([]);
+        fixture.destroy();
+    }));
+
+    it('preserva um dia escolhido manualmente quando o relógio passa para sábado', fakeAsync(() => {
+        let agora = new Date('2026-10-23T14:30:00-03:00');
+        const carregar = jasmine.createSpy<CarregarGradeDia>('gradeDia')
+            .and.callFake(data => of(gradeTeste().filter(aula => aula.diaSemana === diaSemana(data))));
+        const fixture = criar(() => agora, carregar);
+        clicarChip(fixture, 'Seg');
+        expect(carregar.calls.mostRecent().args).toEqual(['2026-10-19']);
+        agora = new Date('2026-10-24T14:30:00-03:00');
+        tick(1000); fixture.detectChanges();
+        expect(texto(fixture, '.filtro-chip--ativo')).toEqual(['Seg']);
+        expect(carregar.calls.count()).toBe(2);
+        expect(texto(fixture, '.status-badge')).toEqual([]);
+        fixture.destroy();
+    }));
+
+    it('cancela a sexta pendente quando o relógio muda para sábado e ignora a resposta atrasada', fakeAsync(() => {
+        let agora = new Date('2026-10-23T14:30:00-03:00');
+        const sexta = new Subject<AlocacaoResponse[]>();
+        const reposicao = { data: '2026-10-24', diaSemana: 'SEXTA' as const, turno: 'Tarde' };
+        const fixture = criar(() => agora, data => data === '2026-10-23' ? sexta : of([
+            alocacaoTeste({ diaSemana: 'SABADO', reposicao,
+                blocoHorario: { id: 1, horaInicio: '14:10', horaFim: '15:00', duracao: 50 } }),
+        ]));
+        expect(sexta.observed).toBeTrue();
+        agora = new Date('2026-10-24T14:30:00-03:00');
+        tick(1000); fixture.detectChanges();
+        expect(sexta.observed).toBeFalse();
+        sexta.next([alocacaoTeste({ diaSemana: 'SEXTA', disciplina: { id: 99, nome: 'Resposta antiga', periodo: 1 } })]);
+        fixture.detectChanges();
+        expect(texto(fixture, '.filtro-chip--ativo')).toEqual(['Sáb']);
+        expect(texto(fixture, '.status-badge--andamento')).toEqual(['Em andamento']);
+        expect(fixture.nativeElement.textContent).not.toContain('Resposta antiga');
+        fixture.destroy();
+    }));
+
     it('renova a data do chip na virada de semana e não mantém a reposição do sábado anterior', fakeAsync(() => {
         let agora = new Date('2026-10-11T23:59:59-03:00');
         const reposicao = { data: '2026-10-10', diaSemana: 'QUINTA' as const, turno: 'Tarde' };

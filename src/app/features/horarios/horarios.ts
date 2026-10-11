@@ -51,6 +51,7 @@ export class Horarios implements OnInit, OnDestroy {
 
     /** Dia selecionado nos chips. Abre no dia de hoje (segunda, se for domingo). */
     protected readonly diaSelecionado = signal<DiaSemana>(this.hoje() ?? 'seg');
+    private diaEscolhidoManualmente = false;
     protected readonly dataSelecionada = computed(() => {
         // Calcular a semana em UTC a partir da data de São Paulo, sem depender do fuso do navegador.
         const data = new Date(`${dataAcademica(this.agora())}T12:00:00Z`);
@@ -107,6 +108,9 @@ export class Horarios implements OnInit, OnDestroy {
         timer(1000, 1000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
             const dataAnterior = this.dataSelecionada();
             this.agora.set(this.relogio.agora());
+            // A seleção inicial acompanha o relógio, inclusive ao mudar a data do computador.
+            // Preservar a navegação explícita pelos chips e o dia de uma matéria adicionada.
+            if (!this.diaEscolhidoManualmente) this.diaSelecionado.set(this.hoje() ?? 'seg');
             if (dataAnterior !== this.dataSelecionada()) this.carregar();
         });
     }
@@ -119,6 +123,7 @@ export class Horarios implements OnInit, OnDestroy {
     }
 
     protected selecionarDia(dia: DiaSemana): void {
+        this.diaEscolhidoManualmente = true;
         this.diaSelecionado.set(dia);
         this.horariosService.carregarDia(this.dataSelecionada());
     }
