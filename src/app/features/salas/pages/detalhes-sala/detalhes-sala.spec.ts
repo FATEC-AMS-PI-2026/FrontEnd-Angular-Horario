@@ -75,6 +75,32 @@ describe('DetalhesSala', () => {
     expect(fixture.nativeElement.querySelector('app-cabecalho-sala').textContent).toContain('AUD-01');
     expect(fixture.nativeElement.querySelector('.cabecalho-sala__badge')).toBeNull();
     expect(fixture.nativeElement.textContent).not.toContain('Prédio');
+    expect(fixture.nativeElement.querySelector('app-aulas-do-dia-card h2').textContent).toBe('Eventos neste auditório hoje');
+    expect(fixture.nativeElement.querySelector('app-aulas-do-dia-card').textContent).not.toContain('Aulas');
+    fixture.destroy();
+  }));
+
+  it('atualiza eventos e reuniões na navegação, no carregamento e na agenda vazia', fakeAsync(() => {
+    const fixture = TestBed.createComponent(DetalhesSala);
+    http.expectOne('http://backend/salas/73').flush({ ...sala, codigo: 'AUD-01', tipoSala: { id: 2, nome: 'Sala' } });
+    tick(0); fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-aulas-do-dia-card').textContent).toContain('Carregando eventos');
+    http.expectOne(r => r.url.endsWith('/alocacoes')).flush({ content: [], page: 0, totalPages: 0 });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Nenhum evento cadastrado');
+    expect(fixture.nativeElement.textContent).toContain('Livre — sem mais eventos hoje');
+    expect(fixture.nativeElement.textContent.toLowerCase()).not.toContain('aula');
+
+    params.next(convertToParamMap({ id: '74' }));
+    http.expectOne('http://backend/salas/74').flush({ ...sala, id: 74, codigo: 'REUN-01', tipoSala: { id: 3, nome: 'Sala de Reuniao' } });
+    tick(0); fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-aulas-do-dia-card h2').textContent).toBe('Reuniões nesta sala hoje');
+    expect(fixture.nativeElement.querySelector('app-aulas-do-dia-card').textContent).toContain('Carregando reuniões');
+    http.expectOne(r => r.url.endsWith('/alocacoes')).flush({ content: [], page: 0, totalPages: 0 });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Nenhuma reunião cadastrada');
+    expect(fixture.nativeElement.textContent).toContain('Livre — sem mais reuniões hoje');
+    expect(fixture.nativeElement.textContent.toLowerCase()).not.toContain('aula');
     fixture.destroy();
   }));
 

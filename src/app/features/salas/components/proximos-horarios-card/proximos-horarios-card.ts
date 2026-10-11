@@ -1,5 +1,7 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { ProximoHorario } from '../../models/proximo-horario';
+import { SalaResumo } from '../../models/sala-resumo';
+import { rotulosAgendaDaSala } from '../../services/rotulos-agenda-sala';
 
 /**
  * Card com aulas futuras e intervalos sem aula cadastrada na sala. Cobre os
@@ -19,4 +21,6 @@ export class ProximosHorariosCard {
   readonly horarios = input.required<ProximoHorario[]>();
   readonly carregando = input(false);
   readonly indisponivel = input(false);
+  readonly sala = input<SalaResumo>();
+  protected readonly rotulos = computed(() => rotulosAgendaDaSala(this.sala()));
 }

@@ -16,6 +16,7 @@ import { ProximosHorariosCard } from '../../components/proximos-horarios-card/pr
 import { AulasDoDiaCard } from '../../components/aulas-do-dia-card/aulas-do-dia-card';
 import { proximosHorariosDaSala } from '../../services/proximos-horarios-sala';
 import { RecursosSalaService } from '../../services/recursos-sala';
+import { disponibilidadeComRotulo } from '../../services/rotulos-agenda-sala';
 
 interface EstadoDetalhes {
   sala?: SalaResumo;
@@ -96,7 +97,8 @@ export class DetalhesSala {
     // TEMPORÁRIO: ocupação da agenda interna para as salas exclusivas do navegador.
     if (estado.sala?.origem === 'local') return disponibilidadeLocalDaSala(this.locais.catalogo(), estado.sala, this.agora());
     return estado.sala && estado.agenda
-      ? calcularDisponibilidade(estado.sala.id, estado.agenda, this.agora(), this.aulas().filter(a => a.origem === 'local')) : undefined;
+      ? disponibilidadeComRotulo(estado.sala, calcularDisponibilidade(estado.sala.id, estado.agenda,
+        this.agora(), this.aulas().filter(a => a.origem === 'local'))) : undefined;
   });
 
   protected readonly erroAgenda = computed(() => {

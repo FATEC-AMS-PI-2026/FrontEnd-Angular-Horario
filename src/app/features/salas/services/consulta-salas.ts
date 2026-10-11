@@ -7,6 +7,7 @@ import { SalasApiService } from './salas-api';
 import { SalasLocaisService, aulasLocaisDaSala, disponibilidadeLocalDaSala, unirSalas } from './salas-locais';
 import { AlocacaoSalaApi, DisponibilidadeSala, DisponibilidadeSalaService, aulasJavaDaSala, calcularDisponibilidade, unirAulas } from './disponibilidade-sala';
 import { RelogioService } from './relogio';
+import { disponibilidadeComRotulo } from './rotulos-agenda-sala';
 
 interface EstadoAgenda {
   alocacoes: AlocacaoSalaApi[] | null;
@@ -47,7 +48,8 @@ export class ConsultaSalasService {
     if (sala.origem === 'local') return disponibilidadeLocalDaSala(this.locais.catalogo(), sala, agora);
     const agenda = this.estadoAgenda().alocacoes;
     if (!agenda) return undefined;
-    return calcularDisponibilidade(sala.id, agenda, agora, this.aulas(sala, agora).filter(a => a.origem === 'local'));
+    return disponibilidadeComRotulo(sala,
+      calcularDisponibilidade(sala.id, agenda, agora, this.aulas(sala, agora).filter(a => a.origem === 'local')));
   }
 
   aulas(sala: SalaResumo, agora = this.agora()) {

@@ -19,10 +19,10 @@
           <button type="button" aria-label="Tentar consultar equipamentos novamente" (click)="recursos.carregar(sala.id)">Tentar novamente</button>
         }
       </div>
-      <app-proximos-horarios-card [horarios]="proximos()" [carregando]="carregandoHorarios()" [indisponivel]="horariosIndisponiveis()" />
+      <app-proximos-horarios-card [sala]="sala" [horarios]="proximos()" [carregando]="carregandoHorarios()" [indisponivel]="horariosIndisponiveis()" />
     </div>
     <div class="detalhes-sala__card detalhes-sala__agenda">
-      <app-aulas-do-dia-card [aulas]="aulas()" [agora]="agora()" [carregando]="carregandoHorarios()" [indisponivel]="horariosIndisponiveis()" />
+      <app-aulas-do-dia-card [sala]="sala" [aulas]="aulas()" [agora]="agora()" [carregando]="carregandoHorarios()" [indisponivel]="horariosIndisponiveis()" />
     </div>
   }
   @if (!estado().sala) { <a routerLink="/salas">Voltar para a lista de salas</a> }

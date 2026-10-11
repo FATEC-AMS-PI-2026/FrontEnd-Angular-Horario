@@ -8,6 +8,7 @@ import { SalaResumo } from '../../models/sala-resumo';
 import { RecursosSalaService } from '../../services/recursos-sala';
 import { ConsultaSalasService } from '../../services/consulta-salas';
 import { equipamentosLocaisDaSala } from '../../services/salas-locais';
+import { OrganizacaoSalasService } from '../../services/organizacao-salas';
 
 const chaveTipo = (tipo: string) => tipo.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
 
@@ -22,13 +23,14 @@ const chaveTipo = (tipo: string) => tipo.normalize('NFD').replace(/[\u0300-\u036
   imports: [RouterLink, StatusSalaBadge, IconeSala, EquipamentosCard],
   templateUrl: './lista-salas.html',
   styleUrl: './lista-salas.scss',
-  providers: [RecursosSalaService, ConsultaSalasService, SalasApiService],
+  providers: [RecursosSalaService, ConsultaSalasService, SalasApiService, OrganizacaoSalasService],
 })
 export class ListaSalas {
   // TEMPORÁRIO: inventário do armazenamento interno, removível com o adaptador local.
   protected readonly equipamentosLocais = equipamentosLocaisDaSala;
   protected readonly recursos = inject(RecursosSalaService);
   private readonly consulta = inject(ConsultaSalasService);
+  private readonly organizacao = inject(OrganizacaoSalasService);
   protected readonly locais = this.consulta.locais;
   protected readonly salas = this.consulta.salas;
   protected readonly estadoAgenda = this.consulta.estadoAgenda;
@@ -108,6 +110,8 @@ export class ListaSalas {
 
     return salas;
   });
+
+  protected readonly gruposSalas = computed(() => this.organizacao.agrupar(this.salasFiltradas()));
 
   /** Mensagem exibida quando a combinação de busca + filtro não encontra nenhuma sala. */
   protected readonly mensagemVazia = computed(() => {
