@@ -4,6 +4,7 @@ import { CatalogoSalvo, DadosLocaisError } from '../../dados-locais/models/catal
 import { RelogioService } from '../../salas/services/relogio';
 import { catalogoSalaLocal } from '../../salas/testing/catalogo-local.fixture';
 import { ProfessoresLocaisService, aulasProfessoresLocais } from './professores-locais';
+import { PALETA_MATERIAS } from '../../../shared/utils/cores-materia';
 
 describe('ProfessoresLocaisService', () => {
     let service: ProfessoresLocaisService;
@@ -42,6 +43,17 @@ describe('ProfessoresLocaisService', () => {
         expect(service.cursos()).toEqual([{ id: 'local-1', nome: 'Curso de teste' }]);
         expect(service.aulas()).toEqual([]);
         expect(service.erro()).toBeNull();
+    });
+
+    it('usa a mesma paleta ampliada nas aulas do catálogo salvo', () => {
+        const cores = PALETA_MATERIAS.map((_, indice) => {
+            const catalogo = catalogoSalaLocal();
+            catalogo.disciplinas[0].id = indice + 1;
+            catalogo.ofertas[0].disciplinaId = indice + 1;
+            return aulasProfessoresLocais(catalogo, '2026-10-13')[0].cor;
+        });
+        expect(new Set(cores).size).toBe(PALETA_MATERIAS.length);
+        expect(cores).toEqual([...PALETA_MATERIAS]);
     });
 
     it('distingue catálogo ausente de falha de leitura e preserva mensagem segura do banco', async () => {

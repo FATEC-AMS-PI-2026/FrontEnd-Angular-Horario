@@ -1,5 +1,6 @@
 import { agruparAulasProfessor, paraAulaProfessor, paraProfessor } from './mapeadores-professores';
 import { alocacaoApi, professorApi } from '../testing/professores-api.fixture';
+import { PALETA_MATERIAS } from '../../../shared/utils/cores-materia';
 
 describe('Mapeadores de professores Java', () => {
     const hoje = '2026-10-13';
@@ -18,6 +19,15 @@ describe('Mapeadores de professores Java', () => {
             disciplina: 'Programação Multiplataforma', turma: '1/2026',
             local: 'LAB-01 – Prédio 1', curso: { id: 1, nome: 'ADS' }, cor: 'verde',
         });
+    });
+
+    it('usa a paleta compartilhada completa nas aulas Java', () => {
+        const a = alocacaoApi();
+        const cores = PALETA_MATERIAS.map((_, indice) => paraAulaProfessor({ ...a,
+            disciplina: { ...a.disciplina, id: indice + 1 },
+        }, hoje, 1)!.cor);
+        expect(new Set(cores).size).toBe(PALETA_MATERIAS.length);
+        expect(cores).toEqual([...PALETA_MATERIAS]);
     });
 
     it('também lê camelCase e não perde alocações de domingo', () => {

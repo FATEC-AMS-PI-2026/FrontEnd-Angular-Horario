@@ -3,9 +3,11 @@
 @use './styles/cards';
 @use './styles/auth';
 @use './styles/filters';
+@use './styles/materias';
 
 @include cards.utilitarios;
 @include filters.utilitarios;
+@include materias.utilitarios;
 
 html {
     scrollbar-gutter: stable;

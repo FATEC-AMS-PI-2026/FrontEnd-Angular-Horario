@@ -4,7 +4,10 @@
  * contraste conferido nos temas claro e escuro. Amarelo e vermelho ficam de
  * fora porque o Dashboard usa essas cores para intervalo e alerta.
  */
-export const PALETA_MATERIAS = ['verde', 'azul', 'ciano', 'roxo', 'rosa', 'magenta', 'indigo'] as const;
+export const PALETA_MATERIAS = [
+    'verde', 'azul', 'ciano', 'roxo', 'rosa', 'magenta', 'indigo',
+    'turquesa', 'lima', 'oliva', 'laranja', 'pessego', 'marrom', 'ardosia', 'petroleo', 'lavanda',
+] as const;
 
 export type CorMateria = (typeof PALETA_MATERIAS)[number];
 

@@ -1,6 +1,7 @@
 // TEMPORÁRIO: remover este adaptador quando o catálogo local for substituído pelo Java.
 import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { ApiErrorService } from '../../../core/services/api-error.service';
+import { PALETA_MATERIAS } from '../../../shared/utils/cores-materia';
 import { CatalogoLocal, DadosLocaisError } from '../../dados-locais/models/catalogo-local';
 import { DadosLocaisService } from '../../dados-locais/services/dados-locais.service';
 import { validarCatalogo } from '../../dados-locais/services/validar-catalogo';
@@ -18,7 +19,6 @@ export function aulasProfessoresLocais(c: CatalogoLocal, hoje: string): AulaProf
         throw new DadosLocaisError('A agenda dos professores deste navegador está sem vigência confirmada.');
     }
     if (hoje < c.vigenciaInicio || hoje > c.vigenciaFim) return [];
-    const cores = ['verde', 'vermelho', 'azul', 'roxo'] as const;
     return c.alocacoes.flatMap(a => {
         if (a.professorId === null) return [];
         const oferta = c.ofertas.find(o => o.id === a.ofertaId)!;
@@ -35,7 +35,7 @@ export function aulasProfessoresLocais(c: CatalogoLocal, hoje: string): AulaProf
         return [{ id: `local-${a.id}` as const, professorId: `local-${a.professorId}` as const,
             diaSemana: dia, inicio: a.horaInicio, termino: a.horaFim, disciplina: disciplina.nome,
             turma: turma.codigo, local, curso: { id: `local-${curso.id}` as const, nome: curso.nome },
-            cor: cores[(disciplina.id - 1) % cores.length] }];
+            cor: PALETA_MATERIAS[(disciplina.id - 1) % PALETA_MATERIAS.length] }];
     });
 }
 

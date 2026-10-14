@@ -210,9 +210,9 @@
     gap: var(--space-md);
     padding: 0.65rem var(--space-md);
     border-radius: var(--radius-md);
-    border: 1.5px solid var(--aula-border, transparent);
-    background-color: var(--aula-bg, var(--color-surface));
-    color: var(--aula-fg, var(--color-text));
+    border: 1.5px solid var(--materia-border, transparent);
+    background-color: var(--materia-bg, var(--color-surface));
+    color: var(--materia-fg, var(--color-text));
 
     &__horario {
         display: flex;
@@ -242,29 +242,6 @@
         }
     }
 
-    &--verde {
-        --aula-bg: var(--tag-verde-bg);
-        --aula-border: var(--tag-verde-border);
-        --aula-fg: var(--tag-verde-fg);
-    }
-
-    &--vermelho {
-        --aula-bg: var(--tag-vermelho-bg);
-        --aula-border: var(--tag-vermelho-border);
-        --aula-fg: var(--tag-vermelho-fg);
-    }
-
-    &--azul {
-        --aula-bg: var(--tag-azul-bg);
-        --aula-border: var(--tag-azul-border);
-        --aula-fg: var(--tag-azul-fg);
-    }
-
-    &--roxo {
-        --aula-bg: var(--tag-roxo-bg);
-        --aula-border: var(--tag-roxo-border);
-        --aula-fg: var(--tag-roxo-fg);
-    }
 }
 
 /* BARRA DE INTERVALO USANDO TOKENS AMARELOS NATIVOS */

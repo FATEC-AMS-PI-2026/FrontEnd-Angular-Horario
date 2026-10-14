@@ -119,24 +119,16 @@
     height: 100%;
     min-height: 50px;
     padding: var(--space-3xs) var(--space-2xs);
-    border: 1px solid transparent;
+    border: 1px solid var(--materia-border);
     border-radius: var(--radius-md);
+    background: var(--materia-bg);
+    color: var(--materia-fg);
     text-align: center;
     font-family: inherit;
     font-size: var(--text-sm);
     font-weight: var(--fw-semibold);
     cursor: pointer;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
-
-    // Cores sorteadas a cada carregamento (#115), sempre de dentro da paleta
-    // de tokens (PALETA_MATERIAS), que mantém o contraste nos dois temas.
-    @each $cor in ('verde', 'azul', 'ciano', 'roxo', 'rosa', 'magenta', 'indigo') {
-      &.cor-#{$cor} {
-        background: var(--tag-#{$cor}-bg);
-        color: var(--tag-#{$cor}-fg);
-        border-color: var(--tag-#{$cor}-border);
-      }
-    }
 
     &:hover {
       transform: scale(1.03);
@@ -152,7 +144,6 @@
   .etiqueta-materia__professor {
     font-size: var(--text-xs);
     font-weight: var(--fw-regular);
-    opacity: 0.85;
 
     &--a-definir {
       font-style: italic;

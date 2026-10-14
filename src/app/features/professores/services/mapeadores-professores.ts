@@ -1,4 +1,5 @@
 import { ler } from '../../../shared/utils/resposta-api';
+import { PALETA_MATERIAS } from '../../../shared/utils/cores-materia';
 import { nomeDisciplina, nomeSala, paraDiaSemana, paraHora } from '../../horarios/services/mapeadores-backend';
 import { DIAS_SEMANA } from '../../horarios/models/item-horario';
 import { predioDaSala } from '../../salas/services/localizacao-sala';
@@ -84,10 +85,9 @@ export function paraAulaProfessor(registro: unknown, hoje: string, professorId?:
         local = [codigo, predio].filter(Boolean).join(' – ');
     }
     const disciplinaId = idDaApi(ler(ler(registro, 'disciplina'), 'id'));
-    const cores = ['verde', 'vermelho', 'azul', 'roxo'] as const;
     return { id, professorId: docenteId, diaSemana, inicio, termino, disciplina,
         turma: texto(turma, 'codigo'), local, curso: { id: cursoId, nome: texto(curso, 'nome') },
-        cor: cores[(disciplinaId - 1) % cores.length] };
+        cor: PALETA_MATERIAS[(disciplinaId - 1) % PALETA_MATERIAS.length] };
 }
 
 /** Usa a ocupação acumulada para não criar intervalos em aulas sobrepostas. */

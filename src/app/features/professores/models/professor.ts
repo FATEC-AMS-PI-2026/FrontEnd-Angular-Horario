@@ -1,3 +1,5 @@
+import { CorMateria } from '../../../shared/utils/cores-materia';
+
 /** Modelos de apresentação, separados dos DTOs Java. */
 export type CargoProfessor = 'Professor' | 'Coordenador do Curso';
 export type IdProfessor = number | `local-${number}`;
@@ -25,7 +27,7 @@ export interface AulaProfessor {
     turma: string;
     local: string;
     curso: CursoProfessor;
-    cor: 'verde' | 'vermelho' | 'azul' | 'roxo';
+    cor: CorMateria;
 }
 
 export type ItemProfessor = { tipo: 'aula'; aula: AulaProfessor } | { tipo: 'intervalo' };
