@@ -123,6 +123,7 @@ describe('Contraste das telas acadêmicas', () => {
                 TestBed.overrideComponent(Professores, { set: { providers: [
                     { provide: ProfessoresService, useValue: {
                         carregar: () => {}, selecionarProfessor: () => {}, agendaCompleta: true,
+                        entradaPorRota: signal(null), erroProfessorDaRota: signal(null),
                         termoBusca: signal(''), cursoSelecionado: signal(null), cursos: signal([]),
                         carregando: signal(false), carregandoCursos: signal(false), carregandoAulas: signal(false),
                         erro: signal(null), erroCursos: signal(null), erroCatalogoCursos: signal(null),

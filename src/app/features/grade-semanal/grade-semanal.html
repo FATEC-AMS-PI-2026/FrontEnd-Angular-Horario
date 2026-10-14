@@ -34,6 +34,7 @@
                     @if (aula) {
                     <button type="button" class="etiqueta-materia" [class]="'cor-' + aula.cor"
                         aria-haspopup="dialog"
+                        [attr.data-bloco]="aula.diaSemana + ':' + linha.inicio"
                         [attr.aria-label]="'Ver informações de ' + aula.materia + ', das ' + aula.inicio + ' às ' + aula.termino"
                         (click)="abrirInformacoes(aula, $event)">
                         <span class="etiqueta-materia__nome">{{ aula.materia }}</span>
@@ -50,6 +51,6 @@
         }
     </div>
     @if (aulaSelecionada(); as aula) {
-    <app-informacoes-materia-modal [aula]="aula" (fechar)="fecharInformacoes()" />
+    <app-informacoes-materia-modal [aula]="aula" (fechar)="fecharInformacoes()" (navegar)="sairParaDetalhes()" />
     }
 </div>

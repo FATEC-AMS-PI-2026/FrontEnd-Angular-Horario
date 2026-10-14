@@ -10,6 +10,7 @@ import { AulaProfessor, CursoProfessor, IdCursoProfessor, IdProfessor, Professor
 import { ProfessorApi } from '../models/professor-api';
 import { agruparAulasProfessor, idDaApi, paraAulaProfessor, paraCursoProfessor, paraProfessor } from './mapeadores-professores';
 import { nomeCompletoProfessor, unirAulasProfessores, unirCursosProfessores, unirProfessores } from './combinar-professores';
+import { referenciaDaRota } from '../../../shared/models/referencia-academica';
 // TEMPORÁRIO: remover o complemento do catálogo quando sua substituição pelo Java estiver concluída.
 import { ProfessoresLocaisService } from './professores-locais';
 
@@ -36,6 +37,8 @@ export class ProfessoresService {
     private nomeCursoSelecionado = '';
     private cursoDaConsulta: IdCursoProfessor | null = null;
     private readonly nome = signal('');
+    private readonly parametroProfessor = signal<string | null>(null);
+    readonly entradaPorRota = this.parametroProfessor.asReadonly();
     private readonly curso = signal<IdCursoProfessor | null>(null);
     private readonly carregandoJava = signal(false);
     private readonly carregandoCursosJava = signal(false);
@@ -75,6 +78,16 @@ export class ProfessoresService {
     });
     readonly professorSelecionado = computed(() =>
         this.professoresFiltrados().find(p => p.id === this.selecionadoId()) ?? null);
+    readonly erroProfessorDaRota = computed(() => {
+        const parametro = this.parametroProfessor();
+        if (parametro === null) return null;
+        const referencia = referenciaDaRota(parametro);
+        if (!referencia) return 'Professor não encontrado. Identificador inválido.';
+        if (this.professorDaRota()) return null;
+        if (referencia.origem === 'local' ? this.locais.carregando() || this.erroLocal()
+            : this.carregandoJava() || this.erro()) return null;
+        return 'O professor solicitado não está disponível no cadastro consultado.';
+    });
     private readonly aulas = computed(() => {
         const professor = this.professorSelecionado();
         if (!professor) return [];
@@ -217,15 +230,31 @@ export class ProfessoresService {
         });
     }
 
-    buscar(nome: string): void { this.nome.set(nome); this.reconciliarSelecao(); }
+    abrirPelaRota(parametro: string | null): void {
+        this.parametroProfessor.set(parametro);
+        if (parametro !== null) { this.nome.set(''); this.curso.set(null); }
+        this.reconciliarSelecao();
+    }
+
+    private professorDaRota(): Professor | undefined {
+        const referencia = referenciaDaRota(this.parametroProfessor());
+        if (!referencia) return undefined;
+        const candidatos = this.cadastro().filter(p => referencia.origem === 'local'
+            ? p.idLocal === referencia.id || p.id === `local-${referencia.id}` : p.id === referencia.id);
+        return candidatos.length === 1 ? candidatos[0] : undefined;
+    }
+
+    buscar(nome: string): void { this.parametroProfessor.set(null); this.nome.set(nome); this.reconciliarSelecao(); }
     selecionarCurso(id: IdCursoProfessor | null): void {
         if (id !== null && !this.cursos().some(c => c.id === id)) return;
+        this.parametroProfessor.set(null);
         this.curso.set(id);
         this.nomeCursoSelecionado = this.cursos().find(c => c.id === this.curso())?.nome ?? '';
         this.reconciliarSelecao();
     }
     selecionarProfessor(id: IdProfessor): void {
         const professor = this.professoresFiltrados().find(p => p.id === id);
+        if (professor) this.parametroProfessor.set(null);
         if (id === this.selecionadoId() || !professor) return;
         this.selecionadoId.set(id);
         this.nomeSelecionado = professor.nome;
@@ -240,8 +269,8 @@ export class ProfessoresService {
         }
         const lista = this.professoresFiltrados();
         const nomes = lista.filter(p => nomeCompletoProfessor(p.nome) === nomeCompletoProfessor(this.nomeSelecionado));
-        const professor = lista.find(p => p.id === this.selecionadoId()) ??
-            (nomes.length === 1 ? nomes[0] : lista[0]);
+        const professor = this.parametroProfessor() !== null ? this.professorDaRota()
+            : lista.find(p => p.id === this.selecionadoId()) ?? (nomes.length === 1 ? nomes[0] : lista[0]);
         const id = professor?.id ?? null;
         this.nomeSelecionado = professor?.nome ?? '';
         if (id !== this.selecionadoId() || this.cursoDaConsulta !== this.curso()) {

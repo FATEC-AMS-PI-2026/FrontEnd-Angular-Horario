@@ -10,15 +10,33 @@
     <dl id="informacoes-materia-detalhes" class="modal__detalhes">
         <div>
             <dt>Matéria</dt>
-            <dd>{{ aula().materia }}</dd>
+            <dd><span class="modal__valor">{{ aula().materia }}</span></dd>
         </div>
         <div>
             <dt>Professor responsável</dt>
-            <dd>{{ professor() }}</dd>
+            <dd>
+                <span class="modal__valor">
+                @if (professorId(); as id) {
+                <a routerLink="/professores" [queryParams]="{ professor: id }" (click)="abrirDetalhes($event)">{{ professor() }} <span aria-hidden="true">&rarr;</span></a>
+                } @else {
+                {{ professor() }}
+                }
+                </span>
+                @if (!professorId() && professor() !== 'Professor a definir') { <small>Detalhes indisponíveis: identidade do professor não confirmada.</small> }
+            </dd>
         </div>
         <div>
             <dt>Sala</dt>
-            <dd>{{ sala() }}</dd>
+            <dd>
+                <span class="modal__valor">
+                @if (salaId(); as id) {
+                <a [routerLink]="['/salas', id]" (click)="abrirDetalhes($event)">{{ sala() }} <span aria-hidden="true">&rarr;</span></a>
+                } @else {
+                {{ sala() }}
+                }
+                </span>
+                @if (!salaId() && sala() !== 'Sala a definir') { <small>Detalhes indisponíveis: identidade da sala não confirmada.</small> }
+            </dd>
         </div>
     </dl>
 

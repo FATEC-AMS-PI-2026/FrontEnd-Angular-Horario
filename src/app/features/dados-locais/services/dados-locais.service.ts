@@ -211,7 +211,7 @@ export class DadosLocaisService {
         const oferta = c.ofertas.find(o => o.id === a.ofertaId)!;
         const minutos = (hora: string) => Number(hora.slice(0, 2)) * 60 + Number(hora.slice(3));
         return {
-            id: a.id, disciplina: c.disciplinas.find(d => d.id === oferta.disciplinaId)!,
+            id: a.id, origem: 'local', disciplina: c.disciplinas.find(d => d.id === oferta.disciplinaId)!,
             turma: c.turmas.find(t => t.id === oferta.turmaId)!,
             professor: c.professores.find(p => p.id === a.professorId) ?? null,
             sala: c.salas.find(s => s.id === a.salaId) ?? null, diaSemana: dia,

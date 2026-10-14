@@ -10,6 +10,7 @@ import { intervalosDaGrade } from '../../dashboard/models/intervalos-grade';
 import { AulaGrade, DiaGrade, LinhaGrade } from '../models/grade-semanal';
 import { AulaHorario, BlocoHorario, DiaSemana, DIAS_SEMANA, ItemHorario, NovaAula, ResultadoAdicao } from '../models/item-horario';
 import { CARREGAR_GRADE_SEMANAL, GradeSemanalIndisponivelError } from './grade-semanal-source';
+import { referenciaAcademica } from '../../../shared/models/referencia-academica';
 
 const DIA_DA_ALOCACAO: Partial<Record<AlocacaoResponse['diaSemana'], DiaSemana>> = {
     SEGUNDA: 'seg', TERCA: 'ter', QUARTA: 'qua', QUINTA: 'qui', SEXTA: 'sex', SABADO: 'sab',
@@ -207,6 +208,11 @@ export class HorariosService {
             inicio: a.blocoHorario.horaInicio.slice(0, 5), termino: a.blocoHorario.horaFim.slice(0, 5),
             materia: a.disciplina.nome, professor: a.professor?.nome?.trim() || '',
             sala: a.sala?.codigo?.trim() || '',
+            ...(a.origem ? { referencias: {
+                materia: referenciaAcademica(a.origem, a.disciplina.id),
+                professor: referenciaAcademica(a.origem, a.professor?.id),
+                sala: referenciaAcademica(a.origem, a.sala?.id),
+            } } : {}),
             ...(a.reposicao ? { reposicao: a.reposicao } : {}),
         })).sort((a, b) => DIAS_SEMANA.findIndex(dia => dia.valor === a.diaSemana)
             - DIAS_SEMANA.findIndex(dia => dia.valor === b.diaSemana) || a.inicio.localeCompare(b.inicio));

@@ -80,6 +80,15 @@ describe('Dados locais: IndexedDB real no navegador', () => {
         expect(JSON.stringify(await dados.catalogo())).not.toContain('Ana');
     });
 
+    it('confirma a origem e o ID da matéria na projeção da grade sem alterar as escolhas (#170)', async () => {
+        await preparar();
+        const perfil = await dados.carregarPerfil();
+        const grade = await dados.gradeSemanal();
+        expect(grade.every(aula => aula.origem === 'local')).toBeTrue();
+        expect(grade[0].disciplina.id).toBe(1);
+        expect(await dados.carregarPerfil()).toEqual(perfil);
+    });
+
     it('registra o período letivo confirmado e volta a pedir quando a vigência do quadro muda (#148)', async () => {
         await dados.importar(catalogo());
         const perfil = await dados.criarPerfil('Ana');

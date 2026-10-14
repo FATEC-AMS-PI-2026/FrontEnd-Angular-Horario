@@ -6,6 +6,7 @@ import { alocacaoTeste, gradeTeste } from '../horarios/testing/grade-semanal.fix
 import { AlocacaoResponse } from '../dashboard/models/grade-dia.model';
 import { AulaGrade } from '../horarios/models/grade-semanal';
 import { HorariosService } from '../horarios/services/horarios';
+import { provideRouter } from '@angular/router';
 
 function criar(alocacoes = gradeTeste()): ComponentFixture<GradeSemanal> {
     TestBed.configureTestingModule({ imports: [GradeSemanal], providers: [
@@ -25,6 +26,7 @@ function texto(fixture: ComponentFixture<GradeSemanal>, seletor: string): string
 }
 
 describe('GradeSemanal', () => {
+    beforeEach(() => TestBed.configureTestingModule({ providers: [provideRouter([])] }));
     it('renderiza a matriz do Service com células inclusive nas lacunas', () => {
         const fixture = criar();
         expect(texto(fixture, '.cabecalho > div')).toEqual(['Horário', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']);
@@ -63,14 +65,14 @@ describe('GradeSemanal', () => {
 
         botoes[1].click();
         fixture.detectChanges();
-        expect(texto(fixture, 'dialog dd')).toEqual(['Banco de Dados', 'Prof. Glauco Todesco', 'Sala 11']);
+        expect(texto(fixture, 'dialog .modal__valor')).toEqual(['Banco de Dados', 'Prof. Glauco Todesco', 'Sala 11']);
         expect((fixture.nativeElement.querySelector('dialog') as HTMLDialogElement).matches(':modal')).toBeTrue();
         elementos(fixture, '.modal__botao')[0].click();
         fixture.detectChanges();
 
         botoes[0].click();
         fixture.detectChanges();
-        expect(texto(fixture, 'dialog dd')).toEqual(['Banco de Dados', 'Prof. Renato', 'Lab. 01']);
+        expect(texto(fixture, 'dialog .modal__valor')).toEqual(['Banco de Dados', 'Prof. Renato', 'Lab. 01']);
         expect(service.itens()).toBe(antes);
         expect(carregar).not.toHaveBeenCalled();
     });
@@ -79,7 +81,7 @@ describe('GradeSemanal', () => {
         const fixture = criar([alocacaoTeste({ professor: null, sala: null })]);
         elementos(fixture, '.etiqueta-materia')[0].click();
         fixture.detectChanges();
-        expect(texto(fixture, 'dialog dd')).toEqual(['Banco de Dados', PROFESSOR_A_DEFINIR, 'Sala a definir']);
+        expect(texto(fixture, 'dialog .modal__valor')).toEqual(['Banco de Dados', PROFESSOR_A_DEFINIR, 'Sala a definir']);
     });
 
     it('trata os dados ainda a definir das aulas adicionadas sem inventar professor ou sala', () => {
@@ -91,7 +93,7 @@ describe('GradeSemanal', () => {
         fixture.detectChanges();
         elementos(fixture, '.etiqueta-materia').at(-1)!.click();
         fixture.detectChanges();
-        expect(texto(fixture, 'dialog dd')).toEqual(['Banco de Dados', PROFESSOR_A_DEFINIR, 'Sala a definir']);
+        expect(texto(fixture, 'dialog .modal__valor')).toEqual(['Banco de Dados', PROFESSOR_A_DEFINIR, 'Sala a definir']);
     });
 
     it('oferece botões nativos para teclado somente nas células com aula', () => {

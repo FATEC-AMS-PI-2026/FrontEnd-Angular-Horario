@@ -47,6 +47,45 @@ describe('ProfessoresService: catálogo local junto ao Java', () => {
         expect(service.professoresFiltrados().map(p => p.nome)).toEqual(['Glauco Todesco']);
     });
 
+    it('abre o docente solicitado pela origem e não troca um ausente pelo primeiro da lista (#170)', () => {
+        locais.professores.set([{ id: 'local-1', idLocal: 1, nome: 'Docente local', cargo: null }]);
+        locais.aulas.set([aulaLocal()]);
+        service.abrirPelaRota('local-1');
+        service.carregarProfessores();
+        cadastro().flush(paginaApi([professorApi(1, 'Docente Java')]));
+        expect(service.professorSelecionado()?.nome).toBe('Docente local');
+        http.expectNone(r => r.url === '/api/alocacoes');
+        service.abrirPelaRota('1');
+        grade(1).flush(paginaApi([]));
+        expect(service.professorSelecionado()?.nome).toBe('Docente Java');
+        service.abrirPelaRota('local-99');
+        expect(service.professorSelecionado()).toBeNull();
+        expect(service.erroProfessorDaRota()).toContain('não está disponível');
+        http.expectNone(r => r.url === '/api/alocacoes');
+        service.abrirPelaRota('0');
+        expect(service.erroProfessorDaRota()).toContain('Identificador inválido');
+    });
+
+    it('resolve entrada local pelo idLocal preservado ao combinar, sem usar coincidência numérica', () => {
+        locais.professores.set([{ id: 'local-9', idLocal: 9, nome: 'Ana', cargo: null }]);
+        service.abrirPelaRota('local-9');
+        service.carregarProfessores();
+        cadastro().flush(paginaApi([professorApi(2, 'Ana'), professorApi(9, 'Outra pessoa')]));
+        grade(2).flush(paginaApi([]));
+        expect(service.professorSelecionado()?.id).toBe(2);
+        expect(service.professorSelecionado()?.idLocal).toBe(9);
+    });
+
+    it('informa indisponibilidade da fonte Java sem anunciar que o docente não existe', () => {
+        TestBed.inject(BACKEND_CONFIG).modulos = [];
+        service.abrirPelaRota('1');
+        service.carregarProfessores();
+        expect(service.erro()).toContain('ainda não está disponível');
+        expect(service.erroProfessorDaRota()).toBeNull();
+        expect(service.professorSelecionado()).toBeNull();
+        http.expectNone(r => r.url === '/api/professores');
+    });
+
     it('combina professor único pelo nome completo e prioriza Java nos intervalos sobrepostos', () => {
         locais.professores.set([{ id: 'local-1', idLocal: 1, nome: 'ANA', cargo: null }]);
         locais.aulas.set([aulaLocal(), { ...aulaLocal(2), inicio: '14:20', termino: '15:00' }]);
