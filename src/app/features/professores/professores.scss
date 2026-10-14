@@ -30,15 +30,12 @@
     }
 }
 
-.professores__filtro-cargo {
-    flex: 0 0 180px;
+.professores__filtro-curso {
+    flex: 0 1 320px;
+    width: min(320px, 100%);
+    max-width: 100%;
     margin-left: auto;
     cursor: pointer;
-}
-
-/* CHIPS DE CURSO */
-.professores__cursos {
-    @include filters.grupo;
 }
 
 /* LISTA HORIZONTAL DE CARDS DE PROFESSOR */
@@ -156,6 +153,16 @@
     text-align: center;
     padding: var(--space-xl) 0;
     font-size: var(--text-md);
+}
+
+.professores__estado {
+    @include cards.card-mensagem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm);
+
+    p { margin: 0; flex: 1 1 240px; }
 }
 
 /* CARD DE AULAS (SUPERFÍCIE UNIFICADA DO FIGMA) */

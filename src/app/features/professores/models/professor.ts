@@ -1,44 +1,32 @@
-/**
- * Cargo do professor dentro do curso. Usado tanto para exibir a etiqueta
- * "COORDENADOR" no card quanto para alimentar o filtro "Todos os cargos".
- */
+/** Modelos de apresentação, separados dos DTOs Java. */
 export type CargoProfessor = 'Professor' | 'Coordenador do Curso';
+export type IdProfessor = number | `local-${number}`;
+export type IdCursoProfessor = number | `local-${number}`;
 
-/**
- * Uma aula do professor na semana, agrupada por dia na tela de Professores.
- * Modelada de forma parecida com `AulaDoDia` (feature de salas), mas do
- * ponto de vista do professor: em vez da turma, guardamos o local da aula.
- */
-export interface AulaProfessor {
-    /** Dia da semana por extenso (ex.: "Terça-feira"), usado para agrupar. */
-    diaSemana: string;
-    /** Horário de início, no formato `HH:mm`. */
-    inicio: string;
-    /** Horário de término, no formato `HH:mm`. */
-    termino: string;
-    /** Nome da disciplina. */
-    disciplina: string;
-    /** Local da aula (sala/prédio/andar), ex.: "Lab. 03 – Prédio 1 | Andar 3". */
-    local: string;
-    /**
-     * Cor de destaque do cartão da aula. Sem valor informado, o componente
-     * aplica "verde" como padrão. Permite diferenciar visualmente disciplinas
-     * ou turmas distintas, como na referência (aulas de terça em verde e de
-     * sexta em vermelho).
-     */
-    cor?: 'verde' | 'vermelho' | 'azul' | 'roxo';
-}
-
-/**
- * Um professor cadastrado em um curso, com suas aulas da semana. Os dados
- * hoje vêm de `PROFESSORES_MOCK` (ver `ProfessoresService`) enquanto não
- * existe endpoint de professores no BackEnd.
- */
 export interface Professor {
-    id: number;
+    id: IdProfessor;
     nome: string;
-    cargo: CargoProfessor;
-    /** Curso ao qual o professor está vinculado (ex.: "ADS", "PG"). */
-    curso: string;
-    aulas: AulaProfessor[];
+    /** Cargo/coordenação ainda não é informado no cadastro Java. */
+    cargo: CargoProfessor | null;
+    /** TEMPORÁRIO: correspondência com o catálogo do navegador, sem equiparar IDs Java. */
+    idLocal?: number;
 }
+
+/** Curso encontrado na agenda, não um vínculo institucional completo. */
+export interface CursoProfessor { id: IdCursoProfessor; nome: string; }
+
+export interface AulaProfessor {
+    id: number | `local-${number}`;
+    professorId: IdProfessor;
+    diaSemana: string;
+    inicio: string;
+    termino: string;
+    disciplina: string;
+    turma: string;
+    local: string;
+    curso: CursoProfessor;
+    cor: 'verde' | 'vermelho' | 'azul' | 'roxo';
+}
+
+export type ItemProfessor = { tipo: 'aula'; aula: AulaProfessor } | { tipo: 'intervalo' };
+export interface DiaProfessor { diaSemana: string; itens: ItemProfessor[]; }

@@ -84,7 +84,7 @@ describe('Conexão futura com o backend', () => {
 
     it('preserva a habilitação por módulo nas URLs relativas do proxy de desenvolvimento', () => {
         config.url = '/api';
-        config.modulos = ['salas', 'alocacoes', 'recursos-salas'];
+        config.modulos = ['salas', 'alocacoes', 'recursos-salas', 'professores'];
         for (const modulo of config.modulos) {
             client.get(`/api/${modulo}?page=0`).subscribe();
             http.expectOne(`/api/${modulo}?page=0`).flush({});
