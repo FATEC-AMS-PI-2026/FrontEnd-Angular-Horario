@@ -122,8 +122,10 @@
     border: 1px solid transparent;
     border-radius: var(--radius-md);
     text-align: center;
+    font-family: inherit;
     font-size: var(--text-sm);
     font-weight: var(--fw-semibold);
+    cursor: pointer;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 
     // Cores sorteadas a cada carregamento (#115), sempre de dentro da paleta
@@ -139,6 +141,11 @@
     &:hover {
       transform: scale(1.03);
       box-shadow: var(--shadow-card-hover);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
     }
   }
 

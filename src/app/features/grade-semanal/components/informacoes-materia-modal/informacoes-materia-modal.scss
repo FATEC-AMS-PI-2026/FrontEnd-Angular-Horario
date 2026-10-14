@@ -1,0 +1,97 @@
+.modal {
+  box-sizing: border-box;
+  width: min(560px, calc(100% - var(--space-sm) * 2));
+  max-width: none;
+  max-height: calc(100dvh - var(--space-sm) * 2);
+  margin: auto;
+  padding: var(--space-lg);
+  overflow-y: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-modal);
+  font-family: var(--font-sans);
+  line-height: var(--leading-body);
+
+  &[open] {
+    display: grid;
+    gap: var(--space-lg);
+  }
+
+  &::backdrop { background: var(--color-overlay); }
+}
+
+.modal__cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-sm);
+
+  h2 {
+    margin: 0;
+    font-size: var(--text-lg);
+    font-weight: var(--fw-bold);
+    line-height: var(--leading-heading);
+    overflow-wrap: anywhere;
+  }
+}
+
+.modal__fechar,
+.modal__botao {
+  flex-shrink: 0;
+  min-height: var(--control-height);
+  padding: var(--space-2xs) var(--space-sm);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  cursor: pointer;
+
+  &:hover { background: var(--color-bg); }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+.modal__fechar {
+  min-width: var(--control-height);
+  padding: var(--space-2xs);
+  border-color: transparent;
+  color: var(--color-text-subtle);
+}
+
+.modal__detalhes {
+  display: grid;
+  gap: var(--space-md);
+  min-width: 0;
+  margin: 0;
+
+  div { display: grid; gap: var(--space-3xs); }
+
+  dt {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+
+  dd {
+    margin: 0;
+    font-size: var(--text-md);
+    font-weight: var(--fw-medium);
+    overflow-wrap: anywhere;
+  }
+}
+
+.modal__acoes {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--color-border);
+}
+
+@media (max-width: 400px) {
+  .modal { padding: var(--space-sm); }
+}

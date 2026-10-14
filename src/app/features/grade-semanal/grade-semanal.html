@@ -32,11 +32,14 @@
                 @for (aula of linha.celulas; track $index) {
                 <div class="celula" role="cell">
                     @if (aula) {
-                    <div class="etiqueta-materia" [class]="'cor-' + aula.cor">
+                    <button type="button" class="etiqueta-materia" [class]="'cor-' + aula.cor"
+                        aria-haspopup="dialog"
+                        [attr.aria-label]="'Ver informações de ' + aula.materia + ', das ' + aula.inicio + ' às ' + aula.termino"
+                        (click)="abrirInformacoes(aula, $event)">
                         <span class="etiqueta-materia__nome">{{ aula.materia }}</span>
                         <span class="etiqueta-materia__professor"
                             [class.etiqueta-materia__professor--a-definir]="!temProfessor(aula)">{{ professorDe(aula) }}</span>
-                    </div>
+                    </button>
                     }
                 </div>
                 }
@@ -46,4 +49,7 @@
         </div>
         }
     </div>
+    @if (aulaSelecionada(); as aula) {
+    <app-informacoes-materia-modal [aula]="aula" (fechar)="fecharInformacoes()" />
+    }
 </div>

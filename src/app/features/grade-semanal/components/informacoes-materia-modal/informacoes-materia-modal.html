@@ -1,0 +1,28 @@
+<dialog #dialogo class="modal" role="dialog" aria-modal="true"
+    aria-labelledby="informacoes-materia-titulo" aria-describedby="informacoes-materia-detalhes"
+    (cancel)="cancelar($event)" (keydown)="controlarFoco($event)">
+    <header class="modal__cabecalho">
+        <h2 id="informacoes-materia-titulo">Informações da matéria</h2>
+        <button type="button" class="modal__fechar" aria-label="Fechar informações da matéria"
+            autofocus (click)="fecharModal()">✕</button>
+    </header>
+
+    <dl id="informacoes-materia-detalhes" class="modal__detalhes">
+        <div>
+            <dt>Matéria</dt>
+            <dd>{{ aula().materia }}</dd>
+        </div>
+        <div>
+            <dt>Professor responsável</dt>
+            <dd>{{ professor() }}</dd>
+        </div>
+        <div>
+            <dt>Sala</dt>
+            <dd>{{ sala() }}</dd>
+        </div>
+    </dl>
+
+    <footer class="modal__acoes">
+        <button type="button" class="modal__botao" (click)="fecharModal()">Fechar</button>
+    </footer>
+</dialog>

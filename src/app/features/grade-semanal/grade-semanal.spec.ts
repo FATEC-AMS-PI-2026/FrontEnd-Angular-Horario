@@ -49,6 +49,117 @@ describe('GradeSemanal', () => {
         expect(elementos(fixture, '.etiqueta-materia__professor--a-definir').length).toBe(1);
     });
 
+    it('abre as informações da aula clicada, mesmo quando a matéria se repete', () => {
+        const fixture = criar([
+            alocacaoTeste(),
+            alocacaoTeste({ id: 2, diaSemana: 'TERCA',
+                professor: { id: 2, nome: 'Prof. Glauco Todesco' }, sala: { id: 2, codigo: 'Sala 11' },
+            }),
+        ]);
+        const service = TestBed.inject(HorariosService);
+        const antes = service.itens();
+        const carregar = spyOn(service, 'carregar').and.callThrough();
+        const botoes = elementos(fixture, '.etiqueta-materia');
+
+        botoes[1].click();
+        fixture.detectChanges();
+        expect(texto(fixture, 'dialog dd')).toEqual(['Banco de Dados', 'Prof. Glauco Todesco', 'Sala 11']);
+        expect((fixture.nativeElement.querySelector('dialog') as HTMLDialogElement).matches(':modal')).toBeTrue();
+        elementos(fixture, '.modal__botao')[0].click();
+        fixture.detectChanges();
+
+        botoes[0].click();
+        fixture.detectChanges();
+        expect(texto(fixture, 'dialog dd')).toEqual(['Banco de Dados', 'Prof. Renato', 'Lab. 01']);
+        expect(service.itens()).toBe(antes);
+        expect(carregar).not.toHaveBeenCalled();
+    });
+
+    it('mostra os rótulos a definir quando professor e sala estão ausentes', () => {
+        const fixture = criar([alocacaoTeste({ professor: null, sala: null })]);
+        elementos(fixture, '.etiqueta-materia')[0].click();
+        fixture.detectChanges();
+        expect(texto(fixture, 'dialog dd')).toEqual(['Banco de Dados', PROFESSOR_A_DEFINIR, 'Sala a definir']);
+    });
+
+    it('trata os dados ainda a definir das aulas adicionadas sem inventar professor ou sala', () => {
+        const fixture = criar([alocacaoTeste({ professor: null, sala: null })]);
+        const service = TestBed.inject(HorariosService);
+        expect(service.adicionarAula({
+            diaSemana: 'sab', materia: 'Banco de Dados', bloco: { inicio: '13:20', termino: '14:10' },
+        }).ok).toBeTrue();
+        fixture.detectChanges();
+        elementos(fixture, '.etiqueta-materia').at(-1)!.click();
+        fixture.detectChanges();
+        expect(texto(fixture, 'dialog dd')).toEqual(['Banco de Dados', PROFESSOR_A_DEFINIR, 'Sala a definir']);
+    });
+
+    it('oferece botões nativos para teclado somente nas células com aula', () => {
+        const fixture = criar();
+        const botoes = elementos(fixture, '.etiqueta-materia') as HTMLButtonElement[];
+        expect(botoes.every(botao => botao.tagName === 'BUTTON' && botao.type === 'button'
+            && botao.tabIndex === 0 && botao.getAttribute('aria-haspopup') === 'dialog')).toBeTrue();
+        expect(elementos(fixture, '.linha-intervalo button').length).toBe(0);
+        const vazias = elementos(fixture, '.celula').filter(celula => !celula.querySelector('.etiqueta-materia'));
+        vazias.forEach(celula => celula.click());
+        fixture.detectChanges();
+        expect(elementos(fixture, 'dialog').length).toBe(0);
+    });
+
+    it('mantém o foco no modal e o devolve ao bloco ao fechar pelos botões ou Escape', () => {
+        const fixture = criar([alocacaoTeste()]);
+        const botao = elementos(fixture, '.etiqueta-materia')[0];
+        for (const acao of ['icone', 'botao', 'escape']) {
+            botao.focus();
+            botao.click();
+            fixture.detectChanges();
+            const dialogo = fixture.nativeElement.querySelector('dialog') as HTMLDialogElement;
+            expect(dialogo.getAttribute('aria-modal')).toBe('true');
+            expect(dialogo.getAttribute('aria-labelledby')).toBe('informacoes-materia-titulo');
+            expect(document.activeElement).toBe(dialogo.querySelector('.modal__fechar'));
+            botao.focus();
+            expect(dialogo.contains(document.activeElement)).toBeTrue();
+
+            if (acao === 'escape') {
+                // Escape dispara cancel nativamente em um HTMLDialogElement modal.
+                const evento = new Event('cancel', { cancelable: true });
+                dialogo.dispatchEvent(evento);
+                expect(evento.defaultPrevented).toBeTrue();
+            } else {
+                (dialogo.querySelector(acao === 'icone' ? '.modal__fechar' : '.modal__botao') as HTMLElement).click();
+            }
+            fixture.detectChanges();
+            expect(elementos(fixture, 'dialog').length).toBe(0);
+            expect(document.activeElement).toBe(botao);
+        }
+    });
+
+    it('remove o diálogo modal ao sair da página', () => {
+        const fixture = criar([alocacaoTeste()]);
+        elementos(fixture, '.etiqueta-materia')[0].click();
+        fixture.detectChanges();
+        const dialogo = fixture.nativeElement.querySelector('dialog') as HTMLDialogElement;
+        fixture.destroy();
+        expect(dialogo.open).toBeFalse();
+        expect(document.querySelector('dialog:modal')).toBeNull();
+    });
+
+    it('mantém Tab e Shift+Tab entre as ações do diálogo', () => {
+        const fixture = criar([alocacaoTeste()]);
+        elementos(fixture, '.etiqueta-materia')[0].click();
+        fixture.detectChanges();
+        const primeiro = elementos(fixture, '.modal__fechar')[0];
+        const ultimo = elementos(fixture, '.modal__botao')[0];
+        const voltar = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, cancelable: true });
+        primeiro.dispatchEvent(voltar);
+        expect(voltar.defaultPrevented).toBeTrue();
+        expect(document.activeElement).toBe(ultimo);
+        const avancar = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+        ultimo.dispatchEvent(avancar);
+        expect(avancar.defaultPrevented).toBeTrue();
+        expect(document.activeElement).toBe(primeiro);
+    });
+
     it('aplica exatamente a cor retornada pelo Service, sem sortear na página', () => {
         const aula: AulaGrade = {
             tipo: 'aula', diaSemana: 'qui', inicio: '09:00', termino: '10:00',
