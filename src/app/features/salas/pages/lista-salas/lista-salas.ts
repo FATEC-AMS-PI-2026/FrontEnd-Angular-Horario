@@ -9,8 +9,10 @@ import { RecursosSalaService } from '../../services/recursos-sala';
 import { ConsultaSalasService } from '../../services/consulta-salas';
 import { equipamentosLocaisDaSala } from '../../services/salas-locais';
 import { OrganizacaoSalasService } from '../../services/organizacao-salas';
+import { ehAuditorio } from '../../services/localizacao-sala';
 
 const chaveTipo = (tipo: string) => tipo.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
+const tipoDoFiltro = (sala: SalaResumo) => ehAuditorio(sala.nome, sala.tipo) ? 'Auditórios' : sala.tipo;
 
 /**
  * Página de listagem de salas, com dados do backend Java (issue #132). Cada
@@ -77,7 +79,8 @@ export class ListaSalas {
   protected readonly tipos = computed(() => {
     const tipos = new Map<string, string>();
     for (const sala of this.salas()) {
-      if (sala.tipo && !tipos.has(chaveTipo(sala.tipo))) tipos.set(chaveTipo(sala.tipo), sala.tipo);
+      const tipo = tipoDoFiltro(sala);
+      if (tipo && !tipos.has(chaveTipo(tipo))) tipos.set(chaveTipo(tipo), tipo);
     }
     return [...tipos.values()].sort((a, b) => a.localeCompare(b));
   });
@@ -101,7 +104,10 @@ export class ListaSalas {
     }
 
     if (tipo) {
-      salas = salas.filter((sala) => !!sala.tipo && chaveTipo(sala.tipo) === chaveTipo(tipo));
+      salas = salas.filter((sala) => {
+        const categoria = tipoDoFiltro(sala);
+        return !!categoria && chaveTipo(categoria) === chaveTipo(tipo);
+      });
     }
 
     if (termo) {
