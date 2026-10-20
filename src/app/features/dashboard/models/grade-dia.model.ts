@@ -1,4 +1,5 @@
-// Projeções dos campos de AlocacaoResponse e dos DTOs associados do Java/Spring.
+// Projeções dos campos de AlocacaoResponse e dos DTOs associados do Java/Spring,
+// com contexto de calendário fornecido pelo adaptador da grade diária.
 // O vínculo da grade com o aluno ainda precisa ser fornecido pelo backend.
 export type DiaSemana = 'DOMINGO' | 'SEGUNDA' | 'TERCA' | 'QUARTA' | 'QUINTA' | 'SEXTA' | 'SABADO';
 
@@ -11,6 +12,8 @@ export interface AlocacaoResponse {
     blocoHorario: { id: number; horaInicio: string; horaFim: string; duracao: number };
     turma: { id: number; codigo: string; periodo: number; ano: number };
     quadroHorario: { id: number; versao: number };
+    /** Contexto da consulta diária; não é um campo confirmado do DTO Java. */
+    reposicao?: { data: string; diaSemana: DiaSemana; turno: string };
 }
 
 export const DIAS_SEMANA: readonly DiaSemana[] = [

@@ -82,7 +82,8 @@
               "buildTarget": "gini-web:build:production"
             },
             "development": {
-              "buildTarget": "gini-web:build:development"
+              "buildTarget": "gini-web:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

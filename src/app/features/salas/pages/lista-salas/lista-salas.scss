@@ -9,6 +9,13 @@
 
 .lista-salas__filtros { @include filters.linha; }
 .lista-salas__tipos { @include filters.grupo; }
+.lista-salas__grupo { @include filters.area; }
+.lista-salas__titulo-grupo {
+    margin: 0;
+    font-size: var(--text-lg);
+    font-weight: var(--fw-semibold);
+    color: var(--color-text);
+}
 
 .lista-salas__busca-wrapper {
     position: relative;

@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { EMPTY, expand, map, reduce } from 'rxjs';
+import { EMPTY, defer, expand, map, reduce } from 'rxjs';
 import { BACKEND_CONFIG } from '../../../core/services/backend-config';
-import { PageResponse } from '../../../core/models/page-response';
+import { ler, paginaDaApi } from '../../../shared/utils/resposta-api';
 import { StatusSala } from '../models/sala';
 import { AulaDoDia } from '../models/aula-do-dia';
 
@@ -27,6 +27,33 @@ export interface DisponibilidadeSala {
 }
 
 const DIAS = ['DOMINGO', 'SEGUNDA', 'TERCA', 'QUARTA', 'QUINTA', 'SEXTA', 'SABADO'];
+
+function paraAlocacaoSala(registro: unknown, filtroSala?: number): AlocacaoSalaApi {
+  const id = ler(registro, 'id'), salaId = ler(ler(registro, 'sala'), 'id');
+  if (typeof id !== 'number' || !Number.isSafeInteger(id) || id <= 0 ||
+      typeof salaId !== 'number' || !Number.isSafeInteger(salaId) || salaId <= 0 ||
+      (filtroSala !== undefined && salaId !== filtroSala)) {
+    throw new Error('Alocações inválidas na agenda da sala.');
+  }
+  const texto = (objeto: unknown, campo: string): string => {
+    const valor = ler(objeto, campo);
+    return typeof valor === 'string' ? valor : '';
+  };
+  const bloco = ler(registro, 'blocoHorario'), quadro = ler(registro, 'quadroHorario');
+  const periodo = ler(quadro, 'periodoAtividadeQuadro');
+  // Campos ausentes permanecem incompletos: não assumir quadro ativo, vigência ou dia.
+  return {
+    id, sala: { id: salaId },
+    disciplina: { nome: texto(ler(registro, 'disciplina'), 'nome') },
+    professor: { nome: texto(ler(registro, 'professor'), 'nome') },
+    turma: { codigo: texto(ler(registro, 'turma'), 'codigo') },
+    diaSemana: texto(registro, 'diaSemana').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toUpperCase(),
+    blocoHorario: { horaInicio: texto(bloco, 'horaInicio'), horaFim: texto(bloco, 'horaFim') },
+    quadroHorario: { status: texto(quadro, 'status'), periodoAtividadeQuadro: {
+      status: texto(periodo, 'status'), dataInicio: texto(periodo, 'dataInicio'), dataFim: texto(periodo, 'dataFim'),
+    } },
+  };
+}
 
 export function momentoSaoPaulo(agora: Date) {
   const partes = new Intl.DateTimeFormat('en-CA', {
@@ -106,20 +133,28 @@ export class DisponibilidadeSalaService {
   readonly agendaCompleta = this.config.agendaSalasCompleta === true;
 
   carregar(salaId?: number) {
-    const pagina = (page: number) => this.http.get<PageResponse<AlocacaoSalaApi>>(
-      `${this.config.url.replace(/\/+$/, '')}/alocacoes`, { params: { ...(salaId === undefined ? {} : { sala: salaId }), page, size: 200 } }).pipe(
-        map(p => {
-          if (p.page !== page || !Number.isInteger(p.totalPages) || p.totalPages < 0 ||
-              !Array.isArray(p.content) || (p.totalPages > page + 1 && p.content.length === 0)) {
-            throw new Error('Paginação incompleta da agenda da sala.');
+    return defer(() => {
+      let totalEsperado: number | undefined;
+      const pagina = (page: number) => this.http.get<unknown>(
+        `${this.config.url.replace(/\/+$/, '')}/alocacoes`, { params: { ...(salaId === undefined ? {} : { id_sala: salaId }), page, size: 200 } }).pipe(
+          map(resposta => {
+            const p = paginaDaApi(resposta, page, totalEsperado);
+            totalEsperado = p.totalPages;
+            // Sem a sala de uma alocação, não é possível garantir que outra sala esteja livre.
+            return { ...p, content: p.content.map(a => paraAlocacaoSala(a, salaId)) };
+          }),
+        );
+      return pagina(0).pipe(
+        expand(p => p.page + 1 < p.totalPages ? pagina(p.page + 1) : EMPTY),
+        map(p => p.content),
+        reduce((todas, itens) => todas.concat(itens), [] as AlocacaoSalaApi[]),
+        map(alocacoes => {
+          if (new Set(alocacoes.map(a => a.id)).size !== alocacoes.length) {
+            throw new Error('Alocações duplicadas na agenda da sala.');
           }
-          return p;
+          return alocacoes;
         }),
       );
-    return pagina(0).pipe(
-      expand(p => p.page + 1 < p.totalPages ? pagina(p.page + 1) : EMPTY),
-      map(p => p.content),
-      reduce((todas, itens) => todas.concat(itens), [] as AlocacaoSalaApi[]),
-    );
+    });
   }
 }

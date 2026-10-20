@@ -18,7 +18,7 @@ export interface AulaProfessor {
     termino: string;
     /** Nome da disciplina. */
     disciplina: string;
-    /** Local da aula (sala/prédio/andar), ex.: "Lab. 03 – Prédio 4 | Andar 3". */
+    /** Local da aula (sala/prédio/andar), ex.: "Lab. 03 – Prédio 1 | Andar 3". */
     local: string;
     /**
      * Cor de destaque do cartão da aula. Sem valor informado, o componente

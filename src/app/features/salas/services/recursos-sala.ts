@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { EMPTY, Subscription, expand, map, reduce } from 'rxjs';
 import { BACKEND_CONFIG } from '../../../core/services/backend-config';
 import { ApiErrorService } from '../../../core/services/api-error.service';
-import { PageResponse } from '../../../core/models/page-response';
+import { paginaDaApi } from '../../../shared/utils/resposta-api';
 import { Equipamento } from '../models/equipamento';
 import { RecursoSalaApi } from '../models/recurso-sala';
 
@@ -27,7 +27,7 @@ export class RecursosSalaService {
   private readonly erros = inject(ApiErrorService);
   private consulta?: Subscription;
   private readonly carregado = signal(false);
-  readonly habilitado = this.config.habilitado || (this.config.modulos ?? []).includes('recurso-sala');
+  readonly habilitado = this.config.habilitado || (this.config.modulos ?? []).includes('recursos-salas');
   readonly porSala = signal<ReadonlyMap<number, Equipamento[]>>(new Map());
   readonly carregando = signal(false);
   readonly erro = signal<string | null>(null);
@@ -46,14 +46,13 @@ export class RecursosSalaService {
     this.limpar();
     if (!this.habilitado) return;
     this.carregando.set(true);
-    const pagina = (page: number) => this.http.get<PageResponse<RecursoSalaApi>>(`${this.base}/recurso-sala`, {
-      params: { page, size: 200, ...(salaId === undefined ? {} : { salaId }) },
-    }).pipe(map(p => {
-      if (p.page !== page || !Number.isInteger(p.totalPages) || p.totalPages < 0 ||
-          !Array.isArray(p.content) || (p.totalPages > page + 1 && !p.content.length)) {
-        throw new Error('Paginação inválida dos recursos.');
-      }
-      return p;
+    let totalEsperado: number | undefined;
+    const pagina = (page: number) => this.http.get<unknown>(`${this.base}/recursos-salas`, {
+      params: { page, size: 200, ...(salaId === undefined ? {} : { id_sala: salaId }) },
+    }).pipe(map(resposta => {
+      const p = paginaDaApi(resposta, page, totalEsperado);
+      totalEsperado = p.totalPages;
+      return { ...p, content: p.content as RecursoSalaApi[] };
     }));
     this.consulta = pagina(0).pipe(
       expand(p => p.page + 1 < p.totalPages ? pagina(p.page + 1) : EMPTY),
@@ -63,8 +62,9 @@ export class RecursosSalaService {
         const salas = new Map<number, Equipamento[]>();
         const vistos = new Set<number>();
         for (const item of itens) {
-          if (salaId !== undefined && item.sala?.id !== salaId) continue;
-          if (!Number.isSafeInteger(item.id) || !Number.isSafeInteger(item.sala?.id) ||
+          if (!item || !Number.isSafeInteger(item.id) || item.id <= 0 ||
+              !Number.isSafeInteger(item.sala?.id) || item.sala.id <= 0 ||
+              (salaId !== undefined && item.sala.id !== salaId) ||
               !item.recurso?.nome?.trim() || !item.recurso.tipo?.nome ||
               !Number.isSafeInteger(item.quantidade) || item.quantidade < 0) {
             throw new Error('Recurso de sala inválido.');

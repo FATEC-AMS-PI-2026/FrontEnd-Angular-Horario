@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, inject, input } from '@an
 import { AulaDoDia } from '../../models/aula-do-dia';
 import { RelogioService } from '../../services/relogio';
 import { momentoSaoPaulo } from '../../services/disponibilidade-sala';
+import { SalaResumo } from '../../models/sala-resumo';
+import { rotulosAgendaDaSala } from '../../services/rotulos-agenda-sala';
 
 /** Minutos desde 00:00 de um horário `HH:mm`, para comparar/ordenar. */
 function paraMinutos(horario: string): number {
@@ -29,6 +31,8 @@ export class AulasDoDiaCard {
   readonly agora = input<Date>();
   readonly carregando = input(false);
   readonly indisponivel = input(false);
+  readonly sala = input<SalaResumo>();
+  protected readonly rotulos = computed(() => rotulosAgendaDaSala(this.sala()));
 
   /** Aulas ordenadas por horário de início crescente (critério de aceite). */
   protected readonly aulasOrdenadas = computed(() =>
