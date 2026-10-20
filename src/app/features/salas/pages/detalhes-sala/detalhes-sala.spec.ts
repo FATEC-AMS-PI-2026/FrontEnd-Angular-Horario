@@ -11,6 +11,8 @@ import { DetalhesSala } from './detalhes-sala';
 import { BACKEND_CONFIG } from '../../../../core/services/backend-config';
 import { backendInterceptor } from '../../../../core/services/backend.interceptor';
 import { RelogioService } from '../../services/relogio';
+import { CatalogoLocal } from '../../../dados-locais/models/catalogo-local';
+import { catalogoSalaLocal } from '../../testing/catalogo-local.fixture';
 
 const sala = { id: 73, codigo: 'LAB-REAL', capacidade: 32, tipoSala: { id: 2, nome: 'Laboratório' } };
 
@@ -20,7 +22,7 @@ describe('DetalhesSala', () => {
   let config: { url: string; habilitado: boolean; modulos: string[]; agendaSalasCompleta: boolean };
   beforeEach(() => {
     params = new BehaviorSubject(convertToParamMap({ id: '73' }));
-    config = { url: 'http://backend', habilitado: false, modulos: ['salas', 'alocacoes', 'recurso-sala'], agendaSalasCompleta: true };
+    config = { url: 'http://backend', habilitado: false, modulos: ['salas', 'alocacoes', 'recursos-salas'], agendaSalasCompleta: true };
     TestBed.configureTestingModule({ imports: [DetalhesSala], providers: [
       provideRouter([]),
       { provide: SalasLocaisService, useValue: { salas: signal([]), catalogo: signal(null), erro: signal(null), carregando: signal(false), carregar: () => {} } }, provideHttpClient(withInterceptors([backendInterceptor])), provideHttpClientTesting(),
@@ -31,7 +33,7 @@ describe('DetalhesSala', () => {
     http = TestBed.inject(HttpTestingController);
   });
   afterEach(() => {
-    for (const request of http.match(r => r.url.endsWith('/recurso-sala'))) {
+    for (const request of http.match(r => r.url.endsWith('/recursos-salas'))) {
       if (!request.cancelled) request.flush({ content: [], page: 0, totalPages: 0 });
     }
     http.verify();
@@ -50,19 +52,82 @@ describe('DetalhesSala', () => {
     expect(texto).toContain('LAB-REAL'); expect(texto).toContain('Capacidade de alunos: 32');
     expect(texto).toContain('Livre até às 15:00');
     expect(texto).not.toContain('Ver alertas'); expect(texto).not.toContain('Bloco A');
-    expect(texto).not.toContain('Prédio:'); expect(texto).not.toContain('Andar:');
+    expect(texto).toContain('Prédio 1'); expect(texto).not.toContain('Andar:');
     expect(texto).not.toContain('Técnico:');
     expect(fixture.nativeElement.querySelector('app-equipamentos-card')).not.toBeNull();
     expect(texto).toContain('Carregando equipamentos');
     expect(texto).not.toContain('Nenhum equipamento cadastrado');
     expect(fixture.nativeElement.querySelector('app-tecnico-card')).toBeNull();
-    http.expectOne(r => r.url.endsWith('/recurso-sala')).flush({ content: [], page: 0, totalPages: 0 });
+    http.expectOne(r => r.url.endsWith('/recursos-salas')).flush({ content: [], page: 0, totalPages: 0 });
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Nenhum equipamento cadastrado');
     expect(fixture.nativeElement.querySelector('.equipamento__quantidade')).toBeNull();
     expect(TestBed.inject(TopbarContextService).sala()).toBe('LAB-REAL');
     fixture.destroy();
     expect(TestBed.inject(TopbarContextService).sala()).toBeNull();
+  }));
+
+  it('exibe os detalhes de AUD-01 sem prédio ou andar mesmo com tipo Sala', fakeAsync(() => {
+    config.agendaSalasCompleta = false;
+    const fixture = TestBed.createComponent(DetalhesSala);
+    http.expectOne('http://backend/salas/73').flush({ ...sala, codigo: 'AUD-01', tipoSala: { id: 2, nome: 'Sala' } });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-cabecalho-sala').textContent).toContain('AUD-01');
+    expect(fixture.nativeElement.querySelector('.cabecalho-sala__badge')).toBeNull();
+    expect(fixture.nativeElement.textContent).not.toContain('Prédio');
+    expect(fixture.nativeElement.querySelector('app-aulas-do-dia-card h2').textContent).toBe('Eventos neste auditório hoje');
+    expect(fixture.nativeElement.querySelector('app-aulas-do-dia-card').textContent).not.toContain('Aulas');
+    fixture.destroy();
+  }));
+
+  it('atualiza eventos e reuniões na navegação, no carregamento e na agenda vazia', fakeAsync(() => {
+    const fixture = TestBed.createComponent(DetalhesSala);
+    http.expectOne('http://backend/salas/73').flush({ ...sala, codigo: 'AUD-01', tipoSala: { id: 2, nome: 'Sala' } });
+    tick(0); fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-aulas-do-dia-card').textContent).toContain('Carregando eventos');
+    http.expectOne(r => r.url.endsWith('/alocacoes')).flush({ content: [], page: 0, totalPages: 0 });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Nenhum evento cadastrado');
+    expect(fixture.nativeElement.textContent).toContain('Livre — sem mais eventos hoje');
+    expect(fixture.nativeElement.textContent.toLowerCase()).not.toContain('aula');
+
+    params.next(convertToParamMap({ id: '74' }));
+    http.expectOne('http://backend/salas/74').flush({ ...sala, id: 74, codigo: 'REUN-01', tipoSala: { id: 3, nome: 'Sala de Reuniao' } });
+    tick(0); fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-aulas-do-dia-card h2').textContent).toBe('Reuniões nesta sala hoje');
+    expect(fixture.nativeElement.querySelector('app-aulas-do-dia-card').textContent).toContain('Carregando reuniões');
+    http.expectOne(r => r.url.endsWith('/alocacoes')).flush({ content: [], page: 0, totalPages: 0 });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Nenhuma reunião cadastrada');
+    expect(fixture.nativeElement.textContent).toContain('Livre — sem mais reuniões hoje');
+    expect(fixture.nativeElement.textContent.toLowerCase()).not.toContain('aula');
+    fixture.destroy();
+  }));
+
+  it('exibe cadastro, ocupação, aulas e equipamentos com o contrato snake_case atual do Java', fakeAsync(() => {
+    spyOn(TestBed.inject(RelogioService), 'agora').and.returnValue(new Date('2026-09-22T15:20:00-03:00'));
+    const fixture = TestBed.createComponent(DetalhesSala);
+    http.expectOne('http://backend/salas/73').flush({
+      id: 73, codigo: 'LAB-REAL', capacidade: 32, tipo_sala: { id: 2, nome: 'Laboratorio' },
+    }); tick(0);
+    http.expectOne(r => r.url.endsWith('/alocacoes') && r.params.get('id_sala') === '73').flush({ content: [{
+      id: 1, sala: { id: 73 }, dia_semana: 'TERÇA', disciplina: { nome: 'Matemática' },
+      professor: { nome: 'Docente' }, turma: { codigo: 'ADS' },
+      bloco_horario: { hora_inicio: '15:00:00', hora_fim: '16:00:00' },
+      quadro_horario: { status: 'ATIVO', periodo_atividade_quadro: {
+        status: 'ATIVO', data_inicio: '2026-08-01', data_fim: '2026-12-20',
+      } },
+    }], page: 0, total_pages: 1 });
+    http.expectOne(r => r.url.endsWith('/recursos-salas') && r.params.get('id_sala') === '73').flush({ content: [{
+      id: 1, sala: { id: 73 }, recurso: { id: 1, nome: 'Projetor multimidia', tipo: { id: 1, nome: 'Equipamento' } }, quantidade: 1,
+    }], page: 0, total_pages: 1 });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Prédio 1');
+    expect(fixture.nativeElement.querySelector('app-status-sala-badge').textContent).toContain('Em uso');
+    expect(fixture.nativeElement.querySelector('app-aulas-do-dia-card').textContent).toContain('Matemática');
+    expect(fixture.nativeElement.querySelector('app-equipamentos-card').textContent).toContain('Projetor multimidia');
+    expect(fixture.nativeElement.textContent).not.toContain('Disponibilidade indisponível');
+    fixture.destroy();
   }));
 
   it('preserva cadastro e não afirma Livre quando a agenda falha', fakeAsync(() => {
@@ -141,7 +206,7 @@ describe('DetalhesSala', () => {
     const anterior = http.expectOne('http://backend/salas/73');
     params.next(convertToParamMap({ id: '91' })); expect(anterior.cancelled).toBeTrue();
     http.expectOne('http://backend/salas/91').flush({ ...sala, id: 91, codigo: 'SALA-91' }); tick(0);
-    const agenda = http.expectOne(r => r.params.get('sala') === '91');
+    const agenda = http.expectOne(r => r.url.endsWith('/alocacoes') && r.params.get('id_sala') === '91');
     params.next(convertToParamMap({ id: 'abc' })); expect(agenda.cancelled).toBeTrue();
     fixture.detectChanges(); expect(fixture.nativeElement.textContent).toContain('Identificador inválido');
     expect(fixture.nativeElement.textContent).not.toContain('SALA-91'); fixture.destroy();
@@ -163,7 +228,7 @@ describe('DetalhesSala', () => {
     expect(fixture.nativeElement.querySelector('[role="alert"]')).not.toBeNull(); fixture.destroy();
   }));
 
-  it('abre uma sala local sem confundir seu ID com o Java e mantém campos ausentes vazios', fakeAsync(() => {
+  it('abre uma sala local sem confundir o ID com o Java e mostra o inventário temporário', fakeAsync(() => {
     const locais = TestBed.inject(SalasLocaisService);
     (locais.salas as WritableSignal<SalaResumo[]>).set([{ id: 73, nome: 'LAB LOCAL', rotaId: 'local-73', origem: 'local' }]);
     params.next(convertToParamMap({ id: 'local-73' }));
@@ -172,8 +237,36 @@ describe('DetalhesSala', () => {
     expect(fixture.nativeElement.textContent).toContain('LAB LOCAL');
     expect(fixture.nativeElement.querySelector('app-status-sala-badge')).toBeNull();
     expect(fixture.nativeElement.querySelector('app-tecnico-card')).toBeNull();
-    expect(fixture.nativeElement.textContent).toContain('Informação de equipamentos não disponível');
-    expect(fixture.nativeElement.querySelector('.cabecalho-sala__resumo')).toBeNull();
+    expect(Array.from(fixture.nativeElement.querySelectorAll('.equipamento__quantidade'),
+      (el: unknown) => (el as HTMLElement).textContent?.trim())).toEqual(['1', '40']);
+    expect(fixture.nativeElement.textContent).toContain('Computadores');
+    expect(fixture.nativeElement.querySelector('.cabecalho-sala__resumo strong').textContent.trim()).toBe('');
+    fixture.destroy();
+  }));
+
+  it('atualiza ocupação e equipamentos nos detalhes locais e retira o status em falha de leitura', fakeAsync(() => {
+    const c = catalogoSalaLocal(); c.salas.push({ id: 91, codigo: 'Sala 11' });
+    const locais = TestBed.inject(SalasLocaisService);
+    (locais.catalogo as WritableSignal<CatalogoLocal | null>).set(c);
+    (locais.salas as WritableSignal<SalaResumo[]>).set(c.salas.map(s => ({
+      id: s.id, nome: s.codigo, origem: 'local', rotaId: `local-${s.id}`,
+    })));
+    let instante = new Date('2026-10-05T13:20:00-03:00');
+    spyOn(TestBed.inject(RelogioService), 'agora').and.callFake(() => instante);
+    params.next(convertToParamMap({ id: 'local-90' }));
+    const fixture = TestBed.createComponent(DetalhesSala); fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-status-sala-badge').textContent).toContain('Em uso');
+    expect(fixture.nativeElement.querySelector('app-equipamentos-card').textContent).toContain('Computadores');
+    instante = new Date('2026-10-05T14:00:00-03:00'); tick(1000); fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-status-sala-badge').textContent).toContain('Livre');
+    params.next(convertToParamMap({ id: 'local-91' })); fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-equipamentos-card').textContent).toContain('Televisão');
+    expect(fixture.nativeElement.querySelector('app-equipamentos-card').textContent).not.toContain('Computadores');
+    expect(fixture.nativeElement.querySelector('app-status-sala-badge').textContent).toContain('Livre');
+    (locais.erro as WritableSignal<string | null>).set('Falha na leitura local'); fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-status-sala-badge')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.proximo-horario--vazio')).toBeNull();
+    http.expectNone(r => r.url.startsWith('http://backend/'));
     fixture.destroy();
   }));
 
@@ -181,13 +274,13 @@ describe('DetalhesSala', () => {
     config.agendaSalasCompleta = false;
     const fixture = TestBed.createComponent(DetalhesSala);
     http.expectOne('http://backend/salas/73').flush(sala);
-    http.expectOne(r => r.url.endsWith('/recurso-sala') && r.params.get('salaId') === '73')
+    http.expectOne(r => r.url.endsWith('/recursos-salas') && r.params.get('id_sala') === '73')
       .error(new ProgressEvent('error'));
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('LAB-REAL');
     expect(fixture.nativeElement.textContent).not.toContain('Nenhum equipamento cadastrado');
     fixture.nativeElement.querySelector('[aria-label="Tentar consultar equipamentos novamente"]').click();
-    http.expectOne(r => r.url.endsWith('/recurso-sala')).flush({ page: 0, totalPages: 1, content: [
+    http.expectOne(r => r.url.endsWith('/recursos-salas')).flush({ page: 0, totalPages: 1, content: [
       { id: 1, sala: { id: 73 }, recurso: { id: 2, nome: 'Computador desktop', tipo: { id: 1, nome: 'Equipamento' } }, quantidade: 40 },
     ] });
     fixture.detectChanges();
@@ -203,11 +296,11 @@ describe('DetalhesSala', () => {
     config.agendaSalasCompleta = false;
     const fixture = TestBed.createComponent(DetalhesSala);
     http.expectOne('http://backend/salas/73').flush(sala);
-    const anterior = http.expectOne(r => r.params.get('salaId') === '73');
+    const anterior = http.expectOne(r => r.params.get('id_sala') === '73');
     params.next(convertToParamMap({ id: '91' }));
     expect(anterior.cancelled).toBeTrue();
     http.expectOne('http://backend/salas/91').flush({ ...sala, id: 91, codigo: 'SALA-91' });
-    http.expectOne(r => r.params.get('salaId') === '91').flush({ content: [], page: 0, totalPages: 0 });
+    http.expectOne(r => r.params.get('id_sala') === '91').flush({ content: [], page: 0, totalPages: 0 });
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('SALA-91');
     expect(fixture.nativeElement.textContent).toContain('Nenhum equipamento cadastrado');

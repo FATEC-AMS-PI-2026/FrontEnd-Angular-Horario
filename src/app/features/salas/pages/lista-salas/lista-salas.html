@@ -65,8 +65,11 @@
     <p role="status" class="lista-salas__estado">Consultando disponibilidade das salas...</p>
   }
   @if (recursos.carregando()) { <p role="status" class="lista-salas__estado">Carregando recursos das salas...</p> }
-  <ul class="grade-salas">
-    @for (sala of salasFiltradas(); track sala.rotaId ?? sala.id) {
+  @for (grupo of gruposSalas(); track grupo.titulo) {
+  <section class="lista-salas__grupo" [attr.aria-label]="grupo.titulo || 'Salas cadastradas'">
+    @if (grupo.titulo) { <h2 class="lista-salas__titulo-grupo">{{ grupo.titulo }}</h2> }
+    <ul class="grade-salas">
+    @for (sala of grupo.salas; track sala.rotaId ?? sala.id) {
     @let disponibilidadeSala = disponibilidade(sala);
     <li>
       <a class="card-sala" [routerLink]="['/salas', sala.rotaId ?? sala.id]">
@@ -82,15 +85,17 @@
         }
         <p class="card-sala__info">{{ sala.tipo }}@if (sala.tipo && sala.capacidade != null) { · }@if (sala.capacidade != null) { {{ sala.capacidade }} lugares }</p>
         @if (sala.predio) { <p class="card-sala__local">{{ sala.predio }}@if (sala.andar !== undefined) { · {{ sala.andar }}º andar }</p> }
-        <app-equipamentos-card [equipamentos]="sala.origem === 'local' ? null : recursos.daSala(sala.id)" [compacto]="true"
+        <app-equipamentos-card [equipamentos]="sala.origem === 'local' ? equipamentosLocais(sala) : recursos.daSala(sala.id)" [compacto]="true"
           [carregando]="sala.origem !== 'local' && recursos.carregando()" [erro]="sala.origem === 'local' ? null : recursos.erro()" />
       </a>
     </li>
-    } @empty {
+    }
+    </ul>
+  </section>
+  } @empty {
     @if (!carregando() && !erro() && !locais.erro()) {
-    <li class="lista-salas__vazio">{{ mensagemVazia() }}</li>
+    <p class="lista-salas__vazio" role="status">{{ mensagemVazia() }}</p>
     }
-    }
-  </ul>
+  }
   }
 </section>

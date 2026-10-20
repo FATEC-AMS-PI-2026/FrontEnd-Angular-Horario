@@ -1,14 +1,16 @@
 import { AulaHorario, DiaSemana, IntervaloHorario, ItemHorario, PROFESSOR_A_DEFINIR } from '../models/item-horario';
 import { Turma } from '../models/turma';
+import { ler } from '../../../shared/utils/resposta-api';
+
+export { ler } from '../../../shared/utils/resposta-api';
 
 /**
  * Ponto único de tradução do formato do backend Java para os modelos das telas
  * (#150). O `/alocacoes` devolve turma, disciplina, sala, professor, dia e bloco
  * misturados num registro só; aqui cada informação sai por uma função própria.
  *
- * Os campos são lidos em camelCase (contrato atual da `dev`) ou snake_case
- * (branch `enhancement/motor-grade`, que liga o SNAKE_CASE global no Jackson),
- * para que a troca de contrato no backend mexa só neste arquivo.
+ * Os campos são lidos em snake_case (contrato atual da `dev`) ou camelCase
+ * (respostas anteriores), preservando os modelos usados pelas telas.
  */
 
 /** Registro cru vindo do backend. */
@@ -20,17 +22,6 @@ export const INTERVALO_MAXIMO_MIN = 30;
 const DIAS_BACKEND: Record<string, DiaSemana> = {
     SEGUNDA: 'seg', TERCA: 'ter', QUARTA: 'qua', QUINTA: 'qui', SEXTA: 'sex', SABADO: 'sab',
 };
-
-function paraSnake(campo: string): string {
-    return campo.replace(/[A-Z]/g, letra => '_' + letra.toLowerCase());
-}
-
-/** Lê `campo` em camelCase ou, se ausente, na versão snake_case. */
-export function ler(registro: unknown, campo: string): unknown {
-    if (!registro || typeof registro !== 'object') return undefined;
-    const r = registro as RegistroApi;
-    return r[campo] !== undefined ? r[campo] : r[paraSnake(campo)];
-}
 
 function texto(registro: unknown, campo: string): string | null {
     const valor = ler(registro, campo);

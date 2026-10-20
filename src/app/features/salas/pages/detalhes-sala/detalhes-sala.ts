@@ -9,13 +9,14 @@ import { SalaResumo } from '../../models/sala-resumo';
 import { CabecalhoSala } from '../../components/cabecalho-sala/cabecalho-sala';
 import { RelogioService } from '../../services/relogio';
 import { AlocacaoSalaApi, aulasJavaDaSala, calcularDisponibilidade, DisponibilidadeSalaService, unirAulas } from '../../services/disponibilidade-sala';
-import { SalasLocaisService, aulasLocaisDaSala } from '../../services/salas-locais';
+import { SalasLocaisService, aulasLocaisDaSala, disponibilidadeLocalDaSala, equipamentosLocaisDaSala } from '../../services/salas-locais';
 import { TopbarContextService } from '../../../../core/services/topbar-context.service';
 import { EquipamentosCard } from '../../components/equipamentos-card/equipamentos-card';
 import { ProximosHorariosCard } from '../../components/proximos-horarios-card/proximos-horarios-card';
 import { AulasDoDiaCard } from '../../components/aulas-do-dia-card/aulas-do-dia-card';
 import { proximosHorariosDaSala } from '../../services/proximos-horarios-sala';
 import { RecursosSalaService } from '../../services/recursos-sala';
+import { disponibilidadeComRotulo } from '../../services/rotulos-agenda-sala';
 
 interface EstadoDetalhes {
   sala?: SalaResumo;
@@ -33,6 +34,8 @@ interface EstadoDetalhes {
   providers: [RecursosSalaService],
 })
 export class DetalhesSala {
+  // TEMPORÁRIO: inventário solicitado para as salas do armazenamento interno.
+  protected readonly equipamentosLocais = equipamentosLocaisDaSala;
   protected readonly recursos = inject(RecursosSalaService);
   private readonly route = inject(ActivatedRoute);
   private readonly salas = inject(SalasApiService);
@@ -91,8 +94,11 @@ export class DetalhesSala {
   protected readonly disponibilidade = computed(() => {
     const estado = this.estado();
     if (this.locais.carregando() || this.locais.erro()) return undefined;
+    // TEMPORÁRIO: ocupação da agenda interna para as salas exclusivas do navegador.
+    if (estado.sala?.origem === 'local') return disponibilidadeLocalDaSala(this.locais.catalogo(), estado.sala, this.agora());
     return estado.sala && estado.agenda
-      ? calcularDisponibilidade(estado.sala.id, estado.agenda, this.agora(), this.aulas().filter(a => a.origem === 'local')) : undefined;
+      ? disponibilidadeComRotulo(estado.sala, calcularDisponibilidade(estado.sala.id, estado.agenda,
+        this.agora(), this.aulas().filter(a => a.origem === 'local'))) : undefined;
   });
 
   protected readonly erroAgenda = computed(() => {

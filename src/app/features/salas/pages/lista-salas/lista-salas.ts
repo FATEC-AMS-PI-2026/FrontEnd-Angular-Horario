@@ -2,22 +2,15 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SalasApiService } from '../../services/salas-api';
 import { StatusSalaBadge } from '../../components/status-sala-badge';
-import { SalasLocaisService, unirSalas, aulasLocaisDaSala } from '../../services/salas-locais';
 import { IconeSala } from '../../components/icone-sala';
 import { EquipamentosCard } from '../../components/equipamentos-card/equipamentos-card';
-import { AlocacaoSalaApi, DisponibilidadeSalaService, calcularDisponibilidade, aulasJavaDaSala, unirAulas } from '../../services/disponibilidade-sala';
-import { RelogioService } from '../../services/relogio';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { Subject, catchError, exhaustMap, map, merge, of, startWith, timer } from 'rxjs';
 import { SalaResumo } from '../../models/sala-resumo';
 import { RecursosSalaService } from '../../services/recursos-sala';
-import { ApiErrorService } from '../../../../core/services/api-error.service';
+import { ConsultaSalasService } from '../../services/consulta-salas';
+import { equipamentosLocaisDaSala } from '../../services/salas-locais';
+import { OrganizacaoSalasService } from '../../services/organizacao-salas';
 
-interface EstadoAgenda {
-  alocacoes: AlocacaoSalaApi[] | null;
-  carregando: boolean;
-  erro: string | null;
-}
+const chaveTipo = (tipo: string) => tipo.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
 
 /**
  * Página de listagem de salas, com dados do backend Java (issue #132). Cada
@@ -30,34 +23,20 @@ interface EstadoAgenda {
   imports: [RouterLink, StatusSalaBadge, IconeSala, EquipamentosCard],
   templateUrl: './lista-salas.html',
   styleUrl: './lista-salas.scss',
-  providers: [RecursosSalaService],
+  providers: [RecursosSalaService, ConsultaSalasService, SalasApiService, OrganizacaoSalasService],
 })
 export class ListaSalas {
+  // TEMPORÁRIO: inventário do armazenamento interno, removível com o adaptador local.
+  protected readonly equipamentosLocais = equipamentosLocaisDaSala;
   protected readonly recursos = inject(RecursosSalaService);
-  private readonly salasApi = inject(SalasApiService);
-  protected readonly locais = inject(SalasLocaisService);
-  private readonly horarios = inject(DisponibilidadeSalaService);
-  private readonly relogio = inject(RelogioService);
-  private readonly erros = inject(ApiErrorService);
-  private readonly recarregarAgenda = new Subject<void>();
-  protected readonly salas = computed(() => unirSalas(this.erro() ? [] : this.salasApi.salas(), this.locais.salas()));
-  protected readonly estadoAgenda = toSignal(this.horarios.agendaCompleta
-    ? merge(timer(0, 60000), this.recarregarAgenda).pipe(exhaustMap(() => this.horarios.carregar().pipe(
-      map(alocacoes => ({ alocacoes, carregando: false, erro: null } as EstadoAgenda)),
-      catchError(erro => of<EstadoAgenda>({ alocacoes: null, carregando: false,
-        erro: this.erros.mensagem(erro, 'Não foi possível consultar a disponibilidade das salas.') })),
-      startWith<EstadoAgenda>({ alocacoes: null, carregando: true, erro: null }),
-    ))) : of<EstadoAgenda>({ alocacoes: null, carregando: false, erro: null }),
-    { initialValue: { alocacoes: null, carregando: this.horarios.agendaCompleta, erro: null } as EstadoAgenda });
-  private readonly agora = toSignal(timer(0, 1000).pipe(map(() => this.relogio.agora())), { initialValue: this.relogio.agora() });
-  protected disponibilidade(sala: SalaResumo) {
-    const agenda = this.estadoAgenda().alocacoes;
-    if (sala.origem === 'local' || !agenda || this.locais.carregando() || this.locais.erro()) return undefined;
-    const aulas = unirAulas(aulasJavaDaSala(sala.id, agenda, this.agora()), aulasLocaisDaSala(this.locais.catalogo(), sala.nome, this.agora()));
-    return calcularDisponibilidade(sala.id, agenda, this.agora(), aulas.filter(a => a.origem === 'local'));
-  }
-  protected readonly carregando = computed(() => this.salasApi.carregando() || this.locais.carregando());
-  protected readonly erro = this.salasApi.erro;
+  private readonly consulta = inject(ConsultaSalasService);
+  private readonly organizacao = inject(OrganizacaoSalasService);
+  protected readonly locais = this.consulta.locais;
+  protected readonly salas = this.consulta.salas;
+  protected readonly estadoAgenda = this.consulta.estadoAgenda;
+  protected disponibilidade(sala: SalaResumo) { return this.consulta.disponibilidade(sala); }
+  protected readonly carregando = this.consulta.carregando;
+  protected readonly erro = this.consulta.erro;
   protected readonly avisoRemoto = computed(() => {
     const falhas = [
       { nome: 'cadastro', erro: this.erro(), prefixo: '' },
@@ -71,7 +50,6 @@ export class ListaSalas {
   });
 
   constructor() {
-    this.salasApi.carregar();
     this.recursos.carregar();
   }
 
@@ -86,8 +64,7 @@ export class ListaSalas {
 
   /**
    * Lista de prédios distintos, derivada das salas cadastradas, para popular
-   * o filtro. Fica vazia enquanto o backend não informar o prédio (#109), e
-   * aí o filtro nem aparece.
+   * o filtro. O Auditório não tem prédio e aparece na opção de todos.
    */
   protected readonly predios = computed(() => {
     const nomes = this.salas()
@@ -96,10 +73,14 @@ export class ListaSalas {
     return Array.from(new Set(nomes)).sort((a, b) => a.localeCompare(b));
   });
 
-  /** Tipos de sala distintos retornados pelo backend, um chip para cada. */
-  protected readonly tipos = computed(() =>
-    Array.from(new Set(this.salas().map((sala) => sala.tipo).filter((tipo): tipo is string => !!tipo))).sort((a, b) => a.localeCompare(b)),
-  );
+  /** Um chip por tipo nas duas fontes, unificando diferenças de caixa e acentuação. */
+  protected readonly tipos = computed(() => {
+    const tipos = new Map<string, string>();
+    for (const sala of this.salas()) {
+      if (sala.tipo && !tipos.has(chaveTipo(sala.tipo))) tipos.set(chaveTipo(sala.tipo), sala.tipo);
+    }
+    return [...tipos.values()].sort((a, b) => a.localeCompare(b));
+  });
 
   /**
    * Lista de salas já filtrada pelo termo, prédio e tipo selecionados.
@@ -120,7 +101,7 @@ export class ListaSalas {
     }
 
     if (tipo) {
-      salas = salas.filter((sala) => sala.tipo === tipo);
+      salas = salas.filter((sala) => !!sala.tipo && chaveTipo(sala.tipo) === chaveTipo(tipo));
     }
 
     if (termo) {
@@ -129,6 +110,8 @@ export class ListaSalas {
 
     return salas;
   });
+
+  protected readonly gruposSalas = computed(() => this.organizacao.agrupar(this.salasFiltradas()));
 
   /** Mensagem exibida quando a combinação de busca + filtro não encontra nenhuma sala. */
   protected readonly mensagemVazia = computed(() => {
@@ -163,10 +146,8 @@ export class ListaSalas {
 
   protected tentarNovamente(): void {
     // Uma ação recupera as fontes remotas que falharam, preservando as já carregadas.
-    if (this.erro()) this.salasApi.carregar();
-    if (this.estadoAgenda().erro) this.tentarDisponibilidade();
+    this.consulta.tentarNovamente();
     if (this.recursos.erro()) this.recursos.carregar();
   }
 
-  protected tentarDisponibilidade(): void { this.recarregarAgenda.next(); }
 }

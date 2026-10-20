@@ -1,7 +1,7 @@
 <section class="aulas-do-dia-card">
-  <h2>Aulas nesta sala hoje</h2>
+  <h2>{{ rotulos().titulo }}</h2>
   @if (carregando()) {
-    <p class="aulas-do-dia-card__vazio" role="status">Carregando aulas de hoje...</p>
+    <p class="aulas-do-dia-card__vazio" role="status">{{ rotulos().carregando }}</p>
   } @else {
   @if (indisponivel()) {
     <p class="aulas-do-dia-card__vazio" role="status">Não foi possível consultar todos os horários desta sala.</p>
@@ -17,7 +17,7 @@
     }
   </ul>
   } @else if (!indisponivel()) {
-    <p class="aulas-do-dia-card__vazio" role="status">Nenhuma aula cadastrada para esta sala hoje.</p>
+    <p class="aulas-do-dia-card__vazio" role="status">{{ rotulos().vazio }}</p>
   }
   }
 </section>

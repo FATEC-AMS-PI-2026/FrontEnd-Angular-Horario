@@ -77,4 +77,19 @@
     .card__titulo {
         @include card-titulo;
     }
+
+    .reposicao-aula {
+        display: table;
+        margin-left: auto;
+        align-self: center;
+        flex-shrink: 0;
+        padding: var(--space-2xs) var(--space-xs);
+        border: 1px solid currentColor;
+        border-radius: var(--radius-sm);
+        font-family: var(--font-sans);
+        font-size: var(--text-xs);
+        font-weight: var(--fw-semibold);
+        line-height: var(--leading-body);
+        white-space: nowrap;
+    }
 }
