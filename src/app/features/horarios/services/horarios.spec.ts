@@ -47,6 +47,22 @@ describe('HorariosService: grade pessoal', () => {
         }));
     });
 
+    it('preserva IDs e origem da aula sem vincular registros por nomes iguais (#170)', () => {
+        fonte.and.returnValue(of([alocacaoTeste({ origem: 'local' }), alocacaoTeste({
+            origem: 'java', id: 2, diaSemana: 'TERCA',
+        })]));
+        service.carregar();
+        expect(aulasDe('seg')[0].referencias).toEqual({
+            materia: { origem: 'local', id: 1 }, professor: { origem: 'local', id: 1 }, sala: { origem: 'local', id: 1 },
+        });
+        expect(aulasDe('ter')[0].referencias).toEqual({
+            materia: { origem: 'java', id: 1 }, professor: { origem: 'java', id: 1 }, sala: { origem: 'java', id: 1 },
+        });
+        fonte.and.returnValue(of([alocacaoTeste()]));
+        service.carregar();
+        expect(aulasDe('seg')[0].referencias).toBeUndefined();
+    });
+
     it('calcula lacunas fora do turno padrão e não cria intervalo antes/depois das aulas', () => {
         fonte.and.returnValue(of([
             alocacaoTeste({ blocoHorario: { id: 1, horaInicio: '08:00:00', horaFim: '09:30:00', duracao: 90 } }),

@@ -11,6 +11,13 @@
 }
 
 /* FILTROS (CAMPO DE BUSCA E SELECT) */
+.professores__voltar {
+    align-self: flex-start;
+    color: var(--color-primary);
+    text-underline-offset: var(--space-3xs);
+    &:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; border-radius: var(--radius-sm); }
+}
+
 .professores__filtros {
     @include filters.linha;
 }
@@ -30,15 +37,12 @@
     }
 }
 
-.professores__filtro-cargo {
-    flex: 0 0 180px;
+.professores__filtro-curso {
+    flex: 0 1 320px;
+    width: min(320px, 100%);
+    max-width: 100%;
     margin-left: auto;
     cursor: pointer;
-}
-
-/* CHIPS DE CURSO */
-.professores__cursos {
-    @include filters.grupo;
 }
 
 /* LISTA HORIZONTAL DE CARDS DE PROFESSOR */
@@ -158,6 +162,16 @@
     font-size: var(--text-md);
 }
 
+.professores__estado {
+    @include cards.card-mensagem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm);
+
+    p { margin: 0; flex: 1 1 240px; }
+}
+
 /* CARD DE AULAS (SUPERFÍCIE UNIFICADA DO FIGMA) */
 .aulas-professor {
     @include cards.card-base;
@@ -203,9 +217,9 @@
     gap: var(--space-md);
     padding: 0.65rem var(--space-md);
     border-radius: var(--radius-md);
-    border: 1.5px solid var(--aula-border, transparent);
-    background-color: var(--aula-bg, var(--color-surface));
-    color: var(--aula-fg, var(--color-text));
+    border: 1.5px solid var(--materia-border, transparent);
+    background-color: var(--materia-bg, var(--color-surface));
+    color: var(--materia-fg, var(--color-text));
 
     &__horario {
         display: flex;
@@ -235,29 +249,6 @@
         }
     }
 
-    &--verde {
-        --aula-bg: var(--tag-verde-bg);
-        --aula-border: var(--tag-verde-border);
-        --aula-fg: var(--tag-verde-fg);
-    }
-
-    &--vermelho {
-        --aula-bg: var(--tag-vermelho-bg);
-        --aula-border: var(--tag-vermelho-border);
-        --aula-fg: var(--tag-vermelho-fg);
-    }
-
-    &--azul {
-        --aula-bg: var(--tag-azul-bg);
-        --aula-border: var(--tag-azul-border);
-        --aula-fg: var(--tag-azul-fg);
-    }
-
-    &--roxo {
-        --aula-bg: var(--tag-roxo-bg);
-        --aula-border: var(--tag-roxo-border);
-        --aula-fg: var(--tag-roxo-fg);
-    }
 }
 
 /* BARRA DE INTERVALO USANDO TOKENS AMARELOS NATIVOS */

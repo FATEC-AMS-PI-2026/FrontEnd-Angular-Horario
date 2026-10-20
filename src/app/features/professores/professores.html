@@ -1,80 +1,122 @@
-<section class="professores" aria-labelledby="titulo-professores">
-
+<section class="professores" aria-label="Professores">
+    @if (dados.entradaPorRota() !== null) {
+    <a routerLink="/grade-semanal" class="professores__voltar">← Voltar à Grade Semanal</a>
+    }
     <div class="professores__filtros">
         <div class="professores__busca-wrapper">
             <svg class="professores__busca-icone" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                stroke-linejoin="round">
+                stroke-linejoin="round" aria-hidden="true">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-            <input type="search" class="professores__campo-busca filtro-campo filtro-campo--busca" placeholder="Buscar professor..."
-                aria-label="Buscar professor" autocomplete="off" [value]="termoBusca()" (input)="onBuscar($event)" />
+            <input type="search" class="professores__campo-busca filtro-campo filtro-campo--busca"
+                placeholder="Buscar professor..." aria-label="Buscar professor" autocomplete="off"
+                [value]="dados.termoBusca()" (input)="onBuscar($event)" />
         </div>
-
-        <select class="professores__filtro-cargo filtro-campo" aria-label="Filtrar por cargo" (change)="onFiltrarCargo($event)">
-            <option value="">Todos os cargos</option>
-            @for (cargo of cargos(); track cargo) {
-            <option [value]="cargo" [selected]="cargoSelecionado() === cargo">{{ cargo }}</option>
+        <select class="professores__filtro-curso filtro-campo" aria-label="Filtrar por curso"
+            [value]="dados.cursoSelecionado() ?? ''" (change)="onFiltrarCurso($event)"
+            [disabled]="dados.carregandoCursos() && !dados.cursos().length">
+            <option value="">Todos os cursos</option>
+            @for (curso of dados.cursos(); track curso.id) {
+            <option [value]="curso.id">{{ curso.nome }}</option>
             }
         </select>
     </div>
 
-    <div class="professores__cursos" role="tablist" aria-label="Filtrar por curso">
-        <button type="button" class="filtro-chip curso-chip" [class.filtro-chip--ativo]="cursoSelecionado() === null" [class.curso-chip--ativo]="cursoSelecionado() === null" role="tab"
-            [attr.aria-selected]="cursoSelecionado() === null" (click)="selecionarCurso(null)">
-            Todos
-        </button>
-        @for (curso of cursos(); track curso) {
-        <button type="button" class="filtro-chip curso-chip" [class.filtro-chip--ativo]="cursoSelecionado() === curso" [class.curso-chip--ativo]="cursoSelecionado() === curso" role="tab"
-            [attr.aria-selected]="cursoSelecionado() === curso" (click)="selecionarCurso(curso)">
-            {{ curso }}
-        </button>
-        }
+    @if (dados.carregandoCursos()) {
+    <p class="professores__estado" role="status">Carregando cursos...</p>
+    }
+    @if (dados.erroCatalogoCursos(); as erro) {
+    <div class="professores__estado" role="alert">
+        <p>{{ erro }}</p>
+        <button type="button" class="filtro-chip" (click)="dados.carregarCatalogoCursos()">Tentar novamente</button>
     </div>
-
+    }
+    @if (dados.erroCursos(); as erro) {
+    <div class="professores__estado" role="alert">
+        <p>{{ erro }}</p>
+        <button type="button" class="filtro-chip" (click)="dados.carregarCursos()">Tentar novamente</button>
+    </div>
+    }
+    @if (!dados.agendaCompleta) {
+    <p class="professores__estado" role="status">Os filtros por curso podem não incluir todas as aulas deste acesso.</p>
+    }
+    @if (dados.carregando()) {
+    <p class="professores__estado" role="status">Carregando professores...</p>
+    }
+    @if (dados.erro(); as erro) {
+    <div class="professores__estado" role="alert">
+        <p>{{ erro }}</p>
+        <button type="button" class="filtro-chip" (click)="dados.carregarProfessores()">Tentar novamente</button>
+    </div>
+    }
+    @if (dados.erroProfessorDaRota(); as erro) {
+    <p class="professores__estado" role="status">{{ erro }}</p>
+    }
+    @if (dados.erroLocal() || dados.erroAulasLocais(); as erro) {
+    <div class="professores__estado" role="alert">
+        <p>{{ erro }}</p>
+        <button type="button" class="filtro-chip" (click)="dados.carregarLocais()">Tentar novamente</button>
+    </div>
+    }
+    @if (!dados.carregando() || dados.professoresFiltrados().length) {
     <ul class="professores__cards">
-        @for (professor of professoresFiltrados(); track professor.id) {
+        @for (professor of dados.professoresFiltrados(); track professor.id) {
         <li>
             <button type="button" class="professor-card"
-                [class.professor-card--selecionado]="estaSelecionado(professor)"
-                [attr.aria-pressed]="estaSelecionado(professor)" (click)="selecionarProfessor(professor)">
+                [class.professor-card--selecionado]="dados.professorSelecionado()?.id === professor.id"
+                [attr.aria-pressed]="dados.professorSelecionado()?.id === professor.id"
+                (click)="onSelecionarProfessor(professor.id)">
                 @if (professor.cargo === 'Coordenador do Curso') {
                 <span class="professor-card__tag">Coordenador</span>
                 }
-                <span class="professor-card__avatar">{{ iniciais(professor.nome) }}</span>
-                <strong class="professor-card__nome">
-                    {{ professor.cargo === 'Coordenador do Curso' ? professor.nome : 'Prof. ' + professor.nome }}
-                </strong>
-                @if (professor.cargo === 'Coordenador do Curso') {
+                <span class="professor-card__avatar" aria-hidden="true">{{ iniciais(professor.nome) }}</span>
+                <strong class="professor-card__nome">Prof. {{ professor.nome }}</strong>
+                @if (professor.cargo) {
                 <span class="professor-card__cargo">{{ professor.cargo }}</span>
                 }
             </button>
         </li>
         } @empty {
-        <li class="professores__vazio">{{ mensagemVazia() }}</li>
+        @if (!dados.carregando() && !dados.erro() && !dados.erroLocal()) {
+        <li class="professores__vazio" role="status">{{ mensagemVazia() }}</li>
+        }
         }
     </ul>
+    }
 
-    @if (professorSelecionado(); as professor) {
-    <!-- Seção de Aulas estilizada como card de superfície conforme o Figma -->
-    <section class="aulas-professor" aria-labelledby="titulo-aulas-professor">
+    @if (dados.professorSelecionado(); as professor) {
+    <section class="aulas-professor" aria-labelledby="titulo-aulas-professor"
+        [attr.aria-busy]="dados.carregandoAulas()">
         <h2 id="titulo-aulas-professor" class="aulas-professor__titulo">Aulas ({{ professor.nome }})</h2>
-
-        @for (dia of diasAgrupados(); track dia.diaSemana) {
+        @if (dados.carregandoAulas()) {
+        <p class="aulas-professor__vazio" role="status">Carregando aulas...</p>
+        }
+        @if (dados.erroAulas(); as erro) {
+        <div class="professores__estado" role="alert">
+            <p>{{ erro }}</p>
+            <button type="button" class="filtro-chip" (click)="dados.carregarAulas()">Tentar novamente</button>
+        </div>
+        }
+        @if (!dados.agendaCompleta) {
+        <p class="aulas-professor__vazio" role="status">A consulta de aulas pode estar limitada aos cursos permitidos para este acesso.</p>
+        }
+        @for (dia of dados.diasAgrupados(); track dia.diaSemana) {
         <div class="dia-aulas">
             <h3 class="dia-aulas__titulo">{{ dia.diaSemana }}</h3>
             <ul class="dia-aulas__lista">
                 @for (item of dia.itens; track $index) {
                 @if (ehAula(item)) {
-                <li class="aula-card" [class]="'aula-card--' + (item.aula.cor ?? 'verde')">
+                <li class="aula-card" [class]="'aula-card--' + item.aula.cor">
                     <span class="aula-card__horario">
                         <span>{{ item.aula.inicio }}</span>
                         <span>{{ item.aula.termino }}</span>
                     </span>
                     <span class="aula-card__info">
                         <strong>{{ item.aula.disciplina }}</strong>
-                        <span>{{ item.aula.local }}</span>
+                        @if (item.aula.local) { <span>{{ item.aula.local }}</span> }
+                        <span>Turma {{ item.aula.turma }}</span>
                     </span>
                 </li>
                 } @else {
@@ -84,9 +126,13 @@
             </ul>
         </div>
         } @empty {
-        <p class="aulas-professor__vazio">Nenhuma aula cadastrada para este professor.</p>
+        @if (!dados.consultaAulasIncompleta()) {
+        <p class="aulas-professor__vazio" role="status">
+            {{ dados.agendaCompleta ? 'Nenhuma aula cadastrada para este professor no período vigente.'
+                : 'Nenhuma aula encontrada na agenda consultada para este acesso.' }}
+        </p>
+        }
         }
     </section>
     }
-
 </section>

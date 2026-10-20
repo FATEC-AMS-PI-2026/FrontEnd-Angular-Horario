@@ -1,0 +1,15 @@
+// Espelha PALETA_MATERIAS. Os testes de contraste verificam todas as cores nas telas.
+$paleta: ('verde', 'azul', 'ciano', 'roxo', 'rosa', 'magenta', 'indigo',
+  'turquesa', 'lima', 'oliva', 'laranja', 'pessego', 'marrom', 'ardosia', 'petroleo', 'lavanda');
+
+// Emitido uma única vez em styles.scss, compartilhado por grade, dashboard e professores.
+@mixin utilitarios {
+  @each $cor in $paleta {
+    .cor-#{$cor},
+    .aula-card--#{$cor} {
+      --materia-bg: var(--tag-#{$cor}-bg);
+      --materia-fg: var(--tag-#{$cor}-fg);
+      --materia-border: var(--tag-#{$cor}-border);
+    }
+  }
+}
