@@ -173,7 +173,7 @@ describe('DetalhesSala', () => {
     expect(fixture.nativeElement.querySelector('app-status-sala-badge')).toBeNull();
     expect(fixture.nativeElement.querySelector('app-tecnico-card')).toBeNull();
     expect(fixture.nativeElement.textContent).toContain('Informação de equipamentos não disponível');
-    expect(fixture.nativeElement.querySelector('.cabecalho-sala__resumo strong').textContent.trim()).toBe('');
+    expect(fixture.nativeElement.querySelector('.cabecalho-sala__resumo')).toBeNull();
     fixture.destroy();
   }));
 
