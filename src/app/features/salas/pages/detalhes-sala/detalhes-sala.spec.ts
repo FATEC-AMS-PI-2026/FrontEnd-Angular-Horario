@@ -240,7 +240,7 @@ describe('DetalhesSala', () => {
     expect(Array.from(fixture.nativeElement.querySelectorAll('.equipamento__quantidade'),
       (el: unknown) => (el as HTMLElement).textContent?.trim())).toEqual(['1', '40']);
     expect(fixture.nativeElement.textContent).toContain('Computadores');
-    expect(fixture.nativeElement.querySelector('.cabecalho-sala__resumo strong').textContent.trim()).toBe('');
+    expect(fixture.nativeElement.querySelector('.cabecalho-sala__resumo')).toBeNull();
     fixture.destroy();
   }));
 

@@ -83,7 +83,7 @@
         @if (disponibilidadeSala && !disponibilidadeSala.status) {
           <p class="card-sala__info" role="status">{{ disponibilidadeSala.texto }}</p>
         }
-        <p class="card-sala__info">{{ sala.tipo }}@if (sala.tipo && sala.capacidade !== undefined) { · }@if (sala.capacidade !== undefined) { {{ sala.capacidade }} lugares }</p>
+        <p class="card-sala__info">{{ sala.tipo }}@if (sala.tipo && sala.capacidade != null) { · }@if (sala.capacidade != null) { {{ sala.capacidade }} lugares }</p>
         @if (sala.predio) { <p class="card-sala__local">{{ sala.predio }}@if (sala.andar !== undefined) { · {{ sala.andar }}º andar }</p> }
         <app-equipamentos-card [equipamentos]="sala.origem === 'local' ? equipamentosLocais(sala) : recursos.daSala(sala.id)" [compacto]="true"
           [carregando]="sala.origem !== 'local' && recursos.carregando()" [erro]="sala.origem === 'local' ? null : recursos.erro()" />

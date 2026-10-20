@@ -9,9 +9,11 @@
         <app-status-sala-badge [status]="status" [texto]="disponibilidade()?.texto" />
       } @else { <span class="cabecalho-sala__status-vazio" aria-label="Status não informado"></span> }
     </div>
-    <div class="cabecalho-sala__resumo">
-      <span>Capacidade de alunos: <strong>{{ sala().capacidade }}</strong></span>
-    </div>
+    @if (sala().capacidade != null) {
+      <div class="cabecalho-sala__resumo">
+        <span>Capacidade de alunos: <strong>{{ sala().capacidade }}</strong></span>
+      </div>
+    }
   </div>
   <a class="cabecalho-sala__voltar" routerLink="/salas">Voltar</a>
 </div>
