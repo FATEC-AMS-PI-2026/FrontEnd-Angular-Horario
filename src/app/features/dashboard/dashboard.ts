@@ -1,3 +1,4 @@
+import { resumirDia } from './models/resumo-dia';
 import { HorariosHojeCard } from './components/horarios-hoje-card/horarios-hoje-card';
 import { StatusSalasCard } from './components/status-salas-card/status-salas-card';
 import { SalasHojeCard } from './components/salas-hoje-card/salas-hoje-card';
@@ -78,9 +79,11 @@ export class Dashboard implements OnInit {
         })),
         ...this.intervalos().map(intervalo => ({ ...intervalo, aula: null, cor: undefined })),
     ].sort((a, b) => a.horaInicio.localeCompare(b.horaInicio)));
+    readonly resumo = computed(() => resumirDia(this.alocacoes()));
     readonly stats = computed(() => [
-        { title: 'Aulas hoje', value: String(this.alocacoes().length), subtitle: this.currentDay() },
-        { title: 'Professores', value: (this.alocacoes().some(item => item.professor === null) ? 'Não informado' : String(new Set(this.alocacoes().map(item => item.professor!.id)).size)), subtitle: 'Nas aulas de hoje' },
+        { title: 'Aulas hoje', value: String(this.resumo().aulasAgrupadas), subtitle: 'Blocos consecutivos contam como uma aula' },
+        { title: 'Professores informados', value: String(this.resumo().professoresInformados), subtitle: 'Nas aulas de hoje',
+            observacao: this.resumo().aulasSemProfessor ? `${this.resumo().aulasSemProfessor} ${this.resumo().aulasSemProfessor === 1 ? 'aula com professor' : 'aulas com professor'} a definir` : null },
         { title: 'Próxima aula', value: this.proxima()?.blocoHorario.horaInicio.slice(0, 5) ?? '—', subtitle: this.proxima()?.disciplina.nome ?? 'Sem próxima aula hoje', professor: this.proxima() ? this.nomeProfessor(this.proxima()!) : null },
         { title: 'Aula em andamento', value: (this.emAndamento()[0]?.blocoHorario.horaInicio ?? this.intervaloAtual()?.horaInicio)?.slice(0, 5) ?? '—', subtitle: this.emAndamento().map(item => item.disciplina.nome).join(' · ') || (this.intervaloAtual() ? '(intervalo)' : 'Nenhuma aula neste momento') },
     ]);

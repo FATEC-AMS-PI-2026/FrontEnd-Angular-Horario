@@ -3,7 +3,7 @@
         <div class="banner__left">
             <h2>{{ session.usuario()?.nome ? 'Olá, ' + session.usuario()!.nome + '!' : 'Olá!' }} 👋</h2>
             <p>{{ currentDay() }}, {{ currentDate() }} · {{ session.identificacao() }}</p>
-            @if (carregado()) { <p>Você tem {{ alocacoes().length }} aulas hoje.</p> }
+            @if (carregado()) { <p>Você tem {{ resumo().aulasAgrupadas }} {{ resumo().aulasAgrupadas === 1 ? 'aula agrupada' : 'aulas agrupadas' }} hoje.</p> }
         </div>
         <div class="banner__right">
             <h2 class="time">{{ currentTime() }}</h2>
@@ -33,6 +33,7 @@
             <span class="stat-card__title">{{ stat.title }}</span>
             <strong class="stat-card__value">{{ stat.value }}</strong>
             <span class="stat-card__subtitle">{{ stat.subtitle }}</span>
+            @if (stat.observacao) { <span class="stat-card__subtitle">{{ stat.observacao }}</span> }
             @if (stat.professor) { <span class="stat-card__subtitle">{{ stat.professor }}</span> }
         </div>
         }
