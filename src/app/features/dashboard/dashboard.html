@@ -105,7 +105,8 @@
                             [class.status-manutencao]="item.disponibilidade?.status === 'Manutenção'">
                             <div class="room-info">
                                 <strong>{{ item.sala.nome }}</strong>
-                                <span>{{ item.disponibilidade?.texto || 'Disponibilidade indisponível' }}</span>
+                                @if (item.professores) { <span class="room-professor">{{ item.professores }}</span> }
+                                @else { <span>{{ item.disponibilidade?.texto || 'Disponibilidade indisponível' }}</span> }
                             </div>
                             @if (item.disponibilidade?.status; as status) { <app-status-sala-badge [status]="status" /> }
                         </a>
@@ -126,14 +127,12 @@
                 <div class="today-rooms-list">
                     @for (sala of salasHoje(); track sala.chave) {
                     <div class="today-room-item">
+                        <app-icone-sala [nome]="sala.codigo" [tipo]="sala.sala?.tipo" tamanho="compacto" />
                         <div class="room-info">
                             @if (sala.sala; as cadastro) {
-                                <a [routerLink]="['/salas', cadastro.rotaId ?? cadastro.id]"><strong>{{ sala.codigo }}</strong></a>
-                                @if (cadastro.predio || cadastro.andar !== undefined) {
-                                    <span>{{ cadastro.predio }}@if (cadastro.predio && cadastro.andar !== undefined) { · }@if (cadastro.andar !== undefined) { {{ cadastro.andar }}º andar }</span>
-                                }
-                            } @else { <strong>{{ sala.codigo }}</strong> }
-                            <span>{{ sala.disciplinas }}</span>
+                                <a [routerLink]="['/salas', cadastro.rotaId ?? cadastro.id]"><strong>{{ sala.identificacao }}</strong></a>
+                            } @else { <strong>{{ sala.identificacao }}</strong> }
+                            <span class="today-room-subjects">{{ sala.disciplinas }}</span>
                         </div>
                     </div>
                     } @empty { <p>Nenhuma sala vinculada às suas aulas de hoje.</p> }

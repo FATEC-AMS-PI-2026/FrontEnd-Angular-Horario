@@ -1,3 +1,4 @@
+import { IconeSala } from '../salas/components/icone-sala';
 import { FigmaIcon } from '../../shared/components/figma-icon/figma-icon';
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -22,7 +23,7 @@ import { atribuirCores, embaralhar, PALETA_MATERIAS } from '../../shared/utils/c
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [CommonModule, RouterLink, StatusSalaBadge, FigmaIcon],
+    imports: [CommonModule, RouterLink, StatusSalaBadge, FigmaIcon, IconeSala],
     templateUrl: './dashboard.html',
     styleUrl: './dashboard.scss',
     providers: [ConsultaSalasService, SalasApiService],
@@ -92,7 +93,10 @@ export class Dashboard implements OnInit {
         const ordem = (sala: SalaResumo) => hoje.has(codigoSala(sala.nome)) ? 0 : semana.has(codigoSala(sala.nome)) ? 1 : 2;
         return [...this.salas.salas()].sort((a, b) => ordem(a) - ordem(b) ||
             a.nome.localeCompare(b.nome, 'pt-BR', { numeric: true }))
-            .map(sala => ({ sala, doAluno: ordem(sala) < 2, disponibilidade: this.salas.disponibilidade(sala, this.agora()) }));
+            .map(sala => ({ sala, doAluno: ordem(sala) < 2,
+                disponibilidade: this.salas.disponibilidade(sala, this.agora()),
+                professores: this.salas.professoresEmAula(sala, this.agora()).join(' · '),
+            }));
     });
     readonly gruposSalas = computed(() => {
         const itens = this.statusSalas();

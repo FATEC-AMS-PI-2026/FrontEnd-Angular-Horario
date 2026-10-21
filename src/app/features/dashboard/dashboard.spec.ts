@@ -17,6 +17,7 @@ function salasIndisponiveis() {
     return { salas: signal<SalaResumo[]>([]), carregando: signal(false), erro: signal(null),
         estadoAgenda: signal({ alocacoes: null, carregando: false, erro: null }),
         locais: { erro: signal(null), carregar: () => {} }, disponibilidade: () => undefined,
+        professoresEmAula: () => [],
         tentarNovamente: () => {} };
 }
 

@@ -110,6 +110,7 @@ describe('Contraste das telas acadêmicas', () => {
                         salas: signal(salas), carregando: signal(false), erro: signal(null),
                         estadoAgenda: signal({ carregando: false, erro: null }), locais: { erro: signal(null) },
                         disponibilidade: (sala: SalaResumo) => ({ status: sala.status, texto: sala.status }),
+                        professoresEmAula: () => [],
                     } },
                 ] } });
             }
