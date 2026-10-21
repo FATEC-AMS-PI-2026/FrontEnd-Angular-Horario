@@ -2,13 +2,15 @@
  * Tipos de equipamento previstos na issue "WEB: Informações dos equipamentos
  * da sala" (#61) e complementados pela issue "WEB: Card de equipamentos da
  * sala" (#8): Wi-Fi, televisões, cadeiras, computadores e ar-condicionado.
+ * Projetor multimídia incluído com o ícone fornecido pelo usuário.
  */
 export type TipoEquipamento =
   | 'Wi-Fi'
   | 'Televisão'
   | 'Cadeira'
   | 'Computador'
-  | 'Ar-condicionado';
+  | 'Ar-condicionado'
+  | 'Projetor multimidia';
 
 /**
  * Nível de disponibilidade de um equipamento, usado para destacar o card com

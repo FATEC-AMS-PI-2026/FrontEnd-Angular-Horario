@@ -1,3 +1,4 @@
+import { FigmaIcon } from '../../../../shared/components/figma-icon/figma-icon';
 import {
     AfterViewInit,
     ChangeDetectionStrategy,
@@ -18,7 +19,7 @@ import { idDaReferencia, referenciaAcademica, ReferenciaAcademica } from '../../
 @Component({
     selector: 'app-informacoes-materia-modal',
     standalone: true,
-    imports: [RouterLink],
+    imports: [RouterLink, FigmaIcon],
     templateUrl: './informacoes-materia-modal.html',
     styleUrl: './informacoes-materia-modal.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,

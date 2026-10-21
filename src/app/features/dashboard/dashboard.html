@@ -45,7 +45,7 @@
                 <div>
                     <h3>Horários de hoje</h3><span class="subtitle">{{ currentDay() }}, {{ currentDate() }}</span>
                 </div>
-                <a routerLink="/grade-semanal" class="link-more">Ver todos &rarr;</a>
+                <a routerLink="/grade-semanal" class="link-more">Ver todos <app-figma-icon name="arrow-right" class="action-icon" /></a>
             </div>
             @if (carregado()) {
             <div class="schedule-list">
@@ -78,7 +78,7 @@
             <div class="card card--rooms" [attr.aria-busy]="salas.carregando() || salas.estadoAgenda().carregando">
                 <div class="card__header">
                     <h3>Status das salas</h3>
-                    <a routerLink="/salas" class="link-more">Ver todos &rarr;</a>
+                    <a routerLink="/salas" class="link-more">Ver todos <app-figma-icon name="arrow-right" class="action-icon" /></a>
                 </div>
                 @if (avisoSalas(); as aviso) {
                 <div class="rooms-notice" role="alert">
@@ -120,7 +120,7 @@
             <div class="card card--today-rooms" [attr.aria-busy]="loading() || salas.carregando()">
                 <div class="card__header">
                     <h3>Salas de hoje</h3>
-                    <a routerLink="/salas" class="link-more">Ver todos &rarr;</a>
+                    <a routerLink="/salas" class="link-more">Ver todos <app-figma-icon name="arrow-right" class="action-icon" /></a>
                 </div>
                 @if (carregado()) {
                 <div class="today-rooms-list">

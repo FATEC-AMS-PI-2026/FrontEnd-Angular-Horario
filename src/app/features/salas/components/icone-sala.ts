@@ -1,8 +1,10 @@
 import { Component, computed, input } from '@angular/core';
+import { FigmaIcon } from '../../../shared/components/figma-icon/figma-icon';
 @Component({
   selector: 'app-icone-sala',
-  template: `<span class="icone-sala" aria-hidden="true">
-    <span class="icone-sala__imagem" [style.mask-image]="laboratorio() ? 'url(/icons/salas/laboratorio.png)' : 'url(/icons/salas/sala.png)'"></span>
+  imports: [FigmaIcon],
+  template: `<span class="icone-sala" [class.icone-sala--compacto]="tamanho() === 'compacto'" aria-hidden="true">
+    <app-figma-icon class="icone-sala__imagem" [name]="laboratorio() ? 'laboratory' : 'classroom'" />
   </span>`,
   styles: [`
     :host { display: inline-block; flex: 0 0 auto; }
@@ -16,17 +18,23 @@ import { Component, computed, input } from '@angular/core';
       box-shadow: var(--shadow-card);
     }
     .icone-sala__imagem {
-      width: 47px;
-      height: 47px;
-      background: var(--color-primary);
-      mask-size: contain;
-      mask-repeat: no-repeat;
-      mask-position: center;
+      --icon-size: 40px;
+      color: var(--color-primary);
+    }
+    .icone-sala--compacto {
+      width: 3rem;
+      height: 3rem;
+      border-radius: var(--radius-pill);
+      box-shadow: none;
+    }
+    .icone-sala--compacto .icone-sala__imagem {
+      --icon-size: 1.875rem;
     }
   `],
 })
 export class IconeSala {
   readonly nome = input('');
   readonly tipo = input<string>();
+  readonly tamanho = input<'padrao' | 'compacto'>('padrao');
   readonly laboratorio = computed(() => /lab/i.test(this.tipo() || this.nome()));
 }

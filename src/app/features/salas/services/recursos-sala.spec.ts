@@ -109,6 +109,18 @@ describe('RecursosSalaService', () => {
     expect(equipamentoDoRecurso(item)).toEqual({ id: 1, tipo: 'Projetor multimidia', nome: 'Projetor multimidia', categoria: 'Equipamento', quantidadeTotal: 0 });
   });
 
+  it('reconhece projetores com acento e plural, preservando o nome cadastrado e distinguindo acessórios', () => {
+    const item = recurso();
+    for (const nome of ['Projetor multimídia', 'PROJETORES MULTIMÍDIA', 'Projetor']) {
+      item.recurso.nome = nome;
+      expect(equipamentoDoRecurso(item)).toEqual({
+        id: 1, tipo: 'Projetor multimidia', nome, categoria: 'Equipamento', quantidadeTotal: item.quantidade,
+      });
+    }
+    item.recurso.nome = 'Suporte para projetor multimídia';
+    expect(equipamentoDoRecurso(item).tipo).toBe(item.recurso.nome);
+  });
+
   it('respeita o módulo desabilitado sem consultar nem declarar ausência de equipamentos', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({ providers: [RecursosSalaService, provideHttpClient(), provideHttpClientTesting(),

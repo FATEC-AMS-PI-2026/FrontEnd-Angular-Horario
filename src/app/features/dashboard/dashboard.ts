@@ -1,3 +1,4 @@
+import { FigmaIcon } from '../../shared/components/figma-icon/figma-icon';
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -21,7 +22,7 @@ import { atribuirCores, embaralhar, PALETA_MATERIAS } from '../../shared/utils/c
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [CommonModule, RouterLink, StatusSalaBadge],
+    imports: [CommonModule, RouterLink, StatusSalaBadge, FigmaIcon],
     templateUrl: './dashboard.html',
     styleUrl: './dashboard.scss',
     providers: [ConsultaSalasService, SalasApiService],
