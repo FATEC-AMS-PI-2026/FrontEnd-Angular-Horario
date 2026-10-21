@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FigmaIcon } from '../../../../shared/components/figma-icon/figma-icon';
 import { ItemHorarioHoje } from '../../models/dashboard-cards';
+import { AlocacaoResponse } from '../../models/grade-dia.model';
 
 @Component({
     selector: 'app-horarios-hoje-card',
@@ -16,4 +17,9 @@ export class HorariosHojeCard {
     readonly carregado = input(false);
     readonly dia = input.required<string>();
     readonly data = input.required<string>();
+    readonly abrirAula = output<{ aula: AlocacaoResponse; botao: HTMLElement }>();
+
+    protected abrirInformacoes(aula: AlocacaoResponse, evento: Event): void {
+        this.abrirAula.emit({ aula, botao: evento.currentTarget as HTMLElement });
+    }
 }

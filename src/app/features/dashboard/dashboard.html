@@ -42,7 +42,7 @@
 
     <section class="content-grid">
         <app-horarios-hoje-card [horarios]="horarios()" [carregado]="carregado()"
-            [dia]="currentDay()" [data]="currentDate()" />
+            [dia]="currentDay()" [data]="currentDate()" (abrirAula)="abrirInformacoes($event)" />
 
         <div class="right-column">
             <app-status-salas-card [grupos]="gruposSalas()" [carregando]="salas.carregando()"
@@ -54,4 +54,7 @@
                 [carregandoSalas]="salas.carregando()" [indisponivel]="indisponivel()" [erro]="errorMessage()" />
         </div>
     </section>
+    @if (aulaSelecionada(); as aula) {
+    <app-informacoes-materia-modal [aula]="aula" (fechar)="fecharInformacoes()" (navegar)="fecharInformacoes()" />
+    }
 </div>

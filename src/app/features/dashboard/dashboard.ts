@@ -1,8 +1,10 @@
-import { resumirDia } from './models/resumo-dia';
 import { HorariosHojeCard } from './components/horarios-hoje-card/horarios-hoje-card';
 import { StatusSalasCard } from './components/status-salas-card/status-salas-card';
 import { SalasHojeCard } from './components/salas-hoje-card/salas-hoje-card';
 import { ItemHorarioHoje } from './models/dashboard-cards';
+import { resumirDia } from './models/resumo-dia';
+import { InformacoesMateriaModal } from '../grade-semanal/components/informacoes-materia-modal/informacoes-materia-modal';
+import { InformacoesAula, informacoesDaAlocacao } from '../horarios/models/informacoes-aula';
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription, defer, finalize, take, timer } from 'rxjs';
@@ -23,7 +25,7 @@ import { atribuirCores, embaralhar, PALETA_MATERIAS } from '../../shared/utils/c
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [HorariosHojeCard, StatusSalasCard, SalasHojeCard],
+    imports: [HorariosHojeCard, StatusSalasCard, SalasHojeCard, InformacoesMateriaModal],
     templateUrl: './dashboard.html',
     styleUrl: './dashboard.scss',
     providers: [ConsultaSalasService, SalasApiService],
@@ -47,6 +49,8 @@ export class Dashboard implements OnInit {
     readonly salasDaSemana = signal<string[]>([]);
     readonly indisponivel = signal(false);
     readonly errorMessage = signal('');
+    protected readonly aulaSelecionada = signal<InformacoesAula | null>(null);
+    private botaoOrigem: HTMLElement | null = null;
     // Sorteada de novo a cada carregamento, para a cor não ficar presa à matéria (#113).
     private readonly paleta = signal(embaralhar(PALETA_MATERIAS));
     readonly cores = computed(() =>
@@ -117,6 +121,17 @@ export class Dashboard implements OnInit {
         return aula.professor?.nome?.trim() || 'Professor a definir';
     }
 
+    protected abrirInformacoes(evento: { aula: AlocacaoResponse; botao: HTMLElement }): void {
+        this.botaoOrigem = evento.botao;
+        this.aulaSelecionada.set(informacoesDaAlocacao(evento.aula));
+    }
+
+    protected fecharInformacoes(): void {
+        this.aulaSelecionada.set(null);
+        if (this.botaoOrigem?.isConnected) this.botaoOrigem.focus();
+        this.botaoOrigem = null;
+    }
+
     ngOnInit(): void {
         this.carregar();
         timer(1000, 1000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
@@ -126,6 +141,7 @@ export class Dashboard implements OnInit {
     }
 
     carregar(): void {
+        this.fecharInformacoes();
         this.carregarSalasDaSemana();
         this.requisicao?.unsubscribe();
         this.dataSolicitada = dataAcademica(this.agora());

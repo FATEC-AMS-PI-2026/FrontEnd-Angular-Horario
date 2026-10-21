@@ -25,10 +25,18 @@
         font-size: var(--text-sm);
 
         &--class {
+            width: 100%;
+            font-family: inherit;
+            text-align: left;
+            line-height: inherit;
+            cursor: pointer;
             background-color: var(--materia-bg, var(--tag-indigo-bg));
             border: 1px solid var(--materia-border, var(--tag-indigo-border));
             color: var(--materia-fg, var(--tag-indigo-fg));
             gap: var(--space-sm);
+
+            &:hover { border-color: currentColor; }
+            &:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
 
             .time-block {
                 flex-shrink: 0;
