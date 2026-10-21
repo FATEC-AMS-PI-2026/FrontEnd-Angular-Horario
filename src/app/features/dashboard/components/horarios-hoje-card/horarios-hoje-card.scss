@@ -1,0 +1,68 @@
+@use 'cards';
+
+:host { display: block; min-width: 0; }
+
+.card__header { @include cards.card-cabecalho; }
+
+.card__header .subtitle {
+    font-size: var(--text-xs);
+    color: var(--color-text-subtle);
+    display: block;
+    margin-top: 0.15rem;
+}
+.schedule-list > p { @include cards.card-mensagem; }
+
+/* HORÁRIOS */
+.schedule-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+
+    .schedule-item {
+        border-radius: var(--radius-sm);
+        padding: 0.5rem var(--space-xs);
+        display: flex;
+        font-size: var(--text-sm);
+
+        &--class {
+            background-color: var(--materia-bg, var(--tag-indigo-bg));
+            border: 1px solid var(--materia-border, var(--tag-indigo-border));
+            color: var(--materia-fg, var(--tag-indigo-fg));
+            gap: var(--space-sm);
+
+            .time-block {
+                flex-shrink: 0;
+                display: flex;
+                flex-direction: column;
+                font-weight: var(--fw-semibold);
+                font-size: var(--text-xs);
+            }
+
+            .info-block {
+                min-width: 0;
+                overflow-wrap: anywhere;
+                display: flex;
+                flex-direction: column;
+
+                strong {
+                    font-weight: var(--fw-bold);
+                    margin-bottom: 0.1rem;
+                }
+
+                span {
+                    font-size: var(--text-xs);
+                }
+            }
+        }
+
+        &--interval {
+            background-color: var(--tag-amarelo-bg);
+            border: 1px solid var(--tag-amarelo-border);
+            color: var(--tag-amarelo-fg);
+            justify-content: center;
+            font-weight: var(--fw-semibold);
+            font-size: var(--text-xs);
+            padding: 0.35rem;
+        }
+    }
+}

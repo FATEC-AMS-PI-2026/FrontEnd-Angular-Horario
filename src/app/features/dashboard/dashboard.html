@@ -40,111 +40,17 @@
     }
 
     <section class="content-grid">
-        <div class="card card--schedule">
-            <div class="card__header">
-                <div>
-                    <h3>Horários de hoje</h3><span class="subtitle">{{ currentDay() }}, {{ currentDate() }}</span>
-                </div>
-                <a routerLink="/grade-semanal" class="link-more">Ver todos <app-figma-icon name="arrow-right" class="action-icon" /></a>
-            </div>
-            @if (carregado()) {
-            <div class="schedule-list">
-                @for (item of horarios(); track item.id) {
-                <div class="schedule-item" [class]="item.cor ? 'cor-' + item.cor : ''"
-                    [class.schedule-item--class]="item.aula"
-                    [class.schedule-item--interval]="!item.aula">
-                    @if (item.aula; as aula) {
-                    <div class="time-block">
-                        <span>{{ item.horaInicio.slice(0, 5) }}</span>
-                        <span>{{ item.horaFim.slice(0, 5) }}</span>
-                    </div>
-                    <div class="info-block">
-                        <strong>{{ aula.disciplina.nome }}</strong>
-                        <span>{{ nomeProfessor(aula) }} · {{ aula.sala?.codigo || 'Sala
-                            não informada' }}</span>
-                    </div>
-                    @if (aula.reposicao) { <span class="reposicao-aula">Reposição de aula</span> }
-                    } @else {
-                    <span title="Tempo entre suas aulas">{{ item.horaInicio.slice(0, 5) }}–{{ item.horaFim.slice(0, 5)
-                        }} · (intervalo)</span>
-                    }
-                </div>
-                } @empty { <p role="status">Você não tem aulas programadas para hoje.</p> }
-            </div>
-            }
-        </div>
+        <app-horarios-hoje-card [horarios]="horarios()" [carregado]="carregado()"
+            [dia]="currentDay()" [data]="currentDate()" />
 
         <div class="right-column">
-            <div class="card card--rooms" [attr.aria-busy]="salas.carregando() || salas.estadoAgenda().carregando">
-                <div class="card__header">
-                    <h3>Status das salas</h3>
-                    <a routerLink="/salas" class="link-more">Ver todos <app-figma-icon name="arrow-right" class="action-icon" /></a>
-                </div>
-                @if (avisoSalas(); as aviso) {
-                <div class="rooms-notice" role="alert">
-                    <p>{{ aviso }}</p>
-                    <button type="button" class="link-more" (click)="salas.tentarNovamente()">Tentar novamente</button>
-                </div>
-                }
-                @if (salas.locais.erro(); as erroLocal) {
-                <div class="rooms-notice" role="alert">
-                    <p>{{ erroLocal }}</p>
-                    <button type="button" class="link-more" (click)="salas.locais.carregar()">Tentar novamente</button>
-                </div>
-                }
-                @if (salas.carregando()) { <p role="status">Carregando salas...</p> }
-                @if (salas.estadoAgenda().carregando) { <p role="status">Consultando disponibilidade das salas...</p> }
-                <div class="room-status-list">
-                    @for (grupo of gruposSalas(); track grupo.titulo) {
-                    <div class="room-status-group">
-                        @if (grupo.titulo) { <h4 class="room-group-title">{{ grupo.titulo }}</h4> }
-                        @for (item of grupo.itens; track item.sala.rotaId ?? item.sala.id) {
-                        <a class="room-status-item" [routerLink]="['/salas', item.sala.rotaId ?? item.sala.id]"
-                            [class.status-livre]="item.disponibilidade?.status === 'Livre'"
-                            [class.status-em_uso]="item.disponibilidade?.status === 'Em uso'"
-                            [class.status-manutencao]="item.disponibilidade?.status === 'Manutenção'">
-                            <div class="room-info">
-                                <strong>{{ item.sala.nome }}</strong>
-                                @if (item.professores) { <span class="room-professor">{{ item.professores }}</span> }
-                                @else { <span>{{ item.disponibilidade?.texto || 'Disponibilidade indisponível' }}</span> }
-                            </div>
-                            @if (item.disponibilidade?.status; as status) { <app-status-sala-badge [status]="status" /> }
-                        </a>
-                        }
-                    </div>
-                    } @empty {
-                    @if (!salas.carregando() && !avisoSalas() && !salas.locais.erro()) { <p role="status">Nenhuma sala cadastrada.</p> }
-                    }
-                </div>
-            </div>
+            <app-status-salas-card [grupos]="gruposSalas()" [carregando]="salas.carregando()"
+                [consultandoAgenda]="salas.estadoAgenda().carregando" [aviso]="avisoSalas()"
+                [erroLocal]="salas.locais.erro()" (tentarNovamente)="salas.tentarNovamente()"
+                (tentarNovamenteLocal)="salas.locais.carregar()" />
 
-            <div class="card card--today-rooms" [attr.aria-busy]="loading() || salas.carregando()">
-                <div class="card__header">
-                    <h3>Salas de hoje</h3>
-                    <a routerLink="/salas" class="link-more">Ver todos <app-figma-icon name="arrow-right" class="action-icon" /></a>
-                </div>
-                @if (carregado()) {
-                <div class="today-rooms-list">
-                    @for (sala of salasHoje(); track sala.chave) {
-                    <div class="today-room-item">
-                        <app-icone-sala [nome]="sala.codigo" [tipo]="sala.sala?.tipo" tamanho="compacto" />
-                        <div class="room-info">
-                            @if (sala.sala; as cadastro) {
-                                <a [routerLink]="['/salas', cadastro.rotaId ?? cadastro.id]"><strong>{{ sala.identificacao }}</strong></a>
-                            } @else { <strong>{{ sala.identificacao }}</strong> }
-                            <span class="today-room-subjects">{{ sala.disciplinas }}</span>
-                        </div>
-                    </div>
-                    } @empty { <p>Nenhuma sala vinculada às suas aulas de hoje.</p> }
-                </div>
-                } @else if (loading()) {
-                    <p role="status">Carregando suas salas de hoje...</p>
-                } @else if (indisponivel()) {
-                    <p role="status">Sua grade ainda não está disponível.</p>
-                } @else if (errorMessage()) {
-                    <p role="status">Suas salas de hoje estarão disponíveis após carregar suas aulas.</p>
-                }
-            </div>
+            <app-salas-hoje-card [salas]="salasHoje()" [carregado]="carregado()" [carregando]="loading()"
+                [carregandoSalas]="salas.carregando()" [indisponivel]="indisponivel()" [erro]="errorMessage()" />
         </div>
     </section>
 </div>

@@ -1,0 +1,31 @@
+<div class="card__header">
+    <div>
+        <h3>Horários de hoje</h3><span class="subtitle">{{ dia() }}, {{ data() }}</span>
+    </div>
+    <a routerLink="/grade-semanal" class="link-more">Ver todos <app-figma-icon name="arrow-right" class="action-icon" /></a>
+</div>
+@if (carregado()) {
+<div class="schedule-list">
+    @for (item of horarios(); track item.id) {
+    <div class="schedule-item" [class]="item.cor ? 'cor-' + item.cor : ''"
+        [class.schedule-item--class]="item.aula"
+        [class.schedule-item--interval]="!item.aula">
+        @if (item.aula; as aula) {
+        <div class="time-block">
+            <span>{{ item.horaInicio.slice(0, 5) }}</span>
+            <span>{{ item.horaFim.slice(0, 5) }}</span>
+        </div>
+        <div class="info-block">
+            <strong>{{ aula.disciplina.nome }}</strong>
+            <span>{{ item.professor }} · {{ aula.sala?.codigo || 'Sala
+                não informada' }}</span>
+        </div>
+        @if (aula.reposicao) { <span class="reposicao-aula">Reposição de aula</span> }
+        } @else {
+        <span title="Tempo entre suas aulas">{{ item.horaInicio.slice(0, 5) }}–{{ item.horaFim.slice(0, 5)
+            }} · (intervalo)</span>
+        }
+    </div>
+    } @empty { <p role="status">Você não tem aulas programadas para hoje.</p> }
+</div>
+}

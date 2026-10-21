@@ -1,8 +1,8 @@
-import { IconeSala } from '../salas/components/icone-sala';
-import { FigmaIcon } from '../../shared/components/figma-icon/figma-icon';
+import { HorariosHojeCard } from './components/horarios-hoje-card/horarios-hoje-card';
+import { StatusSalasCard } from './components/status-salas-card/status-salas-card';
+import { SalasHojeCard } from './components/salas-hoje-card/salas-hoje-card';
+import { ItemHorarioHoje } from './models/dashboard-cards';
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription, defer, finalize, take, timer } from 'rxjs';
 import { SessionService } from '../../core/services/session.service';
@@ -12,7 +12,6 @@ import { AlocacaoResponse, dataAcademica, horarioAcademico } from './models/grad
 import { intervalosDaGrade } from './models/intervalos-grade';
 import { ConsultaSalasService } from '../salas/services/consulta-salas';
 import { SalasApiService } from '../salas/services/salas-api';
-import { StatusSalaBadge } from '../salas/components/status-sala-badge';
 import { codigoSala } from '../salas/services/salas-locais';
 import { RelogioService } from '../salas/services/relogio';
 import { mapearSalasHoje } from './services/salas-hoje';
@@ -23,7 +22,7 @@ import { atribuirCores, embaralhar, PALETA_MATERIAS } from '../../shared/utils/c
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [CommonModule, RouterLink, StatusSalaBadge, FigmaIcon, IconeSala],
+    imports: [HorariosHojeCard, StatusSalasCard, SalasHojeCard],
     templateUrl: './dashboard.html',
     styleUrl: './dashboard.scss',
     providers: [ConsultaSalasService, SalasApiService],
@@ -72,10 +71,10 @@ export class Dashboard implements OnInit {
     readonly intervalos = computed(() => intervalosDaGrade(this.alocacoes()));
     readonly intervaloAtual = computed(() => this.intervalos().find(intervalo =>
         intervalo.horaInicio <= horarioAcademico(this.agora()) && horarioAcademico(this.agora()) < intervalo.horaFim));
-    readonly horarios = computed(() => [
+    readonly horarios = computed<ItemHorarioHoje[]>(() => [
         ...this.alocacoes().map(aula => ({
             id: `aula-${aula.id}`, horaInicio: aula.blocoHorario.horaInicio,
-            horaFim: aula.blocoHorario.horaFim, aula, cor: this.cores().get(aula.disciplina.nome)
+            horaFim: aula.blocoHorario.horaFim, aula, professor: this.nomeProfessor(aula), cor: this.cores().get(aula.disciplina.nome)
         })),
         ...this.intervalos().map(intervalo => ({ ...intervalo, aula: null, cor: undefined })),
     ].sort((a, b) => a.horaInicio.localeCompare(b.horaInicio)));

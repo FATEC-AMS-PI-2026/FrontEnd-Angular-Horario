@@ -41,6 +41,7 @@ describe('Dashboard: salas integradas', () => {
     let fixture: ComponentFixture<Dashboard>;
     let http: HttpTestingController;
     let instante: Date;
+    let gradeDia: () => Observable<AlocacaoResponse[]>;
     let gradeSemanal: () => Observable<AlocacaoResponse[]>;
     let locais: { salas: ReturnType<typeof signal<SalaResumo[]>>; catalogo: ReturnType<typeof signal<CatalogoLocal | null>>;
         erro: ReturnType<typeof signal<string | null>>; carregando: ReturnType<typeof signal<boolean>>;
@@ -48,13 +49,14 @@ describe('Dashboard: salas integradas', () => {
 
     beforeEach(() => {
         instante = new Date('2026-10-08T14:20:00-03:00');
+        gradeDia = () => of([pessoal]);
         gradeSemanal = () => of([pessoal]);
         locais = { salas: signal<SalaResumo[]>([]), catalogo: signal<CatalogoLocal | null>(null), erro: signal<string | null>(null),
             carregando: signal(false), carregar: jasmine.createSpy('carregarLocal') };
         TestBed.configureTestingModule({ imports: [Dashboard], providers: [
             provideRouter([]), provideHttpClient(), provideHttpClientTesting(),
             { provide: BACKEND_CONFIG, useValue: { url: BASE, modulos: ['salas', 'alocacoes'], agendaSalasCompleta: true } },
-            { provide: CARREGAR_GRADE_DIA, useValue: () => of([pessoal]) },
+            { provide: CARREGAR_GRADE_DIA, useValue: () => gradeDia() },
             { provide: CARREGAR_GRADE_SEMANAL, useValue: () => gradeSemanal() },
             { provide: RelogioService, useValue: { agora: () => instante } },
             { provide: SalasLocaisService, useValue: locais },
@@ -78,6 +80,26 @@ describe('Dashboard: salas integradas', () => {
     }
     const tela = (): HTMLElement => fixture.nativeElement;
     const textos = (seletor: string) => Array.from(tela().querySelectorAll(seletor)).map(el => el.textContent?.trim());
+
+    it('compartilha as consultas entre os três cards e encerra atualizações ao sair da dashboard', fakeAsync(() => {
+        const carregarDia = jasmine.createSpy('carregarDia').and.returnValue(of([pessoal]));
+        const carregarSemana = jasmine.createSpy('carregarSemana').and.returnValue(of([pessoal]));
+        gradeDia = carregarDia;
+        gradeSemanal = carregarSemana;
+        abrir(); cadastro(); agenda(); fixture.detectChanges();
+        expect(carregarDia).toHaveBeenCalledTimes(1);
+        expect(carregarSemana).toHaveBeenCalledTimes(1);
+        instante = new Date('2026-10-08T14:20:01-03:00');
+        tick(1000); fixture.detectChanges();
+        expect(carregarDia).toHaveBeenCalledTimes(1);
+        expect(carregarSemana).toHaveBeenCalledTimes(1);
+        http.expectNone(() => true);
+        fixture.destroy();
+        tick(60_000);
+        http.expectNone(() => true);
+        expect(carregarDia).toHaveBeenCalledTimes(1);
+        expect(carregarSemana).toHaveBeenCalledTimes(1);
+    }));
 
     it('usa a agenda de todas as turmas para Em uso e associa o cadastro por código, sem confundir IDs', fakeAsync(() => {
         abrir(); cadastro();

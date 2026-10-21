@@ -1,0 +1,25 @@
+<div class="card__header">
+    <h3>Salas de hoje</h3>
+    <a routerLink="/salas" class="link-more">Ver todos <app-figma-icon name="arrow-right" class="action-icon" /></a>
+</div>
+@if (carregado()) {
+<div class="today-rooms-list">
+    @for (sala of salas(); track sala.chave) {
+    <div class="today-room-item">
+        <app-icone-sala [nome]="sala.codigo" [tipo]="sala.sala?.tipo" tamanho="compacto" />
+        <div class="room-info">
+            @if (sala.sala; as cadastro) {
+                <a [routerLink]="['/salas', cadastro.rotaId ?? cadastro.id]"><strong>{{ sala.identificacao }}</strong></a>
+            } @else { <strong>{{ sala.identificacao }}</strong> }
+            <span class="today-room-subjects">{{ sala.disciplinas }}</span>
+        </div>
+    </div>
+    } @empty { <p>Nenhuma sala vinculada às suas aulas de hoje.</p> }
+</div>
+} @else if (carregando()) {
+    <p role="status">Carregando suas salas de hoje...</p>
+} @else if (indisponivel()) {
+    <p role="status">Sua grade ainda não está disponível.</p>
+} @else if (erro()) {
+    <p role="status">Suas salas de hoje estarão disponíveis após carregar suas aulas.</p>
+}
