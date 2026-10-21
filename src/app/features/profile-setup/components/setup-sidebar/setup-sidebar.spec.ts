@@ -24,6 +24,30 @@ describe('SetupSidebar', () => {
         expect(component).toBeTruthy();
     });
 
+    it('mantém as quatro etapas no retorno pelas configurações, antes e depois de alterar disciplinas', () => {
+        spyOn(component.setupService, 'returningUser').and.returnValue(true);
+        component.setupService.currentStep.set(3);
+        fixture.detectChanges();
+        const etapas = fixture.nativeElement.querySelectorAll('.setup-sidebar__step') as NodeListOf<HTMLElement>;
+        expect(etapas.length).toBe(4);
+        expect(etapas[2].classList.contains('setup-sidebar__step--active')).toBeTrue();
+        expect(etapas[3].textContent).toContain('Escolher disciplinas');
+        expect(etapas[3].classList.contains('setup-sidebar__step--disabled')).toBeTrue();
+        expect(fixture.nativeElement.textContent).not.toContain('Último passo');
+
+        component.setupService.currentStep.set(4);
+        fixture.detectChanges();
+        expect(fixture.nativeElement.querySelectorAll('.setup-sidebar__step').length).toBe(4);
+        expect(etapas[3].isConnected).toBeTrue();
+        expect(etapas[3].classList.contains('setup-sidebar__step--active')).toBeTrue();
+        expect(etapas[3].classList.contains('setup-sidebar__step--disabled')).toBeFalse();
+
+        component.setupService.currentStep.set(3);
+        fixture.detectChanges();
+        expect(fixture.nativeElement.querySelectorAll('.setup-sidebar__step').length).toBe(4);
+        expect(etapas[3].classList.contains('setup-sidebar__step--disabled')).toBeTrue();
+    });
+
     it('mostra check no período ao avançar para disciplinas e restaura o número ao voltar', () => {
         component.setupService.currentStep.set(4);
         fixture.detectChanges();
