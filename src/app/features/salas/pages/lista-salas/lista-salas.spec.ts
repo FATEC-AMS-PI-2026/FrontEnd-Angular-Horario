@@ -98,11 +98,35 @@ describe('ListaSalas', () => {
 
     filtro.value = ''; filtro.dispatchEvent(new Event('change')); fixture.detectChanges();
     const auditório = Array.from(elemento().querySelectorAll<HTMLButtonElement>('.lista-salas__tipos button'))
-      .find(chip => chip.textContent?.trim() === 'Sala')!;
+      .find(chip => chip.textContent?.trim() === 'Auditórios')!;
     auditório.click(); fixture.detectChanges();
     expect(cards().length).toBe(1);
     expect(cards()[0].textContent).toContain('AUD-01');
     expect(cards()[0].querySelector('.card-sala__local')).toBeNull();
+  });
+
+  it('reúne auditórios Java e locais em um filtro próprio, separado das salas comuns', () => {
+    const locais = TestBed.inject(SalasLocaisService);
+    (locais.salas as WritableSignal<SalaResumo[]>).set([
+      { id: 90, nome: 'AUD_02', origem: 'local', rotaId: 'local-90' },
+    ]);
+    responder([
+      sala(1, 'LAB-01', 'Laboratorio'), sala(3, 'AUD-01', 'Sala', 120),
+      sala(4, 'Auditório principal', 'Sala'), sala(5, 'ESPACO-03', 'Auditorio'),
+      sala(6, 'Sala 11', 'Sala'),
+    ]);
+    const chips = Array.from(elemento().querySelectorAll<HTMLButtonElement>('.lista-salas__tipos button'));
+    expect(chips.map(chip => chip.textContent?.trim())).toEqual(['Todos', 'Auditórios', 'Laboratorio', 'Sala']);
+
+    chips[1].click(); fixture.detectChanges();
+    expect(chips[1].getAttribute('aria-pressed')).toBe('true');
+    expect(Array.from(cards(), card => card.querySelector('h2')?.textContent))
+      .toEqual(['AUD-01', 'AUD_02', 'Auditório principal', 'ESPACO-03']);
+    expect(Array.from(cards(), card => card.getAttribute('href'))).toContain('/salas/local-90');
+
+    chips[3].click(); fixture.detectChanges();
+    expect(cards().length).toBe(1);
+    expect(cards()[0].querySelector('h2')?.textContent).toBe('Sala 11');
   });
 
   it('cria um chip por tipo retornado e filtra por ele', () => {

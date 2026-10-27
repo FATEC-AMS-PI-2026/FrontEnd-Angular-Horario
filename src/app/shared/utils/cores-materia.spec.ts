@@ -27,4 +27,13 @@ describe('cores-materia', () => {
         const cores = atribuirCores(['A', 'B', 'C'], ['azul', 'verde']);
         expect(cores.get('C')).toBe('azul');
     });
+
+    it('diferencia as 13 matérias de um ano de curso e mantém a cor das aulas repetidas', () => {
+        const materias = Array.from({ length: 13 }, (_, indice) => `Matéria ${indice + 1}`);
+        const cores = atribuirCores([...materias, ...materias], embaralhar(PALETA_MATERIAS));
+        expect(cores.size).toBe(13);
+        expect(new Set(cores.values()).size).toBe(13);
+        // As posições que colidiam com sete cores agora são distintas.
+        expect(cores.get(materias[1])).not.toBe(cores.get(materias[8]));
+    });
 });

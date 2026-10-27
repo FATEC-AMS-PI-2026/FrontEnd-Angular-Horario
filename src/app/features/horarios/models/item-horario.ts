@@ -1,4 +1,5 @@
 import type { AlocacaoResponse } from '../../dashboard/models/grade-dia.model';
+import type { ReferenciaAcademica } from '../../../shared/models/referencia-academica';
 
 /**
  * Dia da semana exibido nos chips da tela de Horários. Domingo não aparece
@@ -39,6 +40,8 @@ export interface AulaHorario {
     professor: string;
     /** Sala/laboratório onde a aula acontece, ex.: "Lab. 03". */
     sala: string;
+    /** Identidades da alocação, nunca reconstruídas pelo nome de uma matéria/docente/sala. */
+    referencias?: { materia?: ReferenciaAcademica; professor?: ReferenciaAcademica; sala?: ReferenciaAcademica; };
     /** Aula excepcional retornada para uma data do calendário acadêmico. */
     reposicao?: AlocacaoResponse['reposicao'];
 }

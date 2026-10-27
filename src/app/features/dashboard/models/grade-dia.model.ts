@@ -1,3 +1,5 @@
+import { OrigemAcademica } from '../../../shared/models/referencia-academica';
+
 // Projeções dos campos de AlocacaoResponse e dos DTOs associados do Java/Spring,
 // com contexto de calendário fornecido pelo adaptador da grade diária.
 // O vínculo da grade com o aluno ainda precisa ser fornecido pelo backend.
@@ -5,6 +7,8 @@ export type DiaSemana = 'DOMINGO' | 'SEGUNDA' | 'TERCA' | 'QUARTA' | 'QUINTA' | 
 
 export interface AlocacaoResponse {
     id: number;
+    /** Metadado do adaptador: ausência não confirma a identidade de nenhuma fonte. */
+    origem?: OrigemAcademica;
     disciplina: { id: number; nome: string; periodo: number };
     professor: { id: number; nome: string } | null;
     sala: { id: number; codigo: string } | null;
