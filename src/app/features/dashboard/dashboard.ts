@@ -1,6 +1,11 @@
+import { HorariosHojeCard } from './components/horarios-hoje-card/horarios-hoje-card';
+import { StatusSalasCard } from './components/status-salas-card/status-salas-card';
+import { SalasHojeCard } from './components/salas-hoje-card/salas-hoje-card';
+import { ItemHorarioHoje } from './models/dashboard-cards';
+import { resumirDia } from './models/resumo-dia';
+import { InformacoesMateriaModal } from '../grade-semanal/components/informacoes-materia-modal/informacoes-materia-modal';
+import { InformacoesAula, informacoesDaAlocacao } from '../horarios/models/informacoes-aula';
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription, defer, finalize, take, timer } from 'rxjs';
 import { SessionService } from '../../core/services/session.service';
@@ -10,7 +15,6 @@ import { AlocacaoResponse, dataAcademica, horarioAcademico } from './models/grad
 import { intervalosDaGrade } from './models/intervalos-grade';
 import { ConsultaSalasService } from '../salas/services/consulta-salas';
 import { SalasApiService } from '../salas/services/salas-api';
-import { StatusSalaBadge } from '../salas/components/status-sala-badge';
 import { codigoSala } from '../salas/services/salas-locais';
 import { RelogioService } from '../salas/services/relogio';
 import { mapearSalasHoje } from './services/salas-hoje';
@@ -21,7 +25,7 @@ import { atribuirCores, embaralhar, PALETA_MATERIAS } from '../../shared/utils/c
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [CommonModule, RouterLink, StatusSalaBadge],
+    imports: [HorariosHojeCard, StatusSalasCard, SalasHojeCard, InformacoesMateriaModal],
     templateUrl: './dashboard.html',
     styleUrl: './dashboard.scss',
     providers: [ConsultaSalasService, SalasApiService],
@@ -45,6 +49,8 @@ export class Dashboard implements OnInit {
     readonly salasDaSemana = signal<string[]>([]);
     readonly indisponivel = signal(false);
     readonly errorMessage = signal('');
+    protected readonly aulaSelecionada = signal<InformacoesAula | null>(null);
+    private botaoOrigem: HTMLElement | null = null;
     // Sorteada de novo a cada carregamento, para a cor não ficar presa à matéria (#113).
     private readonly paleta = signal(embaralhar(PALETA_MATERIAS));
     readonly cores = computed(() =>
@@ -70,16 +76,18 @@ export class Dashboard implements OnInit {
     readonly intervalos = computed(() => intervalosDaGrade(this.alocacoes()));
     readonly intervaloAtual = computed(() => this.intervalos().find(intervalo =>
         intervalo.horaInicio <= horarioAcademico(this.agora()) && horarioAcademico(this.agora()) < intervalo.horaFim));
-    readonly horarios = computed(() => [
+    readonly horarios = computed<ItemHorarioHoje[]>(() => [
         ...this.alocacoes().map(aula => ({
             id: `aula-${aula.id}`, horaInicio: aula.blocoHorario.horaInicio,
-            horaFim: aula.blocoHorario.horaFim, aula, cor: this.cores().get(aula.disciplina.nome)
+            horaFim: aula.blocoHorario.horaFim, aula, professor: this.nomeProfessor(aula), cor: this.cores().get(aula.disciplina.nome)
         })),
         ...this.intervalos().map(intervalo => ({ ...intervalo, aula: null, cor: undefined })),
     ].sort((a, b) => a.horaInicio.localeCompare(b.horaInicio)));
+    readonly resumo = computed(() => resumirDia(this.alocacoes()));
     readonly stats = computed(() => [
-        { title: 'Aulas hoje', value: String(this.alocacoes().length), subtitle: this.currentDay() },
-        { title: 'Professores', value: (this.alocacoes().some(item => item.professor === null) ? 'Não informado' : String(new Set(this.alocacoes().map(item => item.professor!.id)).size)), subtitle: 'Nas aulas de hoje' },
+        { title: 'Aulas hoje', value: String(this.resumo().aulasAgrupadas), subtitle: 'Blocos consecutivos contam como uma aula' },
+        { title: 'Professores informados', value: String(this.resumo().professoresInformados), subtitle: 'Nas aulas de hoje',
+            observacao: this.resumo().aulasSemProfessor ? `${this.resumo().aulasSemProfessor} ${this.resumo().aulasSemProfessor === 1 ? 'aula com professor' : 'aulas com professor'} a definir` : null },
         { title: 'Próxima aula', value: this.proxima()?.blocoHorario.horaInicio.slice(0, 5) ?? '—', subtitle: this.proxima()?.disciplina.nome ?? 'Sem próxima aula hoje', professor: this.proxima() ? this.nomeProfessor(this.proxima()!) : null },
         { title: 'Aula em andamento', value: (this.emAndamento()[0]?.blocoHorario.horaInicio ?? this.intervaloAtual()?.horaInicio)?.slice(0, 5) ?? '—', subtitle: this.emAndamento().map(item => item.disciplina.nome).join(' · ') || (this.intervaloAtual() ? '(intervalo)' : 'Nenhuma aula neste momento') },
     ]);
@@ -91,7 +99,10 @@ export class Dashboard implements OnInit {
         const ordem = (sala: SalaResumo) => hoje.has(codigoSala(sala.nome)) ? 0 : semana.has(codigoSala(sala.nome)) ? 1 : 2;
         return [...this.salas.salas()].sort((a, b) => ordem(a) - ordem(b) ||
             a.nome.localeCompare(b.nome, 'pt-BR', { numeric: true }))
-            .map(sala => ({ sala, doAluno: ordem(sala) < 2, disponibilidade: this.salas.disponibilidade(sala, this.agora()) }));
+            .map(sala => ({ sala, doAluno: ordem(sala) < 2,
+                disponibilidade: this.salas.disponibilidade(sala, this.agora()),
+                professores: this.salas.professoresEmAula(sala, this.agora()).join(' · '),
+            }));
     });
     readonly gruposSalas = computed(() => {
         const itens = this.statusSalas();
@@ -110,6 +121,17 @@ export class Dashboard implements OnInit {
         return aula.professor?.nome?.trim() || 'Professor a definir';
     }
 
+    protected abrirInformacoes(evento: { aula: AlocacaoResponse; botao: HTMLElement }): void {
+        this.botaoOrigem = evento.botao;
+        this.aulaSelecionada.set(informacoesDaAlocacao(evento.aula));
+    }
+
+    protected fecharInformacoes(): void {
+        this.aulaSelecionada.set(null);
+        if (this.botaoOrigem?.isConnected) this.botaoOrigem.focus();
+        this.botaoOrigem = null;
+    }
+
     ngOnInit(): void {
         this.carregar();
         timer(1000, 1000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
@@ -119,6 +141,7 @@ export class Dashboard implements OnInit {
     }
 
     carregar(): void {
+        this.fecharInformacoes();
         this.carregarSalasDaSemana();
         this.requisicao?.unsubscribe();
         this.dataSolicitada = dataAcademica(this.agora());

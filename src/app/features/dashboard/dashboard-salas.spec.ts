@@ -41,6 +41,7 @@ describe('Dashboard: salas integradas', () => {
     let fixture: ComponentFixture<Dashboard>;
     let http: HttpTestingController;
     let instante: Date;
+    let gradeDia: () => Observable<AlocacaoResponse[]>;
     let gradeSemanal: () => Observable<AlocacaoResponse[]>;
     let locais: { salas: ReturnType<typeof signal<SalaResumo[]>>; catalogo: ReturnType<typeof signal<CatalogoLocal | null>>;
         erro: ReturnType<typeof signal<string | null>>; carregando: ReturnType<typeof signal<boolean>>;
@@ -48,13 +49,14 @@ describe('Dashboard: salas integradas', () => {
 
     beforeEach(() => {
         instante = new Date('2026-10-08T14:20:00-03:00');
+        gradeDia = () => of([pessoal]);
         gradeSemanal = () => of([pessoal]);
         locais = { salas: signal<SalaResumo[]>([]), catalogo: signal<CatalogoLocal | null>(null), erro: signal<string | null>(null),
             carregando: signal(false), carregar: jasmine.createSpy('carregarLocal') };
         TestBed.configureTestingModule({ imports: [Dashboard], providers: [
             provideRouter([]), provideHttpClient(), provideHttpClientTesting(),
             { provide: BACKEND_CONFIG, useValue: { url: BASE, modulos: ['salas', 'alocacoes'], agendaSalasCompleta: true } },
-            { provide: CARREGAR_GRADE_DIA, useValue: () => of([pessoal]) },
+            { provide: CARREGAR_GRADE_DIA, useValue: () => gradeDia() },
             { provide: CARREGAR_GRADE_SEMANAL, useValue: () => gradeSemanal() },
             { provide: RelogioService, useValue: { agora: () => instante } },
             { provide: SalasLocaisService, useValue: locais },
@@ -79,6 +81,26 @@ describe('Dashboard: salas integradas', () => {
     const tela = (): HTMLElement => fixture.nativeElement;
     const textos = (seletor: string) => Array.from(tela().querySelectorAll(seletor)).map(el => el.textContent?.trim());
 
+    it('compartilha as consultas entre os três cards e encerra atualizações ao sair da dashboard', fakeAsync(() => {
+        const carregarDia = jasmine.createSpy('carregarDia').and.returnValue(of([pessoal]));
+        const carregarSemana = jasmine.createSpy('carregarSemana').and.returnValue(of([pessoal]));
+        gradeDia = carregarDia;
+        gradeSemanal = carregarSemana;
+        abrir(); cadastro(); agenda(); fixture.detectChanges();
+        expect(carregarDia).toHaveBeenCalledTimes(1);
+        expect(carregarSemana).toHaveBeenCalledTimes(1);
+        instante = new Date('2026-10-08T14:20:01-03:00');
+        tick(1000); fixture.detectChanges();
+        expect(carregarDia).toHaveBeenCalledTimes(1);
+        expect(carregarSemana).toHaveBeenCalledTimes(1);
+        http.expectNone(() => true);
+        fixture.destroy();
+        tick(60_000);
+        http.expectNone(() => true);
+        expect(carregarDia).toHaveBeenCalledTimes(1);
+        expect(carregarSemana).toHaveBeenCalledTimes(1);
+    }));
+
     it('usa a agenda de todas as turmas para Em uso e associa o cadastro por código, sem confundir IDs', fakeAsync(() => {
         abrir(); cadastro();
         expect(tela().querySelector('.card--rooms')?.textContent).toContain('Consultando disponibilidade');
@@ -86,12 +108,18 @@ describe('Dashboard: salas integradas', () => {
         agenda(); fixture.detectChanges();
         expect(fixture.componentInstance.emAndamento()).toEqual([]);
         expect(tela().querySelector('.card--rooms app-status-sala-badge')?.textContent).toContain('Em uso');
+        const professor = tela().querySelector('.card--rooms .room-professor')!;
+        expect(professor.textContent).toBe('Docente de outra turma');
+        expect(professor.previousElementSibling?.textContent).toBe('LAB-03');
         const salaHoje = tela().querySelector<HTMLAnchorElement>('.today-room-item a')!;
         expect(salaHoje.getAttribute('href')).toBe('/salas/71');
         expect(salaHoje.textContent).toContain('LAB-03');
         expect(tela().querySelector('.today-room-item')?.textContent).toContain('Engenharia de Software');
         expect(tela().querySelector('.today-room-item')?.textContent).toContain('Prédio 1');
         expect(tela().querySelector('.today-room-item')?.textContent).not.toContain('Aula de outra turma');
+        expect(tela().querySelector('.today-room-item strong')?.textContent).toBe('LAB-03 – Prédio 1');
+        expect(tela().querySelector('.today-room-item .icone-sala--compacto')).not.toBeNull();
+        expect((tela().querySelector('.icone-sala__imagem .icone__mascara') as HTMLElement).style.maskImage).toContain('laboratorio.png');
         fixture.destroy();
     }));
 
@@ -111,10 +139,13 @@ describe('Dashboard: salas integradas', () => {
         instante = new Date('2026-10-08T13:59:59-03:00');
         abrir(); cadastro(); agenda(); fixture.detectChanges();
         expect(tela().querySelector('.card--rooms')?.textContent).toContain('Livre até às 14:00');
+        expect(tela().querySelector('.room-professor')).toBeNull();
         instante = new Date('2026-10-08T14:00:00-03:00'); tick(1000); fixture.detectChanges();
         expect(tela().querySelector('app-status-sala-badge')?.textContent).toContain('Em uso');
+        expect(tela().querySelector('.room-professor')?.textContent).toBe('Docente de outra turma');
         instante = new Date('2026-10-08T15:00:00-03:00'); tick(1000); fixture.detectChanges();
         expect(tela().querySelector('app-status-sala-badge')?.textContent).toContain('Livre');
+        expect(tela().querySelector('.room-professor')).toBeNull();
         http.expectNone(() => true);
         tick(58_000);
         agenda([]); fixture.detectChanges();
@@ -174,6 +205,7 @@ describe('Dashboard: salas integradas', () => {
         fixture.detectChanges();
         const statusLocal = () => tela().querySelector('a[href="/salas/local-71"] app-status-sala-badge');
         expect(statusLocal()?.textContent).toContain('Em uso');
+        expect(tela().querySelector('a[href="/salas/local-71"] .room-professor')?.textContent).toBe('Docente local');
         expect(tela().querySelector('a[href="/salas/71"] app-status-sala-badge')).toBeNull();
         instante = new Date('2026-10-08T15:00:00-03:00'); tick(1000); fixture.detectChanges();
         expect(statusLocal()?.textContent).toContain('Livre');
@@ -229,6 +261,84 @@ describe('Dashboard: salas integradas', () => {
             .toEqual({ status: 'Manutenção', texto: 'Manutenção' });
         fixture.destroy();
     }));
+
+    it('mostra docentes simultâneos sem duplicar nomes e distingue o professor ausente', fakeAsync(() => {
+        abrir(); cadastro();
+        agenda([global(), { ...global(), id: 9 },
+            { ...global(), id: 10, professor: { nome: 'Outra docente' } },
+            { ...global(), id: 11, professor: null },
+            { ...global(), id: 12, professor: { nome: 'Docente futuro' },
+                blocoHorario: { horaInicio: '15:00', horaFim: '16:00' } }]);
+        fixture.detectChanges();
+        expect(tela().querySelector('.room-professor')?.textContent)
+            .toBe('Docente de outra turma · Outra docente · Professor a definir');
+        locais.erro.set('Consulta local incompleta'); fixture.detectChanges();
+        expect(tela().querySelector('.room-professor')).toBeNull();
+        fixture.destroy();
+    }));
+
+    it('prioriza o professor Java sobre aulas locais sobrepostas e mantém o complemento posterior', fakeAsync(() => {
+        const c = catalogoSalaLocal();
+        c.salas[0].codigo = 'LAB 03';
+        c.alocacoes[0] = { ...c.alocacoes[0], diaSemana: 'QUINTA', horaInicio: '14:00', horaFim: '15:00' };
+        c.alocacoes.push({ ...c.alocacoes[0], id: 2, horaInicio: '15:00', horaFim: '16:00' });
+        locais.catalogo.set(c);
+        locais.salas.set([{ id: 90, nome: 'LAB 03', origem: 'local', rotaId: 'local-90' }]);
+        abrir(); cadastro(); agenda(); fixture.detectChanges();
+        expect(tela().querySelector('.room-professor')?.textContent).toBe('Docente de outra turma');
+        instante = new Date('2026-10-08T15:00:00-03:00'); tick(1000); fixture.detectChanges();
+        expect(tela().querySelector('.room-professor')?.textContent).toBe('Docente local');
+        fixture.destroy();
+    }));
+
+    it('acomoda nomes longos e ícones nos dois temas, mantendo as pílulas à direita', fakeAsync(() => {
+        locais.salas.set([{ id: 90, nome: 'Sala de manutenção com identificação extensa', status: 'Manutenção', origem: 'local' }]);
+        abrir(); cadastro([salaApi(), { ...salaApi(72, 'Sala 01'), tipoSala: { id: 2, nome: 'Sala' } }]);
+        agenda();
+        fixture.componentInstance.alocacoes.set([pessoal, { ...pessoal, id: 2,
+            sala: { id: 2, codigo: 'Sala 01' },
+            disciplina: { id: 2, nome: 'Projeto Integrador I com nome completo extenso e TI', periodo: 1 } }]);
+        const temaAnterior = document.documentElement.getAttribute('data-theme');
+        try {
+            for (const tema of ['light', 'dark']) {
+                document.documentElement.setAttribute('data-theme', tema);
+                for (const largura of [320, 1200]) {
+                    tela().style.display = 'block';
+                    tela().style.width = `${largura}px`;
+                    fixture.detectChanges();
+                    const linhas = Array.from(tela().querySelectorAll<HTMLElement>('.room-status-item'));
+                    expect(linhas.length).toBe(3);
+                    for (const linha of linhas) {
+                        const info = linha.querySelector<HTMLElement>('.room-info')!;
+                        const badge = linha.querySelector<HTMLElement>('.badge')!;
+                        expect(info.getBoundingClientRect().right).toBeLessThan(badge.getBoundingClientRect().left);
+                        expect(badge.getBoundingClientRect().right).toBeLessThan(linha.getBoundingClientRect().right);
+                        expect(linha.scrollWidth).toBeLessThanOrEqual(linha.clientWidth);
+                        expect(getComputedStyle(linha).backgroundColor).not.toBe(getComputedStyle(badge).backgroundColor);
+                    }
+                    const itens = Array.from(tela().querySelectorAll<HTMLElement>('.today-room-item'));
+                    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+                    for (const item of itens) {
+                        const icone = item.querySelector<HTMLElement>('.icone-sala')!;
+                        const imagem = item.querySelector<HTMLElement>('.icone-sala__imagem')!;
+                        expect(icone.getBoundingClientRect().width).toBeCloseTo(3 * rem, 1);
+                        expect(icone.getBoundingClientRect().height).toBeCloseTo(3 * rem, 1);
+                        expect(imagem.getBoundingClientRect().width).toBeCloseTo(1.875 * rem, 1);
+                        expect(getComputedStyle(icone).borderRadius).toBe('999px');
+                        expect(icone.getAttribute('aria-hidden')).toBe('true');
+                        expect(item.scrollWidth).toBeLessThanOrEqual(item.clientWidth);
+                        expect(getComputedStyle(item.querySelector('strong')!).fontWeight).toBe('800');
+                        expect(getComputedStyle(item.querySelector('.today-room-subjects')!).textTransform).toBe('none');
+                    }
+                    expect(itens[1].querySelector<HTMLElement>('.icone-sala__imagem .icone__mascara')!.style.maskImage).toContain('sala.png');
+                }
+            }
+        } finally {
+            if (temaAnterior === null) document.documentElement.removeAttribute('data-theme');
+            else document.documentElement.setAttribute('data-theme', temaAnterior);
+        }
+        fixture.destroy();
+    }));
 });
 
 describe('Salas de hoje: vínculo entre fontes', () => {
@@ -239,12 +349,23 @@ describe('Salas de hoje: vínculo entre fontes', () => {
         expect(salas.length).toBe(1);
         expect(salas[0].sala).toEqual(cadastro);
         expect(salas[0].disciplinas).toBe('Engenharia de Software');
+        expect(salas[0].identificacao).toBe('LAB-03 – Prédio 1 | Andar 0');
     });
     it('não fabrica localização/rota quando o código está ausente ou ambíguo no cadastro', () => {
         for (const cadastro of [[], [{ id: 1, nome: 'LAB-03' }, { id: 2, nome: 'LAB 03' }]]) {
             const salas = mapearSalasHoje([pessoal], cadastro);
             expect(salas[0].codigo).toBe('LAB 03');
             expect(salas[0].sala).toBeUndefined();
+            expect(salas[0].identificacao).toBe('LAB 03');
         }
+    });
+    it('preserva nomes completos, siglas e números romanos das disciplinas, sem inventar prédio', () => {
+        const sala: SalaResumo = { id: 71, nome: 'Sala 9¾', andar: 3 };
+        const salas = mapearSalasHoje([
+            { ...pessoal, sala: { id: 1, codigo: sala.nome }, disciplina: { id: 1, nome: 'Projeto Integrador I', periodo: 1 } },
+            { ...pessoal, sala: { id: 1, codigo: sala.nome }, disciplina: { id: 2, nome: 'Inglês II e TI', periodo: 1 } },
+        ], [sala]);
+        expect(salas[0].identificacao).toBe('Sala 9¾ – Andar 3');
+        expect(salas[0].disciplinas).toBe('Projeto Integrador I · Inglês II e TI');
     });
 });

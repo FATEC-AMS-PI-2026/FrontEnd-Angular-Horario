@@ -64,6 +64,16 @@ describe('Dados locais: IndexedDB real no navegador', () => {
         await dados.salvar('1', '1º ano', ['1', '2']);
     }
 
+    it('fornece ícones distintos para os cursos conhecidos sem alterar o catálogo salvo', async () => {
+        const c = catalogo();
+        c.cursos[0].nome = 'Análise e Desenvolvimento de Sistemas — AMS';
+        c.cursos.push({ ...c.cursos[0], id: 2, nome: 'PGE — AMS' },
+            { ...c.cursos[0], id: 3, nome: 'Curso sem correspondência visual' });
+        await dados.importar(c);
+        expect((await dados.cursos()).map(curso => curso.icon)).toEqual(['code', 'chart', 'generic']);
+        expect((await dados.catalogo())?.catalogo).toEqual(c);
+    });
+
     it('persiste catálogo e escolhas e separa perfis sem senha', async () => {
         await preparar();
         const token = localStorage.getItem('gini_token')!;

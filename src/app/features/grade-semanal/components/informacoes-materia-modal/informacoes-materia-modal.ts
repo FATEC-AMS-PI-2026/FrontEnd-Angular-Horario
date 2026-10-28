@@ -1,3 +1,4 @@
+import { FigmaIcon } from '../../../../shared/components/figma-icon/figma-icon';
 import {
     AfterViewInit,
     ChangeDetectionStrategy,
@@ -10,21 +11,22 @@ import {
     viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AulaHorario, PROFESSOR_A_DEFINIR } from '../../../horarios/models/item-horario';
+import { PROFESSOR_A_DEFINIR } from '../../../horarios/models/item-horario';
+import { InformacoesAula } from '../../../horarios/models/informacoes-aula';
 import { A_DEFINIR } from '../../../horarios/services/horarios';
 import { idDaReferencia, referenciaAcademica, ReferenciaAcademica } from '../../../../shared/models/referencia-academica';
 
-/** Consulta da aula selecionada na matriz semanal (#169), sem alterar a grade. */
+/** Consulta da aula selecionada na Grade Semanal ou na Dashboard, sem alterar a grade. */
 @Component({
     selector: 'app-informacoes-materia-modal',
     standalone: true,
-    imports: [RouterLink],
+    imports: [RouterLink, FigmaIcon],
     templateUrl: './informacoes-materia-modal.html',
     styleUrl: './informacoes-materia-modal.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InformacoesMateriaModal implements AfterViewInit, OnDestroy {
-    readonly aula = input.required<AulaHorario>();
+    readonly aula = input.required<InformacoesAula>();
     readonly fechar = output<void>();
     readonly navegar = output<void>();
 

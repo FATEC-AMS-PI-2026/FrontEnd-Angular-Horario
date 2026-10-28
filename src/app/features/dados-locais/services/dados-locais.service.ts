@@ -4,6 +4,7 @@ import { obterTokenSessao } from '../../../core/services/session.service';
  * Implementação exclusiva do armazenamento acadêmico e das contas locais no navegador.
  */
 import { Injectable, inject } from '@angular/core';
+import { courseIconByName } from '../../profile-setup/models/course-icon';
 import { BancoLocalService } from './banco-local.service';
 import { validarCatalogo } from './validar-catalogo';
 import { CatalogoLocal, CatalogoSalvo, DadosLocaisError, PerfilLocal } from '../models/catalogo-local';
@@ -88,7 +89,7 @@ export class DadosLocaisService {
         if (!salvo) throw new DadosLocaisError('Não foi possível carregar a grade. Saia e entre novamente.');
         return salvo.catalogo.cursos.map(c => ({
             id: String(c.id), title: c.nome, period: `Período: ${c.turno}`,
-            unit: c.unidade, type: 'Tecnólogo', category: c.turno, icon: 'code',
+            unit: c.unidade, type: 'Tecnólogo', category: c.turno, icon: courseIconByName(c.nome),
             periodicidade: c.organizacao,
             periodos: c.periodos.map(p => rotuloPeriodo(p, c.organizacao)), cargaHoraria: c.cargaHoraria,
             duracaoAnos: c.organizacao === 'Anual' ? c.duracaoSemestres / 2 : undefined,

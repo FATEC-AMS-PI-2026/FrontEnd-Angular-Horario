@@ -1,3 +1,4 @@
+import { FigmaIcon } from '../../../../shared/components/figma-icon/figma-icon';
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SalasApiService } from '../../services/salas-api';
@@ -22,7 +23,7 @@ const tipoDoFiltro = (sala: SalaResumo) => ehAuditorio(sala.nome, sala.tipo) ? '
 @Component({
   selector: 'app-lista-salas',
   standalone: true,
-  imports: [RouterLink, StatusSalaBadge, IconeSala, EquipamentosCard],
+  imports: [RouterLink, StatusSalaBadge, IconeSala, EquipamentosCard, FigmaIcon],
   templateUrl: './lista-salas.html',
   styleUrl: './lista-salas.scss',
   providers: [RecursosSalaService, ConsultaSalasService, SalasApiService, OrganizacaoSalasService],

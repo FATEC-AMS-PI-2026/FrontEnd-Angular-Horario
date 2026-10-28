@@ -1,3 +1,4 @@
+import { FigmaIcon } from '../../../../shared/components/figma-icon/figma-icon';
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProfileSetupService } from '../../services/profile-setup.service';
@@ -5,7 +6,7 @@ import { ProfileSetupService } from '../../services/profile-setup.service';
 @Component({
     selector: 'app-setup-sidebar',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, FigmaIcon],
     templateUrl: './setup-sidebar.html',
     styleUrl: './setup-sidebar.scss'
 })

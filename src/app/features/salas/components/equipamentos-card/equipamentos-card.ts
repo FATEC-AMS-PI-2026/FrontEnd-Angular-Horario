@@ -1,13 +1,16 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { Equipamento, TipoEquipamento } from '../../models/equipamento';
+import { FigmaIcon, FigmaIconName } from '../../../../shared/components/figma-icon/figma-icon';
 
-const ICONES: Record<TipoEquipamento, string> = {
-  'Wi-Fi': 'wifi', 'Televisão': 'televisao', 'Cadeira': 'cadeira',
-  'Computador': 'computador', 'Ar-condicionado': 'ar-condicionado',
+const ICONES: Record<TipoEquipamento, FigmaIconName> = {
+  'Wi-Fi': 'wifi', 'Televisão': 'television', 'Cadeira': 'chair',
+  'Computador': 'computer', 'Ar-condicionado': 'air-conditioning',
+  'Projetor multimidia': 'projector',
 };
 
 @Component({
   selector: 'app-equipamentos-card',
+  imports: [FigmaIcon],
   templateUrl: './equipamentos-card.html',
   styleUrl: './equipamentos-card.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,7 +26,7 @@ export class EquipamentosCard {
   protected readonly linhas = computed(() => (this.equipamentos() ?? [])
     .slice(0, this.compacto() ? 3 : undefined).map((dado, indice) => ({
       chave: dado.id ?? indice, nome: dado.nome ?? dado.tipo,
-      icone: Object.hasOwn(ICONES, dado.tipo) ? ICONES[dado.tipo as TipoEquipamento] : undefined,
+      icone: Object.hasOwn(ICONES, dado.tipo) ? ICONES[dado.tipo as TipoEquipamento] : 'generic' as const,
       categoria: dado.categoria, dado,
     })));
 
