@@ -6,12 +6,12 @@ import { ProfileSetupService } from './services/profile-setup.service';
 import { Topbar } from '../../shared/components/topbar/topbar';
 
 @Component({
-    selector: 'app-profile-setup',
-    standalone: true,
-    imports: [CommonModule, RouterOutlet, SetupSidebar, Topbar],
-    templateUrl: './profile-setup.html',
-    styleUrl: './profile-setup.scss'
+  selector: 'app-profile-setup',
+  standalone: true,
+  imports: [CommonModule, RouterOutlet, SetupSidebar, Topbar],
+  templateUrl: './profile-setup.html',
+  styleUrl: './profile-setup.scss',
 })
 export class ProfileSetup {
-    readonly setupService = inject(ProfileSetupService);
+  readonly setupService = inject(ProfileSetupService);
 }

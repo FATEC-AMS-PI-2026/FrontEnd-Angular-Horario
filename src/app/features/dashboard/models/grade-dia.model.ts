@@ -6,39 +6,51 @@ import { OrigemAcademica } from '../../../shared/models/referencia-academica';
 export type DiaSemana = 'DOMINGO' | 'SEGUNDA' | 'TERCA' | 'QUARTA' | 'QUINTA' | 'SEXTA' | 'SABADO';
 
 export interface AlocacaoResponse {
-    id: number;
-    /** Metadado do adaptador: ausência não confirma a identidade de nenhuma fonte. */
-    origem?: OrigemAcademica;
-    disciplina: { id: number; nome: string; periodo: number };
-    professor: { id: number; nome: string } | null;
-    sala: { id: number; codigo: string } | null;
-    diaSemana: DiaSemana;
-    blocoHorario: { id: number; horaInicio: string; horaFim: string; duracao: number };
-    turma: { id: number; codigo: string; periodo: number; ano: number };
-    quadroHorario: { id: number; versao: number };
-    /** Contexto da consulta diária; não é um campo confirmado do DTO Java. */
-    reposicao?: { data: string; diaSemana: DiaSemana; turno: string };
+  id: number;
+  /** Metadado do adaptador: ausência não confirma a identidade de nenhuma fonte. */
+  origem?: OrigemAcademica;
+  disciplina: { id: number; nome: string; periodo: number };
+  professor: { id: number; nome: string } | null;
+  sala: { id: number; codigo: string } | null;
+  diaSemana: DiaSemana;
+  blocoHorario: { id: number; horaInicio: string; horaFim: string; duracao: number };
+  turma: { id: number; codigo: string; periodo: number; ano: number };
+  quadroHorario: { id: number; versao: number };
+  /** Contexto da consulta diária; não é um campo confirmado do DTO Java. */
+  reposicao?: { data: string; diaSemana: DiaSemana; turno: string };
 }
 
 export const DIAS_SEMANA: readonly DiaSemana[] = [
-    'DOMINGO', 'SEGUNDA', 'TERCA', 'QUARTA', 'QUINTA', 'SEXTA', 'SABADO',
+  'DOMINGO',
+  'SEGUNDA',
+  'TERCA',
+  'QUARTA',
+  'QUINTA',
+  'SEXTA',
+  'SABADO',
 ];
 
 export function dataAcademica(agora: Date): string {
-    const partes = new Intl.DateTimeFormat('en-CA', {
-        timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit',
-    }).formatToParts(agora);
-    const parte = (tipo: string) => partes.find(item => item.type === tipo)!.value;
-    return `${parte('year')}-${parte('month')}-${parte('day')}`;
+  const partes = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Sao_Paulo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(agora);
+  const parte = (tipo: string) => partes.find((item) => item.type === tipo)!.value;
+  return `${parte('year')}-${parte('month')}-${parte('day')}`;
 }
 
 export function diaSemana(data: string): DiaSemana {
-    return DIAS_SEMANA[new Date(`${data}T12:00:00Z`).getUTCDay()];
+  return DIAS_SEMANA[new Date(`${data}T12:00:00Z`).getUTCDay()];
 }
 
 export function horarioAcademico(agora: Date): string {
-    return new Intl.DateTimeFormat('pt-BR', {
-        timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit',
-        hourCycle: 'h23',
-    }).format(agora);
+  return new Intl.DateTimeFormat('pt-BR', {
+    timeZone: 'America/Sao_Paulo',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle: 'h23',
+  }).format(agora);
 }

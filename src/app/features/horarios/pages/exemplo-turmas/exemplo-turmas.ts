@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -18,8 +26,15 @@ import { CURSOS_EXEMPLO, ExemploTurmasBackend } from './exemplo-turmas-backend';
   // O HttpClient deste componente nunca alcança a rede nem os outros Services da aplicação.
   providers: [
     ExemploTurmasBackend,
-    { provide: HttpClient, useFactory: (backend: ExemploTurmasBackend) => new HttpClient(backend), deps: [ExemploTurmasBackend] },
-    { provide: BACKEND_CONFIG, useValue: { habilitado: false, url: '/exemplo-api', modulos: ['turmas', 'alocacoes'] } },
+    {
+      provide: HttpClient,
+      useFactory: (backend: ExemploTurmasBackend) => new HttpClient(backend),
+      deps: [ExemploTurmasBackend],
+    },
+    {
+      provide: BACKEND_CONFIG,
+      useValue: { habilitado: false, url: '/exemplo-api', modulos: ['turmas', 'alocacoes'] },
+    },
     TurmasHorariosApiService,
   ],
 })
@@ -35,10 +50,16 @@ export class ExemploTurmas implements OnInit, OnDestroy {
   protected readonly itens = signal<ItemHorario[]>([]);
   protected readonly carregando = signal(false);
   protected readonly erro = signal<string | null>(null);
-  protected readonly usouAlternativa = computed(() => this.transporte.consultas().some(consulta => consulta.status === 500));
+  protected readonly usouAlternativa = computed(() =>
+    this.transporte.consultas().some((consulta) => consulta.status === 500),
+  );
 
-  ngOnInit(): void { this.carregarTurmas(); }
-  ngOnDestroy(): void { this.consulta?.unsubscribe(); }
+  ngOnInit(): void {
+    this.carregarTurmas();
+  }
+  ngOnDestroy(): void {
+    this.consulta?.unsubscribe();
+  }
 
   protected selecionarCurso(event: Event): void {
     this.cursoId.set(Number((event.target as HTMLSelectElement).value));
@@ -59,8 +80,11 @@ export class ExemploTurmas implements OnInit, OnDestroy {
     this.erro.set(null);
     this.carregando.set(true);
     this.consulta = this.api.listarTurmasDoCurso(this.cursoId()).subscribe({
-      next: turmas => { this.turmas.set(turmas); this.carregando.set(false); },
-      error: erro => this.registrarErro(erro),
+      next: (turmas) => {
+        this.turmas.set(turmas);
+        this.carregando.set(false);
+      },
+      error: (erro) => this.registrarErro(erro),
     });
   }
 
@@ -70,15 +94,23 @@ export class ExemploTurmas implements OnInit, OnDestroy {
     this.turmaId.set(id);
     this.itens.set([]);
     this.erro.set(null);
-    if (!id) { this.carregando.set(false); return; }
+    if (!id) {
+      this.carregando.set(false);
+      return;
+    }
     this.carregando.set(true);
     this.consulta = this.api.listarHorariosDaTurma(id).subscribe({
-      next: itens => { this.itens.set(itens); this.carregando.set(false); },
-      error: erro => this.registrarErro(erro),
+      next: (itens) => {
+        this.itens.set(itens);
+        this.carregando.set(false);
+      },
+      error: (erro) => this.registrarErro(erro),
     });
   }
 
-  protected nomeDia(dia: DiaSemana): string { return DIAS_SEMANA.find(item => item.valor === dia)?.nome ?? ''; }
+  protected nomeDia(dia: DiaSemana): string {
+    return DIAS_SEMANA.find((item) => item.valor === dia)?.nome ?? '';
+  }
   private registrarErro(erro: unknown): void {
     this.erro.set(this.erros.mensagem(erro, 'Não foi possível carregar o exemplo.'));
     this.carregando.set(false);

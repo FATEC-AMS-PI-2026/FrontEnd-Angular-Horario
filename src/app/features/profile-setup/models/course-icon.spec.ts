@@ -11,7 +11,9 @@ describe('Ícones dos cursos', () => {
   });
 
   it('não classifica cursos novos por nome parcial nem aceita caminhos como ícones', () => {
-    expect(courseIconByName('Análise e Desenvolvimento de Sistemas de outro curso')).toBe('generic');
+    expect(courseIconByName('Análise e Desenvolvimento de Sistemas de outro curso')).toBe(
+      'generic',
+    );
     expect(courseIconByName('Curso ainda não classificado')).toBe('generic');
     expect(courseIconAsset('https://exemplo.test/icone.svg')).toBe('course-generic');
     expect(courseIconAsset('toString')).toBe('course-generic');

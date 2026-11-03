@@ -1,5 +1,42 @@
-:host { display: block; }
-h2 { margin: 0 0 var(--space-sm); color: var(--color-text); font-size: var(--text-lg); }
-.tecnico-card__pessoa { display: flex; align-items: center; justify-content: space-between; gap: var(--space-lg); max-width: 600px; min-height: 60px; margin: 0 auto var(--space-sm); color: var(--color-text); p { color: var(--color-text-subtle); margin: var(--space-3xs) 0 0; } }
-.tecnico-card__avatar { display: grid; place-items: center; width: 48px; height: 48px; border-radius: var(--radius-sala); background: var(--color-primary-pale); color: var(--color-primary); font-weight: var(--fw-semibold); }
-.tecnico-card__horario { margin: 0; min-height: 1.5rem; color: var(--color-text-subtle); strong, span { color: var(--color-text); margin-left: var(--space-2xs); } }
+:host {
+  display: block;
+}
+h2 {
+  margin: 0 0 var(--space-sm);
+  color: var(--color-text);
+  font-size: var(--text-lg);
+}
+.tecnico-card__pessoa {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-lg);
+  max-width: 600px;
+  min-height: 60px;
+  margin: 0 auto var(--space-sm);
+  color: var(--color-text);
+  p {
+    color: var(--color-text-subtle);
+    margin: var(--space-3xs) 0 0;
+  }
+}
+.tecnico-card__avatar {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sala);
+  background: var(--color-primary-pale);
+  color: var(--color-primary);
+  font-weight: var(--fw-semibold);
+}
+.tecnico-card__horario {
+  margin: 0;
+  min-height: 1.5rem;
+  color: var(--color-text-subtle);
+  strong,
+  span {
+    color: var(--color-text);
+    margin-left: var(--space-2xs);
+  }
+}

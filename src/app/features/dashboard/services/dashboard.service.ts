@@ -9,34 +9,51 @@ import { AlocacaoResponse, DIAS_SEMANA, diaSemana } from '../models/grade-dia.mo
 export type CarregarGradeDia = (data: string) => Observable<AlocacaoResponse[]>;
 export const CARREGAR_GRADE_DIA = new InjectionToken<CarregarGradeDia>('CARREGAR_GRADE_DIA');
 
-export class GradeIndisponivelError extends Error { }
+export class GradeIndisponivelError extends Error {}
 
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
-    private readonly carregar = inject(CARREGAR_GRADE_DIA, { optional: true });
+  private readonly carregar = inject(CARREGAR_GRADE_DIA, { optional: true });
 
-    carregarDia(data: string): Observable<AlocacaoResponse[]> {
-        // Integração pendente: não consultar uma grade global nem gerar aulas fictícias.
-        if (!this.carregar) return throwError(() => new GradeIndisponivelError());
-        return defer(() => this.carregar!(data)).pipe(map(alocacoes => {
-            const horario = /^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/;
-            if (!Array.isArray(alocacoes) || alocacoes.some(item =>
-                !item || !Number.isSafeInteger(item.id) || !item.disciplina?.nome ||
-                (item.professor !== null && (!Number.isSafeInteger(item.professor?.id) || !item.professor.nome)) ||
-                (item.sala !== null && (!Number.isSafeInteger(item.sala?.id) || !item.sala.codigo)) ||
-                item.diaSemana !== diaSemana(data) ||
-                (item.reposicao !== undefined && (!item.reposicao || item.reposicao.data !== data ||
-                    !DIAS_SEMANA.includes(item.reposicao.diaSemana) ||
-                    typeof item.reposicao.turno !== 'string' || !item.reposicao.turno.trim())) ||
-                !horario.test(item.blocoHorario?.horaInicio) || !horario.test(item.blocoHorario?.horaFim) ||
-                item.blocoHorario.horaInicio >= item.blocoHorario.horaFim)) {
-                throw new Error('Resposta da grade inválida.');
-            }
-            if (new Set(alocacoes.map(item => item.id)).size !== alocacoes.length) {
-                throw new Error('Alocações duplicadas na grade.');
-            }
-            return [...alocacoes].sort((a, b) =>
-                a.blocoHorario.horaInicio.localeCompare(b.blocoHorario.horaInicio) || a.id - b.id);
-        }), throwIfEmpty(() => new Error('Consulta da grade encerrada sem resposta.')));
-    }
+  carregarDia(data: string): Observable<AlocacaoResponse[]> {
+    // Integração pendente: não consultar uma grade global nem gerar aulas fictícias.
+    if (!this.carregar) return throwError(() => new GradeIndisponivelError());
+    return defer(() => this.carregar!(data)).pipe(
+      map((alocacoes) => {
+        const horario = /^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/;
+        if (
+          !Array.isArray(alocacoes) ||
+          alocacoes.some(
+            (item) =>
+              !item ||
+              !Number.isSafeInteger(item.id) ||
+              !item.disciplina?.nome ||
+              (item.professor !== null &&
+                (!Number.isSafeInteger(item.professor?.id) || !item.professor.nome)) ||
+              (item.sala !== null && (!Number.isSafeInteger(item.sala?.id) || !item.sala.codigo)) ||
+              item.diaSemana !== diaSemana(data) ||
+              (item.reposicao !== undefined &&
+                (!item.reposicao ||
+                  item.reposicao.data !== data ||
+                  !DIAS_SEMANA.includes(item.reposicao.diaSemana) ||
+                  typeof item.reposicao.turno !== 'string' ||
+                  !item.reposicao.turno.trim())) ||
+              !horario.test(item.blocoHorario?.horaInicio) ||
+              !horario.test(item.blocoHorario?.horaFim) ||
+              item.blocoHorario.horaInicio >= item.blocoHorario.horaFim,
+          )
+        ) {
+          throw new Error('Resposta da grade inválida.');
+        }
+        if (new Set(alocacoes.map((item) => item.id)).size !== alocacoes.length) {
+          throw new Error('Alocações duplicadas na grade.');
+        }
+        return [...alocacoes].sort(
+          (a, b) =>
+            a.blocoHorario.horaInicio.localeCompare(b.blocoHorario.horaInicio) || a.id - b.id,
+        );
+      }),
+      throwIfEmpty(() => new Error('Consulta da grade encerrada sem resposta.')),
+    );
+  }
 }

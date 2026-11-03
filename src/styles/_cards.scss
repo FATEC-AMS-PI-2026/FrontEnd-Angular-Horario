@@ -14,113 +14,120 @@
 // ============================================================================
 
 @mixin card-base {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    padding: var(--space-md);
-    box-shadow: var(--shadow-card);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-card);
 }
 
 // Para cards clicáveis/navegáveis (card-sala, professor-card, course-card...)
 @mixin card-interativo {
-    @include card-base;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  @include card-base;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 
-    &:hover,
-    &:focus-visible {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-card-hover);
-    }
+  &:hover,
+  &:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card-hover);
+  }
 }
 
 // Estado "selecionado" (professor-card, course-card). Reduz o padding em 1px
 // pra compensar a borda mais grossa e o card não "pular" de tamanho.
 @mixin card-selecionado {
-    border-color: var(--color-primary);
-    border-width: 2px;
-    padding: calc(var(--space-md) - 1px);
+  border-color: var(--color-primary);
+  border-width: 2px;
+  padding: calc(var(--space-md) - 1px);
 }
 
 // Título padrão dentro de um card (h2/h3/strong de cabeçalho de card).
 @mixin card-titulo {
-    margin: 0;
-    font-size: var(--text-lg);
-    font-weight: var(--fw-bold);
-    color: var(--color-text);
-    line-height: var(--leading-heading);
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--fw-bold);
+  color: var(--color-text);
+  line-height: var(--leading-heading);
 }
 
 // Mensagens de carregamento, erro e vazio dentro de cards.
 @mixin card-mensagem {
-    margin: 0;
-    padding: 0;
-    color: var(--color-text-muted);
-    font-size: var(--text-sm);
-    line-height: var(--leading-body);
+  margin: 0;
+  padding: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
 }
 
 // Cabeçalhos e ações dos cards da dashboard, sem repetir o card-base global.
 @mixin card-cabecalho {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: var(--space-2xs) var(--space-sm);
-    margin-bottom: var(--space-sm);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--space-2xs) var(--space-sm);
+  margin-bottom: var(--space-sm);
 
-    h3 { @include card-titulo; }
+  h3 {
+    @include card-titulo;
+  }
 
-    .link-more {
-        font-size: var(--text-sm);
-        color: var(--color-primary);
-        text-decoration: none;
-        font-weight: var(--fw-semibold);
+  .link-more {
+    font-size: var(--text-sm);
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: var(--fw-semibold);
 
-        &:hover { text-decoration: underline; }
+    &:hover {
+      text-decoration: underline;
     }
+  }
 }
 
 @mixin card-tentar-novamente {
-    margin-top: var(--space-sm);
-    padding: var(--space-2xs) var(--space-sm);
-    border: 1px solid var(--color-border-strong);
-    border-radius: var(--radius-md);
-    background: var(--color-surface);
-    color: var(--color-text);
-    cursor: pointer;
+  margin-top: var(--space-sm);
+  padding: var(--space-2xs) var(--space-sm);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
 }
 
 // ---------- Classes utilitárias globais (uso direto no HTML) ----------
 @mixin utilitarios {
-    .card {
-        @include card-base;
-    }
+  .card {
+    @include card-base;
+  }
 
-    .card--interativo {
-        @include card-interativo;
-    }
+  .card--interativo {
+    @include card-interativo;
+  }
 
-    .card--selecionado {
-        @include card-selecionado;
-    }
+  .card--selecionado {
+    @include card-selecionado;
+  }
 
-    .card__titulo {
-        @include card-titulo;
-    }
+  .card__titulo {
+    @include card-titulo;
+  }
 
-    .reposicao-aula {
-        display: table;
-        margin-left: auto;
-        align-self: center;
-        flex-shrink: 0;
-        padding: var(--space-2xs) var(--space-xs);
-        border: 1px solid currentColor;
-        border-radius: var(--radius-sm);
-        font-family: var(--font-sans);
-        font-size: var(--text-xs);
-        font-weight: var(--fw-semibold);
-        line-height: var(--leading-body);
-        white-space: nowrap;
-    }
+  .reposicao-aula {
+    display: table;
+    margin-left: auto;
+    align-self: center;
+    flex-shrink: 0;
+    padding: var(--space-2xs) var(--space-xs);
+    border: 1px solid currentColor;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    font-weight: var(--fw-semibold);
+    line-height: var(--leading-body);
+    white-space: nowrap;
+  }
 }

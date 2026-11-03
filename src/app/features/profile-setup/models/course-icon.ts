@@ -16,18 +16,29 @@ const ICONS_BY_COURSE: Readonly<Record<string, CourseIcon>> = {
 };
 
 export function courseIconByName(name: string): CourseIcon {
-  const key = name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
-    .replace(/[—–-]/g, ' ').replace(/\s+/g, ' ').trim();
+  const key = name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[—–-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
   return Object.hasOwn(ICONS_BY_COURSE, key) ? ICONS_BY_COURSE[key] : 'generic';
 }
 
 export function courseIconAsset(icon: string): FigmaIconName {
   switch (icon) {
-    case 'code': return 'course-code';
-    case 'chart': return 'course-chart';
-    case 'calendar': return 'course-calendar';
-    case 'bot': return 'course-bot';
-    case 'briefcase': return 'course-briefcase';
-    default: return 'course-generic';
+    case 'code':
+      return 'course-code';
+    case 'chart':
+      return 'course-chart';
+    case 'calendar':
+      return 'course-calendar';
+    case 'bot':
+      return 'course-bot';
+    case 'briefcase':
+      return 'course-briefcase';
+    default:
+      return 'course-generic';
   }
 }

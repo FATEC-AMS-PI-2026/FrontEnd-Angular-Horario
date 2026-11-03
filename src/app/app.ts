@@ -6,7 +6,7 @@ import { PreferencesService } from './core/services/preferences.service';
   selector: 'app-root',
   imports: [RouterOutlet],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
 })
 export class App {
   private readonly preferences = inject(PreferencesService);

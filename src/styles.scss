@@ -10,39 +10,39 @@
 @include materias.utilitarios;
 
 html {
-    scrollbar-gutter: stable;
+  scrollbar-gutter: stable;
 }
 
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 html,
 body {
-    height: 100%;
-    margin: 0;
-    font-family: var(--font-sans);
-    font-size: var(--text-md);
-    color: var(--color-text);
-    background: var(--color-bg);
+  height: 100%;
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  color: var(--color-text);
+  background: var(--color-bg);
 }
 
 body {
-    line-height: var(--leading-body);
+  line-height: var(--leading-body);
 }
 
 button,
 input,
 select,
 textarea {
-    font-family: inherit;
-    font-size: inherit;
-    line-height: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
 }
 
 h1,
 h2,
 h3,
 h4 {
-    line-height: var(--leading-heading);
+  line-height: var(--leading-heading);
 }

@@ -10,10 +10,18 @@ describe('Configurações', () => {
   let element: HTMLElement;
 
   beforeEach(async () => {
-    ['gini_token', 'gini_usuario', 'gini_preferencias'].forEach(key => localStorage.removeItem(key));
-    await TestBed.configureTestingModule({ imports: [Configuracoes], providers: [provideRouter([])] }).compileComponents();
+    ['gini_token', 'gini_usuario', 'gini_preferencias'].forEach((key) =>
+      localStorage.removeItem(key),
+    );
+    await TestBed.configureTestingModule({
+      imports: [Configuracoes],
+      providers: [provideRouter([])],
+    }).compileComponents();
     TestBed.inject(SessionService).iniciar('test-token', {
-      nome: 'Ana Silva', email: 'ana@fatec.sp.gov.br', curso: 'ADS', periodo: '3º período',
+      nome: 'Ana Silva',
+      email: 'ana@fatec.sp.gov.br',
+      curso: 'ADS',
+      periodo: '3º período',
     });
     fixture = TestBed.createComponent(Configuracoes);
     element = fixture.nativeElement;
@@ -21,19 +29,25 @@ describe('Configurações', () => {
   });
 
   afterEach(() => {
-    ['gini_token', 'gini_usuario', 'gini_preferencias'].forEach(key => localStorage.removeItem(key));
+    ['gini_token', 'gini_usuario', 'gini_preferencias'].forEach((key) =>
+      localStorage.removeItem(key),
+    );
     document.documentElement.removeAttribute('data-theme');
   });
 
   it('mostra os três cards e o perfil dinâmico com e-mail clicável', () => {
     expect(element.querySelectorAll('section.card').length).toBe(3);
     expect(element.querySelector('.conta__nome')?.textContent).toBe('Ana Silva');
-    expect(element.querySelector('.conta__email')?.getAttribute('href')).toBe('mailto:ana@fatec.sp.gov.br');
+    expect(element.querySelector('.conta__email')?.getAttribute('href')).toBe(
+      'mailto:ana@fatec.sp.gov.br',
+    );
     expect(element.querySelector('.conta__curso')?.textContent).toContain('ADS · 3º período');
   });
 
   it('oferece voltar à escolha de ano e disciplinas (#147)', () => {
-    const link = Array.from(element.querySelectorAll('a')).find(a => a.textContent?.includes('Alterar ano e disciplinas'));
+    const link = Array.from(element.querySelectorAll('a')).find((a) =>
+      a.textContent?.includes('Alterar ano e disciplinas'),
+    );
     expect(link?.getAttribute('href')).toBe('/setup/period-selection');
   });
 
@@ -69,12 +83,16 @@ describe('Configurações', () => {
   });
 
   it('explica documentos ainda não publicados em um diálogo fechável', () => {
-    const button = Array.from(element.querySelectorAll('button')).find(item => item.textContent?.includes('Privacidade'))!;
+    const button = Array.from(element.querySelectorAll('button')).find((item) =>
+      item.textContent?.includes('Privacidade'),
+    )!;
     button.click();
     fixture.detectChanges();
     expect(element.querySelector('dialog')?.open).toBeTrue();
     expect(element.querySelector('#titulo-documento')?.textContent).toBe('Privacidade e Segurança');
-    expect(element.querySelector('#aviso-documento')?.textContent).toContain('ainda não foi disponibilizado');
+    expect(element.querySelector('#aviso-documento')?.textContent).toContain(
+      'ainda não foi disponibilizado',
+    );
     element.querySelector<HTMLButtonElement>('dialog button')!.click();
     expect(element.querySelector('dialog')?.open).toBeFalse();
   });

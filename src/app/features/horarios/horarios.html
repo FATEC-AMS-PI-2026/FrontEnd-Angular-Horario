@@ -1,97 +1,128 @@
 <section class="horarios" aria-label="Horários">
-
-    <div class="horarios__topo">
-        <div class="horarios__dias" role="tablist" aria-label="Filtrar por dia da semana">
-            @for (dia of dias; track dia.valor) {
-            <button type="button" class="filtro-chip" role="tab" [class.filtro-chip--ativo]="diaSelecionado() === dia.valor"
-                [attr.aria-selected]="diaSelecionado() === dia.valor" [attr.aria-label]="dia.nome"
-                (click)="selecionarDia(dia.valor)">
-                {{ dia.rotulo }}
-            </button>
-            }
-        </div>
-
-        <div class="horarios__acoes">
-            @if (exemploDisponivel) {
-                <a class="filtro-chip" routerLink="/exemplo-turmas">Ver exemplo de turmas</a>
-            }
-            <button type="button" class="botao-adicionar" aria-haspopup="dialog"
-                [disabled]="!carregado()" (click)="abrirModal()">
-                <app-figma-icon name="add" class="action-icon" /> Adicionar Matéria
-            </button>
-        </div>
+  <div class="horarios__topo">
+    <div class="horarios__dias" role="tablist" aria-label="Filtrar por dia da semana">
+      @for (dia of dias; track dia.valor) {
+        <button
+          type="button"
+          class="filtro-chip"
+          role="tab"
+          [class.filtro-chip--ativo]="diaSelecionado() === dia.valor"
+          [attr.aria-selected]="diaSelecionado() === dia.valor"
+          [attr.aria-label]="dia.nome"
+          (click)="selecionarDia(dia.valor)"
+        >
+          {{ dia.rotulo }}
+        </button>
+      }
     </div>
 
-    <div class="horarios__card" [attr.aria-busy]="carregando()">
-        @if (carregando()) {
-        <p role="status">Carregando seus horários...</p>
-        } @else if (erro(); as erro) {
-        <p role="alert">{{ erro }}</p>
-        <button type="button" class="botao-adicionar" (click)="carregar()">Tentar novamente</button>
-        } @else if (carregado()) {
-        <table class="tabela-horarios">
-            <caption class="visualmente-oculto">Aulas de {{ nomeDiaSelecionado() }}, {{ dataSelecionada() }}</caption>
-            <thead>
-                <tr>
-                    <th scope="col">Horário</th>
-                    <th scope="col">Matéria</th>
-                    <th scope="col">Professor</th>
-                    <th scope="col">Sala</th>
-                    <th scope="col">Status</th>
-                    <th scope="col"><span class="visualmente-oculto">Ações</span></th>
-                </tr>
-            </thead>
-            <tbody>
-                @for (item of itensDoDia(); track item.inicio) {
-                @if (ehAula(item)) {
-                <tr class="tabela-horarios__aula" [class.tabela-horarios__aula--agora]="statusDe(item) === 'em-andamento'">
-                    <td class="tabela-horarios__horario">{{ item.inicio }} – {{ item.termino }}</td>
-                    <td class="tabela-horarios__materia">{{ item.materia }}</td>
-                    <td>{{ item.professor || 'Professor a definir' }}</td>
-                    <td>{{ item.sala || 'Sala não informada' }}</td>
-                    <td>
-                        @switch (statusDe(item)) {
-                        @case ('em-andamento') {
-                        <span class="status-badge status-badge--andamento">Em andamento</span>
-                        }
-                        @case ('proxima') {
-                        <span class="status-badge status-badge--proxima">Próxima</span>
-                        }
-                        @default {
-                        @if (!item.reposicao) {
+    <div class="horarios__acoes">
+      @if (exemploDisponivel) {
+        <a class="filtro-chip" routerLink="/exemplo-turmas">Ver exemplo de turmas</a>
+      }
+      <button
+        type="button"
+        class="botao-adicionar"
+        aria-haspopup="dialog"
+        [disabled]="!carregado()"
+        (click)="abrirModal()"
+      >
+        <app-figma-icon name="add" class="action-icon" /> Adicionar Matéria
+      </button>
+    </div>
+  </div>
+
+  <div class="horarios__card" [attr.aria-busy]="carregando()">
+    @if (carregando()) {
+      <p role="status">Carregando seus horários...</p>
+    } @else if (erro(); as erro) {
+      <p role="alert">{{ erro }}</p>
+      <button type="button" class="botao-adicionar" (click)="carregar()">Tentar novamente</button>
+    } @else if (carregado()) {
+      <table class="tabela-horarios">
+        <caption class="visualmente-oculto">
+          Aulas de
+          {{
+            nomeDiaSelecionado()
+          }},
+          {{
+            dataSelecionada()
+          }}
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Horário</th>
+            <th scope="col">Matéria</th>
+            <th scope="col">Professor</th>
+            <th scope="col">Sala</th>
+            <th scope="col">Status</th>
+            <th scope="col"><span class="visualmente-oculto">Ações</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of itensDoDia(); track item.inicio) {
+            @if (ehAula(item)) {
+              <tr
+                class="tabela-horarios__aula"
+                [class.tabela-horarios__aula--agora]="statusDe(item) === 'em-andamento'"
+              >
+                <td class="tabela-horarios__horario">{{ item.inicio }} – {{ item.termino }}</td>
+                <td class="tabela-horarios__materia">{{ item.materia }}</td>
+                <td>{{ item.professor || 'Professor a definir' }}</td>
+                <td>{{ item.sala || 'Sala não informada' }}</td>
+                <td>
+                  @switch (statusDe(item)) {
+                    @case ('em-andamento') {
+                      <span class="status-badge status-badge--andamento">Em andamento</span>
+                    }
+                    @case ('proxima') {
+                      <span class="status-badge status-badge--proxima">Próxima</span>
+                    }
+                    @default {
+                      @if (!item.reposicao) {
                         <span class="status-traco" aria-label="Sem status">–</span>
-                        }
-                        }
-                        }
-                        @if (item.reposicao) { <span class="status-reposicao">Reposição de aula</span> }
-                    </td>
-                    <td class="tabela-horarios__acoes">
-                        <!-- Menu de contexto: ações de edição ainda não definidas (issue #103). -->
-                        <button type="button" class="botao-menu" [attr.aria-label]="'Mais ações para ' + item.materia"
-                            aria-haspopup="menu">
-                            <app-figma-icon name="more" />
-                        </button>
-                    </td>
-                </tr>
-                } @else {
-                <tr class="tabela-horarios__intervalo">
-                    <td class="tabela-horarios__horario">{{ item.inicio }} – {{ item.termino }}</td>
-                    <td colspan="5">Intervalo</td>
-                </tr>
-                }
-                } @empty {
-                <tr>
-                    <td colspan="6" class="tabela-horarios__vazio">Nenhuma aula cadastrada para {{ nomeDiaSelecionado() }}.</td>
-                </tr>
-                }
-            </tbody>
-        </table>
-        }
-    </div>
-
+                      }
+                    }
+                  }
+                  @if (item.reposicao) {
+                    <span class="status-reposicao">Reposição de aula</span>
+                  }
+                </td>
+                <td class="tabela-horarios__acoes">
+                  <!-- Menu de contexto: ações de edição ainda não definidas (issue #103). -->
+                  <button
+                    type="button"
+                    class="botao-menu"
+                    [attr.aria-label]="'Mais ações para ' + item.materia"
+                    aria-haspopup="menu"
+                  >
+                    <app-figma-icon name="more" />
+                  </button>
+                </td>
+              </tr>
+            } @else {
+              <tr class="tabela-horarios__intervalo">
+                <td class="tabela-horarios__horario">{{ item.inicio }} – {{ item.termino }}</td>
+                <td colspan="5">Intervalo</td>
+              </tr>
+            }
+          } @empty {
+            <tr>
+              <td colspan="6" class="tabela-horarios__vazio">
+                Nenhuma aula cadastrada para {{ nomeDiaSelecionado() }}.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
 </section>
 
 @if (modalAberto()) {
-<app-adicionar-materia-modal [diaInicial]="diaSelecionado()" (fechar)="fecharModal()"
-    (adicionada)="aulaAdicionada($event)" />
+  <app-adicionar-materia-modal
+    [diaInicial]="diaSelecionado()"
+    (fechar)="fecharModal()"
+    (adicionada)="aulaAdicionada($event)"
+  />
 }

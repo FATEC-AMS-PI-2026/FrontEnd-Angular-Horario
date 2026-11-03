@@ -3,9 +3,12 @@ import { provideRouter } from '@angular/router';
 import { CabecalhoSala } from './cabecalho-sala';
 
 describe('Capacidade no cabeçalho da sala', () => {
-  beforeEach(() => TestBed.configureTestingModule({
-    imports: [CabecalhoSala], providers: [provideRouter([])],
-  }));
+  beforeEach(() =>
+    TestBed.configureTestingModule({
+      imports: [CabecalhoSala],
+      providers: [provideRouter([])],
+    }),
+  );
 
   for (const capacidade of [undefined, null]) {
     it(`oculta o bloco e o rótulo quando a capacidade é ${String(capacidade)}`, () => {
@@ -24,7 +27,9 @@ describe('Capacidade no cabeçalho da sala', () => {
       fixture.componentRef.setInput('sala', { id: 1, nome: 'Sala de teste', capacidade });
       fixture.detectChanges();
 
-      const resumo = fixture.nativeElement.querySelector('.cabecalho-sala__resumo') as HTMLElement | null;
+      const resumo = fixture.nativeElement.querySelector(
+        '.cabecalho-sala__resumo',
+      ) as HTMLElement | null;
       expect(resumo?.textContent).toContain('Capacidade de alunos:');
       expect(resumo?.querySelector('strong')?.textContent?.trim()).toBe(String(capacidade));
     });

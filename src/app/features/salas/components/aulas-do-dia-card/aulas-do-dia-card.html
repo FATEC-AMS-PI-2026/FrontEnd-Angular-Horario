@@ -3,21 +3,37 @@
   @if (carregando()) {
     <p class="aulas-do-dia-card__vazio" role="status">{{ rotulos().carregando }}</p>
   } @else {
-  @if (indisponivel()) {
-    <p class="aulas-do-dia-card__vazio" role="status">Não foi possível consultar todos os horários desta sala.</p>
-  }
-  @if (aulasOrdenadas().length) {
-  <ul>
-    @for (aula of aulasOrdenadas(); track $index) {
-      <li class="aula-do-dia" [class.aula-do-dia--agora]="estaEmAndamento(aula)">
-        <span class="aula-do-dia__horario"><span>{{ aula.inicio }}</span><span>{{ aula.termino }}</span></span>
-        <div class="aula-do-dia__conteudo"><strong>{{ aula.disciplina }}</strong><p>{{ aula.professor }}@if (aula.professor && aula.turma) { · }{{ aula.turma }}</p></div>
-        @if (estaEmAndamento(aula)) { <span class="aula-do-dia__badge">Agora</span> }
-      </li>
+    @if (indisponivel()) {
+      <p class="aulas-do-dia-card__vazio" role="status">
+        Não foi possível consultar todos os horários desta sala.
+      </p>
     }
-  </ul>
-  } @else if (!indisponivel()) {
-    <p class="aulas-do-dia-card__vazio" role="status">{{ rotulos().vazio }}</p>
-  }
+    @if (aulasOrdenadas().length) {
+      <ul>
+        @for (aula of aulasOrdenadas(); track $index) {
+          <li class="aula-do-dia" [class.aula-do-dia--agora]="estaEmAndamento(aula)">
+            <span class="aula-do-dia__horario"
+              ><span>{{ aula.inicio }}</span
+              ><span>{{ aula.termino }}</span></span
+            >
+            <div class="aula-do-dia__conteudo">
+              <strong>{{ aula.disciplina }}</strong>
+              <p>
+                {{ aula.professor }}
+                @if (aula.professor && aula.turma) {
+                  ·
+                }
+                {{ aula.turma }}
+              </p>
+            </div>
+            @if (estaEmAndamento(aula)) {
+              <span class="aula-do-dia__badge">Agora</span>
+            }
+          </li>
+        }
+      </ul>
+    } @else if (!indisponivel()) {
+      <p class="aulas-do-dia-card__vazio" role="status">{{ rotulos().vazio }}</p>
+    }
   }
 </section>

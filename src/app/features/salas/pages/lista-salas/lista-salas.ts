@@ -12,8 +12,14 @@ import { equipamentosLocaisDaSala } from '../../services/salas-locais';
 import { OrganizacaoSalasService } from '../../services/organizacao-salas';
 import { ehAuditorio } from '../../services/localizacao-sala';
 
-const chaveTipo = (tipo: string) => tipo.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
-const tipoDoFiltro = (sala: SalaResumo) => ehAuditorio(sala.nome, sala.tipo) ? 'Auditórios' : sala.tipo;
+const chaveTipo = (tipo: string) =>
+  tipo
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase();
+const tipoDoFiltro = (sala: SalaResumo) =>
+  ehAuditorio(sala.nome, sala.tipo) ? 'Auditórios' : sala.tipo;
 
 /**
  * Página de listagem de salas, com dados do backend Java (issue #132). Cada
@@ -37,19 +43,25 @@ export class ListaSalas {
   protected readonly locais = this.consulta.locais;
   protected readonly salas = this.consulta.salas;
   protected readonly estadoAgenda = this.consulta.estadoAgenda;
-  protected disponibilidade(sala: SalaResumo) { return this.consulta.disponibilidade(sala); }
+  protected disponibilidade(sala: SalaResumo) {
+    return this.consulta.disponibilidade(sala);
+  }
   protected readonly carregando = this.consulta.carregando;
   protected readonly erro = this.consulta.erro;
   protected readonly avisoRemoto = computed(() => {
     const falhas = [
       { nome: 'cadastro', erro: this.erro(), prefixo: '' },
-      { nome: 'disponibilidade', erro: this.estadoAgenda().erro, prefixo: 'Não foi possível confirmar a disponibilidade das salas. ' },
+      {
+        nome: 'disponibilidade',
+        erro: this.estadoAgenda().erro,
+        prefixo: 'Não foi possível confirmar a disponibilidade das salas. ',
+      },
       { nome: 'equipamentos', erro: this.recursos.erro(), prefixo: 'Recursos das salas: ' },
-    ].filter(falha => !!falha.erro);
+    ].filter((falha) => !!falha.erro);
     if (!falhas.length) return null;
     if (falhas.length === 1) return falhas[0].prefixo + falhas[0].erro;
-    const mensagens = [...new Set(falhas.map(falha => falha.erro))].join(' ');
-    return `Não foi possível atualizar os dados das salas (${falhas.map(falha => falha.nome).join(', ')}). ${mensagens}`;
+    const mensagens = [...new Set(falhas.map((falha) => falha.erro))].join(' ');
+    return `Não foi possível atualizar os dados das salas (${falhas.map((falha) => falha.nome).join(', ')}). ${mensagens}`;
   });
 
   constructor() {
@@ -123,7 +135,9 @@ export class ListaSalas {
   /** Mensagem exibida quando a combinação de busca + filtro não encontra nenhuma sala. */
   protected readonly mensagemVazia = computed(() => {
     const termo = this.termoBusca().trim();
-    const contexto = [this.tipoSelecionado(), this.predioSelecionado()].filter(Boolean).join(' em ');
+    const contexto = [this.tipoSelecionado(), this.predioSelecionado()]
+      .filter(Boolean)
+      .join(' em ');
 
     if (termo && contexto) {
       return 'Nenhuma sala encontrada para "' + termo + '" em ' + contexto + '.';
@@ -156,5 +170,4 @@ export class ListaSalas {
     this.consulta.tentarNovamente();
     if (this.recursos.erro()) this.recursos.carregar();
   }
-
 }

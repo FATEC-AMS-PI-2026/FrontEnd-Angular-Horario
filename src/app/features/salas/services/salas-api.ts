@@ -14,12 +14,22 @@ import { predioDaSala } from './localizacao-sala';
 const TAMANHO_PAGINA = 200;
 
 function paraSalaResumo(sala: unknown): SalaResumo {
-  const id = ler(sala, 'id'), codigo = ler(sala, 'codigo'), capacidade = ler(sala, 'capacidade');
+  const id = ler(sala, 'id'),
+    codigo = ler(sala, 'codigo'),
+    capacidade = ler(sala, 'capacidade');
   const tipo = ler(ler(sala, 'tipoSala'), 'nome');
-  if (typeof id !== 'number' || !Number.isSafeInteger(id) || id <= 0 ||
-      typeof codigo !== 'string' || !codigo.trim() ||
-      typeof capacidade !== 'number' || !Number.isSafeInteger(capacidade) || capacidade < 0 ||
-      typeof tipo !== 'string' || !tipo.trim()) {
+  if (
+    typeof id !== 'number' ||
+    !Number.isSafeInteger(id) ||
+    id <= 0 ||
+    typeof codigo !== 'string' ||
+    !codigo.trim() ||
+    typeof capacidade !== 'number' ||
+    !Number.isSafeInteger(capacidade) ||
+    capacidade < 0 ||
+    typeof tipo !== 'string' ||
+    !tipo.trim()
+  ) {
     throw new Error('Cadastro de sala inválido.');
   }
   return { id, nome: codigo, capacidade, tipo, predio: predioDaSala(codigo, tipo) };
@@ -46,7 +56,9 @@ export class SalasApiService {
   /** Mensagem pronta para a tela quando a última carga falhou. */
   readonly erro = this.erroSignal.asReadonly();
 
-  constructor() { inject(DestroyRef).onDestroy(() => this.consulta?.unsubscribe()); }
+  constructor() {
+    inject(DestroyRef).onDestroy(() => this.consulta?.unsubscribe());
+  }
 
   obterPorId(id: number) {
     return this.http.get<unknown>(`${this.baseUrl}/salas/${id}`).pipe(map(paraSalaResumo));
@@ -59,25 +71,31 @@ export class SalasApiService {
     this.salasSignal.set([]);
 
     let totalEsperado: number | undefined;
-    const pagina = (page: number) => this.http.get<unknown>(`${this.baseUrl}/salas`, {
-      params: { page, size: TAMANHO_PAGINA },
-    }).pipe(map(resposta => {
-      const p = paginaDaApi(resposta, page, totalEsperado);
-      totalEsperado = p.totalPages;
-      return p;
-    }));
-    this.consulta = pagina(0).pipe(
-      expand(p => p.page + 1 < p.totalPages ? pagina(p.page + 1) : EMPTY),
-      map(p => p.content),
-      reduce((todas, itens) => todas.concat(itens), [] as unknown[]),
-      map(salas => {
-        const convertidas = salas.map(paraSalaResumo);
-        if (new Set(convertidas.map(s => s.id)).size !== convertidas.length) {
-          throw new Error('Salas duplicadas na resposta.');
-        }
-        return convertidas;
-      }),
-    )
+    const pagina = (page: number) =>
+      this.http
+        .get<unknown>(`${this.baseUrl}/salas`, {
+          params: { page, size: TAMANHO_PAGINA },
+        })
+        .pipe(
+          map((resposta) => {
+            const p = paginaDaApi(resposta, page, totalEsperado);
+            totalEsperado = p.totalPages;
+            return p;
+          }),
+        );
+    this.consulta = pagina(0)
+      .pipe(
+        expand((p) => (p.page + 1 < p.totalPages ? pagina(p.page + 1) : EMPTY)),
+        map((p) => p.content),
+        reduce((todas, itens) => todas.concat(itens), [] as unknown[]),
+        map((salas) => {
+          const convertidas = salas.map(paraSalaResumo);
+          if (new Set(convertidas.map((s) => s.id)).size !== convertidas.length) {
+            throw new Error('Salas duplicadas na resposta.');
+          }
+          return convertidas;
+        }),
+      )
       .subscribe({
         next: (salas) => {
           this.salasSignal.set(salas);

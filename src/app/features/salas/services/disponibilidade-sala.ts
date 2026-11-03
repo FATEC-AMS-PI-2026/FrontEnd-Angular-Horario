@@ -29,41 +29,68 @@ export interface DisponibilidadeSala {
 const DIAS = ['DOMINGO', 'SEGUNDA', 'TERCA', 'QUARTA', 'QUINTA', 'SEXTA', 'SABADO'];
 
 function paraAlocacaoSala(registro: unknown, filtroSala?: number): AlocacaoSalaApi {
-  const id = ler(registro, 'id'), salaId = ler(ler(registro, 'sala'), 'id');
-  if (typeof id !== 'number' || !Number.isSafeInteger(id) || id <= 0 ||
-      typeof salaId !== 'number' || !Number.isSafeInteger(salaId) || salaId <= 0 ||
-      (filtroSala !== undefined && salaId !== filtroSala)) {
+  const id = ler(registro, 'id'),
+    salaId = ler(ler(registro, 'sala'), 'id');
+  if (
+    typeof id !== 'number' ||
+    !Number.isSafeInteger(id) ||
+    id <= 0 ||
+    typeof salaId !== 'number' ||
+    !Number.isSafeInteger(salaId) ||
+    salaId <= 0 ||
+    (filtroSala !== undefined && salaId !== filtroSala)
+  ) {
     throw new Error('Alocações inválidas na agenda da sala.');
   }
   const texto = (objeto: unknown, campo: string): string => {
     const valor = ler(objeto, campo);
     return typeof valor === 'string' ? valor : '';
   };
-  const bloco = ler(registro, 'blocoHorario'), quadro = ler(registro, 'quadroHorario');
+  const bloco = ler(registro, 'blocoHorario'),
+    quadro = ler(registro, 'quadroHorario');
   const periodo = ler(quadro, 'periodoAtividadeQuadro');
   // Campos ausentes permanecem incompletos: não assumir quadro ativo, vigência ou dia.
   return {
-    id, sala: { id: salaId },
+    id,
+    sala: { id: salaId },
     disciplina: { nome: texto(ler(registro, 'disciplina'), 'nome') },
     professor: { nome: texto(ler(registro, 'professor'), 'nome') },
     turma: { codigo: texto(ler(registro, 'turma'), 'codigo') },
-    diaSemana: texto(registro, 'diaSemana').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toUpperCase(),
+    diaSemana: texto(registro, 'diaSemana')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim()
+      .toUpperCase(),
     blocoHorario: { horaInicio: texto(bloco, 'horaInicio'), horaFim: texto(bloco, 'horaFim') },
-    quadroHorario: { status: texto(quadro, 'status'), periodoAtividadeQuadro: {
-      status: texto(periodo, 'status'), dataInicio: texto(periodo, 'dataInicio'), dataFim: texto(periodo, 'dataFim'),
-    } },
+    quadroHorario: {
+      status: texto(quadro, 'status'),
+      periodoAtividadeQuadro: {
+        status: texto(periodo, 'status'),
+        dataInicio: texto(periodo, 'dataInicio'),
+        dataFim: texto(periodo, 'dataFim'),
+      },
+    },
   };
 }
 
 export function momentoSaoPaulo(agora: Date) {
   const partes = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23',
+    timeZone: 'America/Sao_Paulo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle: 'h23',
   }).formatToParts(agora);
-  const valor = (tipo: string) => partes.find(p => p.type === tipo)!.value;
+  const valor = (tipo: string) => partes.find((p) => p.type === tipo)!.value;
   const data = `${valor('year')}-${valor('month')}-${valor('day')}`;
-  return { data, dia: DIAS[new Date(`${data}T12:00:00Z`).getUTCDay()],
-    segundos: +valor('hour') * 3600 + +valor('minute') * 60 + +valor('second') };
+  return {
+    data,
+    dia: DIAS[new Date(`${data}T12:00:00Z`).getUTCDay()],
+    segundos: +valor('hour') * 3600 + +valor('minute') * 60 + +valor('second'),
+  };
 }
 
 function segundos(horario: string): number {
@@ -72,25 +99,48 @@ function segundos(horario: string): number {
   return h * 3600 + m * 60 + s;
 }
 
-export function aulasJavaDaSala(salaId: number, agenda: AlocacaoSalaApi[], agora: Date): AulaDoDia[] {
+export function aulasJavaDaSala(
+  salaId: number,
+  agenda: AlocacaoSalaApi[],
+  agora: Date,
+): AulaDoDia[] {
   const m = momentoSaoPaulo(agora);
-  return agenda.filter(a => a.sala?.id === salaId && a.diaSemana === m.dia &&
-    a.quadroHorario?.status === 'ATIVO' && a.quadroHorario.periodoAtividadeQuadro?.status === 'ATIVO' &&
-    a.quadroHorario.periodoAtividadeQuadro.dataInicio <= m.data &&
-    m.data <= a.quadroHorario.periodoAtividadeQuadro.dataFim &&
-    segundos(a.blocoHorario?.horaInicio ?? '') < segundos(a.blocoHorario?.horaFim ?? '')
-  ).map(a => ({ inicio: a.blocoHorario.horaInicio.slice(0, 5), termino: a.blocoHorario.horaFim.slice(0, 5),
-    disciplina: a.disciplina?.nome ?? '', professor: a.professor?.nome, turma: a.turma?.codigo ?? '', origem: 'java' as const }));
+  return agenda
+    .filter(
+      (a) =>
+        a.sala?.id === salaId &&
+        a.diaSemana === m.dia &&
+        a.quadroHorario?.status === 'ATIVO' &&
+        a.quadroHorario.periodoAtividadeQuadro?.status === 'ATIVO' &&
+        a.quadroHorario.periodoAtividadeQuadro.dataInicio <= m.data &&
+        m.data <= a.quadroHorario.periodoAtividadeQuadro.dataFim &&
+        segundos(a.blocoHorario?.horaInicio ?? '') < segundos(a.blocoHorario?.horaFim ?? ''),
+    )
+    .map((a) => ({
+      inicio: a.blocoHorario.horaInicio.slice(0, 5),
+      termino: a.blocoHorario.horaFim.slice(0, 5),
+      disciplina: a.disciplina?.nome ?? '',
+      professor: a.professor?.nome,
+      turma: a.turma?.codigo ?? '',
+      origem: 'java' as const,
+    }));
 }
 
 /** O Java prevalece nos intervalos em que as duas fontes informam aulas. */
 export function unirAulas(java: AulaDoDia[], locais: AulaDoDia[]): AulaDoDia[] {
-  return [...java, ...locais.filter(l => !java.some(j => j.inicio < l.termino && l.inicio < j.termino))]
-    .sort((a, b) => a.inicio.localeCompare(b.inicio));
+  return [
+    ...java,
+    ...locais.filter((l) => !java.some((j) => j.inicio < l.termino && l.inicio < j.termino)),
+  ].sort((a, b) => a.inicio.localeCompare(b.inicio));
 }
 
 /** Intervalos [início, fim); nunca deduz disponibilidade de uma agenda parcial. */
-export function calcularDisponibilidade(salaId: number, alocacoes: AlocacaoSalaApi[], agora: Date, complementares: AulaDoDia[] = []): DisponibilidadeSala {
+export function calcularDisponibilidade(
+  salaId: number,
+  alocacoes: AlocacaoSalaApi[],
+  agora: Date,
+  complementares: AulaDoDia[] = [],
+): DisponibilidadeSala {
   const momento = momentoSaoPaulo(agora);
   const horarios: { inicio: number; fim: number; rotulo: string }[] = [];
   for (const aula of alocacoes) {
@@ -98,12 +148,22 @@ export function calcularDisponibilidade(salaId: number, alocacoes: AlocacaoSalaA
     const quadro = aula.quadroHorario;
     const periodo = quadro?.periodoAtividadeQuadro;
     if (quadro?.status === 'INATIVO' || periodo?.status === 'INATIVO') continue;
-    if (quadro?.status !== 'ATIVO' || periodo?.status !== 'ATIVO' ||
-        !/^\d{4}-\d{2}-\d{2}$/.test(periodo.dataInicio) || !/^\d{4}-\d{2}-\d{2}$/.test(periodo.dataFim) ||
-        periodo.dataInicio > periodo.dataFim || !DIAS.includes(aula.diaSemana)) {
+    if (
+      quadro?.status !== 'ATIVO' ||
+      periodo?.status !== 'ATIVO' ||
+      !/^\d{4}-\d{2}-\d{2}$/.test(periodo.dataInicio) ||
+      !/^\d{4}-\d{2}-\d{2}$/.test(periodo.dataFim) ||
+      periodo.dataInicio > periodo.dataFim ||
+      !DIAS.includes(aula.diaSemana)
+    ) {
       return { texto: 'Disponibilidade indisponível: horários incompletos.' };
     }
-    if (momento.data < periodo.dataInicio || momento.data > periodo.dataFim || aula.diaSemana !== momento.dia) continue;
+    if (
+      momento.data < periodo.dataInicio ||
+      momento.data > periodo.dataFim ||
+      aula.diaSemana !== momento.dia
+    )
+      continue;
     const inicio = segundos(aula.blocoHorario?.horaInicio ?? '');
     const fim = segundos(aula.blocoHorario?.horaFim ?? '');
     if (!Number.isFinite(inicio) || !Number.isFinite(fim) || fim <= inicio) {
@@ -113,16 +173,20 @@ export function calcularDisponibilidade(salaId: number, alocacoes: AlocacaoSalaA
   }
   // Aulas locais complementam a ocupação conhecida, mas nunca garantem agenda global sozinhas.
   for (const aula of complementares) {
-    const inicio = segundos(aula.inicio), fim = segundos(aula.termino);
+    const inicio = segundos(aula.inicio),
+      fim = segundos(aula.termino);
     if (Number.isFinite(inicio) && Number.isFinite(fim) && inicio < fim) {
       horarios.push({ inicio, fim, rotulo: aula.inicio.slice(0, 5) });
     }
   }
-  if (horarios.some(h => h.inicio <= momento.segundos && momento.segundos < h.fim)) {
+  if (horarios.some((h) => h.inicio <= momento.segundos && momento.segundos < h.fim)) {
     return { status: 'Em uso', texto: 'Em uso' };
   }
-  const proximo = horarios.filter(h => h.inicio > momento.segundos).sort((a, b) => a.inicio - b.inicio)[0];
-  return proximo ? { status: 'Livre', texto: `Livre até às ${proximo.rotulo}` }
+  const proximo = horarios
+    .filter((h) => h.inicio > momento.segundos)
+    .sort((a, b) => a.inicio - b.inicio)[0];
+  return proximo
+    ? { status: 'Livre', texto: `Livre até às ${proximo.rotulo}` }
     : { status: 'Livre', texto: 'Livre — sem mais aulas hoje' };
 }
 
@@ -135,21 +199,25 @@ export class DisponibilidadeSalaService {
   carregar(salaId?: number) {
     return defer(() => {
       let totalEsperado: number | undefined;
-      const pagina = (page: number) => this.http.get<unknown>(
-        `${this.config.url.replace(/\/+$/, '')}/alocacoes`, { params: { ...(salaId === undefined ? {} : { id_sala: salaId }), page, size: 200 } }).pipe(
-          map(resposta => {
-            const p = paginaDaApi(resposta, page, totalEsperado);
-            totalEsperado = p.totalPages;
-            // Sem a sala de uma alocação, não é possível garantir que outra sala esteja livre.
-            return { ...p, content: p.content.map(a => paraAlocacaoSala(a, salaId)) };
-          }),
-        );
+      const pagina = (page: number) =>
+        this.http
+          .get<unknown>(`${this.config.url.replace(/\/+$/, '')}/alocacoes`, {
+            params: { ...(salaId === undefined ? {} : { id_sala: salaId }), page, size: 200 },
+          })
+          .pipe(
+            map((resposta) => {
+              const p = paginaDaApi(resposta, page, totalEsperado);
+              totalEsperado = p.totalPages;
+              // Sem a sala de uma alocação, não é possível garantir que outra sala esteja livre.
+              return { ...p, content: p.content.map((a) => paraAlocacaoSala(a, salaId)) };
+            }),
+          );
       return pagina(0).pipe(
-        expand(p => p.page + 1 < p.totalPages ? pagina(p.page + 1) : EMPTY),
-        map(p => p.content),
+        expand((p) => (p.page + 1 < p.totalPages ? pagina(p.page + 1) : EMPTY)),
+        map((p) => p.content),
         reduce((todas, itens) => todas.concat(itens), [] as AlocacaoSalaApi[]),
-        map(alocacoes => {
-          if (new Set(alocacoes.map(a => a.id)).size !== alocacoes.length) {
+        map((alocacoes) => {
+          if (new Set(alocacoes.map((a) => a.id)).size !== alocacoes.length) {
             throw new Error('Alocações duplicadas na agenda da sala.');
           }
           return alocacoes;

@@ -11,9 +11,8 @@ describe('Topbar', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Topbar],
-      providers: [provideRouter([])]
-    })
-    .compileComponents();
+      providers: [provideRouter([])],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(Topbar);
     component = fixture.componentInstance;
@@ -27,10 +26,12 @@ describe('Topbar', () => {
   it('exibe o código da sala no breadcrumb do header e limpa ao sair dos detalhes', () => {
     component.title = 'Salas';
     const contexto = TestBed.inject(TopbarContextService);
-    contexto.sala.set('LAB 01'); fixture.detectChanges();
+    contexto.sala.set('LAB 01');
+    fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('h1').textContent).toContain('Salas / LAB 01');
     expect(fixture.nativeElement.querySelector('nav a').getAttribute('href')).toBe('/salas');
-    contexto.sala.set(null); fixture.detectChanges();
+    contexto.sala.set(null);
+    fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('nav')).toBeNull();
     expect(fixture.nativeElement.querySelector('h1').textContent).toBe('Salas');
   });

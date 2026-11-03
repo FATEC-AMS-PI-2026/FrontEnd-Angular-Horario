@@ -21,12 +21,21 @@ export function mapearSalasHoje(alocacoes: AlocacaoResponse[], cadastro: SalaRes
     salas.set(chave, sala);
   }
   return [...salas.entries()].map(([chave, item]) => {
-    const correspondentes = cadastro.filter(sala => codigoSala(sala.nome) === chave);
+    const correspondentes = cadastro.filter((sala) => codigoSala(sala.nome) === chave);
     const sala = correspondentes.length === 1 ? correspondentes[0] : undefined;
     const codigo = sala?.nome ?? item.codigo;
-    const localizacao = [sala?.predio?.trim(), sala?.andar !== undefined ? `Andar ${sala.andar}` : '']
-      .filter(Boolean).join(' | ');
-    return { chave, codigo, identificacao: localizacao ? `${codigo} – ${localizacao}` : codigo,
-      disciplinas: [...item.disciplinas].join(' · '), sala };
+    const localizacao = [
+      sala?.predio?.trim(),
+      sala?.andar !== undefined ? `Andar ${sala.andar}` : '',
+    ]
+      .filter(Boolean)
+      .join(' | ');
+    return {
+      chave,
+      codigo,
+      identificacao: localizacao ? `${codigo} – ${localizacao}` : codigo,
+      disciplinas: [...item.disciplinas].join(' · '),
+      sala,
+    };
   });
 }

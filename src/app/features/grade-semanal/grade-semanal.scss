@@ -17,9 +17,15 @@
   }
 
   > p,
-  .estado-grade > p { @include cards.card-mensagem; }
+  .estado-grade > p {
+    @include cards.card-mensagem;
+  }
 
-  .estado-grade { display: grid; gap: var(--space-sm); justify-items: start; }
+  .estado-grade {
+    display: grid;
+    gap: var(--space-sm);
+    justify-items: start;
+  }
 }
 
 .tabela-scroll {
@@ -128,7 +134,9 @@
     font-size: var(--text-sm);
     font-weight: var(--fw-semibold);
     cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
 
     &:hover {
       transform: scale(1.03);

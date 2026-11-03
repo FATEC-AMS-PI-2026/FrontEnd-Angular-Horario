@@ -1,0 +1,18 @@
+# Dependências e arquivos gerados
+node_modules/
+.angular/
+dist/
+out-tsc/
+coverage/
+tmp/
+package-lock.json
+
+# Memória e configurações locais
+Agents/
+AGENTS.md
+.agents/
+.codex/
+
+# Assets originais e documentação editorial
+public/icons/
+README.md

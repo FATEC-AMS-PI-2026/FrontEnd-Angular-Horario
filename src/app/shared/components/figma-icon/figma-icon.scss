@@ -9,7 +9,9 @@
   pointer-events: none;
 }
 
-:host(.action-icon) { --icon-size: 1em; }
+:host(.action-icon) {
+  --icon-size: 1em;
+}
 
 .icone__mascara {
   display: block;
@@ -21,7 +23,9 @@
   mask-position: center;
 }
 
-.icone__mascara--invertida { transform: rotate(180deg); }
+.icone__mascara--invertida {
+  transform: rotate(180deg);
+}
 
 .icone__simbolo {
   font-family: var(--font-sans);

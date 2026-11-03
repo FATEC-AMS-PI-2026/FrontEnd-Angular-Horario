@@ -5,20 +5,34 @@
  * fora porque o Dashboard usa essas cores para intervalo e alerta.
  */
 export const PALETA_MATERIAS = [
-    'verde', 'azul', 'ciano', 'roxo', 'rosa', 'magenta', 'indigo',
-    'turquesa', 'lima', 'oliva', 'laranja', 'pessego', 'marrom', 'ardosia', 'petroleo', 'lavanda',
+  'verde',
+  'azul',
+  'ciano',
+  'roxo',
+  'rosa',
+  'magenta',
+  'indigo',
+  'turquesa',
+  'lima',
+  'oliva',
+  'laranja',
+  'pessego',
+  'marrom',
+  'ardosia',
+  'petroleo',
+  'lavanda',
 ] as const;
 
 export type CorMateria = (typeof PALETA_MATERIAS)[number];
 
 /** Cópia embaralhada da lista (Fisher–Yates). `aleatorio` é injetável para os testes. */
 export function embaralhar<T>(lista: readonly T[], aleatorio: () => number = Math.random): T[] {
-    const copia = [...lista];
-    for (let i = copia.length - 1; i > 0; i--) {
-        const j = Math.floor(aleatorio() * (i + 1));
-        [copia[i], copia[j]] = [copia[j], copia[i]];
-    }
-    return copia;
+  const copia = [...lista];
+  for (let i = copia.length - 1; i > 0; i--) {
+    const j = Math.floor(aleatorio() * (i + 1));
+    [copia[i], copia[j]] = [copia[j], copia[i]];
+  }
+  return copia;
 }
 
 /**
@@ -29,12 +43,15 @@ export function embaralhar<T>(lista: readonly T[], aleatorio: () => number = Mat
  * A cor não fica presa à matéria: quem chama passa uma paleta embaralhada a
  * cada carregamento da tela (issues #113 e #115).
  */
-export function atribuirCores(materias: readonly string[], paleta: readonly CorMateria[]): Map<string, CorMateria> {
-    const cores = new Map<string, CorMateria>();
-    for (const materia of materias) {
-        if (!cores.has(materia)) {
-            cores.set(materia, paleta[cores.size % paleta.length]);
-        }
+export function atribuirCores(
+  materias: readonly string[],
+  paleta: readonly CorMateria[],
+): Map<string, CorMateria> {
+  const cores = new Map<string, CorMateria>();
+  for (const materia of materias) {
+    if (!cores.has(materia)) {
+      cores.set(materia, paleta[cores.size % paleta.length]);
     }
-    return cores;
+  }
+  return cores;
 }

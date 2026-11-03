@@ -9,14 +9,30 @@ import { RecursoSalaApi } from '../models/recurso-sala';
 
 export function equipamentoDoRecurso(item: RecursoSalaApi): Equipamento {
   const nome = item.recurso.nome;
-  const normalizado = nome.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-  const tipo = /^computador(?:es)?\b/.test(normalizado) ? 'Computador'
-    : /^cadeira(?:s)?\b/.test(normalizado) ? 'Cadeira'
-    : /^(televisao|televisor|televisores|televisoes|tv)\b/.test(normalizado) ? 'Televisão'
-    : /^wi[ -]?fi\b/.test(normalizado) ? 'Wi-Fi'
-    : /^projetor(?:es)?\b/.test(normalizado) ? 'Projetor multimidia'
-    : /^ar[ -]condicionado\b/.test(normalizado) ? 'Ar-condicionado' : nome;
-  return { id: item.id, tipo, nome, categoria: item.recurso.tipo.nome, quantidadeTotal: item.quantidade };
+  const normalizado = nome
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+  const tipo = /^computador(?:es)?\b/.test(normalizado)
+    ? 'Computador'
+    : /^cadeira(?:s)?\b/.test(normalizado)
+      ? 'Cadeira'
+      : /^(televisao|televisor|televisores|televisoes|tv)\b/.test(normalizado)
+        ? 'Televisão'
+        : /^wi[ -]?fi\b/.test(normalizado)
+          ? 'Wi-Fi'
+          : /^projetor(?:es)?\b/.test(normalizado)
+            ? 'Projetor multimidia'
+            : /^ar[ -]condicionado\b/.test(normalizado)
+              ? 'Ar-condicionado'
+              : nome;
+  return {
+    id: item.id,
+    tipo,
+    nome,
+    categoria: item.recurso.tipo.nome,
+    quantidadeTotal: item.quantidade,
+  };
 }
 
 /** Uma instância por página: consulta global na lista e filtrada nos detalhes. */
@@ -28,12 +44,15 @@ export class RecursosSalaService {
   private readonly erros = inject(ApiErrorService);
   private consulta?: Subscription;
   private readonly carregado = signal(false);
-  readonly habilitado = this.config.habilitado || (this.config.modulos ?? []).includes('recursos-salas');
+  readonly habilitado =
+    this.config.habilitado || (this.config.modulos ?? []).includes('recursos-salas');
   readonly porSala = signal<ReadonlyMap<number, Equipamento[]>>(new Map());
   readonly carregando = signal(false);
   readonly erro = signal<string | null>(null);
 
-  constructor() { inject(DestroyRef).onDestroy(() => this.consulta?.unsubscribe()); }
+  constructor() {
+    inject(DestroyRef).onDestroy(() => this.consulta?.unsubscribe());
+  }
 
   limpar(): void {
     this.consulta?.unsubscribe();
@@ -48,45 +67,68 @@ export class RecursosSalaService {
     if (!this.habilitado) return;
     this.carregando.set(true);
     let totalEsperado: number | undefined;
-    const pagina = (page: number) => this.http.get<unknown>(`${this.base}/recursos-salas`, {
-      params: { page, size: 200, ...(salaId === undefined ? {} : { id_sala: salaId }) },
-    }).pipe(map(resposta => {
-      const p = paginaDaApi(resposta, page, totalEsperado);
-      totalEsperado = p.totalPages;
-      return { ...p, content: p.content as RecursoSalaApi[] };
-    }));
-    this.consulta = pagina(0).pipe(
-      expand(p => p.page + 1 < p.totalPages ? pagina(p.page + 1) : EMPTY),
-      map(p => p.content),
-      reduce((todos, itens) => todos.concat(itens), [] as RecursoSalaApi[]),
-      map(itens => {
-        const salas = new Map<number, Equipamento[]>();
-        const vistos = new Set<number>();
-        for (const item of itens) {
-          if (!item || !Number.isSafeInteger(item.id) || item.id <= 0 ||
-              !Number.isSafeInteger(item.sala?.id) || item.sala.id <= 0 ||
+    const pagina = (page: number) =>
+      this.http
+        .get<unknown>(`${this.base}/recursos-salas`, {
+          params: { page, size: 200, ...(salaId === undefined ? {} : { id_sala: salaId }) },
+        })
+        .pipe(
+          map((resposta) => {
+            const p = paginaDaApi(resposta, page, totalEsperado);
+            totalEsperado = p.totalPages;
+            return { ...p, content: p.content as RecursoSalaApi[] };
+          }),
+        );
+    this.consulta = pagina(0)
+      .pipe(
+        expand((p) => (p.page + 1 < p.totalPages ? pagina(p.page + 1) : EMPTY)),
+        map((p) => p.content),
+        reduce((todos, itens) => todos.concat(itens), [] as RecursoSalaApi[]),
+        map((itens) => {
+          const salas = new Map<number, Equipamento[]>();
+          const vistos = new Set<number>();
+          for (const item of itens) {
+            if (
+              !item ||
+              !Number.isSafeInteger(item.id) ||
+              item.id <= 0 ||
+              !Number.isSafeInteger(item.sala?.id) ||
+              item.sala.id <= 0 ||
               (salaId !== undefined && item.sala.id !== salaId) ||
-              !item.recurso?.nome?.trim() || !item.recurso.tipo?.nome ||
-              !Number.isSafeInteger(item.quantidade) || item.quantidade < 0) {
-            throw new Error('Recurso de sala inválido.');
+              !item.recurso?.nome?.trim() ||
+              !item.recurso.tipo?.nome ||
+              !Number.isSafeInteger(item.quantidade) ||
+              item.quantidade < 0
+            ) {
+              throw new Error('Recurso de sala inválido.');
+            }
+            if (vistos.has(item.id)) continue;
+            vistos.add(item.id);
+            salas.set(item.sala.id, [
+              ...(salas.get(item.sala.id) ?? []),
+              equipamentoDoRecurso(item),
+            ]);
           }
-          if (vistos.has(item.id)) continue;
-          vistos.add(item.id);
-          salas.set(item.sala.id, [...(salas.get(item.sala.id) ?? []), equipamentoDoRecurso(item)]);
-        }
-        return salas;
-      }),
-    ).subscribe({
-      next: salas => { this.porSala.set(salas); this.carregado.set(true); this.carregando.set(false); },
-      error: erro => {
-        this.erro.set(this.erros.mensagem(erro, 'Não foi possível consultar os recursos das salas.'));
-        this.carregando.set(false);
-      },
-    });
+          return salas;
+        }),
+      )
+      .subscribe({
+        next: (salas) => {
+          this.porSala.set(salas);
+          this.carregado.set(true);
+          this.carregando.set(false);
+        },
+        error: (erro) => {
+          this.erro.set(
+            this.erros.mensagem(erro, 'Não foi possível consultar os recursos das salas.'),
+          );
+          this.carregando.set(false);
+        },
+      });
   }
 
   /** null indica informação indisponível; [] confirma uma sala sem recursos. */
   daSala(salaId: number): Equipamento[] | null {
-    return this.carregado() ? this.porSala().get(salaId) ?? [] : null;
+    return this.carregado() ? (this.porSala().get(salaId) ?? []) : null;
   }
 }

@@ -16,10 +16,7 @@
       "organizacao": "Anual",
       "turno": "Tarde",
       "unidade": "Fatec Itu",
-      "periodos": [
-        1,
-        2
-      ],
+      "periodos": [1, 2],
       "cargaHoraria": null,
       "duracaoSemestres": 4,
       "coordenador": null
@@ -30,10 +27,7 @@
       "organizacao": "Anual",
       "turno": "Tarde",
       "unidade": "Fatec Itu",
-      "periodos": [
-        1,
-        2
-      ],
+      "periodos": [1, 2],
       "cargaHoraria": null,
       "duracaoSemestres": 4,
       "coordenador": null

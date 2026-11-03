@@ -25,10 +25,14 @@ function sala(id: number, codigo: string, tipo: string, capacidade = 40): SalaAp
 
 function alocacaoPessoal(codigo: string, id = 1): AlocacaoResponse {
   return {
-    id, sala: { id, codigo }, diaSemana: 'QUINTA', professor: null,
+    id,
+    sala: { id, codigo },
+    diaSemana: 'QUINTA',
+    professor: null,
     disciplina: { id: 1, nome: 'Disciplina escolhida', periodo: 1 },
     blocoHorario: { id: 1, horaInicio: '13:00', horaFim: '14:00', duracao: 60 },
-    turma: { id: 1, codigo: 'Turma', periodo: 1, ano: 2026 }, quadroHorario: { id: 1, versao: 1 },
+    turma: { id: 1, codigo: 'Turma', periodo: 1, ano: 2026 },
+    quadroHorario: { id: 1, versao: 1 },
   };
 }
 
@@ -44,26 +48,49 @@ describe('ListaSalas', () => {
       providers: [
         provideRouter([]),
         { provide: CARREGAR_GRADE_SEMANAL, useValue: () => grade },
-        { provide: RelogioService, useValue: { agora: () => new Date('2026-10-05T13:20:00-03:00') } },
-      { provide: SalasLocaisService, useValue: { salas: signal([]), catalogo: signal(null), erro: signal(null), carregando: signal(false), carregar: () => {} } },
+        {
+          provide: RelogioService,
+          useValue: { agora: () => new Date('2026-10-05T13:20:00-03:00') },
+        },
+        {
+          provide: SalasLocaisService,
+          useValue: {
+            salas: signal([]),
+            catalogo: signal(null),
+            erro: signal(null),
+            carregando: signal(false),
+            carregar: () => {},
+          },
+        },
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: BACKEND_CONFIG, useValue: { habilitado: false, url: BASE, modulos: ['salas', 'recursos-salas'] } },
+        {
+          provide: BACKEND_CONFIG,
+          useValue: { habilitado: false, url: BASE, modulos: ['salas', 'recursos-salas'] },
+        },
       ],
     }).compileComponents();
 
     http = TestBed.inject(HttpTestingController);
     fixture = TestBed.createComponent(ListaSalas);
     fixture.detectChanges();
-    http.expectOne(r => r.url === `${BASE}/recursos-salas`).flush({ content: [], page: 0, totalPages: 0 });
+    http
+      .expectOne((r) => r.url === `${BASE}/recursos-salas`)
+      .flush({ content: [], page: 0, totalPages: 0 });
   });
 
   afterEach(() => http.verify());
 
   function responder(salas: SalaApi[]): void {
-    http.expectOne((req) => req.url === `${BASE}/salas`).flush({
-      content: salas, page: 0, size: 200, totalElements: salas.length, totalPages: 1,
-    });
+    http
+      .expectOne((req) => req.url === `${BASE}/salas`)
+      .flush({
+        content: salas,
+        page: 0,
+        size: 200,
+        totalElements: salas.length,
+        totalPages: 1,
+      });
     fixture.detectChanges();
   }
 
@@ -77,10 +104,17 @@ describe('ListaSalas', () => {
 
     expect(cards().length).toBe(2);
     expect(cards()[1].querySelector('h2')?.textContent).toContain('SALA-21');
-    expect(cards()[1].querySelector('.card-sala__info')?.textContent?.replace(/\s+/g, ' ')).toContain('Sala · 50 lugares');
-    expect(elemento().querySelector('.lista-salas__filtro-predio')?.textContent).toContain('Prédio 1');
-    expect(Array.from(elemento().querySelectorAll('.card-sala__local'), local => local.textContent?.trim()))
-      .toEqual(['Prédio 1', 'Prédio 1']);
+    expect(
+      cards()[1].querySelector('.card-sala__info')?.textContent?.replace(/\s+/g, ' '),
+    ).toContain('Sala · 50 lugares');
+    expect(elemento().querySelector('.lista-salas__filtro-predio')?.textContent).toContain(
+      'Prédio 1',
+    );
+    expect(
+      Array.from(elemento().querySelectorAll('.card-sala__local'), (local) =>
+        local.textContent?.trim(),
+      ),
+    ).toEqual(['Prédio 1', 'Prédio 1']);
     // Andar e status não são deduzidos do prédio.
     expect(elemento().textContent).not.toContain('andar');
     expect(elemento().querySelector('app-status-sala-badge')).toBeNull();
@@ -91,15 +125,21 @@ describe('ListaSalas', () => {
     expect(cards().length).toBe(2);
     expect(cards()[0].querySelector('.card-sala__local')).toBeNull();
     const filtro = elemento().querySelector<HTMLSelectElement>('.lista-salas__filtro-predio')!;
-    expect(Array.from(filtro.options, opcao => opcao.value)).toEqual(['', 'Prédio 1']);
-    filtro.value = 'Prédio 1'; filtro.dispatchEvent(new Event('change')); fixture.detectChanges();
+    expect(Array.from(filtro.options, (opcao) => opcao.value)).toEqual(['', 'Prédio 1']);
+    filtro.value = 'Prédio 1';
+    filtro.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
     expect(cards().length).toBe(1);
     expect(cards()[0].textContent).toContain('LAB-01');
 
-    filtro.value = ''; filtro.dispatchEvent(new Event('change')); fixture.detectChanges();
-    const auditório = Array.from(elemento().querySelectorAll<HTMLButtonElement>('.lista-salas__tipos button'))
-      .find(chip => chip.textContent?.trim() === 'Auditórios')!;
-    auditório.click(); fixture.detectChanges();
+    filtro.value = '';
+    filtro.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+    const auditório = Array.from(
+      elemento().querySelectorAll<HTMLButtonElement>('.lista-salas__tipos button'),
+    ).find((chip) => chip.textContent?.trim() === 'Auditórios')!;
+    auditório.click();
+    fixture.detectChanges();
     expect(cards().length).toBe(1);
     expect(cards()[0].textContent).toContain('AUD-01');
     expect(cards()[0].querySelector('.card-sala__local')).toBeNull();
@@ -111,20 +151,35 @@ describe('ListaSalas', () => {
       { id: 90, nome: 'AUD_02', origem: 'local', rotaId: 'local-90' },
     ]);
     responder([
-      sala(1, 'LAB-01', 'Laboratorio'), sala(3, 'AUD-01', 'Sala', 120),
-      sala(4, 'Auditório principal', 'Sala'), sala(5, 'ESPACO-03', 'Auditorio'),
+      sala(1, 'LAB-01', 'Laboratorio'),
+      sala(3, 'AUD-01', 'Sala', 120),
+      sala(4, 'Auditório principal', 'Sala'),
+      sala(5, 'ESPACO-03', 'Auditorio'),
       sala(6, 'Sala 11', 'Sala'),
     ]);
-    const chips = Array.from(elemento().querySelectorAll<HTMLButtonElement>('.lista-salas__tipos button'));
-    expect(chips.map(chip => chip.textContent?.trim())).toEqual(['Todos', 'Auditórios', 'Laboratorio', 'Sala']);
+    const chips = Array.from(
+      elemento().querySelectorAll<HTMLButtonElement>('.lista-salas__tipos button'),
+    );
+    expect(chips.map((chip) => chip.textContent?.trim())).toEqual([
+      'Todos',
+      'Auditórios',
+      'Laboratorio',
+      'Sala',
+    ]);
 
-    chips[1].click(); fixture.detectChanges();
+    chips[1].click();
+    fixture.detectChanges();
     expect(chips[1].getAttribute('aria-pressed')).toBe('true');
-    expect(Array.from(cards(), card => card.querySelector('h2')?.textContent))
-      .toEqual(['AUD-01', 'AUD_02', 'Auditório principal', 'ESPACO-03']);
-    expect(Array.from(cards(), card => card.getAttribute('href'))).toContain('/salas/local-90');
+    expect(Array.from(cards(), (card) => card.querySelector('h2')?.textContent)).toEqual([
+      'AUD-01',
+      'AUD_02',
+      'Auditório principal',
+      'ESPACO-03',
+    ]);
+    expect(Array.from(cards(), (card) => card.getAttribute('href'))).toContain('/salas/local-90');
 
-    chips[3].click(); fixture.detectChanges();
+    chips[3].click();
+    fixture.detectChanges();
     expect(cards().length).toBe(1);
     expect(cards()[0].querySelector('h2')?.textContent).toBe('Sala 11');
   });
@@ -135,8 +190,14 @@ describe('ListaSalas', () => {
       sala(2, 'LAB-02', 'Laboratorio'),
       sala(3, 'MAKER-01', 'Sala Maker'),
     ]);
-    const chips = Array.from(elemento().querySelectorAll<HTMLButtonElement>('.lista-salas__tipos .filtro-chip'));
-    expect(chips.map((chip) => chip.textContent?.trim())).toEqual(['Todos', 'Laboratorio', 'Sala Maker']);
+    const chips = Array.from(
+      elemento().querySelectorAll<HTMLButtonElement>('.lista-salas__tipos .filtro-chip'),
+    );
+    expect(chips.map((chip) => chip.textContent?.trim())).toEqual([
+      'Todos',
+      'Laboratorio',
+      'Sala Maker',
+    ]);
 
     chips[2].click();
     fixture.detectChanges();
@@ -153,46 +214,85 @@ describe('ListaSalas', () => {
       { id: 91, nome: 'LAB 02', origem: 'local', rotaId: 'local-91' },
       { id: 92, nome: 'Sala 2', origem: 'local', rotaId: 'local-92' },
     ]);
-    responder([sala(10, 'Sala 10', 'Sala'), sala(12, 'LAB-10', 'Laboratório'),
-      sala(2, 'Sala 2', 'Sala'), sala(1, 'Auditório', 'Auditório')]);
-    expect(Array.from(cards(), card => card.querySelector('h2')?.textContent))
-      .toEqual(['Auditório', 'LAB 02', 'LAB-10', 'Sala 2', 'Sala 3', 'Sala 10']);
+    responder([
+      sala(10, 'Sala 10', 'Sala'),
+      sala(12, 'LAB-10', 'Laboratório'),
+      sala(2, 'Sala 2', 'Sala'),
+      sala(1, 'Auditório', 'Auditório'),
+    ]);
+    expect(Array.from(cards(), (card) => card.querySelector('h2')?.textContent)).toEqual([
+      'Auditório',
+      'LAB 02',
+      'LAB-10',
+      'Sala 2',
+      'Sala 3',
+      'Sala 10',
+    ]);
     expect(cards()[3].getAttribute('href')).toBe('/salas/2');
     expect((locais.salas as WritableSignal<SalaResumo[]>)()[0].nome).toBe('Sala 3');
   });
 
   it('separa as salas da grade semanal por código e mantém ordem e grupos nos filtros', () => {
-    responder([sala(5, 'Sala 10', 'Sala'), sala(1, 'Sala 2', 'Sala'),
-      sala(3, 'LAB-02', 'Laboratório'), sala(4, 'Sala 3', 'Sala'), sala(6, 'Auditório', 'Auditório')]);
+    responder([
+      sala(5, 'Sala 10', 'Sala'),
+      sala(1, 'Sala 2', 'Sala'),
+      sala(3, 'LAB-02', 'Laboratório'),
+      sala(4, 'Sala 3', 'Sala'),
+      sala(6, 'Auditório', 'Auditório'),
+    ]);
     // Hoje é segunda; a quinta também participa. IDs coincidentes não definem o vínculo.
-    grade.next([alocacaoPessoal('Sala 10', 1), alocacaoPessoal(' lab 02 ', 90), alocacaoPessoal('SALA-2', 91)]);
+    grade.next([
+      alocacaoPessoal('Sala 10', 1),
+      alocacaoPessoal(' lab 02 ', 90),
+      alocacaoPessoal('SALA-2', 91),
+    ]);
     fixture.detectChanges();
     const grupos = elemento().querySelectorAll('.lista-salas__grupo');
-    expect(Array.from(grupos, grupo => grupo.getAttribute('aria-label'))).toEqual(['Suas salas', 'Outras salas']);
-    expect(Array.from(grupos[0].querySelectorAll('.card-sala h2'), el => el.textContent))
-      .toEqual(['LAB-02', 'Sala 2', 'Sala 10']);
-    expect(Array.from(grupos[1].querySelectorAll('.card-sala h2'), el => el.textContent))
-      .toEqual(['Auditório', 'Sala 3']);
+    expect(Array.from(grupos, (grupo) => grupo.getAttribute('aria-label'))).toEqual([
+      'Suas salas',
+      'Outras salas',
+    ]);
+    expect(Array.from(grupos[0].querySelectorAll('.card-sala h2'), (el) => el.textContent)).toEqual(
+      ['LAB-02', 'Sala 2', 'Sala 10'],
+    );
+    expect(Array.from(grupos[1].querySelectorAll('.card-sala h2'), (el) => el.textContent)).toEqual(
+      ['Auditório', 'Sala 3'],
+    );
     const busca = elemento().querySelector<HTMLInputElement>('input[type="search"]')!;
-    busca.value = 'Sala 3'; busca.dispatchEvent(new Event('input')); fixture.detectChanges();
-    expect(elemento().querySelector('.lista-salas__titulo-grupo')?.textContent).toBe('Outras salas');
+    busca.value = 'Sala 3';
+    busca.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    expect(elemento().querySelector('.lista-salas__titulo-grupo')?.textContent).toBe(
+      'Outras salas',
+    );
     expect(cards().length).toBe(1);
-    busca.value = 'inexistente'; busca.dispatchEvent(new Event('input')); fixture.detectChanges();
+    busca.value = 'inexistente';
+    busca.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
     expect(elemento().querySelector('.lista-salas__vazio')).not.toBeNull();
     expect(elemento().querySelector('.lista-salas__grupo')).toBeNull();
   });
 
   it('preserva Sala 09 e Sala 9¾ como espaços diferentes no vínculo com a grade', () => {
     responder([sala(1, 'Sala 09', 'Sala'), sala(2, 'Sala 9¾', 'Sala')]);
-    grade.next([alocacaoPessoal('Sala 9¾')]); fixture.detectChanges();
-    expect(elemento().querySelector('[aria-label="Suas salas"] .card-sala h2')?.textContent).toBe('Sala 9¾');
-    expect(elemento().querySelector('[aria-label="Outras salas"] .card-sala h2')?.textContent).toBe('Sala 09');
+    grade.next([alocacaoPessoal('Sala 9¾')]);
+    fixture.detectChanges();
+    expect(elemento().querySelector('[aria-label="Suas salas"] .card-sala h2')?.textContent).toBe(
+      'Sala 9¾',
+    );
+    expect(elemento().querySelector('[aria-label="Outras salas"] .card-sala h2')?.textContent).toBe(
+      'Sala 09',
+    );
   });
 
   it('mantém cadastro ordenado sem atribuir salas pessoais quando a grade falha', () => {
     responder([sala(1, 'Sala 10', 'Sala'), sala(2, 'Sala 2', 'Sala')]);
-    grade.error(new Error('Grade indisponível')); fixture.detectChanges();
-    expect(Array.from(cards(), card => card.querySelector('h2')?.textContent)).toEqual(['Sala 2', 'Sala 10']);
+    grade.error(new Error('Grade indisponível'));
+    fixture.detectChanges();
+    expect(Array.from(cards(), (card) => card.querySelector('h2')?.textContent)).toEqual([
+      'Sala 2',
+      'Sala 10',
+    ]);
     expect(elemento().querySelector('.lista-salas__titulo-grupo')).toBeNull();
   });
 
@@ -201,14 +301,23 @@ describe('ListaSalas', () => {
     const antiga = grade;
     grade = new Subject<AlocacaoResponse[]>();
     const sessao = TestBed.inject(SessionService);
-    sessao.iniciar('salas-teste', { nome: 'Aluno', email: 'aluno@teste', curso: 'ADS', periodo: '1' }, false);
+    sessao.iniciar(
+      'salas-teste',
+      { nome: 'Aluno', email: 'aluno@teste', curso: 'ADS', periodo: '1' },
+      false,
+    );
     fixture.detectChanges();
-    antiga.next([alocacaoPessoal('Sala 2')]); fixture.detectChanges();
+    antiga.next([alocacaoPessoal('Sala 2')]);
+    fixture.detectChanges();
     expect(elemento().querySelector('.lista-salas__titulo-grupo')).toBeNull();
-    grade.next([alocacaoPessoal('Sala 10')]); fixture.detectChanges();
-    expect(elemento().querySelector('[aria-label="Suas salas"] .card-sala h2')?.textContent).toBe('Sala 10');
+    grade.next([alocacaoPessoal('Sala 10')]);
+    fixture.detectChanges();
+    expect(elemento().querySelector('[aria-label="Suas salas"] .card-sala h2')?.textContent).toBe(
+      'Sala 10',
+    );
     grade = new Subject<AlocacaoResponse[]>();
-    sessao.limpar(); fixture.detectChanges();
+    sessao.limpar();
+    fixture.detectChanges();
     expect(elemento().querySelector('.lista-salas__titulo-grupo')).toBeNull();
   });
 
@@ -218,14 +327,22 @@ describe('ListaSalas', () => {
       { id: 90, nome: 'LAB 02', tipo: 'Laboratório', origem: 'local', rotaId: 'local-90' },
     ]);
     responder([sala(1, 'LAB-01', 'Laboratorio'), sala(2, 'Sala 11', 'Sala')]);
-    const chips = Array.from(elemento().querySelectorAll<HTMLButtonElement>('.lista-salas__tipos button'));
-    expect(chips.map(chip => chip.textContent?.trim())).toEqual(['Todos', 'Laboratorio', 'Sala']);
-    chips[1].click(); fixture.detectChanges();
-    expect(Array.from(cards(), card => card.querySelector('h2')?.textContent)).toEqual(['LAB-01', 'LAB 02']);
+    const chips = Array.from(
+      elemento().querySelectorAll<HTMLButtonElement>('.lista-salas__tipos button'),
+    );
+    expect(chips.map((chip) => chip.textContent?.trim())).toEqual(['Todos', 'Laboratorio', 'Sala']);
+    chips[1].click();
+    fixture.detectChanges();
+    expect(Array.from(cards(), (card) => card.querySelector('h2')?.textContent)).toEqual([
+      'LAB-01',
+      'LAB 02',
+    ]);
   });
 
   it('mostra o erro e permite tentar novamente', () => {
-    http.expectOne((req) => req.url === `${BASE}/salas`).error(new ProgressEvent('error'), { status: 0 });
+    http
+      .expectOne((req) => req.url === `${BASE}/salas`)
+      .error(new ProgressEvent('error'), { status: 0 });
     fixture.detectChanges();
 
     const alerta = elemento().querySelector('[role="alert"]');
@@ -240,13 +357,19 @@ describe('ListaSalas', () => {
 
   it('mantém salas locais navegáveis quando a API falha', () => {
     const locais = TestBed.inject(SalasLocaisService);
-    (locais.salas as WritableSignal<SalaResumo[]>).set([{ id: 1, nome: 'LAB 03', rotaId: 'local-1', origem: 'local' }]);
-    http.expectOne(r => r.url === `${BASE}/salas`).error(new ProgressEvent('error'));
+    (locais.salas as WritableSignal<SalaResumo[]>).set([
+      { id: 1, nome: 'LAB 03', rotaId: 'local-1', origem: 'local' },
+    ]);
+    http.expectOne((r) => r.url === `${BASE}/salas`).error(new ProgressEvent('error'));
     fixture.detectChanges();
     expect(cards().length).toBe(1);
     expect(cards()[0].getAttribute('href')).toBe('/salas/local-1');
     expect(elemento().querySelector('[role="alert"]')).not.toBeNull();
-    expect(Array.from(cards()[0].querySelectorAll('.equipamento__quantidade'), el => el.textContent?.trim())).toEqual(['1', '40']);
+    expect(
+      Array.from(cards()[0].querySelectorAll('.equipamento__quantidade'), (el) =>
+        el.textContent?.trim(),
+      ),
+    ).toEqual(['1', '40']);
     expect(cards()[0].textContent).toContain('Projetor multimidia');
     expect(cards()[0].textContent).toContain('Computadores');
     expect(cards()[0].textContent).not.toContain('Nenhum equipamento cadastrado');
@@ -272,11 +395,11 @@ describe('ListaSalas', () => {
     expect(cards().length).toBe(1);
     elemento().querySelector<HTMLButtonElement>('[role="alert"] button')!.click();
     expect(recarregar).toHaveBeenCalledTimes(1);
-    http.expectNone(r => r.url === `${BASE}/salas`);
+    http.expectNone((r) => r.url === `${BASE}/salas`);
   });
 
   it('não apresenta falha de consulta como lista vazia', () => {
-    http.expectOne(r => r.url === `${BASE}/salas`).error(new ProgressEvent('error'));
+    http.expectOne((r) => r.url === `${BASE}/salas`).error(new ProgressEvent('error'));
     fixture.detectChanges();
     expect(elemento().querySelector('[role="alert"]')).not.toBeNull();
     expect(elemento().querySelector('.lista-salas__vazio')).toBeNull();
@@ -284,86 +407,155 @@ describe('ListaSalas', () => {
 
   it('mostra recursos remotos sem atribuí-los a uma sala local com o mesmo ID', () => {
     const locais = TestBed.inject(SalasLocaisService);
-    (locais.salas as WritableSignal<SalaResumo[]>).set([{ id: 1, nome: 'LAB LOCAL', origem: 'local', rotaId: 'local-1' }]);
+    (locais.salas as WritableSignal<SalaResumo[]>).set([
+      { id: 1, nome: 'LAB LOCAL', origem: 'local', rotaId: 'local-1' },
+    ]);
     const recursos = fixture.debugElement.injector.get(RecursosSalaService);
     recursos.carregar();
-    http.expectOne(r => r.url === `${BASE}/recursos-salas`).flush({ page: 0, totalPages: 1, content: [
-      { id: 1, sala: { id: 1 }, recurso: { id: 1, nome: 'Projetor multimidia', tipo: { id: 1, nome: 'Equipamento' } }, quantidade: 2 },
-    ] });
+    http
+      .expectOne((r) => r.url === `${BASE}/recursos-salas`)
+      .flush({
+        page: 0,
+        totalPages: 1,
+        content: [
+          {
+            id: 1,
+            sala: { id: 1 },
+            recurso: { id: 1, nome: 'Projetor multimidia', tipo: { id: 1, nome: 'Equipamento' } },
+            quantidade: 2,
+          },
+        ],
+      });
     responder([sala(1, 'LAB-01', 'Laboratorio')]);
     expect(cards()[0].textContent).toContain('Projetor multimidia');
     expect(cards()[0].querySelector('.equipamento__quantidade')?.textContent?.trim()).toBe('2');
-    expect(Array.from(cards()[1].querySelectorAll('.equipamento__quantidade'), el => el.textContent?.trim())).toEqual(['1', '40']);
+    expect(
+      Array.from(cards()[1].querySelectorAll('.equipamento__quantidade'), (el) =>
+        el.textContent?.trim(),
+      ),
+    ).toEqual(['1', '40']);
     expect(cards()[1].textContent).toContain('Computadores');
   });
 
   it('mostra inventário e status de cada sala local mesmo sem uma agenda Java habilitada', () => {
-    const c = catalogoSalaLocal(); c.salas.push({ id: 91, codigo: 'Sala 11' });
+    const c = catalogoSalaLocal();
+    c.salas.push({ id: 91, codigo: 'Sala 11' });
     const locais = TestBed.inject(SalasLocaisService);
     (locais.catalogo as WritableSignal<CatalogoLocal | null>).set(c);
-    (locais.salas as WritableSignal<SalaResumo[]>).set(c.salas.map(s => ({
-      id: s.id, nome: s.codigo, origem: 'local', rotaId: `local-${s.id}`,
-    })));
+    (locais.salas as WritableSignal<SalaResumo[]>).set(
+      c.salas.map((s) => ({
+        id: s.id,
+        nome: s.codigo,
+        origem: 'local',
+        rotaId: `local-${s.id}`,
+      })),
+    );
     responder([]);
     expect(cards()[0].querySelector('app-status-sala-badge')?.textContent).toContain('Em uso');
     expect(cards()[1].querySelector('app-status-sala-badge')?.textContent).toContain('Livre');
-    expect(Array.from(cards()[0].querySelectorAll('.equipamento__quantidade'), el => el.textContent?.trim())).toEqual(['1', '40']);
-    expect(Array.from(cards()[1].querySelectorAll('.equipamento__quantidade'), el => el.textContent?.trim())).toEqual(['1', '1']);
+    expect(
+      Array.from(cards()[0].querySelectorAll('.equipamento__quantidade'), (el) =>
+        el.textContent?.trim(),
+      ),
+    ).toEqual(['1', '40']);
+    expect(
+      Array.from(cards()[1].querySelectorAll('.equipamento__quantidade'), (el) =>
+        el.textContent?.trim(),
+      ),
+    ).toEqual(['1', '1']);
     expect(cards()[1].textContent).toContain('Televisão');
-    (locais.carregando as WritableSignal<boolean>).set(true); fixture.detectChanges();
+    (locais.carregando as WritableSignal<boolean>).set(true);
+    fixture.detectChanges();
     expect(elemento().querySelector('app-status-sala-badge')).toBeNull();
     (locais.carregando as WritableSignal<boolean>).set(false);
-    (locais.erro as WritableSignal<string | null>).set('Falha na leitura local'); fixture.detectChanges();
+    (locais.erro as WritableSignal<string | null>).set('Falha na leitura local');
+    fixture.detectChanges();
     expect(elemento().querySelector('app-status-sala-badge')).toBeNull();
   });
 
   it('distingue erro de recursos do estado vazio e recupera somente os recursos', () => {
     responder([sala(1, 'LAB-01', 'Laboratorio')]);
     const recursos = fixture.debugElement.injector.get(RecursosSalaService);
-    recursos.carregar(); fixture.detectChanges();
+    recursos.carregar();
+    fixture.detectChanges();
     expect(cards()[0].textContent).toContain('Carregando equipamentos');
     expect(cards()[0].textContent).not.toContain('Nenhum equipamento cadastrado');
-    http.expectOne(r => r.url === `${BASE}/recursos-salas`).error(new ProgressEvent('error'));
+    http.expectOne((r) => r.url === `${BASE}/recursos-salas`).error(new ProgressEvent('error'));
     fixture.detectChanges();
     expect(cards()[0].textContent).toContain('Não foi possível conectar');
     expect(cards()[0].textContent).not.toContain('Nenhum equipamento cadastrado');
     elemento().querySelector<HTMLButtonElement>('.lista-salas__estado--erro button')!.click();
-    http.expectOne(r => r.url === `${BASE}/recursos-salas`).flush({ content: [], page: 0, totalPages: 0 });
+    http
+      .expectOne((r) => r.url === `${BASE}/recursos-salas`)
+      .flush({ content: [], page: 0, totalPages: 0 });
     fixture.detectChanges();
     expect(cards()[0].textContent).toContain('Nenhum equipamento cadastrado');
-    http.expectNone(r => r.url === `${BASE}/salas`);
+    http.expectNone((r) => r.url === `${BASE}/salas`);
   });
 });
 
 describe('ListaSalas: disponibilidade remota', () => {
   let http: HttpTestingController;
   beforeEach(() => {
-    TestBed.configureTestingModule({ imports: [ListaSalas], providers: [
-      provideRouter([]), provideHttpClient(), provideHttpClientTesting(),
-      { provide: BACKEND_CONFIG, useValue: { url: BASE, modulos: ['salas', 'alocacoes', 'recursos-salas'], agendaSalasCompleta: true } },
-      { provide: RelogioService, useValue: { agora: () => new Date('2026-10-07T13:00:00-03:00') } },
-      { provide: SalasLocaisService, useValue: { salas: signal([]), catalogo: signal(null), erro: signal(null), carregando: signal(false), carregar: () => {} } },
-    ] });
+    TestBed.configureTestingModule({
+      imports: [ListaSalas],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        {
+          provide: BACKEND_CONFIG,
+          useValue: {
+            url: BASE,
+            modulos: ['salas', 'alocacoes', 'recursos-salas'],
+            agendaSalasCompleta: true,
+          },
+        },
+        {
+          provide: RelogioService,
+          useValue: { agora: () => new Date('2026-10-07T13:00:00-03:00') },
+        },
+        {
+          provide: SalasLocaisService,
+          useValue: {
+            salas: signal([]),
+            catalogo: signal(null),
+            erro: signal(null),
+            carregando: signal(false),
+            carregar: () => {},
+          },
+        },
+      ],
+    });
     http = TestBed.inject(HttpTestingController);
   });
   afterEach(() => http.verify());
 
   it('avisa sobre falha da agenda e permite repetir somente essa consulta', fakeAsync(() => {
-    const fixture = TestBed.createComponent(ListaSalas); tick(0);
-    http.expectOne(r => r.url === `${BASE}/salas`).flush({ content: [sala(1, 'LAB-01', 'Laboratório')], page: 0, totalPages: 1 });
-    http.expectOne(r => r.url === `${BASE}/recursos-salas`).flush({ content: [], page: 0, totalPages: 0 });
+    const fixture = TestBed.createComponent(ListaSalas);
+    tick(0);
+    http
+      .expectOne((r) => r.url === `${BASE}/salas`)
+      .flush({ content: [sala(1, 'LAB-01', 'Laboratório')], page: 0, totalPages: 1 });
+    http
+      .expectOne((r) => r.url === `${BASE}/recursos-salas`)
+      .flush({ content: [], page: 0, totalPages: 0 });
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Consultando disponibilidade');
-    http.expectOne(r => r.url === `${BASE}/alocacoes`).error(new ProgressEvent('error'));
+    http.expectOne((r) => r.url === `${BASE}/alocacoes`).error(new ProgressEvent('error'));
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('Não foi possível confirmar a disponibilidade');
+    expect(fixture.nativeElement.textContent).toContain(
+      'Não foi possível confirmar a disponibilidade',
+    );
     expect(fixture.nativeElement.querySelector('app-status-sala-badge')).toBeNull();
     expect(fixture.nativeElement.querySelectorAll('.card-sala').length).toBe(1);
     fixture.nativeElement.querySelector('[role="alert"] button').click();
-    http.expectOne(r => r.url === `${BASE}/alocacoes`).flush({ content: [], page: 0, totalPages: 0 });
+    http
+      .expectOne((r) => r.url === `${BASE}/alocacoes`)
+      .flush({ content: [], page: 0, totalPages: 0 });
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('app-status-sala-badge')).not.toBeNull();
-    http.expectNone(r => r.url === `${BASE}/salas` || r.url === `${BASE}/recursos-salas`);
+    http.expectNone((r) => r.url === `${BASE}/salas` || r.url === `${BASE}/recursos-salas`);
     const locais = TestBed.inject(SalasLocaisService);
     (locais.erro as WritableSignal<string | null>).set('Falha nos horários deste navegador');
     fixture.detectChanges();
@@ -372,10 +564,11 @@ describe('ListaSalas: disponibilidade remota', () => {
   }));
 
   it('reúne três falhas remotas num aviso sem repetir a causa e recupera as três fontes', fakeAsync(() => {
-    const fixture = TestBed.createComponent(ListaSalas); tick(0);
-    http.expectOne(r => r.url === `${BASE}/salas`).error(new ProgressEvent('error'));
-    http.expectOne(r => r.url === `${BASE}/alocacoes`).error(new ProgressEvent('error'));
-    http.expectOne(r => r.url === `${BASE}/recursos-salas`).error(new ProgressEvent('error'));
+    const fixture = TestBed.createComponent(ListaSalas);
+    tick(0);
+    http.expectOne((r) => r.url === `${BASE}/salas`).error(new ProgressEvent('error'));
+    http.expectOne((r) => r.url === `${BASE}/alocacoes`).error(new ProgressEvent('error'));
+    http.expectOne((r) => r.url === `${BASE}/recursos-salas`).error(new ProgressEvent('error'));
     fixture.detectChanges();
     const tela: HTMLElement = fixture.nativeElement;
     expect(tela.querySelectorAll('[role="alert"]').length).toBe(1);
@@ -384,9 +577,15 @@ describe('ListaSalas: disponibilidade remota', () => {
     expect(aviso.textContent?.match(/Não foi possível conectar ao servidor/g)?.length).toBe(1);
     expect(tela.querySelector('.lista-salas__vazio')).toBeNull();
     aviso.querySelector<HTMLButtonElement>('button')!.click();
-    http.expectOne(r => r.url === `${BASE}/salas`).flush({ content: [sala(1, 'LAB-01', 'Laboratório')], page: 0, totalPages: 1 });
-    http.expectOne(r => r.url === `${BASE}/recursos-salas`).flush({ content: [], page: 0, totalPages: 0 });
-    http.expectOne(r => r.url === `${BASE}/alocacoes`).flush({ content: [], page: 0, totalPages: 0 });
+    http
+      .expectOne((r) => r.url === `${BASE}/salas`)
+      .flush({ content: [sala(1, 'LAB-01', 'Laboratório')], page: 0, totalPages: 1 });
+    http
+      .expectOne((r) => r.url === `${BASE}/recursos-salas`)
+      .flush({ content: [], page: 0, totalPages: 0 });
+    http
+      .expectOne((r) => r.url === `${BASE}/alocacoes`)
+      .flush({ content: [], page: 0, totalPages: 0 });
     fixture.detectChanges();
     expect(tela.querySelector('[role="alert"]')).toBeNull();
     expect(tela.querySelectorAll('.card-sala').length).toBe(1);
@@ -394,15 +593,21 @@ describe('ListaSalas: disponibilidade remota', () => {
   }));
 
   it('mantém falha local separada e preserva causas remotas diferentes', fakeAsync(() => {
-    const fixture = TestBed.createComponent(ListaSalas); tick(0);
-    http.expectOne(r => r.url === `${BASE}/salas`).error(new ProgressEvent('error'));
-    http.expectOne(r => r.url === `${BASE}/alocacoes`).flush(null, { status: 403, statusText: 'Forbidden' });
-    http.expectOne(r => r.url === `${BASE}/recursos-salas`).flush(null, { status: 401, statusText: 'Unauthorized' });
+    const fixture = TestBed.createComponent(ListaSalas);
+    tick(0);
+    http.expectOne((r) => r.url === `${BASE}/salas`).error(new ProgressEvent('error'));
+    http
+      .expectOne((r) => r.url === `${BASE}/alocacoes`)
+      .flush(null, { status: 403, statusText: 'Forbidden' });
+    http
+      .expectOne((r) => r.url === `${BASE}/recursos-salas`)
+      .flush(null, { status: 401, statusText: 'Unauthorized' });
     const locais = TestBed.inject(SalasLocaisService);
     (locais.erro as WritableSignal<string | null>).set('Falha na leitura local');
     const carregarLocal = spyOn(locais, 'carregar');
     fixture.detectChanges();
-    const alertas: NodeListOf<HTMLElement> = fixture.nativeElement.querySelectorAll('[role="alert"]');
+    const alertas: NodeListOf<HTMLElement> =
+      fixture.nativeElement.querySelectorAll('[role="alert"]');
     expect(alertas.length).toBe(2);
     expect(alertas[0].textContent).toContain('Não foi possível conectar');
     expect(alertas[0].textContent).toContain('não tem permissão');

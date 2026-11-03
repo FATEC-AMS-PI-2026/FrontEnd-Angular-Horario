@@ -1,19 +1,29 @@
 <section class="lista-salas" aria-label="Lista de salas">
-
   <div class="lista-salas__filtros">
     <div class="lista-salas__busca-wrapper">
       <app-figma-icon name="search" class="lista-salas__busca-icone" />
-      <input type="search" class="lista-salas__campo-busca filtro-campo filtro-campo--busca" placeholder="Buscar sala pelo nome..."
-        aria-label="Buscar sala pelo nome" autocomplete="off" [value]="termoBusca()" (input)="onBuscar($event)" />
+      <input
+        type="search"
+        class="lista-salas__campo-busca filtro-campo filtro-campo--busca"
+        placeholder="Buscar sala pelo nome..."
+        aria-label="Buscar sala pelo nome"
+        autocomplete="off"
+        [value]="termoBusca()"
+        (input)="onBuscar($event)"
+      />
     </div>
 
     @if (predios().length) {
-    <select class="lista-salas__filtro-predio filtro-campo" aria-label="Filtrar por prédio" (change)="onFiltrarPredio($event)">
-      <option value="">Todos os prédios</option>
-      @for (predio of predios(); track predio) {
-        <option [value]="predio">{{ predio }}</option>
-      }
-    </select>
+      <select
+        class="lista-salas__filtro-predio filtro-campo"
+        aria-label="Filtrar por prédio"
+        (change)="onFiltrarPredio($event)"
+      >
+        <option value="">Todos os prédios</option>
+        @for (predio of predios(); track predio) {
+          <option [value]="predio">{{ predio }}</option>
+        }
+      </select>
     }
   </div>
 
@@ -28,69 +38,100 @@
       Todos
     </button>
     @for (tipo of tipos(); track tipo) {
-    <button
-      type="button"
-      class="filtro-chip"
-      [class.filtro-chip--ativo]="tipoSelecionado() === tipo"
-      [attr.aria-pressed]="tipoSelecionado() === tipo"
-      (click)="selecionarTipo(tipo)"
-    >
-      {{ tipo }}
-    </button>
+      <button
+        type="button"
+        class="filtro-chip"
+        [class.filtro-chip--ativo]="tipoSelecionado() === tipo"
+        [attr.aria-pressed]="tipoSelecionado() === tipo"
+        (click)="selecionarTipo(tipo)"
+      >
+        {{ tipo }}
+      </button>
     }
   </div>
 
   @if (carregando()) {
-  <p class="lista-salas__estado" role="status">Carregando salas...</p>
+    <p class="lista-salas__estado" role="status">Carregando salas...</p>
   }
   @if (avisoRemoto(); as aviso) {
-  <div class="lista-salas__estado lista-salas__estado--erro" role="alert">
-    <p>{{ aviso }}</p>
-    <button type="button" class="filtro-chip" (click)="tentarNovamente()">Tentar novamente</button>
-  </div>
+    <div class="lista-salas__estado lista-salas__estado--erro" role="alert">
+      <p>{{ aviso }}</p>
+      <button type="button" class="filtro-chip" (click)="tentarNovamente()">
+        Tentar novamente
+      </button>
+    </div>
   }
   @if (locais.erro(); as erroLocal) {
-  <div class="lista-salas__estado lista-salas__estado--erro" role="alert">
-    <p>{{ erroLocal }}</p>
-    <button type="button" class="filtro-chip" (click)="locais.carregar()">Tentar novamente</button>
-  </div>
+    <div class="lista-salas__estado lista-salas__estado--erro" role="alert">
+      <p>{{ erroLocal }}</p>
+      <button type="button" class="filtro-chip" (click)="locais.carregar()">
+        Tentar novamente
+      </button>
+    </div>
   }
   @if (!carregando() || salas().length) {
-  @if (estadoAgenda().carregando) {
-    <p role="status" class="lista-salas__estado">Consultando disponibilidade das salas...</p>
-  }
-  @if (recursos.carregando()) { <p role="status" class="lista-salas__estado">Carregando recursos das salas...</p> }
-  @for (grupo of gruposSalas(); track grupo.titulo) {
-  <section class="lista-salas__grupo" [attr.aria-label]="grupo.titulo || 'Salas cadastradas'">
-    @if (grupo.titulo) { <h2 class="lista-salas__titulo-grupo">{{ grupo.titulo }}</h2> }
-    <ul class="grade-salas">
-    @for (sala of grupo.salas; track sala.rotaId ?? sala.id) {
-    @let disponibilidadeSala = disponibilidade(sala);
-    <li>
-      <a class="card-sala" [routerLink]="['/salas', sala.rotaId ?? sala.id]">
-        <div class="card-sala__cabecalho">
-          <app-icone-sala [nome]="sala.nome" [tipo]="sala.tipo" />
-          @if (disponibilidadeSala; as disponibilidade) {
-            @if (disponibilidade.status; as status) { <app-status-sala-badge [status]="status" /> }
-          }
-        </div>
-        <h2>{{ sala.nome }}</h2>
-        @if (disponibilidadeSala && !disponibilidadeSala.status) {
-          <p class="card-sala__info" role="status">{{ disponibilidadeSala.texto }}</p>
+    @if (estadoAgenda().carregando) {
+      <p role="status" class="lista-salas__estado">Consultando disponibilidade das salas...</p>
+    }
+    @if (recursos.carregando()) {
+      <p role="status" class="lista-salas__estado">Carregando recursos das salas...</p>
+    }
+    @for (grupo of gruposSalas(); track grupo.titulo) {
+      <section class="lista-salas__grupo" [attr.aria-label]="grupo.titulo || 'Salas cadastradas'">
+        @if (grupo.titulo) {
+          <h2 class="lista-salas__titulo-grupo">{{ grupo.titulo }}</h2>
         }
-        <p class="card-sala__info">{{ sala.tipo }}@if (sala.tipo && sala.capacidade != null) { · }@if (sala.capacidade != null) { {{ sala.capacidade }} lugares }</p>
-        @if (sala.predio) { <p class="card-sala__local">{{ sala.predio }}@if (sala.andar !== undefined) { · {{ sala.andar }}º andar }</p> }
-        <app-equipamentos-card [equipamentos]="sala.origem === 'local' ? equipamentosLocais(sala) : recursos.daSala(sala.id)" [compacto]="true"
-          [carregando]="sala.origem !== 'local' && recursos.carregando()" [erro]="sala.origem === 'local' ? null : recursos.erro()" />
-      </a>
-    </li>
+        <ul class="grade-salas">
+          @for (sala of grupo.salas; track sala.rotaId ?? sala.id) {
+            @let disponibilidadeSala = disponibilidade(sala);
+            <li>
+              <a class="card-sala" [routerLink]="['/salas', sala.rotaId ?? sala.id]">
+                <div class="card-sala__cabecalho">
+                  <app-icone-sala [nome]="sala.nome" [tipo]="sala.tipo" />
+                  @if (disponibilidadeSala; as disponibilidade) {
+                    @if (disponibilidade.status; as status) {
+                      <app-status-sala-badge [status]="status" />
+                    }
+                  }
+                </div>
+                <h2>{{ sala.nome }}</h2>
+                @if (disponibilidadeSala && !disponibilidadeSala.status) {
+                  <p class="card-sala__info" role="status">{{ disponibilidadeSala.texto }}</p>
+                }
+                <p class="card-sala__info">
+                  {{ sala.tipo }}
+                  @if (sala.tipo && sala.capacidade != null) {
+                    ·
+                  }
+                  @if (sala.capacidade != null) {
+                    {{ sala.capacidade }} lugares
+                  }
+                </p>
+                @if (sala.predio) {
+                  <p class="card-sala__local">
+                    {{ sala.predio }}
+                    @if (sala.andar !== undefined) {
+                      · {{ sala.andar }}º andar
+                    }
+                  </p>
+                }
+                <app-equipamentos-card
+                  [equipamentos]="
+                    sala.origem === 'local' ? equipamentosLocais(sala) : recursos.daSala(sala.id)
+                  "
+                  [compacto]="true"
+                  [carregando]="sala.origem !== 'local' && recursos.carregando()"
+                  [erro]="sala.origem === 'local' ? null : recursos.erro()"
+                />
+              </a>
+            </li>
+          }
+        </ul>
+      </section>
+    } @empty {
+      @if (!carregando() && !erro() && !locais.erro()) {
+        <p class="lista-salas__vazio" role="status">{{ mensagemVazia() }}</p>
+      }
     }
-    </ul>
-  </section>
-  } @empty {
-    @if (!carregando() && !erro() && !locais.erro()) {
-    <p class="lista-salas__vazio" role="status">{{ mensagemVazia() }}</p>
-    }
-  }
   }
 </section>

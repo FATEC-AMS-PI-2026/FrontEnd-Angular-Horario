@@ -18,7 +18,7 @@ export class Sidebar {
     { label: 'Grade semanal', path: '/grade-semanal', icon: 'calendar-nav' },
     { label: 'Salas', path: '/salas', icon: 'rooms' },
     { label: 'Professores', path: '/professores', icon: 'person' },
-    { label: 'Configurações', path: '/configuracoes', icon: 'settings' }
+    { label: 'Configurações', path: '/configuracoes', icon: 'settings' },
   ] as const;
 
   logout() {

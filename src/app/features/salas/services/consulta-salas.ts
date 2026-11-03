@@ -4,8 +4,21 @@ import { Subject, catchError, exhaustMap, map, merge, of, startWith, timer } fro
 import { ApiErrorService } from '../../../core/services/api-error.service';
 import { SalaResumo } from '../models/sala-resumo';
 import { SalasApiService } from './salas-api';
-import { SalasLocaisService, aulasLocaisDaSala, disponibilidadeLocalDaSala, unirSalas } from './salas-locais';
-import { AlocacaoSalaApi, DisponibilidadeSala, DisponibilidadeSalaService, aulasJavaDaSala, calcularDisponibilidade, momentoSaoPaulo, unirAulas } from './disponibilidade-sala';
+import {
+  SalasLocaisService,
+  aulasLocaisDaSala,
+  disponibilidadeLocalDaSala,
+  unirSalas,
+} from './salas-locais';
+import {
+  AlocacaoSalaApi,
+  DisponibilidadeSala,
+  DisponibilidadeSalaService,
+  aulasJavaDaSala,
+  calcularDisponibilidade,
+  momentoSaoPaulo,
+  unirAulas,
+} from './disponibilidade-sala';
 import { RelogioService } from './relogio';
 import { disponibilidadeComRotulo } from './rotulos-agenda-sala';
 
@@ -24,37 +37,76 @@ export class ConsultaSalasService {
   private readonly erros = inject(ApiErrorService);
   private readonly relogio = inject(RelogioService);
   private readonly recarregarAgenda = new Subject<void>();
-  readonly salas = computed(() => unirSalas(this.api.erro() ? [] : this.api.salas(), this.locais.salas()));
+  readonly salas = computed(() =>
+    unirSalas(this.api.erro() ? [] : this.api.salas(), this.locais.salas()),
+  );
   readonly carregando = computed(() => this.api.carregando() || this.locais.carregando());
   readonly erro = this.api.erro;
-  readonly estadoAgenda = toSignal(this.horarios.agendaCompleta
-    ? merge(timer(0, 60_000), this.recarregarAgenda).pipe(exhaustMap(() => this.horarios.carregar().pipe(
-      map(alocacoes => ({ alocacoes, carregando: false, erro: null } as EstadoAgenda)),
-      catchError(erro => of<EstadoAgenda>({ alocacoes: null, carregando: false,
-        erro: this.erros.mensagem(erro, 'Não foi possível consultar a disponibilidade das salas.') })),
-      startWith<EstadoAgenda>({ alocacoes: null, carregando: true, erro: null }),
-    ))) : of<EstadoAgenda>({ alocacoes: null, carregando: false, erro: null }),
-    { initialValue: { alocacoes: null, carregando: this.horarios.agendaCompleta, erro: null } as EstadoAgenda });
-  readonly agora = toSignal(timer(0, 1000).pipe(map(() => this.relogio.agora())),
-    { initialValue: this.relogio.agora() });
+  readonly estadoAgenda = toSignal(
+    this.horarios.agendaCompleta
+      ? merge(timer(0, 60_000), this.recarregarAgenda).pipe(
+          exhaustMap(() =>
+            this.horarios.carregar().pipe(
+              map((alocacoes) => ({ alocacoes, carregando: false, erro: null }) as EstadoAgenda),
+              catchError((erro) =>
+                of<EstadoAgenda>({
+                  alocacoes: null,
+                  carregando: false,
+                  erro: this.erros.mensagem(
+                    erro,
+                    'Não foi possível consultar a disponibilidade das salas.',
+                  ),
+                }),
+              ),
+              startWith<EstadoAgenda>({ alocacoes: null, carregando: true, erro: null }),
+            ),
+          ),
+        )
+      : of<EstadoAgenda>({ alocacoes: null, carregando: false, erro: null }),
+    {
+      initialValue: {
+        alocacoes: null,
+        carregando: this.horarios.agendaCompleta,
+        erro: null,
+      } as EstadoAgenda,
+    },
+  );
+  readonly agora = toSignal(timer(0, 1000).pipe(map(() => this.relogio.agora())), {
+    initialValue: this.relogio.agora(),
+  });
 
-  constructor() { this.api.carregar(); }
+  constructor() {
+    this.api.carregar();
+  }
 
   disponibilidade(sala: SalaResumo, agora = this.agora()): DisponibilidadeSala | undefined {
     // Manutenção só pode ser informada pelo cadastro, nunca inferida dos recursos.
     if (sala.status === 'Manutenção') return { status: sala.status, texto: 'Manutenção' };
     if (this.locais.carregando() || this.locais.erro()) return undefined;
     // TEMPORÁRIO: o usuário solicitou ocupação simples da agenda interna para salas exclusivas locais.
-    if (sala.origem === 'local') return disponibilidadeLocalDaSala(this.locais.catalogo(), sala, agora);
+    if (sala.origem === 'local')
+      return disponibilidadeLocalDaSala(this.locais.catalogo(), sala, agora);
     const agenda = this.estadoAgenda().alocacoes;
     if (!agenda) return undefined;
-    return disponibilidadeComRotulo(sala,
-      calcularDisponibilidade(sala.id, agenda, agora, this.aulas(sala, agora).filter(a => a.origem === 'local')));
+    return disponibilidadeComRotulo(
+      sala,
+      calcularDisponibilidade(
+        sala.id,
+        agenda,
+        agora,
+        this.aulas(sala, agora).filter((a) => a.origem === 'local'),
+      ),
+    );
   }
 
   aulas(sala: SalaResumo, agora = this.agora()) {
-    const java = sala.origem === 'local' ? [] : aulasJavaDaSala(sala.id, this.estadoAgenda().alocacoes ?? [], agora);
-    const locais = this.locais.erro() ? [] : aulasLocaisDaSala(this.locais.catalogo(), sala.nome, agora);
+    const java =
+      sala.origem === 'local'
+        ? []
+        : aulasJavaDaSala(sala.id, this.estadoAgenda().alocacoes ?? [], agora);
+    const locais = this.locais.erro()
+      ? []
+      : aulasLocaisDaSala(this.locais.catalogo(), sala.nome, agora);
     return unirAulas(java, locais);
   }
 
@@ -63,9 +115,13 @@ export class ConsultaSalasService {
     if (this.disponibilidade(sala, agora)?.status !== 'Em uso') return [];
     const atual = momentoSaoPaulo(agora).segundos / 60;
     const minutos = (hora: string) => Number(hora.slice(0, 2)) * 60 + Number(hora.slice(3, 5));
-    return [...new Set(this.aulas(sala, agora)
-      .filter(aula => minutos(aula.inicio) <= atual && atual < minutos(aula.termino))
-      .map(aula => aula.professor?.trim() || 'Professor a definir'))];
+    return [
+      ...new Set(
+        this.aulas(sala, agora)
+          .filter((aula) => minutos(aula.inicio) <= atual && atual < minutos(aula.termino))
+          .map((aula) => aula.professor?.trim() || 'Professor a definir'),
+      ),
+    ];
   }
 
   tentarNovamente(): void {
@@ -73,5 +129,7 @@ export class ConsultaSalasService {
     if (this.estadoAgenda().erro) this.tentarDisponibilidade();
   }
 
-  tentarDisponibilidade(): void { this.recarregarAgenda.next(); }
+  tentarDisponibilidade(): void {
+    this.recarregarAgenda.next();
+  }
 }

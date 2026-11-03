@@ -6,106 +6,116 @@ import { backendInterceptor } from './backend.interceptor';
 import { ApiErrorService } from './api-error.service';
 
 describe('Conexão futura com o backend', () => {
-    let client: HttpClient;
-    let http: HttpTestingController;
-    let config: BackendConfig;
-    beforeEach(() => {
-        config = { habilitado: false, url: 'https://backend.test/api/' };
-        TestBed.configureTestingModule({
-            providers: [
-                provideHttpClient(withInterceptors([backendInterceptor])), provideHttpClientTesting(),
-                { provide: BACKEND_CONFIG, useValue: config },
-            ]
-        });
-        client = TestBed.inject(HttpClient);
-        http = TestBed.inject(HttpTestingController);
+  let client: HttpClient;
+  let http: HttpTestingController;
+  let config: BackendConfig;
+  beforeEach(() => {
+    config = { habilitado: false, url: 'https://backend.test/api/' };
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(withInterceptors([backendInterceptor])),
+        provideHttpClientTesting(),
+        { provide: BACKEND_CONFIG, useValue: config },
+      ],
     });
-    afterEach(() => http.verify());
+    client = TestBed.inject(HttpClient);
+    http = TestBed.inject(HttpTestingController);
+  });
+  afterEach(() => http.verify());
 
-    it('bloqueia operações remotas desativadas e informa a indisponibilidade', () => {
-        let erro: unknown;
-        client.post('https://backend.test/api/auth/cadastro', {}).subscribe({ error: e => erro = e });
-        expect(erro).toBeInstanceOf(BackendIndisponivelError);
-        expect(TestBed.inject(ApiErrorService).mensagem(erro, 'Falha')).toContain('ainda não está disponível');
-        http.expectNone('https://backend.test/api/auth/cadastro');
-    });
+  it('bloqueia operações remotas desativadas e informa a indisponibilidade', () => {
+    let erro: unknown;
+    client
+      .post('https://backend.test/api/auth/cadastro', {})
+      .subscribe({ error: (e) => (erro = e) });
+    expect(erro).toBeInstanceOf(BackendIndisponivelError);
+    expect(TestBed.inject(ApiErrorService).mensagem(erro, 'Falha')).toContain(
+      'ainda não está disponível',
+    );
+    http.expectNone('https://backend.test/api/auth/cadastro');
+  });
 
-    it('continua permitindo importar o catálogo estático', () => {
-        let recebido: unknown;
-        client.get('dados/ads-ams-primeiro-ano.json').subscribe(valor => recebido = valor);
-        http.expectOne('dados/ads-ams-primeiro-ano.json').flush({ versao: 1 });
-        expect(recebido).toEqual({ versao: 1 });
-    });
+  it('continua permitindo importar o catálogo estático', () => {
+    let recebido: unknown;
+    client.get('dados/ads-ams-primeiro-ano.json').subscribe((valor) => (recebido = valor));
+    http.expectOne('dados/ads-ams-primeiro-ano.json').flush({ versao: 1 });
+    expect(recebido).toEqual({ versao: 1 });
+  });
 
-    it('permite a conexão habilitada preservando o token remoto', () => {
-        config.habilitado = true;
-        client.get('https://backend.test/api/cursos', {
-            headers: new HttpHeaders({ Authorization: 'Bearer token-remoto' }),
-        }).subscribe();
-        const req = http.expectOne('https://backend.test/api/cursos');
-        expect(req.request.headers.get('Authorization')).toBe('Bearer token-remoto');
-        req.flush([]);
-    });
+  it('permite a conexão habilitada preservando o token remoto', () => {
+    config.habilitado = true;
+    client
+      .get('https://backend.test/api/cursos', {
+        headers: new HttpHeaders({ Authorization: 'Bearer token-remoto' }),
+      })
+      .subscribe();
+    const req = http.expectOne('https://backend.test/api/cursos');
+    expect(req.request.headers.get('Authorization')).toBe('Bearer token-remoto');
+    req.flush([]);
+  });
 
-    // TEMPORÁRIO: excluir este teste de tokens locais após integrar o backend Java.
-    it('não envia identificadores locais ao servidor mesmo se habilitado', () => {
-        config.habilitado = true;
-        for (const token of ['gini-local:perfil']) {
-            let erro: unknown;
-            client.get('https://backend.test/api/cursos', {
-                headers: new HttpHeaders({ Authorization: `Bearer ${token}` }),
-            }).subscribe({ error: e => erro = e });
-            expect(erro).toBeInstanceOf(BackendIndisponivelError);
-        }
-        http.expectNone('https://backend.test/api/cursos');
-    });
+  // TEMPORÁRIO: excluir este teste de tokens locais após integrar o backend Java.
+  it('não envia identificadores locais ao servidor mesmo se habilitado', () => {
+    config.habilitado = true;
+    for (const token of ['gini-local:perfil']) {
+      let erro: unknown;
+      client
+        .get('https://backend.test/api/cursos', {
+          headers: new HttpHeaders({ Authorization: `Bearer ${token}` }),
+        })
+        .subscribe({ error: (e) => (erro = e) });
+      expect(erro).toBeInstanceOf(BackendIndisponivelError);
+    }
+    http.expectNone('https://backend.test/api/cursos');
+  });
 
-    it('libera só os módulos já integrados enquanto o backend geral está desligado', () => {
-        config.modulos = ['salas'];
-        client.get('https://backend.test/api/salas?page=0').subscribe();
-        http.expectOne('https://backend.test/api/salas?page=0').flush({});
+  it('libera só os módulos já integrados enquanto o backend geral está desligado', () => {
+    config.modulos = ['salas'];
+    client.get('https://backend.test/api/salas?page=0').subscribe();
+    http.expectOne('https://backend.test/api/salas?page=0').flush({});
 
-        const erros: unknown[] = [];
-        client.get('https://backend.test/api/salas-extras').subscribe({ error: e => erros.push(e) });
-        client.get('https://backend.test/api/cursos').subscribe({ error: e => erros.push(e) });
-        expect(erros.length).toBe(2);
-        expect(erros.every(e => e instanceof BackendIndisponivelError)).toBeTrue();
-        http.expectNone('https://backend.test/api/cursos');
-    });
+    const erros: unknown[] = [];
+    client.get('https://backend.test/api/salas-extras').subscribe({ error: (e) => erros.push(e) });
+    client.get('https://backend.test/api/cursos').subscribe({ error: (e) => erros.push(e) });
+    expect(erros.length).toBe(2);
+    expect(erros.every((e) => e instanceof BackendIndisponivelError)).toBeTrue();
+    http.expectNone('https://backend.test/api/cursos');
+  });
 
-    it('delimita o caminho da API sem bloquear URLs de prefixo parecido', () => {
-        client.get('https://backend.test/api-public/catalogo').subscribe();
-        http.expectOne('https://backend.test/api-public/catalogo').flush({});
-        let bloqueado = false;
-        client.get('https://backend.test/api?pagina=1').subscribe({ error: () => bloqueado = true });
-        expect(bloqueado).toBeTrue();
-        http.expectNone('https://backend.test/api?pagina=1');
-    });
+  it('delimita o caminho da API sem bloquear URLs de prefixo parecido', () => {
+    client.get('https://backend.test/api-public/catalogo').subscribe();
+    http.expectOne('https://backend.test/api-public/catalogo').flush({});
+    let bloqueado = false;
+    client.get('https://backend.test/api?pagina=1').subscribe({ error: () => (bloqueado = true) });
+    expect(bloqueado).toBeTrue();
+    http.expectNone('https://backend.test/api?pagina=1');
+  });
 
-    it('preserva a habilitação por módulo nas URLs relativas do proxy de desenvolvimento', () => {
-        config.url = '/api';
-        config.modulos = ['salas', 'alocacoes', 'recursos-salas', 'professores', 'cursos'];
-        for (const modulo of config.modulos) {
-            client.get(`/api/${modulo}?page=0`).subscribe();
-            http.expectOne(`/api/${modulo}?page=0`).flush({});
-        }
-        let erro: unknown;
-        client.post('/api/auth/login', {}).subscribe({ error: e => erro = e });
-        expect(erro).toBeInstanceOf(BackendIndisponivelError);
-        http.expectNone('/api/auth/login');
-        client.get('/api-public/catalogo').subscribe();
-        http.expectOne('/api-public/catalogo').flush({});
-    });
+  it('preserva a habilitação por módulo nas URLs relativas do proxy de desenvolvimento', () => {
+    config.url = '/api';
+    config.modulos = ['salas', 'alocacoes', 'recursos-salas', 'professores', 'cursos'];
+    for (const modulo of config.modulos) {
+      client.get(`/api/${modulo}?page=0`).subscribe();
+      http.expectOne(`/api/${modulo}?page=0`).flush({});
+    }
+    let erro: unknown;
+    client.post('/api/auth/login', {}).subscribe({ error: (e) => (erro = e) });
+    expect(erro).toBeInstanceOf(BackendIndisponivelError);
+    http.expectNone('/api/auth/login');
+    client.get('/api-public/catalogo').subscribe();
+    http.expectOne('/api-public/catalogo').flush({});
+  });
 
-    // TEMPORÁRIO: excluir este teste após remover os tokens da persistência local.
-    it('impede o envio de token local ao Java através do proxy', () => {
-        config.url = '/api';
-        config.modulos = ['salas'];
-        let erro: unknown;
-        client.get('/api/salas', { headers: { Authorization: 'Bearer gini-local:perfil' } })
-            .subscribe({ error: e => erro = e });
-        expect(erro).toBeInstanceOf(BackendIndisponivelError);
-        expect(TestBed.inject(ApiErrorService).mensagem(erro, 'Falha')).toContain('Um perfil local');
-        http.expectNone('/api/salas');
-    });
+  // TEMPORÁRIO: excluir este teste após remover os tokens da persistência local.
+  it('impede o envio de token local ao Java através do proxy', () => {
+    config.url = '/api';
+    config.modulos = ['salas'];
+    let erro: unknown;
+    client
+      .get('/api/salas', { headers: { Authorization: 'Bearer gini-local:perfil' } })
+      .subscribe({ error: (e) => (erro = e) });
+    expect(erro).toBeInstanceOf(BackendIndisponivelError);
+    expect(TestBed.inject(ApiErrorService).mensagem(erro, 'Falha')).toContain('Um perfil local');
+    http.expectNone('/api/salas');
+  });
 });
