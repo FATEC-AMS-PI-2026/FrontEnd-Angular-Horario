@@ -18,10 +18,10 @@
   </header>
 
   @if (loading()) {
-    <div class="estado" role="status">Carregando a matriz de disciplinas do curso...</div>
+    <div class="estado card" role="status">Carregando a matriz de disciplinas do curso...</div>
   }
   @if (errorMessage()) {
-    <div class="estado erro" role="alert">
+    <div class="estado card erro" role="alert">
       <p>{{ errorMessage() }}</p>
       @if (!carregado()) {
         <button class="btn-secondary" type="button" (click)="carregar()" [disabled]="loading()">
@@ -144,7 +144,7 @@
               >
             </label>
           } @empty {
-            <div class="estado">
+            <div class="estado card">
               <h3>Nenhuma disciplina encontrada</h3>
               <p>
                 {{
@@ -168,48 +168,15 @@
         </p>
       </div>
 
-      <aside class="resumo" aria-labelledby="titulo-resumo">
-        <h2 id="titulo-resumo">Sua grade</h2>
-        <p class="contador" role="status" aria-live="polite">
-          <strong>{{ selecionadas().length }}</strong>
-          {{ selecionadas().length === 1 ? 'disciplina selecionada' : 'disciplinas selecionadas' }}
-        </p>
-        <div class="totais">
-          <span
-            >Regulares <strong>{{ resumo().regular }}</strong></span
-          >
-          <span
-            >DPs <strong>{{ resumo().dp }}</strong></span
-          >
-          <span
-            >Adiantamentos <strong>{{ resumo().adiantamento }}</strong></span
-          >
-        </div>
-        <ul class="selecionadas">
-          @for (disciplina of selecionadas(); track disciplina.id) {
-            <li>
-              <div>
-                <strong>{{ disciplina.nome }}</strong
-                ><span>{{ disciplina.periodo }} · {{ tipo(disciplina) }}</span>
-              </div>
-              <button
-                type="button"
-                class="remover"
-                [disabled]="saving()"
-                (click)="selecionar(disciplina.id)"
-                [attr.aria-label]="'Remover ' + disciplina.nome"
-              >
-                Remover
-              </button>
-            </li>
-          } @empty {
-            <li class="resumo-vazio">
-              Selecione ao menos uma disciplina. Suas escolhas aparecerão aqui.
-            </li>
-          }
-        </ul>
-        <p class="legenda">As seleções são mantidas ao mudar os filtros.</p>
-      </aside>
+      <aside
+        appResumoDisciplinas
+        class="resumo card"
+        aria-labelledby="titulo-resumo"
+        [disciplinas]="selecionadasComTipo()"
+        [totais]="resumo()"
+        [salvando]="saving()"
+        (remover)="selecionar($event)"
+      ></aside>
     </div>
   }
 

@@ -181,91 +181,11 @@
 
 /* CARD DE AULAS (SUPERFÍCIE UNIFICADA DO FIGMA) */
 .aulas-professor {
-  @include cards.card-base;
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-}
-
-.aulas-professor__titulo {
-  @include cards.card-titulo;
 }
 
 .aulas-professor__vazio {
   @include cards.card-mensagem;
-}
-
-.dia-aulas {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2xs);
-}
-
-.dia-aulas__titulo {
-  margin: 0;
-  font-size: var(--text-sm);
-  font-weight: var(--fw-semibold);
-  color: var(--color-text-muted);
-}
-
-.dia-aulas__lista {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2xs);
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-/* CARDS DE AULA COM BORDAS E CORES ADAPTÁVEIS AO DARK MODE */
-.aula-card {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  padding: 0.65rem var(--space-md);
-  border-radius: var(--radius-md);
-  border: 1.5px solid var(--materia-border, transparent);
-  background-color: var(--materia-bg, var(--color-surface));
-  color: var(--materia-fg, var(--color-text));
-
-  &__horario {
-    display: flex;
-    flex-direction: column;
-    min-width: 48px;
-    font-weight: var(--fw-bold);
-    font-size: var(--text-xs);
-    color: inherit;
-  }
-
-  &__info {
-    min-width: 0;
-    overflow-wrap: anywhere;
-    display: flex;
-    flex-direction: column;
-    gap: 0.1rem;
-
-    strong {
-      font-size: var(--text-sm);
-      font-weight: var(--fw-bold);
-      color: inherit;
-    }
-
-    span {
-      font-size: var(--text-xs);
-      color: inherit;
-    }
-  }
-}
-
-/* BARRA DE INTERVALO USANDO TOKENS AMARELOS NATIVOS */
-.intervalo-bar {
-  text-align: center;
-  padding: 0.35rem 0;
-  border-radius: var(--radius-sm);
-  background-color: var(--tag-amarelo-bg);
-  border: 1px solid var(--tag-amarelo-border);
-  color: var(--tag-amarelo-fg);
-  font-size: var(--text-xs);
-  font-weight: var(--fw-semibold);
-  margin: 0.15rem 0;
 }

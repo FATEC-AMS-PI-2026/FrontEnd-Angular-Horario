@@ -1,4 +1,11 @@
-// Ações compartilhadas pelas três etapas do onboarding.
+// Estilos compartilhados no onboarding.
+@mixin nota {
+  margin: var(--space-sm) 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  line-height: 1.6;
+}
+
 @mixin acoes {
   margin-top: auto;
   display: flex;

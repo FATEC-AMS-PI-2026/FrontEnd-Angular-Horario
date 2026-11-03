@@ -160,93 +160,11 @@ p {
   }
 }
 
-.resumo {
-  @include cards.card-base;
-  position: sticky;
-  top: var(--space-sm);
-
-  h2 {
-    @include cards.card-titulo;
-  }
-}
-
-.contador {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3xs);
-  padding: var(--space-sm) 0;
-  color: var(--color-text-muted);
-
-  strong {
-    font-size: var(--text-2xl);
-    color: var(--color-primary);
-  }
-}
-
-.totais {
-  display: grid;
-  gap: var(--space-2xs);
-  padding-bottom: var(--space-sm);
-  border-bottom: 1px solid var(--color-border);
-
-  span {
-    display: flex;
-    justify-content: space-between;
-    font-size: var(--text-sm);
-  }
-}
-
-.selecionadas {
-  padding: 0;
-  margin: 0;
-  list-style: none;
-
-  li {
-    display: flex;
-    align-items: start;
-    gap: var(--space-2xs);
-    padding: var(--space-xs) 0;
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  div {
-    flex: 1;
-    min-width: 0;
-    display: grid;
-    gap: var(--space-3xs);
-  }
-
-  strong {
-    font-size: var(--text-sm);
-    overflow-wrap: anywhere;
-  }
-
-  span,
-  .resumo-vazio {
-    font-size: var(--text-xs);
-    color: var(--color-text-muted);
-    line-height: 1.6;
-  }
-}
-
-.remover {
-  background: transparent;
-  border: 0;
-  color: var(--color-primary);
-  padding: var(--space-3xs);
-  font-size: var(--text-xs);
-  text-decoration: underline;
-}
-
 .legenda {
-  color: var(--color-text-muted);
-  font-size: var(--text-xs);
-  margin-top: var(--space-sm);
-  line-height: 1.6;
+  @include setup.nota;
 }
 
 .estado {
-  @include cards.card-base;
   display: grid;
   gap: var(--space-sm);
 
@@ -294,10 +212,6 @@ fieldset:disabled {
 @media (max-width: 1100px) {
   .grade-layout {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .resumo {
-    position: static;
   }
 }
 

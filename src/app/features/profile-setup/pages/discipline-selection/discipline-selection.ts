@@ -5,12 +5,14 @@ import { finalize, forkJoin, map } from 'rxjs';
 import { ProfileSetupService } from '../../services/profile-setup.service';
 import { Disciplina } from '../../models/profile.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
+import { ResumoDisciplinas } from './components/resumo-disciplinas/resumo-disciplinas';
 
 type TipoDisciplina = 'Regular' | 'DP' | 'Adiantamento';
 
 @Component({
   selector: 'app-discipline-selection',
   standalone: true,
+  imports: [ResumoDisciplinas],
   templateUrl: './discipline-selection.html',
   styleUrl: './discipline-selection.scss',
 })
@@ -48,6 +50,9 @@ export class DisciplineSelection implements OnInit {
     const ids = new Set(this.setupService.selectedDisciplinas());
     return this.disciplinas().filter((disciplina) => ids.has(disciplina.id));
   });
+  protected readonly selecionadasComTipo = computed(() =>
+    this.selecionadas().map((disciplina) => ({ ...disciplina, tipo: this.tipo(disciplina) })),
+  );
   readonly visiveis = computed(() => {
     const termo = this.normalizar(this.busca().trim());
     return this.disciplinas().filter(
@@ -57,11 +62,11 @@ export class DisciplineSelection implements OnInit {
     );
   });
   readonly resumo = computed(() => {
-    const itens = this.selecionadas();
+    const itens = this.selecionadasComTipo();
     return {
-      regular: itens.filter((item) => this.tipo(item) === 'Regular').length,
-      dp: itens.filter((item) => this.tipo(item) === 'DP').length,
-      adiantamento: itens.filter((item) => this.tipo(item) === 'Adiantamento').length,
+      regular: itens.filter((item) => item.tipo === 'Regular').length,
+      dp: itens.filter((item) => item.tipo === 'DP').length,
+      adiantamento: itens.filter((item) => item.tipo === 'Adiantamento').length,
     };
   });
 

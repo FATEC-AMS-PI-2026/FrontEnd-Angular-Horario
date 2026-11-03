@@ -3,14 +3,15 @@ import { Component, computed, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProfessoresService } from './services/professores';
-import { IdProfessor, ItemProfessor } from './models/professor';
+import { IdProfessor } from './models/professor';
+import { DiaAulasProfessor } from './components/dia-aulas-professor/dia-aulas-professor';
 // TEMPORÁRIO: complemento do catálogo existente, como em Salas.
 import { ProfessoresLocaisService } from './services/professores-locais';
 
 @Component({
   selector: 'app-professores',
   standalone: true,
-  imports: [RouterLink, FigmaIcon],
+  imports: [RouterLink, FigmaIcon, DiaAulasProfessor],
   providers: [ProfessoresService, ProfessoresLocaisService],
   templateUrl: './professores.html',
   styleUrl: './professores.scss',
@@ -62,9 +63,6 @@ export class Professores {
         replaceUrl: true,
       });
     }
-  }
-  protected ehAula(item: ItemProfessor): item is Extract<ItemProfessor, { tipo: 'aula' }> {
-    return item.tipo === 'aula';
   }
   protected iniciais(nome: string): string {
     return nome
