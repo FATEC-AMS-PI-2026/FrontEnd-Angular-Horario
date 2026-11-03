@@ -134,9 +134,12 @@ export class DisponibilidadeSalaService {
 
   carregar(salaId?: number) {
     return defer(() => {
+      if (salaId !== undefined && (!Number.isSafeInteger(salaId) || salaId <= 0)) {
+        throw new Error('Identificador de sala inválido.');
+      }
       let totalEsperado: number | undefined;
       const pagina = (page: number) => this.http.get<unknown>(
-        `${this.config.url.replace(/\/+$/, '')}/alocacoes`, { params: { ...(salaId === undefined ? {} : { id_sala: salaId }), page, size: 200 } }).pipe(
+        `${this.config.url.replace(/\/+$/, '')}/alocacoes`, { params: { ...(salaId === undefined ? {} : { sala: salaId }), page, size: 200 } }).pipe(
           map(resposta => {
             const p = paginaDaApi(resposta, page, totalEsperado);
             totalEsperado = p.totalPages;

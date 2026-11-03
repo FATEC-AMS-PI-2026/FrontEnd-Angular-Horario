@@ -290,7 +290,7 @@ export class ProfessoresService {
         if (typeof id !== 'number') return;
         this.carregandoAulasJava.set(true);
         const hoje = dataAcademica(this.relogio.agora());
-        this.consultaAulas = this.consultarTodas('alocacoes', { id_usuario: id }).pipe(
+        this.consultaAulas = this.consultarTodas('alocacoes', { usuario: id }).pipe(
             map(itens => itens.map(item => paraAulaProfessor(item, hoje, id))
                 .filter((a): a is AulaProfessor => a !== null)),
         ).subscribe({

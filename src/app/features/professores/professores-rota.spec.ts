@@ -49,7 +49,7 @@ describe('Entrada em Professores pela rota do modal (#170)', () => {
         const java = Array.from(harness.routeNativeElement!.querySelectorAll<HTMLButtonElement>('.professor-card'))
             .find(card => card.textContent?.includes('Docente Java'))!;
         java.click();
-        http.expectOne(r => r.url === '/api/alocacoes' && r.params.get('id_usuario') === '1').flush(paginaApi([]));
+        http.expectOne(r => r.url === '/api/alocacoes' && r.params.get('usuario') === '1').flush(paginaApi([]));
         await harness.fixture.whenStable();
         harness.detectChanges();
         expect(TestBed.inject(Router).url).toBe('/professores?professor=1');
@@ -66,7 +66,7 @@ describe('Entrada em Professores pela rota do modal (#170)', () => {
         const java = Array.from(harness.routeNativeElement!.querySelectorAll<HTMLButtonElement>('.professor-card'))
             .find(card => card.textContent?.includes('Docente Java'))!;
         java.click();
-        http.expectOne(r => r.url === '/api/alocacoes' && r.params.get('id_usuario') === '1').flush(paginaApi([]));
+        http.expectOne(r => r.url === '/api/alocacoes' && r.params.get('usuario') === '1').flush(paginaApi([]));
         await harness.fixture.whenStable();
         harness.detectChanges();
         expect(busca.value).toBe('Docente');

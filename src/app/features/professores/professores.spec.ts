@@ -16,7 +16,7 @@ describe('Professores: estados e navegação', () => {
     let lista: TestRequest;
     let cursos: TestRequest;
     const texto = () => (fixture.nativeElement as HTMLElement).textContent ?? '';
-    const grade = (id = 1) => http.expectOne(r => r.url === '/api/alocacoes' && r.params.get('id_usuario') === String(id));
+    const grade = (id = 1) => http.expectOne(r => r.url === '/api/alocacoes' && r.params.get('usuario') === String(id));
     const carregar = () => {
         cursos.flush(paginaApi([alocacaoApi()]));
         lista.flush(paginaApi([professorApi(1, 'Ana'), professorApi(2, 'Zélia')]));
@@ -36,7 +36,7 @@ describe('Professores: estados e navegação', () => {
         fixture = TestBed.createComponent(Professores);
         http.expectOne(r => r.url === '/api/cursos').flush(paginaApi([]));
         lista = http.expectOne(r => r.url === '/api/professores');
-        cursos = http.expectOne(r => r.url === '/api/alocacoes' && !r.params.has('id_usuario'));
+        cursos = http.expectOne(r => r.url === '/api/alocacoes' && !r.params.has('usuario'));
         fixture.detectChanges();
     });
     afterEach(() => { fixture.destroy(); http.verify(); });

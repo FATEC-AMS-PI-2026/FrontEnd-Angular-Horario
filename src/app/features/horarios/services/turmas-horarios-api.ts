@@ -9,12 +9,7 @@ import { comIntervalos, ler, ordenarTurmas, paraAulaHorario, paraTurma, quadroAt
 /** Limite por requisição; todas as páginas são lidas antes de publicar o resultado. */
 const TAMANHO_PAGINA = 200;
 
-/**
- * Rotas e nomes de filtro do contrato atual (`dev` do backend). Na branch
- * `enhancement/motor-grade` os filtros viram `curso_id`/`turma_id` e os
- * horários da turma ganham rota própria (`/motor-quadro/cursos/{id}/turmas/{id}`,
- * que os mapeadores já sabem ler). Trocar só aqui quando ela for mergeada.
- */
+/** Rotas e filtros do contrato Java da branch Correção-para-infra. */
 const CONTRATO = {
     turmas: { rota: 'turmas', filtroCurso: 'curso' },
     alocacoes: { rota: 'alocacoes', filtroTurma: 'turma' },
