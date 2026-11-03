@@ -22,7 +22,7 @@ describe('ProfessoresService: catálogo local junto ao Java', () => {
   });
   const cadastro = () => http.expectOne((r) => r.url === '/api/professores');
   const grade = (id = 1) =>
-    http.expectOne((r) => r.url === '/api/alocacoes' && r.params.get('id_usuario') === String(id));
+    http.expectOne((r) => r.url === '/api/alocacoes' && r.params.get('usuario') === String(id));
   beforeEach(() => {
     locais = fonteProfessoresLocaisTeste();
     TestBed.configureTestingModule({
@@ -134,7 +134,7 @@ describe('ProfessoresService: catálogo local junto ao Java', () => {
     locais.aulas.set([aulaLocal(1, 'ADS')]);
     service.carregarCursos();
     http.expectOne((r) => r.url === '/api/cursos').flush(paginaApi([]));
-    http.expectOne((r) => !r.params.has('id_usuario')).flush(paginaApi([alocacaoApi()]));
+    http.expectOne((r) => !r.params.has('usuario')).flush(paginaApi([alocacaoApi()]));
     expect(service.cursos().map((c) => c.id)).toEqual([1]);
     service.carregarProfessores();
     cadastro().flush(paginaApi([professorApi()]));

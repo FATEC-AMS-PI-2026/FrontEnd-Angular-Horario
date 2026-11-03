@@ -383,7 +383,7 @@ export class ProfessoresService {
     if (typeof id !== 'number') return;
     this.carregandoAulasJava.set(true);
     const hoje = dataAcademica(this.relogio.agora());
-    this.consultaAulas = this.consultarTodas('alocacoes', { id_usuario: id })
+    this.consultaAulas = this.consultarTodas('alocacoes', { usuario: id })
       .pipe(
         map((itens) =>
           itens

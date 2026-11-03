@@ -66,7 +66,7 @@ describe('ListaSalas', () => {
         provideHttpClientTesting(),
         {
           provide: BACKEND_CONFIG,
-          useValue: { habilitado: false, url: BASE, modulos: ['salas', 'recursos-salas'] },
+          useValue: { habilitado: false, url: BASE, modulos: ['salas', 'recurso-sala'] },
         },
       ],
     }).compileComponents();
@@ -75,7 +75,7 @@ describe('ListaSalas', () => {
     fixture = TestBed.createComponent(ListaSalas);
     fixture.detectChanges();
     http
-      .expectOne((r) => r.url === `${BASE}/recursos-salas`)
+      .expectOne((r) => r.url === `${BASE}/recurso-sala`)
       .flush({ content: [], page: 0, totalPages: 0 });
   });
 
@@ -413,7 +413,7 @@ describe('ListaSalas', () => {
     const recursos = fixture.debugElement.injector.get(RecursosSalaService);
     recursos.carregar();
     http
-      .expectOne((r) => r.url === `${BASE}/recursos-salas`)
+      .expectOne((r) => r.url === `${BASE}/recurso-sala`)
       .flush({
         page: 0,
         totalPages: 1,
@@ -480,13 +480,13 @@ describe('ListaSalas', () => {
     fixture.detectChanges();
     expect(cards()[0].textContent).toContain('Carregando equipamentos');
     expect(cards()[0].textContent).not.toContain('Nenhum equipamento cadastrado');
-    http.expectOne((r) => r.url === `${BASE}/recursos-salas`).error(new ProgressEvent('error'));
+    http.expectOne((r) => r.url === `${BASE}/recurso-sala`).error(new ProgressEvent('error'));
     fixture.detectChanges();
     expect(cards()[0].textContent).toContain('Não foi possível conectar');
     expect(cards()[0].textContent).not.toContain('Nenhum equipamento cadastrado');
     elemento().querySelector<HTMLButtonElement>('.lista-salas__estado--erro button')!.click();
     http
-      .expectOne((r) => r.url === `${BASE}/recursos-salas`)
+      .expectOne((r) => r.url === `${BASE}/recurso-sala`)
       .flush({ content: [], page: 0, totalPages: 0 });
     fixture.detectChanges();
     expect(cards()[0].textContent).toContain('Nenhum equipamento cadastrado');
@@ -507,7 +507,7 @@ describe('ListaSalas: disponibilidade remota', () => {
           provide: BACKEND_CONFIG,
           useValue: {
             url: BASE,
-            modulos: ['salas', 'alocacoes', 'recursos-salas'],
+            modulos: ['salas', 'alocacoes', 'recurso-sala'],
             agendaSalasCompleta: true,
           },
         },
@@ -538,7 +538,7 @@ describe('ListaSalas: disponibilidade remota', () => {
       .expectOne((r) => r.url === `${BASE}/salas`)
       .flush({ content: [sala(1, 'LAB-01', 'Laboratório')], page: 0, totalPages: 1 });
     http
-      .expectOne((r) => r.url === `${BASE}/recursos-salas`)
+      .expectOne((r) => r.url === `${BASE}/recurso-sala`)
       .flush({ content: [], page: 0, totalPages: 0 });
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Consultando disponibilidade');
@@ -555,7 +555,7 @@ describe('ListaSalas: disponibilidade remota', () => {
       .flush({ content: [], page: 0, totalPages: 0 });
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('app-status-sala-badge')).not.toBeNull();
-    http.expectNone((r) => r.url === `${BASE}/salas` || r.url === `${BASE}/recursos-salas`);
+    http.expectNone((r) => r.url === `${BASE}/salas` || r.url === `${BASE}/recurso-sala`);
     const locais = TestBed.inject(SalasLocaisService);
     (locais.erro as WritableSignal<string | null>).set('Falha nos horários deste navegador');
     fixture.detectChanges();
@@ -568,7 +568,7 @@ describe('ListaSalas: disponibilidade remota', () => {
     tick(0);
     http.expectOne((r) => r.url === `${BASE}/salas`).error(new ProgressEvent('error'));
     http.expectOne((r) => r.url === `${BASE}/alocacoes`).error(new ProgressEvent('error'));
-    http.expectOne((r) => r.url === `${BASE}/recursos-salas`).error(new ProgressEvent('error'));
+    http.expectOne((r) => r.url === `${BASE}/recurso-sala`).error(new ProgressEvent('error'));
     fixture.detectChanges();
     const tela: HTMLElement = fixture.nativeElement;
     expect(tela.querySelectorAll('[role="alert"]').length).toBe(1);
@@ -581,7 +581,7 @@ describe('ListaSalas: disponibilidade remota', () => {
       .expectOne((r) => r.url === `${BASE}/salas`)
       .flush({ content: [sala(1, 'LAB-01', 'Laboratório')], page: 0, totalPages: 1 });
     http
-      .expectOne((r) => r.url === `${BASE}/recursos-salas`)
+      .expectOne((r) => r.url === `${BASE}/recurso-sala`)
       .flush({ content: [], page: 0, totalPages: 0 });
     http
       .expectOne((r) => r.url === `${BASE}/alocacoes`)
@@ -600,7 +600,7 @@ describe('ListaSalas: disponibilidade remota', () => {
       .expectOne((r) => r.url === `${BASE}/alocacoes`)
       .flush(null, { status: 403, statusText: 'Forbidden' });
     http
-      .expectOne((r) => r.url === `${BASE}/recursos-salas`)
+      .expectOne((r) => r.url === `${BASE}/recurso-sala`)
       .flush(null, { status: 401, statusText: 'Unauthorized' });
     const locais = TestBed.inject(SalasLocaisService);
     (locais.erro as WritableSignal<string | null>).set('Falha na leitura local');

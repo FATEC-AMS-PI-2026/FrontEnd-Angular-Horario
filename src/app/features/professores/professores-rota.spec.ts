@@ -76,7 +76,7 @@ describe('Entrada em Professores pela rota do modal (#170)', () => {
     ).find((card) => card.textContent?.includes('Docente Java'))!;
     java.click();
     http
-      .expectOne((r) => r.url === '/api/alocacoes' && r.params.get('id_usuario') === '1')
+      .expectOne((r) => r.url === '/api/alocacoes' && r.params.get('usuario') === '1')
       .flush(paginaApi([]));
     await harness.fixture.whenStable();
     harness.detectChanges();
@@ -99,7 +99,7 @@ describe('Entrada em Professores pela rota do modal (#170)', () => {
     ).find((card) => card.textContent?.includes('Docente Java'))!;
     java.click();
     http
-      .expectOne((r) => r.url === '/api/alocacoes' && r.params.get('id_usuario') === '1')
+      .expectOne((r) => r.url === '/api/alocacoes' && r.params.get('usuario') === '1')
       .flush(paginaApi([]));
     await harness.fixture.whenStable();
     harness.detectChanges();

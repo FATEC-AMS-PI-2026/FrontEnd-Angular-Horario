@@ -15,9 +15,11 @@ describe('ProfessoresService', () => {
   let config: BackendConfig;
   const lista = [professorApi(1, 'Ana'), professorApi(2, 'Zélia'), professorApi(3, 'Sem aulas')];
   const grade = (id = 1) =>
-    http.expectOne((r) => r.url === '/api/alocacoes' && r.params.get('id_usuario') === String(id));
+    http.expectOne((r) => r.url === '/api/alocacoes' && r.params.get('usuario') === String(id));
   const cursos = () =>
-    http.expectOne((r) => r.url === '/api/alocacoes' && !r.params.has('id_usuario'));
+    http.expectOne(
+      (r) => r.url === '/api/alocacoes' && !r.params.has('usuario') && !r.params.has('id_usuario'),
+    );
   const cadastro = (page = 0) =>
     http.expectOne((r) => r.url === '/api/professores' && r.params.get('page') === String(page));
 
@@ -54,13 +56,14 @@ describe('ProfessoresService', () => {
     expect(service.professoresFiltrados().every((p) => p.cargo === null)).toBeTrue();
     expect(service.professorSelecionado()?.id).toBe(1);
     const req = grade();
+    expect(req.request.params.has('id_usuario')).toBeFalse();
     expect(req.request.headers.has('Authorization')).toBeFalse();
     req.flush(paginaApi([]));
     expect(service.diasAgrupados()).toEqual([]);
     expect(service.erroAulas()).toBeNull();
   });
 
-  it('publica a grade somente após todas as páginas usando id_usuario e total_pages', () => {
+  it('publica a grade somente após todas as páginas usando usuario e total_pages', () => {
     service.carregarProfessores();
     cadastro().flush(paginaApi(lista));
     grade().flush(paginaApi([alocacaoApi()], 0, 2));
@@ -211,7 +214,7 @@ describe('ProfessoresService', () => {
     http.expectOne((r) => r.url === '/api/cursos').flush(paginaApi([]));
     cadastro().flush(paginaApi(lista));
     grade().flush(paginaApi([]));
-    http.expectNone((r) => r.url === '/api/alocacoes' && !r.params.has('id_usuario'));
+    http.expectNone((r) => r.url === '/api/alocacoes' && !r.params.has('usuario'));
     expect(service.agendaCompleta).toBeFalse();
     expect(service.cursos()).toEqual([]);
     expect(service.professoresFiltrados().length).toBe(3);

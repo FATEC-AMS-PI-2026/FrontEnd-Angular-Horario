@@ -45,7 +45,7 @@ export class RecursosSalaService {
   private consulta?: Subscription;
   private readonly carregado = signal(false);
   readonly habilitado =
-    this.config.habilitado || (this.config.modulos ?? []).includes('recursos-salas');
+    this.config.habilitado || (this.config.modulos ?? []).includes('recurso-sala');
   readonly porSala = signal<ReadonlyMap<number, Equipamento[]>>(new Map());
   readonly carregando = signal(false);
   readonly erro = signal<string | null>(null);
@@ -65,12 +65,16 @@ export class RecursosSalaService {
   carregar(salaId?: number): void {
     this.limpar();
     if (!this.habilitado) return;
+    if (salaId !== undefined && (!Number.isSafeInteger(salaId) || salaId <= 0)) {
+      this.erro.set('Identificador de sala inválido.');
+      return;
+    }
     this.carregando.set(true);
     let totalEsperado: number | undefined;
     const pagina = (page: number) =>
       this.http
-        .get<unknown>(`${this.base}/recursos-salas`, {
-          params: { page, size: 200, ...(salaId === undefined ? {} : { id_sala: salaId }) },
+        .get<unknown>(`${this.base}/recurso-sala`, {
+          params: { page, size: 200, ...(salaId === undefined ? {} : { salaId: salaId }) },
         })
         .pipe(
           map((resposta) => {
@@ -95,8 +99,14 @@ export class RecursosSalaService {
               !Number.isSafeInteger(item.sala?.id) ||
               item.sala.id <= 0 ||
               (salaId !== undefined && item.sala.id !== salaId) ||
-              !item.recurso?.nome?.trim() ||
-              !item.recurso.tipo?.nome ||
+              !Number.isSafeInteger(item.recurso?.id) ||
+              item.recurso.id <= 0 ||
+              !Number.isSafeInteger(item.recurso.tipo?.id) ||
+              item.recurso.tipo.id <= 0 ||
+              typeof item.recurso.nome !== 'string' ||
+              !item.recurso.nome.trim() ||
+              typeof item.recurso.tipo.nome !== 'string' ||
+              !item.recurso.tipo.nome.trim() ||
               !Number.isSafeInteger(item.quantidade) ||
               item.quantidade < 0
             ) {
