@@ -8,7 +8,7 @@
     (click)="$event.stopPropagation()"
   >
     <header class="modal__cabecalho">
-      <h2 id="adicionar-materia-titulo">Adicionar Matéria</h2>
+      <h2 id="adicionar-materia-titulo">Adicionar Disciplina</h2>
       <button type="button" class="modal__fechar" aria-label="Fechar" (click)="fechar.emit()">
         <app-figma-icon name="close" class="action-icon" />
       </button>
@@ -39,21 +39,23 @@
       </fieldset>
 
       <div class="campo">
-        <label class="campo__rotulo" for="adicionar-materia-select">Matéria</label>
+        <label class="campo__rotulo" for="adicionar-materia-select">Disciplina</label>
         <select
           id="adicionar-materia-select"
           class="campo__select"
           [class.campo__select--invalido]="faltaMateria()"
+          [attr.aria-invalid]="faltaMateria() ? 'true' : null"
+          [attr.aria-describedby]="faltaMateria() ? 'adicionar-materia-erro' : null"
           [value]="materia()"
           (change)="selecionarMateria($any($event.target).value)"
         >
-          <option value="" disabled>Selecione a matéria</option>
+          <option value="" disabled>Selecione a disciplina</option>
           @for (opcao of materias(); track opcao) {
             <option [value]="opcao">{{ opcao }}</option>
           }
         </select>
         @if (faltaMateria()) {
-          <p class="campo__erro">Selecione a matéria.</p>
+          <p id="adicionar-materia-erro" class="campo__erro">Selecione a disciplina.</p>
         }
       </div>
 

@@ -128,7 +128,7 @@ export class DadosLocaisService {
     return salvo.catalogo.cursos.map((c) => ({
       id: String(c.id),
       title: c.nome,
-      period: `Período: ${c.turno}`,
+      period: `Turno: ${c.turno}`,
       unit: c.unidade,
       type: 'Tecnólogo',
       category: c.turno,

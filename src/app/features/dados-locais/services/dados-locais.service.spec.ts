@@ -114,7 +114,9 @@ describe('Dados locais: IndexedDB real no navegador', () => {
       { ...c.cursos[0], id: 3, nome: 'Curso sem correspondência visual' },
     );
     await dados.importar(c);
-    expect((await dados.cursos()).map((curso) => curso.icon)).toEqual(['code', 'chart', 'generic']);
+    const cursos = await dados.cursos();
+    expect(cursos.map((curso) => curso.icon)).toEqual(['code', 'chart', 'generic']);
+    expect(cursos[0].period).toBe('Turno: Tarde');
     expect((await dados.catalogo())?.catalogo).toEqual(c);
   });
 

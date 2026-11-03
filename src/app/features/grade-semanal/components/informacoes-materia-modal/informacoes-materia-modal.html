@@ -9,11 +9,11 @@
   (keydown)="controlarFoco($event)"
 >
   <header class="modal__cabecalho">
-    <h2 id="informacoes-materia-titulo">Informações da matéria</h2>
+    <h2 id="informacoes-materia-titulo">Informações da aula</h2>
     <button
       type="button"
       class="modal__fechar"
-      aria-label="Fechar informações da matéria"
+      aria-label="Fechar informações da aula"
       autofocus
       (click)="fecharModal()"
     >
@@ -23,13 +23,13 @@
 
   <dl id="informacoes-materia-detalhes" class="modal__detalhes">
     <div>
-      <dt>Matéria</dt>
+      <dt>Disciplina</dt>
       <dd>
         <span class="modal__valor">{{ aula().materia }}</span>
       </dd>
     </div>
     <div>
-      <dt>Professor responsável</dt>
+      <dt>Professor da aula</dt>
       <dd>
         <span class="modal__valor">
           @if (professorId(); as id) {

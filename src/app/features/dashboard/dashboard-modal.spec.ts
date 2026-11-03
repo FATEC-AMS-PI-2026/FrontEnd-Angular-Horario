@@ -83,7 +83,7 @@ describe('Dashboard: informações das aulas de hoje', () => {
     fixture.detectChanges();
   }
 
-  it('abre o mesmo modal da Grade Semanal com os dados da alocação clicada, mesmo repetindo a matéria', () => {
+  it('abre o mesmo modal da Grade Semanal com os dados da alocação clicada, mesmo repetindo a disciplina', () => {
     const tela = abrir([
       aula(1, '13:20', '14:10'),
       aula(2, '14:20', '15:10', {
@@ -95,7 +95,9 @@ describe('Dashboard: informações das aulas de hoje', () => {
     const botao = clicarAula(1);
     expect(botao.type).toBe('button');
     expect(botao.getAttribute('aria-haspopup')).toBe('dialog');
-    expect(botao.getAttribute('aria-label')).toContain('das 14:20 às 15:10');
+    expect(botao.getAttribute('aria-label')).toBe(
+      'Ver informações da aula de Banco de Dados, das 14:20 às 15:10',
+    );
     expect(tela.querySelector('app-informacoes-materia-modal')).not.toBeNull();
     expect((tela.querySelector('dialog') as HTMLDialogElement).open).toBeTrue();
     expect(

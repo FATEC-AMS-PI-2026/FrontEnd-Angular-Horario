@@ -168,7 +168,13 @@ describe('GradeSemanal', () => {
       fixture.detectChanges();
       const dialogo = fixture.nativeElement.querySelector('dialog') as HTMLDialogElement;
       expect(dialogo.getAttribute('aria-modal')).toBe('true');
-      expect(dialogo.getAttribute('aria-labelledby')).toBe('informacoes-materia-titulo');
+      expect(
+        dialogo.querySelector(`#${dialogo.getAttribute('aria-labelledby')}`)?.textContent,
+      ).toBe('Informações da aula');
+      expect(texto(fixture, 'dialog dt')).toEqual(['Disciplina', 'Professor da aula', 'Sala']);
+      expect(dialogo.querySelector('.modal__fechar')?.getAttribute('aria-label')).toBe(
+        'Fechar informações da aula',
+      );
       expect(document.activeElement).toBe(dialogo.querySelector('.modal__fechar'));
       botao.focus();
       expect(dialogo.contains(document.activeElement)).toBeTrue();

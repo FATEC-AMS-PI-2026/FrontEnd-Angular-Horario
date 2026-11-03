@@ -54,7 +54,7 @@ describe('AdicionarMateriaModal', () => {
     TestBed.inject(HorariosService).carregar();
   });
 
-  it('mostra chips de dia, matérias do service e chips de horário no formato "1ª - 13:20"', () => {
+  it('mostra chips de dia, disciplinas do service e chips de horário no formato "1ª - 13:20"', () => {
     const fixture = criar();
     const service = TestBed.inject(HorariosService);
 
@@ -66,6 +66,9 @@ describe('AdicionarMateriaModal', () => {
       'Sex',
       'Sáb',
     ]);
+    const campo = elementos<HTMLSelectElement>(fixture, 'select')[0];
+    expect(campo.labels?.[0].textContent?.trim()).toBe('Disciplina');
+    expect(texto(fixture, 'option[disabled]')).toEqual(['Selecione a disciplina']);
     expect(texto(fixture, 'option:not([disabled])')).toEqual(service.materias());
     expect(texto(fixture, '.opcao-chip--horario')[0]).toBe('1ª - 13:20');
   });
@@ -86,9 +89,17 @@ describe('AdicionarMateriaModal', () => {
 
     expect(texto(fixture, '.campo__erro')).toEqual([
       'Selecione o dia da semana.',
-      'Selecione a matéria.',
+      'Selecione a disciplina.',
       'Selecione o horário.',
     ]);
+    const campo = elementos<HTMLSelectElement>(fixture, 'select')[0];
+    expect(campo.getAttribute('aria-invalid')).toBe('true');
+    expect(texto(fixture, `#${campo.getAttribute('aria-describedby')}`)).toEqual([
+      'Selecione a disciplina.',
+    ]);
+    escolherMateria(fixture, 'Banco de Dados');
+    expect(campo.hasAttribute('aria-invalid')).toBeFalse();
+    expect(campo.hasAttribute('aria-describedby')).toBeFalse();
     expect(service.itens().length).toBe(antes);
     expect(emitiu).toBeFalse();
   });

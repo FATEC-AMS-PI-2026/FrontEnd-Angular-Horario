@@ -331,13 +331,20 @@ describe('Horarios', () => {
     expect(service.carregandoDia()).toBeFalse();
   });
 
-  it('abre o modal "Adicionar Matéria" pelo botão e fecha ao cancelar', () => {
+  it('abre o modal "Adicionar Disciplina" pelo botão e fecha ao cancelar', () => {
     const fixture = criar(segunda1430);
     expect(fixture.nativeElement.querySelector('app-adicionar-materia-modal')).toBeNull();
 
-    (fixture.nativeElement.querySelector('.botao-adicionar') as HTMLButtonElement).click();
+    const tela: HTMLElement = fixture.nativeElement;
+    const adicionar = tela.querySelector<HTMLButtonElement>('.botao-adicionar')!;
+    expect(adicionar.textContent?.trim()).toContain('Adicionar Disciplina');
+    expect(tela.querySelector('th:nth-child(2)')?.textContent?.trim()).toBe('Disciplina');
+    adicionar.click();
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('[role="dialog"]')).not.toBeNull();
+    const dialogo = tela.querySelector('[role="dialog"]')!;
+    expect(dialogo.querySelector(`#${dialogo.getAttribute('aria-labelledby')}`)?.textContent).toBe(
+      'Adicionar Disciplina',
+    );
 
     const botoes = fixture.nativeElement.querySelectorAll(
       '.botao',
