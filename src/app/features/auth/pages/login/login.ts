@@ -32,7 +32,8 @@ export class Login {
     private mensagemInicial(): string {
         const motivo = inject(ActivatedRoute).snapshot.queryParamMap.get('motivo');
         return motivo === 'sessao-expirada' ? 'Sua sessão expirou. Entre novamente para continuar.'
-            : motivo === 'perfil-indisponivel' ? 'Não foi possível carregar seu perfil. Tente entrar novamente.' : '';
+            : motivo === 'perfil-indisponivel' ? 'Não foi possível carregar seu perfil. Tente entrar novamente.'
+            : motivo === 'sessao-encerrada' ? 'Você saiu da sua conta em outra aba. Entre novamente para continuar.' : '';
     }
 
     get identificador() { return this.form.controls.identificador; }
