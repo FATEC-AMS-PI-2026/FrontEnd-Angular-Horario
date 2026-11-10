@@ -11,14 +11,28 @@ export const routes: Routes = [
 
     {
         path: 'cadastro',
+        canActivate: [guestGuard],
         loadComponent: () =>
             import('./features/auth/pages/cadastro/cadastro').then((m) => m.Cadastro),
     },
 
+    // Recuperação de senha é só para visitantes; logado, a troca usa /alterar-senha (#158).
     {
         path: 'esqueci-senha',
+        canActivate: [guestGuard],
         loadComponent: () =>
             import('./features/auth/pages/forgot-password/forgot-password').then((m) => m.ForgotPassword),
+    },
+
+    {
+        path: 'alterar-senha',
+        canActivateChild: [profileGuard],
+        children: [{
+            path: '',
+            data: { alteracaoAutenticada: true },
+            loadComponent: () =>
+                import('./features/auth/pages/forgot-password/forgot-password').then((m) => m.ForgotPassword),
+        }],
     },
 
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -86,6 +100,10 @@ export const routes: Routes = [
         ],
     },
 
-    // Rota de fallback
-    { path: '**', redirectTo: 'login' },
+    // Rota de fallback: página 404 com retorno conforme a sessão (#158)
+    {
+        path: '**',
+        loadComponent: () =>
+            import('./features/nao-encontrada/nao-encontrada').then((m) => m.NaoEncontrada),
+    },
 ];

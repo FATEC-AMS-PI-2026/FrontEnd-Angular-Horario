@@ -1,0 +1,20 @@
+<div class="auth-container">
+    <div class="auth-image-side">
+        <img src="/auth/fatec.png" alt="Fachada da Fatec" class="bg-img" />
+        <img src="/auth/cps-logo.png" alt="Centro Paula Souza" class="cps-logo" />
+    </div>
+
+    <main class="auth-form-side">
+        <div class="form-wrapper">
+            <p class="nao-encontrada__codigo" aria-hidden="true">404</p>
+            <h1 class="title">Página não encontrada</h1>
+            <p class="subtitle">
+                O endereço <code class="nao-encontrada__endereco">{{ endereco }}</code> não existe ou foi movido.
+            </p>
+
+            <div class="button-group">
+                <a class="btn-submit nao-encontrada__acao" [routerLink]="destino">{{ rotuloDestino }}</a>
+            </div>
+        </div>
+    </main>
+</div>

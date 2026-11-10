@@ -3,9 +3,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { SessionService } from '../../../../core/services/session.service';
 
 @Component({
     selector: 'app-forgot-password',
@@ -17,6 +18,13 @@ import { AuthService } from '../../services/auth.service';
 export class ForgotPassword {
     private readonly destroyRef = inject(DestroyRef);
     private readonly apiError = inject(ApiErrorService);
+    /**
+     * Em /alterar-senha (usuário logado, #158) a mesma tela envia o link de redefinição
+     * para o e-mail da conta: o e-mail vem da sessão e não pode ser trocado, e Cancelar
+     * volta às Configurações. Em /esqueci-senha (visitante) segue o fluxo original.
+     */
+    readonly alteracaoAutenticada = inject(ActivatedRoute).snapshot.data['alteracaoAutenticada'] === true;
+    readonly voltarPara = this.alteracaoAutenticada ? '/configuracoes' : '/login';
     form: FormGroup;
     submitted = false;
     loading = false;
@@ -24,8 +32,9 @@ export class ForgotPassword {
     errorMessage = '';
 
     constructor(private fb: FormBuilder, private authService: AuthService) {
+        const emailSessao = this.alteracaoAutenticada ? inject(SessionService).usuario()?.email ?? '' : '';
         this.form = this.fb.group({
-            email: ['', [Validators.required, Validators.email]]
+            email: [emailSessao, [Validators.required, Validators.email]]
         });
     }
 
