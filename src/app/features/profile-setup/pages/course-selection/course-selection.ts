@@ -1,3 +1,4 @@
+import { FigmaIcon } from '../../../../shared/components/figma-icon/figma-icon';
 import { Component, DestroyRef, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -7,15 +8,17 @@ import { finalize, map } from 'rxjs';
 import { ProfileSetupService } from '../../services/profile-setup.service';
 import { Course } from '../../models/course.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
+import { courseIconAsset } from '../../models/course-icon';
 
 @Component({
     selector: 'app-course-selection',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, FigmaIcon],
     templateUrl: './course-selection.html',
     styleUrl: './course-selection.scss',
 })
 export class CourseSelection implements OnInit {
+    readonly courseIconAsset = courseIconAsset;
     readonly setupService = inject(ProfileSetupService);
     private readonly router = inject(Router);
     private readonly apiError = inject(ApiErrorService);

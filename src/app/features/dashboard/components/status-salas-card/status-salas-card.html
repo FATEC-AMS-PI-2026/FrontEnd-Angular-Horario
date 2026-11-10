@@ -1,0 +1,40 @@
+<div class="card__header">
+    <h3>Status das salas</h3>
+    <a routerLink="/salas" class="link-more">Ver todos <app-figma-icon name="arrow-right" class="action-icon" /></a>
+</div>
+@if (aviso(); as aviso) {
+<div class="rooms-notice" role="alert">
+    <p>{{ aviso }}</p>
+    <button type="button" class="link-more" (click)="tentarNovamente.emit()">Tentar novamente</button>
+</div>
+}
+@if (erroLocal(); as erroLocal) {
+<div class="rooms-notice" role="alert">
+    <p>{{ erroLocal }}</p>
+    <button type="button" class="link-more" (click)="tentarNovamenteLocal.emit()">Tentar novamente</button>
+</div>
+}
+@if (carregando()) { <p role="status">Carregando salas...</p> }
+@if (consultandoAgenda()) { <p role="status">Consultando disponibilidade das salas...</p> }
+<div class="room-status-list">
+    @for (grupo of grupos(); track grupo.titulo) {
+    <div class="room-status-group">
+        @if (grupo.titulo) { <h4 class="room-group-title">{{ grupo.titulo }}</h4> }
+        @for (item of grupo.itens; track item.sala.rotaId ?? item.sala.id) {
+        <a class="room-status-item" [routerLink]="['/salas', item.sala.rotaId ?? item.sala.id]"
+            [class.status-livre]="item.disponibilidade?.status === 'Livre'"
+            [class.status-em_uso]="item.disponibilidade?.status === 'Em uso'"
+            [class.status-manutencao]="item.disponibilidade?.status === 'Manutenção'">
+            <div class="room-info">
+                <strong>{{ item.sala.nome }}</strong>
+                @if (item.professores) { <span class="room-professor">{{ item.professores }}</span> }
+                @else { <span>{{ item.disponibilidade?.texto || 'Disponibilidade indisponível' }}</span> }
+            </div>
+            @if (item.disponibilidade?.status; as status) { <app-status-sala-badge [status]="status" /> }
+        </a>
+        }
+    </div>
+    } @empty {
+    @if (!carregando() && !aviso() && !erroLocal()) { <p role="status">Nenhuma sala cadastrada.</p> }
+    }
+</div>

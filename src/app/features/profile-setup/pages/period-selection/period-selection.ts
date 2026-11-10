@@ -1,3 +1,4 @@
+import { FigmaIcon } from '../../../../shared/components/figma-icon/figma-icon';
 import { Component, DestroyRef, OnInit, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -11,7 +12,7 @@ import { TituloPaginaService } from '../../../../core/services/titulo-pagina.ser
 @Component({
     selector: 'app-period-selection',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, FigmaIcon],
     templateUrl: './period-selection.html',
     styleUrl: './period-selection.scss',
 })

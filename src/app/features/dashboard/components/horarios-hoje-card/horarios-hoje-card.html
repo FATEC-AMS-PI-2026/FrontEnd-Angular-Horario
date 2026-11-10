@@ -1,0 +1,34 @@
+<div class="card__header">
+    <div>
+        <h3>Horários de hoje</h3><span class="subtitle">{{ dia() }}, {{ data() }}</span>
+    </div>
+    <a routerLink="/grade-semanal" class="link-more">Ver todos <app-figma-icon name="arrow-right" class="action-icon" /></a>
+</div>
+@if (carregado()) {
+<div class="schedule-list">
+    @for (item of horarios(); track item.id) {
+    @if (item.aula; as aula) {
+    <button type="button" class="schedule-item schedule-item--class" [class]="item.cor ? 'cor-' + item.cor : ''"
+        aria-haspopup="dialog"
+        [attr.aria-label]="'Ver informações de ' + aula.disciplina.nome + ', das ' + item.horaInicio.slice(0, 5) + ' às ' + item.horaFim.slice(0, 5)"
+        (click)="abrirInformacoes(aula, $event)">
+        <span class="time-block">
+            <span>{{ item.horaInicio.slice(0, 5) }}</span>
+            <span>{{ item.horaFim.slice(0, 5) }}</span>
+        </span>
+        <span class="info-block">
+            <strong>{{ aula.disciplina.nome }}</strong>
+            <span>{{ item.professor }} · {{ aula.sala?.codigo || 'Sala
+                não informada' }}</span>
+        </span>
+        @if (aula.reposicao) { <span class="reposicao-aula">Reposição de aula</span> }
+    </button>
+    } @else {
+    <div class="schedule-item schedule-item--interval">
+        <span title="Tempo entre suas aulas">{{ item.horaInicio.slice(0, 5) }}–{{ item.horaFim.slice(0, 5)
+            }} · (intervalo)</span>
+    </div>
+    }
+    } @empty { <p role="status">Você não tem aulas programadas para hoje.</p> }
+</div>
+}

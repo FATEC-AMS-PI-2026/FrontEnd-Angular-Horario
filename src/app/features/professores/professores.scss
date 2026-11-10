@@ -30,10 +30,7 @@
     align-items: center;
 
     .professores__busca-icone {
-        position: absolute;
-        left: var(--space-sm);
-        color: var(--color-placeholder);
-        pointer-events: none;
+        @include filters.icone-busca;
     }
 }
 

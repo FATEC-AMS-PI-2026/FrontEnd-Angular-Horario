@@ -33,11 +33,7 @@
     margin-bottom: var(--space-lg);
 
     .search-icon {
-        position: absolute;
-        left: var(--space-sm);
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--color-placeholder);
+        @include filters.icone-busca;
     }
 }
 
@@ -74,11 +70,12 @@
         }
 
         .card-icon {
-            width: 40px;
-            height: 40px;
-            background-color: #6ee7b7;
-            color: var(--tag-verde-fg);
-            border-radius: var(--radius-md);
+            app-figma-icon { --icon-size: 40px; }
+            width: 52px;
+            height: 52px;
+            background-color: var(--color-primary-pale);
+            color: var(--color-primary);
+            border-radius: var(--radius-sala);
             display: flex;
             align-items: center;
             justify-content: center;

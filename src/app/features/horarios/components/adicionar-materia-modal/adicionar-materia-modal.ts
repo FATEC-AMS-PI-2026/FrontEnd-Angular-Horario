@@ -1,3 +1,4 @@
+import { FigmaIcon } from '../../../../shared/components/figma-icon/figma-icon';
 import {
     afterNextRender,
     ChangeDetectionStrategy,
@@ -23,6 +24,7 @@ import { BlocoHorario, DiaSemana, DIAS_SEMANA } from '../../models/item-horario'
  */
 @Component({
     selector: 'app-adicionar-materia-modal',
+    imports: [FigmaIcon],
     standalone: true,
     templateUrl: './adicionar-materia-modal.html',
     styleUrl: './adicionar-materia-modal.scss',

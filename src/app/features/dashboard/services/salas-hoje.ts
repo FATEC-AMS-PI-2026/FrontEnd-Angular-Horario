@@ -5,6 +5,7 @@ import { codigoSala } from '../../salas/services/salas-locais';
 export interface SalaHoje {
   chave: string;
   codigo: string;
+  identificacao: string;
   disciplinas: string;
   sala?: SalaResumo;
 }
@@ -22,6 +23,10 @@ export function mapearSalasHoje(alocacoes: AlocacaoResponse[], cadastro: SalaRes
   return [...salas.entries()].map(([chave, item]) => {
     const correspondentes = cadastro.filter(sala => codigoSala(sala.nome) === chave);
     const sala = correspondentes.length === 1 ? correspondentes[0] : undefined;
-    return { chave, codigo: sala?.nome ?? item.codigo, disciplinas: [...item.disciplinas].join(' · '), sala };
+    const codigo = sala?.nome ?? item.codigo;
+    const localizacao = [sala?.predio?.trim(), sala?.andar !== undefined ? `Andar ${sala.andar}` : '']
+      .filter(Boolean).join(' | ');
+    return { chave, codigo, identificacao: localizacao ? `${codigo} – ${localizacao}` : codigo,
+      disciplinas: [...item.disciplinas].join(' · '), sala };
   });
 }

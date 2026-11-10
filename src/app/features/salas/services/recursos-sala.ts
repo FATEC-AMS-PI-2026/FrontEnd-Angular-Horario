@@ -14,6 +14,7 @@ export function equipamentoDoRecurso(item: RecursoSalaApi): Equipamento {
     : /^cadeira(?:s)?\b/.test(normalizado) ? 'Cadeira'
     : /^(televisao|televisor|televisores|televisoes|tv)\b/.test(normalizado) ? 'Televisão'
     : /^wi[ -]?fi\b/.test(normalizado) ? 'Wi-Fi'
+    : /^projetor(?:es)?\b/.test(normalizado) ? 'Projetor multimidia'
     : /^ar[ -]condicionado\b/.test(normalizado) ? 'Ar-condicionado' : nome;
   return { id: item.id, tipo, nome, categoria: item.recurso.tipo.nome, quantidadeTotal: item.quantidade };
 }

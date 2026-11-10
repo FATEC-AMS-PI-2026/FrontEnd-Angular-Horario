@@ -12,6 +12,9 @@ describe('EquipamentosCard: inventário Java', () => {
     const el: HTMLElement = fixture.nativeElement;
     expect(el.textContent).toContain('Projetor multimidia');
     expect(el.textContent).toContain('Material Didatico');
+    expect(el.querySelector<HTMLElement>('.equipamento__icone .icone__mascara')?.style.maskImage)
+      .toContain('/icons/salas/projetor.png');
+    expect(el.querySelectorAll('.equipamento__icone .icone__simbolo').length).toBe(1);
     expect(el.querySelector('.equipamento__quantidade')?.textContent?.trim()).toBe('0');
     expect(el.querySelector('.equipamento__quantidade')?.getAttribute('aria-label')).toContain('quantidade cadastrada 0');
     expect(el.querySelector('.equipamento__quantidade--indisponivel')).toBeNull();
@@ -20,6 +23,8 @@ describe('EquipamentosCard: inventário Java', () => {
     fixture.detectChanges();
     expect(el.querySelectorAll('li').length).toBe(2);
     expect(el.textContent).toContain('Kit Arduino');
+    expect(el.querySelector<HTMLElement>('.equipamento__icone .icone__mascara')?.style.maskImage)
+      .toContain('/icons/salas/projetor.png');
   });
 
   it('exibe somente recursos cadastrados, limita o resumo e distingue ausência de informação', () => {

@@ -13,8 +13,7 @@
     @for (linha of linhas(); track linha.chave) {
       <li>
         <span class="equipamento__nome">
-          @if (linha.icone) { <img [src]="'/icons/salas/' + linha.icone + '.png'" alt="" /> }
-          @else { <span class="equipamento__icone-generico" aria-hidden="true">◇</span> }
+          <app-figma-icon class="equipamento__icone" [name]="linha.icone" />
           <span>{{ linha.nome }}@if (!compacto() && linha.categoria) { <small>{{ linha.categoria }}</small> }</span>
         </span>
         <span class="equipamento__quantidade" [class.equipamento__quantidade--total]="linha.dado.quantidadeDisponivel !== undefined && linha.dado.quantidadeDisponivel >= linha.dado.quantidadeTotal"

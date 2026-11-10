@@ -87,7 +87,8 @@
             font-size: var(--text-md);
             color: var(--color-text-muted);
 
-            svg {
+            app-figma-icon {
+                --icon-size: 18px;
                 color: var(--color-primary);
                 flex-shrink: 0;
             }

@@ -1,3 +1,4 @@
+import { FigmaIcon } from '../../shared/components/figma-icon/figma-icon';
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { timer } from 'rxjs';
@@ -32,7 +33,7 @@ const DIA_ACADEMICO: Partial<Record<ReturnType<typeof diaSemana>, DiaSemana>> = 
 @Component({
     selector: 'app-horarios',
     standalone: true,
-    imports: [AdicionarMateriaModal, RouterLink],
+    imports: [AdicionarMateriaModal, RouterLink, FigmaIcon],
     templateUrl: './horarios.html',
     styleUrl: './horarios.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,

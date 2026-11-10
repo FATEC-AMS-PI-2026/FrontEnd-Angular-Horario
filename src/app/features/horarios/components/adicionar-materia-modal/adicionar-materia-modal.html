@@ -3,7 +3,7 @@
         (click)="$event.stopPropagation()">
         <header class="modal__cabecalho">
             <h2 id="adicionar-materia-titulo">Adicionar Matéria</h2>
-            <button type="button" class="modal__fechar" aria-label="Fechar" (click)="fechar.emit()">✕</button>
+            <button type="button" class="modal__fechar" aria-label="Fechar" (click)="fechar.emit()"><app-figma-icon name="close" class="action-icon" /></button>
         </header>
 
         <form class="formulario" novalidate (submit)="$event.preventDefault(); adicionar()">
@@ -62,7 +62,7 @@
 
             <div class="formulario__acoes">
                 <button type="button" class="botao botao--secundario" (click)="fechar.emit()">Cancelar</button>
-                <button type="submit" class="botao botao--primario">+ Adicionar</button>
+                <button type="submit" class="botao botao--primario"><app-figma-icon name="add" class="action-icon" /> Adicionar</button>
             </div>
         </form>
     </div>

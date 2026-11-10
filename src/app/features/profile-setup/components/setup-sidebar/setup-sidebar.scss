@@ -104,6 +104,7 @@
         gap: 12px;
 
         &-icon {
+            app-figma-icon { --icon-size: 28px; }
             width: 28px;
             height: 28px;
             border-radius: 50%;
@@ -128,6 +129,7 @@
         }
 
         &--completed {
+            .setup-sidebar__step-icon { background: transparent; color: var(--color-surface); }
             .setup-sidebar__step-label {
                 font-weight: var(--fw-medium);
             }
