@@ -1,9 +1,8 @@
-import { Component, DestroyRef, inject, input, OnInit } from '@angular/core';
-import { Router, RouterLink, NavigationEnd } from '@angular/router';
-import { TopbarContextService } from '../../../core/services/topbar-context.service';
-import { filter } from 'rxjs/operators';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { DOCUMENT } from '@angular/common';
+import { TopbarContextService } from '../../../core/services/topbar-context.service';
+import { NOME_APLICACAO, TituloPaginaService } from '../../../core/services/titulo-pagina.service';
 import { SettingsSearchService } from '../../../core/services/settings-search.service';
 import { FigmaIcon } from '../figma-icon/figma-icon';
 
@@ -14,52 +13,18 @@ import { FigmaIcon } from '../figma-icon/figma-icon';
     templateUrl: './topbar.html',
     styleUrl: './topbar.scss',
 })
-export class Topbar implements OnInit {
+export class Topbar {
     protected readonly contexto = inject(TopbarContextService);
-    readonly titulo = input<string | null>(null);
     protected readonly busca = inject(SettingsSearchService);
     private readonly document = inject(DOCUMENT);
+    private readonly titulos = inject(TituloPaginaService);
+
+    /** Vem do `title` da rota ativa (#161); sem título definido, mostra o nome do sistema. */
+    readonly title = computed(() => this.titulos.atual() ?? NOME_APLICACAO);
 
     protected abrirNotificacoes(): void {
         this.busca.termo.set('');
         // Aguarda o card reaparecer caso a busca o tenha ocultado.
         requestAnimationFrame(() => this.document.getElementById('notificacoes')?.focus());
-    }
-    // Título padrão
-    title: string = 'Início';
-
-    private router = inject(Router);
-    private destroyRef = inject(DestroyRef);
-
-    ngOnInit() {
-        // Escuta a mudança de rotas
-        this.router.events.pipe(
-            filter(event => event instanceof NavigationEnd),
-            takeUntilDestroyed(this.destroyRef)
-        ).subscribe((event: NavigationEnd) => {
-            this.setTitleBasedOnRoute(event.urlAfterRedirects);
-        });
-
-        // Seta o título na primeira carga da página
-        this.setTitleBasedOnRoute(this.router.url);
-    }
-
-    private setTitleBasedOnRoute(url: string) {
-        // Rotas principais
-        if (url.includes('/dashboard')) this.title = 'Início';
-        else if (url.includes('/exemplo-turmas')) this.title = 'Exemplo de turmas';
-        else if (url.includes('/grade-semanal')) this.title = 'Grade Semanal';
-        else if (url.includes('/salas')) this.title = 'Salas';
-        else if (url.includes('/horarios')) this.title = 'Horários';
-        else if (url.includes('/professores')) this.title = 'Professores';
-        else if (url.includes('/configuracoes')) this.title = 'Configurações';
-
-        // Rotas de Setup de Perfil
-        else if (url.includes('/course-selection')) this.title = 'Escolha seu curso';
-        else if (url.includes('/period-selection')) this.title = 'Escolha seu período';
-        else if (url.includes('/discipline-selection')) this.title = 'Escolha suas disciplinas';
-
-        // Fallback padrão
-        else this.title = 'GINI';
     }
 }
