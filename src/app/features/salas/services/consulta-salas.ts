@@ -5,7 +5,7 @@ import { ApiErrorService } from '../../../core/services/api-error.service';
 import { SalaResumo } from '../models/sala-resumo';
 import { SalasApiService } from './salas-api';
 import { SalasLocaisService, aulasLocaisDaSala, disponibilidadeLocalDaSala, unirSalas } from './salas-locais';
-import { AlocacaoSalaApi, DisponibilidadeSala, DisponibilidadeSalaService, aulasJavaDaSala, calcularDisponibilidade, unirAulas } from './disponibilidade-sala';
+import { AlocacaoSalaApi, DisponibilidadeSala, DisponibilidadeSalaService, aulasJavaDaSala, calcularDisponibilidade, momentoSaoPaulo, unirAulas } from './disponibilidade-sala';
 import { RelogioService } from './relogio';
 import { disponibilidadeComRotulo } from './rotulos-agenda-sala';
 
@@ -56,6 +56,16 @@ export class ConsultaSalasService {
     const java = sala.origem === 'local' ? [] : aulasJavaDaSala(sala.id, this.estadoAgenda().alocacoes ?? [], agora);
     const locais = this.locais.erro() ? [] : aulasLocaisDaSala(this.locais.catalogo(), sala.nome, agora);
     return unirAulas(java, locais);
+  }
+
+  /** Docentes da ocupação atual, sem atribuir à sala o professor de uma aula passada ou futura. */
+  professoresEmAula(sala: SalaResumo, agora = this.agora()): string[] {
+    if (this.disponibilidade(sala, agora)?.status !== 'Em uso') return [];
+    const atual = momentoSaoPaulo(agora).segundos / 60;
+    const minutos = (hora: string) => Number(hora.slice(0, 2)) * 60 + Number(hora.slice(3, 5));
+    return [...new Set(this.aulas(sala, agora)
+      .filter(aula => minutos(aula.inicio) <= atual && atual < minutos(aula.termino))
+      .map(aula => aula.professor?.trim() || 'Professor a definir'))];
   }
 
   tentarNovamente(): void {

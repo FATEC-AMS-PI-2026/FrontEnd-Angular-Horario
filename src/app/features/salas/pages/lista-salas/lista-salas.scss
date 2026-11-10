@@ -26,10 +26,7 @@
 }
 
 .lista-salas__busca-icone {
-    position: absolute;
-    left: var(--space-sm);
-    color: var(--color-placeholder);
-    pointer-events: none;
+    @include filters.icone-busca;
 }
 
 .lista-salas__filtro-predio { margin-left: auto; cursor: pointer; }

@@ -42,6 +42,16 @@
     }
 }
 
+@mixin icone-busca {
+    --icon-size: var(--text-sm);
+    position: absolute;
+    left: var(--space-sm);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-placeholder);
+    pointer-events: none;
+}
+
 @mixin chip {
     display: inline-flex;
     align-items: center;

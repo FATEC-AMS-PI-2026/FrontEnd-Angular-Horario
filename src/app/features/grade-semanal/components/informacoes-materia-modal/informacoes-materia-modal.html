@@ -4,7 +4,7 @@
     <header class="modal__cabecalho">
         <h2 id="informacoes-materia-titulo">Informações da matéria</h2>
         <button type="button" class="modal__fechar" aria-label="Fechar informações da matéria"
-            autofocus (click)="fecharModal()">✕</button>
+            autofocus (click)="fecharModal()"><app-figma-icon name="close" class="action-icon" /></button>
     </header>
 
     <dl id="informacoes-materia-detalhes" class="modal__detalhes">
@@ -17,7 +17,7 @@
             <dd>
                 <span class="modal__valor">
                 @if (professorId(); as id) {
-                <a routerLink="/professores" [queryParams]="{ professor: id }" (click)="abrirDetalhes($event)">{{ professor() }} <span aria-hidden="true">&rarr;</span></a>
+                <a routerLink="/professores" [queryParams]="{ professor: id }" (click)="abrirDetalhes($event)">{{ professor() }} <app-figma-icon name="arrow-right" class="action-icon" /></a>
                 } @else {
                 {{ professor() }}
                 }
@@ -30,7 +30,7 @@
             <dd>
                 <span class="modal__valor">
                 @if (salaId(); as id) {
-                <a [routerLink]="['/salas', id]" (click)="abrirDetalhes($event)">{{ sala() }} <span aria-hidden="true">&rarr;</span></a>
+                <a [routerLink]="['/salas', id]" (click)="abrirDetalhes($event)">{{ sala() }} <app-figma-icon name="arrow-right" class="action-icon" /></a>
                 } @else {
                 {{ sala() }}
                 }

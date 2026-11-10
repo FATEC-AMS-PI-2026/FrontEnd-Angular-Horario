@@ -1,15 +1,10 @@
 <section class="professores" aria-label="Professores">
     @if (dados.entradaPorRota() !== null) {
-    <a routerLink="/grade-semanal" class="professores__voltar">← Voltar à Grade Semanal</a>
+    <a routerLink="/grade-semanal" class="professores__voltar"><app-figma-icon name="arrow-left" class="action-icon" /> Voltar à Grade Semanal</a>
     }
     <div class="professores__filtros">
         <div class="professores__busca-wrapper">
-            <svg class="professores__busca-icone" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                stroke-linejoin="round" aria-hidden="true">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
+            <app-figma-icon name="search" class="professores__busca-icone" />
             <input type="search" class="professores__campo-busca filtro-campo filtro-campo--busca"
                 placeholder="Buscar professor..." aria-label="Buscar professor" autocomplete="off"
                 [value]="dados.termoBusca()" (input)="onBuscar($event)" />

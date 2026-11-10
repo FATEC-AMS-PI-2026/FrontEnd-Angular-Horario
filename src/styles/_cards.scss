@@ -60,6 +60,37 @@
     line-height: var(--leading-body);
 }
 
+// Cabeçalhos e ações dos cards da dashboard, sem repetir o card-base global.
+@mixin card-cabecalho {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: var(--space-2xs) var(--space-sm);
+    margin-bottom: var(--space-sm);
+
+    h3 { @include card-titulo; }
+
+    .link-more {
+        font-size: var(--text-sm);
+        color: var(--color-primary);
+        text-decoration: none;
+        font-weight: var(--fw-semibold);
+
+        &:hover { text-decoration: underline; }
+    }
+}
+
+@mixin card-tentar-novamente {
+    margin-top: var(--space-sm);
+    padding: var(--space-2xs) var(--space-sm);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    cursor: pointer;
+}
+
 // ---------- Classes utilitárias globais (uso direto no HTML) ----------
 @mixin utilitarios {
     .card {

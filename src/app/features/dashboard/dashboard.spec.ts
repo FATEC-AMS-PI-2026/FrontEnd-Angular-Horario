@@ -17,6 +17,7 @@ function salasIndisponiveis() {
     return { salas: signal<SalaResumo[]>([]), carregando: signal(false), erro: signal(null),
         estadoAgenda: signal({ alocacoes: null, carregando: false, erro: null }),
         locais: { erro: signal(null), carregar: () => {} }, disponibilidade: () => undefined,
+        professoresEmAula: () => [],
         tentarNovamente: () => {} };
 }
 
@@ -163,6 +164,56 @@ describe('Dashboard: grade do serviço', () => {
         expect(tela.querySelector('.reposicao-aula')).toBeNull();
     });
 
+    it('mantém o mesmo total agrupado no banner e no card e separa docentes conhecidos das aulas a definir', () => {
+        const primeira = aula(1, '13:20', '14:10');
+        const consecutiva = { ...aula(2, '14:10', '15:00'), disciplina: primeira.disciplina };
+        resposta.next([primeira, consecutiva, aula(3, '15:00', '15:50'),
+            { ...aula(4, '16:00', '16:50'), professor: null },
+            { ...aula(5, '16:50', '17:40'), professor: null }]);
+        resposta.complete(); fixture.detectChanges();
+        const tela: HTMLElement = fixture.nativeElement;
+        const cards = tela.querySelectorAll('.stat-card');
+        expect(cards[0].querySelector('.stat-card__title')?.textContent).toBe('Aulas hoje');
+        expect(cards[0].querySelector('.stat-card__value')?.textContent).toBe('4');
+        expect(cards[0].textContent).toContain('Blocos consecutivos contam como uma aula');
+        expect(tela.querySelector('.banner__left')?.textContent).toContain('Você tem 4 aulas agrupadas hoje.');
+        expect(cards[1].querySelector('.stat-card__title')?.textContent).toBe('Professores informados');
+        expect(cards[1].querySelector('.stat-card__value')?.textContent).toBe('1');
+        expect(cards[1].textContent).toContain('2 aulas com professor a definir');
+        expect(tela.querySelectorAll('.schedule-item--class').length).toBe(5);
+        expect(carregar).toHaveBeenCalledOnceWith('2026-09-14');
+    });
+
+    it('mostra zero professores informados quando uma aula em dois blocos ainda não tem docente', () => {
+        const primeira = { ...aula(1, '13:20', '14:10'), professor: null };
+        resposta.next([primeira, { ...primeira, id: 2,
+            blocoHorario: { id: 2, horaInicio: '14:10', horaFim: '15:00', duracao: 50 } }]);
+        resposta.complete(); fixture.detectChanges();
+        const tela: HTMLElement = fixture.nativeElement;
+        const professores = tela.querySelectorAll('.stat-card')[1];
+        expect(professores.querySelector('.stat-card__value')?.textContent).toBe('0');
+        expect(professores.textContent).toContain('1 aula com professor a definir');
+        expect(tela.querySelector('.banner__left')?.textContent).toContain('Você tem 1 aula agrupada hoje.');
+    });
+
+    it('oculta o resumo anterior durante a consulta e na falha, e recalcula após tentar novamente', () => {
+        resposta.next([{ ...aula(1, '13:20', '14:10'), professor: null }]);
+        resposta.complete(); fixture.detectChanges();
+        expect(fixture.nativeElement.textContent).toContain('1 aula com professor a definir');
+        const nova = new Subject<AlocacaoResponse[]>();
+        carregar.and.returnValue(nova);
+        component.carregar(); fixture.detectChanges();
+        expect(fixture.nativeElement.querySelector('.stat-card')).toBeNull();
+        expect(fixture.nativeElement.textContent).not.toContain('aula agrupada hoje');
+        nova.error(new HttpErrorResponse({ status: 503 })); fixture.detectChanges();
+        expect(fixture.nativeElement.querySelector('.stat-card')).toBeNull();
+        carregar.and.returnValue(of([]));
+        fixture.nativeElement.querySelector('button').click(); fixture.detectChanges();
+        expect(component.resumo()).toEqual({ aulasAgrupadas: 0, professoresInformados: 0, aulasSemProfessor: 0 });
+        expect(fixture.nativeElement.querySelectorAll('.stat-card').length).toBe(4);
+        expect(fixture.nativeElement.textContent).not.toContain('aulas com professor a definir');
+    });
+
     it('distingue fim da aula, intervalo e fim do dia sem inventar disponibilidade das salas', () => {
         resposta.next([aula(1, '13:20:00', '14:10:00'), aula(2, '15:10:00', '16:00:00')]);
         resposta.complete();
@@ -240,6 +291,8 @@ describe('Dashboard: grade do serviço', () => {
         fixture.detectChanges();
         expect(component.carregado()).toBeTrue();
         expect(component.stats()[0].value).toBe('0');
+        expect(component.stats()[1].value).toBe('0');
+        expect(fixture.nativeElement.querySelector('.banner__left')?.textContent).toContain('Você tem 0 aulas agrupadas hoje.');
         expect(fixture.nativeElement.textContent).toContain('Você não tem aulas programadas');
     });
 

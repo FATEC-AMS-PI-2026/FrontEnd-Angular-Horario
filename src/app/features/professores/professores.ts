@@ -1,3 +1,4 @@
+import { FigmaIcon } from '../../shared/components/figma-icon/figma-icon';
 import { Component, computed, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -9,7 +10,7 @@ import { ProfessoresLocaisService } from './services/professores-locais';
 @Component({
     selector: 'app-professores',
     standalone: true,
-    imports: [RouterLink],
+    imports: [RouterLink, FigmaIcon],
     providers: [ProfessoresService, ProfessoresLocaisService],
     templateUrl: './professores.html',
     styleUrl: './professores.scss',
