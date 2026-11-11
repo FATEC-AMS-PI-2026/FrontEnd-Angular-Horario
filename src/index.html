@@ -6,6 +6,23 @@
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/x-icon" href="/icons/favicon.ico" />
+    <!-- Aplica o tema antes de pintar a página, para não piscar claro → escuro (#163).
+       Mesma regra do PreferencesService: escolha salva no GINI vence; sem ela, segue o sistema. -->
+    <script>
+      (function () {
+        var escuro = false;
+        try {
+          var p = JSON.parse(localStorage.getItem('gini_preferencias') || '{}') || {};
+          var manual = p.temaManual === true || p.modoEscuro === true;
+          escuro = manual
+            ? p.modoEscuro === true
+            : !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        } catch (e) {
+          /* preferências inválidas: tema claro */
+        }
+        document.documentElement.setAttribute('data-theme', escuro ? 'dark' : 'light');
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

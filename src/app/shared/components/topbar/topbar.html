@@ -1,14 +1,14 @@
 <header class="topbar">
-  @if (title === 'Salas' && contexto.sala(); as sala) {
+  @if (title() === 'Salas' && contexto.sala(); as sala) {
     <nav aria-label="Você está em" class="topbar__breadcrumb">
       <h1 class="topbar__title">
         <a routerLink="/salas">Salas</a><span aria-hidden="true"> / </span><span>{{ sala }}</span>
       </h1>
     </nav>
   } @else {
-    <h1 class="topbar__title">{{ titulo() ?? title }}</h1>
+    <h1 class="topbar__title">{{ title() }}</h1>
   }
-  @if (title === 'Configurações') {
+  @if (title() === 'Configurações') {
     <div class="topbar__acoes">
       <input
         #buscaCampo

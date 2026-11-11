@@ -4,6 +4,7 @@ import { Routes } from '@angular/router';
 export const ROTAS_EXEMPLO_TURMAS: Routes = [
   {
     path: 'exemplo-turmas',
+    title: 'Exemplo de turmas',
     loadComponent: () =>
       import('./pages/exemplo-turmas/exemplo-turmas').then((m) => m.ExemploTurmas),
   },

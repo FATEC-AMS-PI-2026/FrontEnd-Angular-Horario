@@ -3,7 +3,8 @@ import {
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
 } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { TitleStrategy, provideRouter } from '@angular/router';
+import { TituloPaginaService } from './core/services/titulo-pagina.service';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { backendInterceptor } from './core/services/backend.interceptor';
 import { routes } from './app.routes';
@@ -25,6 +26,8 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
+    // Título das rotas na aba e no Topbar (#161).
+    { provide: TitleStrategy, useExisting: TituloPaginaService },
     provideHttpClient(withInterceptors([backendInterceptor])),
     // TEMPORÁRIO: excluir este provider local e fornecer o adaptador Java de CARREGAR_GRADE_DIA.
     {

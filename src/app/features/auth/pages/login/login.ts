@@ -35,7 +35,9 @@ export class Login {
       ? 'Sua sessão expirou. Entre novamente para continuar.'
       : motivo === 'perfil-indisponivel'
         ? 'Não foi possível carregar seu perfil. Tente entrar novamente.'
-        : '';
+        : motivo === 'sessao-encerrada'
+          ? 'Você saiu da sua conta em outra aba. Entre novamente para continuar.'
+          : '';
   }
 
   get identificador() {

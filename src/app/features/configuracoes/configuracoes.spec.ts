@@ -76,9 +76,9 @@ describe('Configurações', () => {
     expect(logout).toHaveBeenCalled();
   });
 
-  it('navega para o fluxo existente de recuperação de senha', () => {
+  it('leva à troca de senha autenticada, sem passar pela recuperação de visitante (#158)', () => {
     const navigate = spyOn(TestBed.inject(Router), 'navigateByUrl').and.resolveTo(true);
-    element.querySelector<HTMLAnchorElement>('a[routerLink="/esqueci-senha"]')!.click();
+    element.querySelector<HTMLAnchorElement>('a[routerLink="/alterar-senha"]')!.click();
     expect(navigate).toHaveBeenCalled();
   });
 
