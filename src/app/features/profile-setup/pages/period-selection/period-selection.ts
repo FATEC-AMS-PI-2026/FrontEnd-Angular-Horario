@@ -1,5 +1,5 @@
 import { FigmaIcon } from '../../../../shared/components/figma-icon/figma-icon';
-import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -7,6 +7,7 @@ import { finalize, map } from 'rxjs';
 import { ProfileSetupService } from '../../services/profile-setup.service';
 import { CursoDetalhes } from '../../models/profile.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
+import { TituloPaginaService } from '../../../../core/services/titulo-pagina.service';
 
 @Component({
     selector: 'app-period-selection',
@@ -24,6 +25,13 @@ export class PeriodSelection implements OnInit {
     readonly loading = signal(false);
     readonly saving = signal(false);
     readonly errorMessage = signal('');
+
+    constructor() {
+        // "ano" ou "semestre" só é conhecido depois de carregar o curso (#161).
+        const titulos = inject(TituloPaginaService);
+        effect(() => titulos.sobrescrever('Escolha seu ' + this.setupService.nomePeriodo()));
+        this.destroyRef.onDestroy(() => titulos.limparSobrescrita());
+    }
 
     ngOnInit(): void {
         this.setupService.currentStep.set(3);
