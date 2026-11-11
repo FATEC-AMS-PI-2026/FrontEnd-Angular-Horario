@@ -1,21 +1,24 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { SessionService } from '../services/session.service';
+import { catchError, map, of } from 'rxjs';
+import { obterTokenSessao } from '../services/session.service';
+import { ProfileSetupService } from '../../features/profile-setup/services/profile-setup.service';
 
 /**
- * Impede acesso à tela de login quando já existe uma sessão válida (restaurada
- * do LocalStorage/SessionStorage pelo SessionService), redirecionando direto
- * pra Dashboard; o profileGuard devolve ao onboarding só quando for preciso (#148).
- * Cobre o critério "Autenticação Automática" da issue "WEB: Auth - Funcionalidade
- * 'Lembrar de mim' no Login" (#130).
+ * Rotas só de visitante: login, cadastro e recuperação de senha (#158).
+ * Com sessão válida (restaurada do LocalStorage/SessionStorage, #130), o usuário vai
+ * direto ao destino que o perfil pede: onboarding incompleto → curso; novo período
+ * letivo → período; senão Início (#148). A sessão nunca é limpa aqui, então abrir
+ * /cadastro logado não inicia outra conta. Se o perfil não puder ser lido, manda ao
+ * Início e deixa o profileGuard decidir (ele limpa a sessão recusada e volta ao login).
  */
 export const guestGuard: CanActivateFn = () => {
-  const session = inject(SessionService);
+  if (!obterTokenSessao()) return true;
+
   const router = inject(Router);
-
-  if (session.usuario()) {
-    return router.createUrlTree(['/dashboard']);
-  }
-
-  return true;
+  const setup = inject(ProfileSetupService);
+  return setup.garantirPerfil().pipe(
+    map(() => router.parseUrl(setup.destinoAposLogin())),
+    catchError(() => of(router.parseUrl('/dashboard'))),
+  );
 };

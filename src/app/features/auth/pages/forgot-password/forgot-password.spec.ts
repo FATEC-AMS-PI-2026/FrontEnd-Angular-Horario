@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { ActivatedRoute, provideRouter } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { ForgotPassword } from './forgot-password';
@@ -54,5 +54,34 @@ describe('ForgotPassword: estados da solicitação', () => {
         resposta.next({ message: 'Resposta atrasada' });
         expect(component.successMessage).toBe('');
         expect(component.loading).toBeFalse();
+    });
+});
+
+describe('ForgotPassword: troca de senha autenticada (#158)', () => {
+    afterEach(() => {
+        localStorage.removeItem('gini_token');
+        localStorage.removeItem('gini_usuario');
+    });
+
+    it('usa o e-mail da sessão, sem edição, e volta às Configurações', () => {
+        localStorage.setItem('gini_token', 'token');
+        localStorage.setItem('gini_usuario', JSON.stringify({ nome: 'Ana', email: 'ana@cps.sp.gov.br', curso: '', periodo: '' }));
+        const auth = jasmine.createSpyObj<AuthService>('AuthService', ['recuperarSenha']);
+        auth.recuperarSenha.and.returnValue(new Subject<RecuperarSenhaResponse>());
+        TestBed.configureTestingModule({
+            imports: [ForgotPassword],
+            providers: [
+                provideRouter([]), { provide: AuthService, useValue: auth },
+                { provide: ActivatedRoute, useValue: { snapshot: { data: { alteracaoAutenticada: true } } } },
+            ],
+        });
+        const fixture = TestBed.createComponent(ForgotPassword);
+        fixture.detectChanges();
+        const element: HTMLElement = fixture.nativeElement;
+        expect(element.querySelector('h1')?.textContent).toContain('Alterar senha');
+        expect(element.querySelector('input')!.readOnly).toBeTrue();
+        expect(element.querySelector('a.btn-outline')!.getAttribute('href')).toBe('/configuracoes');
+        fixture.componentInstance.onSubmit();
+        expect(auth.recuperarSenha).toHaveBeenCalledWith('ana@cps.sp.gov.br');
     });
 });

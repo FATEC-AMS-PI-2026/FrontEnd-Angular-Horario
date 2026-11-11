@@ -1,0 +1,20 @@
+// Layout, título e botões vêm de src/styles/_auth.scss (mesma moldura do login).
+.nao-encontrada__codigo {
+    margin: 0;
+    font-size: 3rem;
+    font-weight: var(--fw-bold);
+    line-height: 1;
+    color: var(--color-primary);
+}
+
+.nao-encontrada__endereco {
+    font-family: var(--font-mono);
+    word-break: break-all;
+}
+
+// .btn-submit foi pensado para <button>; num link precisa centralizar e tirar o sublinhado.
+.nao-encontrada__acao {
+    display: inline-block;
+    text-align: center;
+    text-decoration: none;
+}
