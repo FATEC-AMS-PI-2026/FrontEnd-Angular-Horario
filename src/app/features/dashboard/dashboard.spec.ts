@@ -225,8 +225,9 @@ describe('Dashboard: grade do serviço', () => {
     const cards = tela.querySelectorAll('.stat-card');
     expect(cards[0].querySelector('.stat-card__title')?.textContent).toBe('Aulas hoje');
     expect(cards[0].querySelector('.stat-card__value')?.textContent).toBe('4');
-    expect(cards[0].textContent).toContain('Blocos consecutivos contam como uma aula');
-    expect(cards[0].textContent).toContain('3 disciplinas distintas');
+    expect(
+      Array.from(cards[0].querySelectorAll('.stat-card__subtitle'), (item) => item.textContent),
+    ).toEqual(['3 disciplinas distintas']);
     expect(tela.querySelector('.banner__left')?.textContent).toContain(
       'Você tem 4 aulas agrupadas hoje.',
     );
