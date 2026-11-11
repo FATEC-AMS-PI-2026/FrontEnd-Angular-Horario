@@ -195,11 +195,11 @@ describe('Salas locais: equipamentos e ocupação temporários', () => {
     ).toBe('Livre');
     expect(disponibilidadeLocalDaSala(c, sala(), new Date('2026-10-05T13:00:00-03:00'))).toEqual({
       status: 'Em uso',
-      texto: 'Em uso na agenda local',
+      texto: 'Em uso',
     });
     expect(disponibilidadeLocalDaSala(c, sala(), new Date('2026-10-05T14:00:00-03:00'))).toEqual({
       status: 'Livre',
-      texto: 'Livre na agenda local',
+      texto: 'Livre',
     });
     c.alocacoes.push({ ...c.alocacoes[0], id: 2, horaInicio: '16:00', horaFim: '17:00' });
     expect(
@@ -232,7 +232,7 @@ describe('Salas locais: equipamentos e ocupação temporários', () => {
     c.vigenciaInicio = '2026-10-05';
     c.vigenciaFim = '2026-10-05';
     expect(disponibilidadeLocalDaSala(c, sala(), agora)?.status).toBe('Em uso');
-    const indisponivel = { texto: 'A agenda local não cobre a data de hoje.' };
+    const indisponivel = { texto: 'A agenda não cobre a data de hoje.' };
     expect(disponibilidadeLocalDaSala(c, sala(), new Date('2026-10-05T02:59:59Z'))).toEqual(
       indisponivel,
     );

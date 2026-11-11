@@ -53,7 +53,6 @@ export function proximosHorariosDaSala(
       termino: horario(Math.min(ENCERRAMENTO, termino)),
       atividade: aula.disciplina,
       professor: aula.professor,
-      origem: aula.origem,
     }));
   if (!agendaDisponivel || validas.length !== aulas.length) return proximos;
 

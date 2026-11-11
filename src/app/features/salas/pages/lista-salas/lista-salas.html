@@ -88,13 +88,8 @@
               <a class="card-sala" [routerLink]="['/salas', sala.rotaId ?? sala.id]">
                 <div class="card-sala__cabecalho">
                   <app-icone-sala [nome]="sala.nome" [tipo]="sala.tipo" />
-                  @if (disponibilidadeSala; as disponibilidade) {
-                    @if (disponibilidade.status; as status) {
-                      <app-status-sala-badge
-                        [status]="status"
-                        [texto]="sala.origem === 'local' ? disponibilidade.texto : undefined"
-                      />
-                    }
+                  @if (disponibilidadeSala?.status; as status) {
+                    <app-status-sala-badge [status]="status" />
                   }
                 </div>
                 <h2>{{ sala.nome }}</h2>
@@ -125,7 +120,6 @@
                     sala.origem === 'local' ? equipamentosLocais(sala) : recursos.daSala(sala.id)
                   "
                   [compacto]="true"
-                  [origem]="sala.origem ?? 'java'"
                   [carregando]="sala.origem !== 'local' && recursos.carregando()"
                   [erro]="sala.origem === 'local' ? null : recursos.erro()"
                 />

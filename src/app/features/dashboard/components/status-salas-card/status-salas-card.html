@@ -33,33 +33,32 @@
         <h4 class="room-group-title">{{ grupo.titulo }}</h4>
       }
       @for (item of grupo.itens; track item.sala.rotaId ?? item.sala.id) {
+        @let disponibilidade = item.disponibilidade;
         <a
           class="room-status-item"
           [routerLink]="['/salas', item.sala.rotaId ?? item.sala.id]"
-          [class.status-livre]="item.disponibilidade?.status === 'Livre'"
-          [class.status-em_uso]="item.disponibilidade?.status === 'Em uso'"
-          [class.status-manutencao]="item.disponibilidade?.status === 'Manutenção'"
+          [class.status-livre]="disponibilidade?.status === 'Livre'"
+          [class.status-em_uso]="disponibilidade?.status === 'Em uso'"
+          [class.status-manutencao]="disponibilidade?.status === 'Manutenção'"
         >
           <div class="room-info">
             <strong>{{ item.sala.nome }}</strong>
             @if (item.professores) {
               <span class="room-professor">{{ item.professores }}</span>
-            } @else if (item.sala.origem !== 'local' || !item.disponibilidade?.status) {
+            } @else if (disponibilidade && disponibilidade.texto !== disponibilidade.status) {
+              <span>{{ disponibilidade.texto }}</span>
+            } @else if (!disponibilidade) {
               <span>
                 {{
-                  item.disponibilidade?.texto ||
-                    (carregando() || (item.sala.origem !== 'local' && consultandoAgenda())
-                      ? 'Consultando disponibilidade...'
-                      : 'Disponibilidade indisponível')
+                  carregando() || (item.sala.origem !== 'local' && consultandoAgenda())
+                    ? 'Consultando disponibilidade...'
+                    : 'Disponibilidade indisponível'
                 }}
               </span>
             }
           </div>
-          @if (item.disponibilidade?.status; as status) {
-            <app-status-sala-badge
-              [status]="status"
-              [texto]="item.sala.origem === 'local' ? item.disponibilidade?.texto : undefined"
-            />
+          @if (disponibilidade?.status; as status) {
+            <app-status-sala-badge [status]="status" />
           }
         </a>
       }

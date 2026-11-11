@@ -106,7 +106,7 @@ describe('ProfessoresLocaisService', () => {
     expect(aulasProfessoresLocais(c, '2026-10-13').length).toBe(1);
     expect(() => aulasProfessoresLocais(c, '2027-01-01')).toThrowError(
       DadosLocaisError,
-      'A agenda local dos professores não cobre a data de hoje.',
+      'A agenda dos professores não cobre a data de hoje.',
     );
   });
 

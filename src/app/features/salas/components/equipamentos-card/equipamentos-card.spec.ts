@@ -30,7 +30,7 @@ describe('EquipamentosCard: inventário Java', () => {
     expect(el.querySelectorAll('.equipamento__icone .icone__simbolo').length).toBe(1);
     expect(el.querySelector('.equipamento__quantidade')?.textContent?.trim()).toBe('0');
     expect(el.querySelector('.equipamento__quantidade')?.getAttribute('aria-label')).toContain(
-      'quantidade cadastrada 0',
+      'quantidade informada 0',
     );
     expect(el.querySelector('.equipamento__quantidade--indisponivel')).toBeNull();
     expect(el.querySelector('.equipamento__quantidade--total')).toBeNull();

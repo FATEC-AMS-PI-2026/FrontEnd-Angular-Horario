@@ -32,7 +32,6 @@
           [equipamentos]="
             sala.origem === 'local' ? equipamentosLocais(sala) : recursos.daSala(sala.id)
           "
-          [origem]="sala.origem ?? 'java'"
           [carregando]="recursos.carregando()"
           [erro]="recursos.erro()"
         />

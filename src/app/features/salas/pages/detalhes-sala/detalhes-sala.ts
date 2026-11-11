@@ -100,7 +100,7 @@ export class DetalhesSala {
             if (!this.horarios.agendaCompleta) {
               return of<EstadoDetalhes>({
                 sala,
-                erroAgenda: 'A consulta ao Java não confirma a agenda completa desta sala.',
+                erroAgenda: 'A consulta não confirma a agenda completa desta sala.',
               });
             }
             // Atualiza a agenda e a vigência sem precisar recarregar a página.
@@ -115,7 +115,7 @@ export class DetalhesSala {
                         sala,
                         erroAgenda: this.erros.mensagem(
                           erro,
-                          'Não foi possível consultar a agenda do Java.',
+                          'Não foi possível consultar a agenda.',
                         ),
                       }),
                     ),
@@ -173,7 +173,7 @@ export class DetalhesSala {
     const disponibilidade = this.disponibilidade();
     return disponibilidade?.status
       ? null
-      : (disponibilidade?.texto ?? 'Agenda local não confirmada para esta sala.');
+      : (disponibilidade?.texto ?? 'Agenda não confirmada para esta sala.');
   });
   protected readonly carregandoHorarios = computed(
     () =>

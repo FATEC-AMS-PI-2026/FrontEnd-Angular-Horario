@@ -291,7 +291,7 @@ describe('Dashboard: salas integradas', () => {
     fixture.detectChanges();
     const statusLocal = () =>
       tela().querySelector('a[href="/salas/local-71"] app-status-sala-badge');
-    expect(statusLocal()?.textContent).toContain('Em uso');
+    expect(statusLocal()?.textContent?.trim()).toBe('Em uso');
     expect(tela().querySelector('a[href="/salas/local-71"] .room-professor')?.textContent).toBe(
       'Docente local',
     );
@@ -299,7 +299,7 @@ describe('Dashboard: salas integradas', () => {
     instante = new Date('2026-10-08T15:00:00-03:00');
     tick(1000);
     fixture.detectChanges();
-    expect(statusLocal()?.textContent).toContain('Livre');
+    expect(statusLocal()?.textContent?.trim()).toBe('Livre');
     locais.carregando.set(true);
     fixture.detectChanges();
     expect(statusLocal()).toBeNull();

@@ -107,7 +107,7 @@ export function disponibilidadeLocalDaSala(
     return undefined;
   const momento = momentoSaoPaulo(agora);
   if (!agendaLocalCobreData(c, momento.data)) {
-    return { texto: 'A agenda local não cobre a data de hoje.' };
+    return { texto: 'A agenda não cobre a data de hoje.' };
   }
   const aulas = aulasLocaisDaSala(c, sala.nome, agora);
   const horario = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
@@ -120,7 +120,7 @@ export function disponibilidadeLocalDaSala(
   const status = aulas.some((a) => minutos(a.inicio) <= atual && atual < minutos(a.termino))
     ? 'Em uso'
     : 'Livre';
-  return { status, texto: `${status} na agenda local` };
+  return { status, texto: status };
 }
 
 @Injectable({ providedIn: 'root' })

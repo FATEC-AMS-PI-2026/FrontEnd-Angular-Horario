@@ -25,9 +25,6 @@
                   {{ aula.turma }}
                 </p>
               }
-              @if (aula.origem === 'local') {
-                <p>Agenda local</p>
-              }
             </div>
             @if (estaEmAndamento(aula)) {
               <span class="aula-do-dia__badge">Agora</span>

@@ -242,9 +242,9 @@ describe('DetalhesSala', () => {
     expect(fixture.nativeElement.querySelector('app-equipamentos-card').textContent).toContain(
       'Projetor multimidia',
     );
-    expect(fixture.nativeElement.querySelector('app-equipamentos-card').textContent).toContain(
-      'Quantidades cadastradas no Java',
-    );
+    expect(
+      fixture.nativeElement.querySelector('app-equipamentos-card .equipamentos-card__mensagem'),
+    ).toBeNull();
     expect(fixture.nativeElement.textContent).not.toContain('Disponibilidade indisponível');
     fixture.destroy();
   }));
@@ -475,16 +475,16 @@ describe('DetalhesSala', () => {
     params.next(convertToParamMap({ id: 'local-90' }));
     const fixture = TestBed.createComponent(DetalhesSala);
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('app-status-sala-badge').textContent).toContain(
-      'Em uso na agenda local',
+    expect(fixture.nativeElement.querySelector('app-status-sala-badge').textContent.trim()).toBe(
+      'Em uso',
     );
     expect(fixture.nativeElement.querySelector('app-equipamentos-card').textContent).toContain(
       'Computadores',
     );
-    expect(fixture.nativeElement.querySelector('app-equipamentos-card').textContent).toContain(
-      'Inventário de referência local',
-    );
-    expect(fixture.nativeElement.querySelector('app-aulas-do-dia-card').textContent).toContain(
+    expect(
+      fixture.nativeElement.querySelector('app-equipamentos-card .equipamentos-card__mensagem'),
+    ).toBeNull();
+    expect(fixture.nativeElement.querySelector('app-aulas-do-dia-card').textContent).not.toContain(
       'Agenda local',
     );
     instante = new Date('2026-10-05T14:00:00-03:00');
@@ -531,7 +531,7 @@ describe('DetalhesSala', () => {
     expect(pagina.querySelector('app-status-sala-badge')).toBeNull();
     expect(pagina.querySelector('.proximo-horario--vazio')).toBeNull();
     expect(pagina.textContent).not.toContain('Nenhuma aula cadastrada');
-    expect(pagina.textContent).toContain('A agenda local não cobre a data de hoje.');
+    expect(pagina.textContent).toContain('A agenda não cobre a data de hoje.');
     fixture.destroy();
   }));
 

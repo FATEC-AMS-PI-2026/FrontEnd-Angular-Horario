@@ -21,7 +21,7 @@ export function aulasProfessoresLocais(c: CatalogoLocal, hoje: string): AulaProf
     );
   }
   if (hoje < c.vigenciaInicio || hoje > c.vigenciaFim) {
-    throw new DadosLocaisError('A agenda local dos professores não cobre a data de hoje.');
+    throw new DadosLocaisError('A agenda dos professores não cobre a data de hoje.');
   }
   return c.alocacoes.flatMap((a) => {
     if (a.professorId === null) return [];
