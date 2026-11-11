@@ -107,6 +107,8 @@ describe('ListaSalas', () => {
     expect(
       cards()[1].querySelector('.card-sala__info')?.textContent?.replace(/\s+/g, ' '),
     ).toContain('Sala · 50 lugares');
+    expect(cards()[1].textContent).toContain('Disponibilidade indisponível');
+    expect(cards()[1].querySelector('app-status-sala-badge')).toBeNull();
     expect(elemento().querySelector('.lista-salas__filtro-predio')?.textContent).toContain(
       'Prédio 1',
     );

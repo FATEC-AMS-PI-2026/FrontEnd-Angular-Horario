@@ -242,6 +242,9 @@ describe('DetalhesSala', () => {
     expect(fixture.nativeElement.querySelector('app-equipamentos-card').textContent).toContain(
       'Projetor multimidia',
     );
+    expect(fixture.nativeElement.querySelector('app-equipamentos-card').textContent).toContain(
+      'Quantidades cadastradas no Java',
+    );
     expect(fixture.nativeElement.textContent).not.toContain('Disponibilidade indisponível');
     fixture.destroy();
   }));
@@ -257,7 +260,7 @@ describe('DetalhesSala', () => {
     expect(fixture.nativeElement.textContent).toContain('LAB-REAL');
     expect(fixture.nativeElement.textContent).toContain('Disponibilidade indisponível');
     expect(fixture.nativeElement.querySelector('app-proximos-horarios-card').textContent).toContain(
-      'Não foi possível consultar',
+      'Horários não confirmados para hoje.',
     );
     expect(fixture.nativeElement.textContent).not.toContain('Nenhuma outra aula cadastrada');
     expect(fixture.nativeElement.textContent).not.toContain(
@@ -303,7 +306,7 @@ describe('DetalhesSala', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Em uso');
     const vazio = fixture.nativeElement.querySelector('.proximo-horario--vazio');
-    expect(vazio.textContent).toContain('Sala vazia');
+    expect(vazio.textContent).toContain('Sem atividade na agenda');
     expect(vazio.textContent).toContain('16:00');
     expect(vazio.textContent).toContain('21:30');
     expect(fixture.nativeElement.querySelector('app-aulas-do-dia-card').textContent).not.toContain(
@@ -473,10 +476,16 @@ describe('DetalhesSala', () => {
     const fixture = TestBed.createComponent(DetalhesSala);
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('app-status-sala-badge').textContent).toContain(
-      'Em uso',
+      'Em uso na agenda local',
     );
     expect(fixture.nativeElement.querySelector('app-equipamentos-card').textContent).toContain(
       'Computadores',
+    );
+    expect(fixture.nativeElement.querySelector('app-equipamentos-card').textContent).toContain(
+      'Inventário de referência local',
+    );
+    expect(fixture.nativeElement.querySelector('app-aulas-do-dia-card').textContent).toContain(
+      'Agenda local',
     );
     instante = new Date('2026-10-05T14:00:00-03:00');
     tick(1000);
@@ -500,6 +509,29 @@ describe('DetalhesSala', () => {
     expect(fixture.nativeElement.querySelector('app-status-sala-badge')).toBeNull();
     expect(fixture.nativeElement.querySelector('.proximo-horario--vazio')).toBeNull();
     http.expectNone((r) => r.url.startsWith('http://backend/'));
+    fixture.destroy();
+  }));
+
+  it('mantém a sala local cadastrada sem anunciar horários livres fora da vigência', fakeAsync(() => {
+    const c = catalogoSalaLocal();
+    c.vigenciaFim = '2026-09-30';
+    const locais = TestBed.inject(SalasLocaisService);
+    (locais.catalogo as WritableSignal<CatalogoLocal | null>).set(c);
+    (locais.salas as WritableSignal<SalaResumo[]>).set([
+      { id: 90, nome: 'LAB 01', rotaId: 'local-90', origem: 'local' },
+    ]);
+    spyOn(TestBed.inject(RelogioService), 'agora').and.returnValue(
+      new Date('2026-10-05T13:20:00-03:00'),
+    );
+    params.next(convertToParamMap({ id: 'local-90' }));
+    const fixture = TestBed.createComponent(DetalhesSala);
+    fixture.detectChanges();
+    const pagina: HTMLElement = fixture.nativeElement;
+    expect(pagina.textContent).toContain('LAB 01');
+    expect(pagina.querySelector('app-status-sala-badge')).toBeNull();
+    expect(pagina.querySelector('.proximo-horario--vazio')).toBeNull();
+    expect(pagina.textContent).not.toContain('Nenhuma aula cadastrada');
+    expect(pagina.textContent).toContain('A agenda local não cobre a data de hoje.');
     fixture.destroy();
   }));
 
@@ -560,7 +592,7 @@ describe('DetalhesSala', () => {
     fixture.destroy();
   }));
 
-  it('confirma Sala vazia somente após consultar a agenda e o catálogo local', fakeAsync(() => {
+  it('mostra uma lacuna somente após consultar a agenda e o catálogo local', fakeAsync(() => {
     const locais = TestBed.inject(SalasLocaisService);
     (locais.carregando as WritableSignal<boolean>).set(true);
     const fixture = TestBed.createComponent(DetalhesSala);
@@ -581,7 +613,7 @@ describe('DetalhesSala', () => {
     (locais.carregando as WritableSignal<boolean>).set(false);
     fixture.detectChanges();
     const vazio = fixture.nativeElement.querySelector('.proximo-horario--vazio');
-    expect(vazio.textContent).toContain('Sala vazia');
+    expect(vazio.textContent).toContain('Sem atividade na agenda');
     expect(vazio.textContent).toContain('13:20');
     expect(vazio.textContent).toContain('21:30');
     expect(fixture.nativeElement.textContent).toContain(

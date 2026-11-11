@@ -156,7 +156,7 @@ export function calcularDisponibilidade(
       periodo.dataInicio > periodo.dataFim ||
       !DIAS.includes(aula.diaSemana)
     ) {
-      return { texto: 'Disponibilidade indisponível: horários incompletos.' };
+      return { texto: 'A agenda do Java tem horários incompletos.' };
     }
     if (
       momento.data < periodo.dataInicio ||
@@ -167,7 +167,7 @@ export function calcularDisponibilidade(
     const inicio = segundos(aula.blocoHorario?.horaInicio ?? '');
     const fim = segundos(aula.blocoHorario?.horaFim ?? '');
     if (!Number.isFinite(inicio) || !Number.isFinite(fim) || fim <= inicio) {
-      return { texto: 'Disponibilidade indisponível: horários inválidos.' };
+      return { texto: 'A agenda do Java tem horários inválidos.' };
     }
     horarios.push({ inicio, fim, rotulo: aula.blocoHorario.horaInicio.slice(0, 5) });
   }

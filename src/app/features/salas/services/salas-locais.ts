@@ -49,6 +49,10 @@ export function unirSalas(remotas: SalaResumo[], locais: SalaResumo[]): SalaResu
   return [...remotas, ...locais.filter((s) => !codigos.has(codigoSala(s.nome)))];
 }
 
+function agendaLocalCobreData(c: CatalogoLocal, data: string): boolean {
+  return !!c.vigenciaInicio && !!c.vigenciaFim && c.vigenciaInicio <= data && data <= c.vigenciaFim;
+}
+
 export function aulasLocaisDaSala(
   c: CatalogoLocal | null,
   codigo: string,
@@ -59,10 +63,7 @@ export function aulasLocaisDaSala(
   const data = dataAcademica(agora);
   if (
     salas.length !== 1 ||
-    !c.vigenciaInicio ||
-    !c.vigenciaFim ||
-    data < c.vigenciaInicio ||
-    data > c.vigenciaFim ||
+    !agendaLocalCobreData(c, data) ||
     c.calendario?.semAula.some((s) => s.inicio <= data && data <= s.fim)
   )
     return [];
@@ -100,11 +101,14 @@ export function disponibilidadeLocalDaSala(
   if (
     sala.origem !== 'local' ||
     !tipoSalaLocal(sala.nome) ||
-    !c?.vigenciaInicio ||
-    !c.vigenciaFim ||
+    !c ||
     c.salas.filter((s) => codigoSala(s.codigo) === codigoSala(sala.nome)).length !== 1
   )
     return undefined;
+  const momento = momentoSaoPaulo(agora);
+  if (!agendaLocalCobreData(c, momento.data)) {
+    return { texto: 'A agenda local não cobre a data de hoje.' };
+  }
   const aulas = aulasLocaisDaSala(c, sala.nome, agora);
   const horario = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
   if (
@@ -112,11 +116,11 @@ export function disponibilidadeLocalDaSala(
   )
     return undefined;
   const minutos = (hora: string) => Number(hora.slice(0, 2)) * 60 + Number(hora.slice(3, 5));
-  const atual = momentoSaoPaulo(agora).segundos / 60;
+  const atual = momento.segundos / 60;
   const status = aulas.some((a) => minutos(a.inicio) <= atual && atual < minutos(a.termino))
     ? 'Em uso'
     : 'Livre';
-  return { status, texto: status };
+  return { status, texto: `${status} na agenda local` };
 }
 
 @Injectable({ providedIn: 'root' })

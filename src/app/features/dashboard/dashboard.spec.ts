@@ -209,14 +209,14 @@ describe('Dashboard: grade do serviço', () => {
     expect(tela.querySelector('.reposicao-aula')).toBeNull();
   });
 
-  it('mantém o mesmo total agrupado no banner e no card e separa docentes conhecidos das aulas a definir', () => {
+  it('distingue aulas agrupadas, disciplinas distintas e docentes informados no resumo', () => {
     const primeira = aula(1, '13:20', '14:10');
     const consecutiva = { ...aula(2, '14:10', '15:00'), disciplina: primeira.disciplina };
     resposta.next([
       primeira,
       consecutiva,
       aula(3, '15:00', '15:50'),
-      { ...aula(4, '16:00', '16:50'), professor: null },
+      { ...aula(4, '16:00', '16:50'), disciplina: primeira.disciplina, professor: null },
       { ...aula(5, '16:50', '17:40'), professor: null },
     ]);
     resposta.complete();
@@ -226,6 +226,7 @@ describe('Dashboard: grade do serviço', () => {
     expect(cards[0].querySelector('.stat-card__title')?.textContent).toBe('Aulas hoje');
     expect(cards[0].querySelector('.stat-card__value')?.textContent).toBe('4');
     expect(cards[0].textContent).toContain('Blocos consecutivos contam como uma aula');
+    expect(cards[0].textContent).toContain('3 disciplinas distintas');
     expect(tela.querySelector('.banner__left')?.textContent).toContain(
       'Você tem 4 aulas agrupadas hoje.',
     );
@@ -276,6 +277,7 @@ describe('Dashboard: grade do serviço', () => {
     fixture.detectChanges();
     expect(component.resumo()).toEqual({
       aulasAgrupadas: 0,
+      disciplinasDistintas: 0,
       professoresInformados: 0,
       aulasSemProfessor: 0,
     });

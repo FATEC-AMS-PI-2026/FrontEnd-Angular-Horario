@@ -22,7 +22,7 @@ function horario(minuto: number): string {
  * Intercala aulas futuras e lacunas da agenda de hoje entre 08:00 e 21:30.
  * A aula em andamento permanece em "Aulas nesta sala hoje", mas ocupa seu
  * intervalo neste cálculo. Consulta incompleta ou inválida não comprova lacunas.
- * Pausas entre duas aulas de até INTERVALO_MAXIMO_MIN não viram "Sala vazia",
+ * Pausas entre duas aulas de até INTERVALO_MAXIMO_MIN não viram lacunas na agenda,
  * seguindo a mesma regra usada nas consultas de horários das turmas.
  */
 export function proximosHorariosDaSala(
@@ -53,6 +53,7 @@ export function proximosHorariosDaSala(
       termino: horario(Math.min(ENCERRAMENTO, termino)),
       atividade: aula.disciplina,
       professor: aula.professor,
+      origem: aula.origem,
     }));
   if (!agendaDisponivel || validas.length !== aulas.length) return proximos;
 
@@ -63,7 +64,7 @@ export function proximosHorariosDaSala(
       tipo: 'vazio',
       inicio: horario(cursor),
       termino: horario(termino),
-      atividade: 'Sala vazia',
+      atividade: 'Sem atividade na agenda',
     });
   for (const aula of noPeriodo) {
     const inicio = Math.max(ABERTURA, aula.inicio);

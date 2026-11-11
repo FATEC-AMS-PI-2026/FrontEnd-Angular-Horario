@@ -90,14 +90,14 @@
                   <app-icone-sala [nome]="sala.nome" [tipo]="sala.tipo" />
                   @if (disponibilidadeSala; as disponibilidade) {
                     @if (disponibilidade.status; as status) {
-                      <app-status-sala-badge [status]="status" />
+                      <app-status-sala-badge
+                        [status]="status"
+                        [texto]="sala.origem === 'local' ? disponibilidade.texto : undefined"
+                      />
                     }
                   }
                 </div>
                 <h2>{{ sala.nome }}</h2>
-                @if (disponibilidadeSala && !disponibilidadeSala.status) {
-                  <p class="card-sala__info" role="status">{{ disponibilidadeSala.texto }}</p>
-                }
                 <p class="card-sala__info">
                   {{ sala.tipo }}
                   @if (sala.tipo && sala.capacidade != null) {
@@ -115,11 +115,17 @@
                     }
                   </p>
                 }
+                @if (disponibilidadeSala && !disponibilidadeSala.status) {
+                  <p class="card-sala__info" role="status">{{ disponibilidadeSala.texto }}</p>
+                } @else if (!disponibilidadeSala && !carregando() && !estadoAgenda().carregando) {
+                  <p class="card-sala__info">Disponibilidade indisponível</p>
+                }
                 <app-equipamentos-card
                   [equipamentos]="
                     sala.origem === 'local' ? equipamentosLocais(sala) : recursos.daSala(sala.id)
                   "
                   [compacto]="true"
+                  [origem]="sala.origem ?? 'java'"
                   [carregando]="sala.origem !== 'local' && recursos.carregando()"
                   [erro]="sala.origem === 'local' ? null : recursos.erro()"
                 />

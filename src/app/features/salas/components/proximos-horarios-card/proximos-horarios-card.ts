@@ -17,7 +17,7 @@ import { rotulosAgendaDaSala } from '../../services/rotulos-agenda-sala';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProximosHorariosCard {
-  /** Aulas e blocos "Sala vazia", já ordenados cronologicamente. */
+  /** Aulas e intervalos sem atividade na agenda, em ordem cronológica. */
   readonly horarios = input.required<ProximoHorario[]>();
   readonly carregando = input(false);
   readonly indisponivel = input(false);

@@ -4,9 +4,7 @@
     <p class="proximos-horarios-card__vazio" role="status">Carregando próximos horários...</p>
   } @else {
     @if (indisponivel()) {
-      <p class="proximos-horarios-card__vazio" role="status">
-        Não foi possível consultar todos os horários desta sala.
-      </p>
+      <p class="proximos-horarios-card__vazio" role="status">Horários não confirmados para hoje.</p>
     }
     @if (horarios().length) {
       <ul>
@@ -17,9 +15,12 @@
               ><span>{{ horario.termino }}</span></span
             >
             <div>
-              <strong>{{ horario.atividade }}</strong>
+              <strong>{{ horario.atividade || 'Atividade não informada' }}</strong>
               @if (horario.professor) {
                 <p>{{ horario.professor }}</p>
+              }
+              @if (horario.origem === 'local') {
+                <p>Agenda local</p>
               }
             </div>
           </li>

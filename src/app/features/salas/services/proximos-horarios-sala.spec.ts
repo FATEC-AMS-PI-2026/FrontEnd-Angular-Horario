@@ -31,7 +31,7 @@ describe('Próximos horários da sala', () => {
     );
     expect(dados[1].atividade).toBe('Programação');
     expect(dados[1].professor).toBe('Professor');
-    expect(dados[0].atividade).toBe('Sala vazia');
+    expect(dados[0].atividade).toBe('Sem atividade na agenda');
     expect(dados[0].professor).toBeUndefined();
   });
 

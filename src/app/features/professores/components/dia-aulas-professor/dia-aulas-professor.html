@@ -13,6 +13,9 @@
             <span>{{ item.aula.local }}</span>
           }
           <span>Turma {{ item.aula.turma }}</span>
+          @if (typeof item.aula.id === 'string') {
+            <span>Agenda local</span>
+          }
         </span>
       </li>
     } @else {

@@ -2,6 +2,7 @@ import { AlocacaoResponse } from './grade-dia.model';
 
 export interface ResumoDia {
   aulasAgrupadas: number;
+  disciplinasDistintas: number;
   professoresInformados: number;
   aulasSemProfessor: number;
 }
@@ -15,6 +16,7 @@ export function resumirDia(alocacoes: readonly AlocacaoResponse[]): ResumoDia {
     horario(a.blocoHorario.horaInicio).localeCompare(horario(b.blocoHorario.horaInicio)),
   );
   const ultimosTerminos = new Map<string, string>();
+  const disciplinas = new Set<string>();
   const professores = new Set<string>();
   let aulasAgrupadas = 0;
   let aulasSemProfessor = 0;
@@ -22,6 +24,7 @@ export function resumirDia(alocacoes: readonly AlocacaoResponse[]): ResumoDia {
   for (const aula of ordenadas) {
     const professorInformado = !!aula.professor?.nome.trim();
     const origem = aula.origem ?? null;
+    disciplinas.add(JSON.stringify([origem, aula.disciplina.id]));
     if (professorInformado) professores.add(JSON.stringify([origem, aula.professor!.id]));
     const chave = JSON.stringify([
       origem,
@@ -45,5 +48,10 @@ export function resumirDia(alocacoes: readonly AlocacaoResponse[]): ResumoDia {
     ultimosTerminos.set(chave, horario(aula.blocoHorario.horaFim));
   }
 
-  return { aulasAgrupadas, professoresInformados: professores.size, aulasSemProfessor };
+  return {
+    aulasAgrupadas,
+    disciplinasDistintas: disciplinas.size,
+    professoresInformados: professores.size,
+    aulasSemProfessor,
+  };
 }

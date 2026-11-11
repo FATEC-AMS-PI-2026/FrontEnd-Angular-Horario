@@ -155,6 +155,7 @@ describe('Professores: estados e navegação', () => {
     fixture.detectChanges();
     expect(texto()).toContain('Não foi possível carregar as aulas');
     expect(texto()).toContain('Aula do catálogo local');
+    expect(texto()).toContain('Agenda local');
     expect(texto()).not.toContain('Nenhuma aula');
   });
 

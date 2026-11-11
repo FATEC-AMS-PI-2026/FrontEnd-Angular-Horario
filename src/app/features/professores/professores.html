@@ -52,7 +52,7 @@
   }
   @if (!dados.agendaCompleta) {
     <p class="professores__estado" role="status">
-      Os filtros por curso podem não incluir todas as aulas deste acesso.
+      A consulta ao Java pode restringir as aulas usadas no filtro por curso.
     </p>
   }
   @if (dados.carregando()) {
@@ -128,9 +128,9 @@
           </button>
         </div>
       }
-      @if (!dados.agendaCompleta) {
+      @if (typeof professor.id === 'number' && !dados.agendaCompleta) {
         <p class="aulas-professor__vazio" role="status">
-          A consulta de aulas pode estar limitada aos cursos permitidos para este acesso.
+          A agenda do Java pode incluir apenas as aulas dos cursos permitidos para este acesso.
         </p>
       }
       @for (dia of dados.diasAgrupados(); track dia.diaSemana) {
@@ -139,9 +139,11 @@
         @if (!dados.consultaAulasIncompleta()) {
           <p class="aulas-professor__vazio" role="status">
             {{
-              dados.agendaCompleta
-                ? 'Nenhuma aula cadastrada para este professor no período vigente.'
-                : 'Nenhuma aula encontrada na agenda consultada para este acesso.'
+              typeof professor.id === 'string'
+                ? 'Nenhuma aula encontrada para este professor na agenda local.'
+                : dados.agendaCompleta
+                  ? 'Nenhuma aula cadastrada para este professor no período vigente.'
+                  : 'Nenhuma aula encontrada na agenda consultada para este acesso.'
             }}
           </p>
         }

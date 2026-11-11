@@ -15,7 +15,9 @@
         <p>Disponibilidade indisponível. {{ erroAgenda }}</p>
         <button type="button" (click)="tentarNovamente()">Tentar novamente</button>
       </div>
-    } @else if (!estado().agenda && sala.origem !== 'local') {
+    } @else if (avisoAgendaLocal(); as aviso) {
+      <p role="status" class="detalhes-sala__aviso">{{ aviso }}</p>
+    } @else if (carregandoHorarios()) {
       <p role="status">Consultando disponibilidade...</p>
     }
     @if (locais.erro(); as erroLocal) {
@@ -30,6 +32,7 @@
           [equipamentos]="
             sala.origem === 'local' ? equipamentosLocais(sala) : recursos.daSala(sala.id)
           "
+          [origem]="sala.origem ?? 'java'"
           [carregando]="recursos.carregando()"
           [erro]="recursos.erro()"
         />

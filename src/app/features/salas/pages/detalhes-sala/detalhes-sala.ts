@@ -100,7 +100,7 @@ export class DetalhesSala {
             if (!this.horarios.agendaCompleta) {
               return of<EstadoDetalhes>({
                 sala,
-                erroAgenda: 'Não foi possível confirmar a agenda completa desta sala.',
+                erroAgenda: 'A consulta ao Java não confirma a agenda completa desta sala.',
               });
             }
             // Atualiza a agenda e a vigência sem precisar recarregar a página.
@@ -115,7 +115,7 @@ export class DetalhesSala {
                         sala,
                         erroAgenda: this.erros.mensagem(
                           erro,
-                          'Não foi possível consultar a disponibilidade.',
+                          'Não foi possível consultar a agenda do Java.',
                         ),
                       }),
                     ),
@@ -159,11 +159,21 @@ export class DetalhesSala {
   });
 
   protected readonly erroAgenda = computed(() => {
+    if (this.estado().sala?.origem === 'local') return null;
     const disponibilidade = this.disponibilidade();
     return (
       this.estado().erroAgenda ??
       (disponibilidade && !disponibilidade.status ? disponibilidade.texto : null)
     );
+  });
+  protected readonly avisoAgendaLocal = computed(() => {
+    if (this.estado().sala?.origem !== 'local' || this.locais.carregando() || this.locais.erro()) {
+      return null;
+    }
+    const disponibilidade = this.disponibilidade();
+    return disponibilidade?.status
+      ? null
+      : (disponibilidade?.texto ?? 'Agenda local não confirmada para esta sala.');
   });
   protected readonly carregandoHorarios = computed(
     () =>
@@ -171,7 +181,7 @@ export class DetalhesSala {
       (this.estado().sala?.origem !== 'local' && !this.estado().agenda && !this.erroAgenda()),
   );
   protected readonly horariosIndisponiveis = computed(
-    () => !!this.erroAgenda() || !!this.locais.erro(),
+    () => !!this.erroAgenda() || !!this.avisoAgendaLocal() || !!this.locais.erro(),
   );
 
   protected readonly aulas = computed(() => {

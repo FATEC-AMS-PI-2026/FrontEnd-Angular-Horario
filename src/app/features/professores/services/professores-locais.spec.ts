@@ -104,7 +104,10 @@ describe('ProfessoresLocaisService', () => {
       reposicoes: [],
     };
     expect(aulasProfessoresLocais(c, '2026-10-13').length).toBe(1);
-    expect(aulasProfessoresLocais(c, '2027-01-01')).toEqual([]);
+    expect(() => aulasProfessoresLocais(c, '2027-01-01')).toThrowError(
+      DadosLocaisError,
+      'A agenda local dos professores não cobre a data de hoje.',
+    );
   });
 
   it('ignora leituras substituídas e respostas que chegam depois de sair da página', async () => {

@@ -21,6 +21,7 @@ const ICONES: Record<TipoEquipamento, FigmaIconName> = {
 export class EquipamentosCard {
   /** null indica informação indisponível; [] confirma ausência de cadastro. */
   readonly equipamentos = input<readonly Equipamento[] | null>(null);
+  readonly origem = input<'local' | 'java'>();
   readonly carregando = input(false);
   readonly erro = input<string | null>(null);
   readonly compacto = input(false);

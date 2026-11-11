@@ -1,3 +1,5 @@
+import { AulaDoDia } from './aula-do-dia';
+
 /**
  * Uma aula futura ou intervalo sem aula na sala, exibido no componente da
  * issue "WEB: Lista de próximos horários da sala" (#44).
@@ -9,8 +11,9 @@ export interface ProximoHorario {
   inicio: string;
   /** Horário de término, no formato `HH:mm`. */
   termino: string;
-  /** Nome da aula ou "Sala vazia" para um intervalo sem aula. */
+  /** Nome da aula ou rótulo para um intervalo sem aula. */
   atividade: string;
   /** Professor responsável pela atividade, quando houver. */
   professor?: string;
+  origem?: AulaDoDia['origem'];
 }

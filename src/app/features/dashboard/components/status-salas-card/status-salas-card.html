@@ -44,12 +44,22 @@
             <strong>{{ item.sala.nome }}</strong>
             @if (item.professores) {
               <span class="room-professor">{{ item.professores }}</span>
-            } @else {
-              <span>{{ item.disponibilidade?.texto || 'Disponibilidade indisponível' }}</span>
+            } @else if (item.sala.origem !== 'local' || !item.disponibilidade?.status) {
+              <span>
+                {{
+                  item.disponibilidade?.texto ||
+                    (carregando() || (item.sala.origem !== 'local' && consultandoAgenda())
+                      ? 'Consultando disponibilidade...'
+                      : 'Disponibilidade indisponível')
+                }}
+              </span>
             }
           </div>
           @if (item.disponibilidade?.status; as status) {
-            <app-status-sala-badge [status]="status" />
+            <app-status-sala-badge
+              [status]="status"
+              [texto]="item.sala.origem === 'local' ? item.disponibilidade?.texto : undefined"
+            />
           }
         </a>
       }

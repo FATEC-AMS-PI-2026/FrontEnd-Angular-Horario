@@ -52,11 +52,13 @@ describe('Configurações', () => {
   });
 
   it('alterna notificações e tema pelos controles da tela', () => {
+    const preferencias = TestBed.inject(PreferencesService);
+    const temaInicialEscuro = preferencias.modoEscuro();
     element.querySelector<HTMLInputElement>('#modo-escuro')!.click();
     element.querySelector<HTMLInputElement>('#notificacoes')!.click();
-    expect(TestBed.inject(PreferencesService).modoEscuro()).toBeTrue();
-    expect(TestBed.inject(PreferencesService).notificacoes()).toBeFalse();
-    expect(document.documentElement.dataset['theme']).toBe('dark');
+    expect(preferencias.modoEscuro()).toBe(!temaInicialEscuro);
+    expect(preferencias.notificacoes()).toBeFalse();
+    expect(document.documentElement.dataset['theme']).toBe(temaInicialEscuro ? 'light' : 'dark');
   });
 
   it('filtra cards sem diferenciar acentos e mostra estado vazio', () => {

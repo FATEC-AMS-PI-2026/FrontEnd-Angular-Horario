@@ -4,9 +4,7 @@
     <p class="aulas-do-dia-card__vazio" role="status">{{ rotulos().carregando }}</p>
   } @else {
     @if (indisponivel()) {
-      <p class="aulas-do-dia-card__vazio" role="status">
-        Não foi possível consultar todos os horários desta sala.
-      </p>
+      <p class="aulas-do-dia-card__vazio" role="status">Horários não confirmados para hoje.</p>
     }
     @if (aulasOrdenadas().length) {
       <ul>
@@ -17,14 +15,19 @@
               ><span>{{ aula.termino }}</span></span
             >
             <div class="aula-do-dia__conteudo">
-              <strong>{{ aula.disciplina }}</strong>
-              <p>
-                {{ aula.professor }}
-                @if (aula.professor && aula.turma) {
-                  ·
-                }
-                {{ aula.turma }}
-              </p>
+              <strong>{{ aula.disciplina || 'Atividade não informada' }}</strong>
+              @if (aula.professor || aula.turma) {
+                <p>
+                  {{ aula.professor }}
+                  @if (aula.professor && aula.turma) {
+                    ·
+                  }
+                  {{ aula.turma }}
+                </p>
+              }
+              @if (aula.origem === 'local') {
+                <p>Agenda local</p>
+              }
             </div>
             @if (estaEmAndamento(aula)) {
               <span class="aula-do-dia__badge">Agora</span>

@@ -26,6 +26,7 @@ describe('Resumo de aulas do dia', () => {
     const antes = JSON.stringify(aulas);
     expect(resumirDia(aulas)).toEqual({
       aulasAgrupadas: 1,
+      disciplinasDistintas: 1,
       professoresInformados: 1,
       aulasSemProfessor: 0,
     });
@@ -41,6 +42,7 @@ describe('Resumo de aulas do dia', () => {
     ];
     expect(resumirDia(aulas)).toEqual({
       aulasAgrupadas: 2,
+      disciplinasDistintas: 2,
       professoresInformados: 1,
       aulasSemProfessor: 0,
     });
@@ -57,6 +59,7 @@ describe('Resumo de aulas do dia', () => {
     ];
     expect(resumirDia(aulas)).toEqual({
       aulasAgrupadas: 3,
+      disciplinasDistintas: 1,
       professoresInformados: 2,
       aulasSemProfessor: 1,
     });
@@ -69,6 +72,7 @@ describe('Resumo de aulas do dia', () => {
     ];
     expect(resumirDia(aulas)).toEqual({
       aulasAgrupadas: 2,
+      disciplinasDistintas: 1,
       professoresInformados: 0,
       aulasSemProfessor: 2,
     });
@@ -93,7 +97,12 @@ describe('Resumo de aulas do dia', () => {
   it('preserva identidades por fonte e não deduplica docentes homônimos pelo nome', () => {
     expect(
       resumirDia([bloco(1, '13:20', '14:10'), bloco(2, '14:10', '15:00', { origem: 'java' })]),
-    ).toEqual({ aulasAgrupadas: 2, professoresInformados: 2, aulasSemProfessor: 0 });
+    ).toEqual({
+      aulasAgrupadas: 2,
+      disciplinasDistintas: 2,
+      professoresInformados: 2,
+      aulasSemProfessor: 0,
+    });
     const professor = { id: 2, nome: 'Prof. Renato' };
     expect(
       resumirDia([bloco(1, '13:20', '14:10'), bloco(2, '14:10', '15:00', { professor })])
@@ -104,11 +113,13 @@ describe('Resumo de aulas do dia', () => {
   it('trata nome em branco como professor a definir e distingue o dia sem aulas', () => {
     expect(resumirDia([bloco(1, '13:20', '14:10', { professor: { id: 1, nome: ' ' } })])).toEqual({
       aulasAgrupadas: 1,
+      disciplinasDistintas: 1,
       professoresInformados: 0,
       aulasSemProfessor: 1,
     });
     expect(resumirDia([])).toEqual({
       aulasAgrupadas: 0,
+      disciplinasDistintas: 0,
       professoresInformados: 0,
       aulasSemProfessor: 0,
     });

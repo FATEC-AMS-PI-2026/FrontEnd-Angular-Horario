@@ -116,6 +116,10 @@ export class Dashboard implements OnInit {
       title: 'Aulas hoje',
       value: String(this.resumo().aulasAgrupadas),
       subtitle: 'Blocos consecutivos contam como uma aula',
+      observacao:
+        this.resumo().disciplinasDistintas === 1
+          ? '1 disciplina distinta'
+          : `${this.resumo().disciplinasDistintas} disciplinas distintas`,
     },
     {
       title: 'Professores informados',

@@ -15,6 +15,13 @@
   } @else if (!linhas().length) {
     <p class="equipamentos-card__mensagem" role="status">Nenhum equipamento cadastrado</p>
   } @else {
+    @if (origem(); as fonte) {
+      <p class="equipamentos-card__mensagem">
+        {{
+          fonte === 'local' ? 'Inventário de referência local' : 'Quantidades cadastradas no Java'
+        }}
+      </p>
+    }
     <ul>
       @for (linha of linhas(); track linha.chave) {
         <li>

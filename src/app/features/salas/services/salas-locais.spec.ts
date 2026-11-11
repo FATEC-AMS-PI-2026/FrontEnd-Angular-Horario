@@ -195,11 +195,11 @@ describe('Salas locais: equipamentos e ocupação temporários', () => {
     ).toBe('Livre');
     expect(disponibilidadeLocalDaSala(c, sala(), new Date('2026-10-05T13:00:00-03:00'))).toEqual({
       status: 'Em uso',
-      texto: 'Em uso',
+      texto: 'Em uso na agenda local',
     });
     expect(disponibilidadeLocalDaSala(c, sala(), new Date('2026-10-05T14:00:00-03:00'))).toEqual({
       status: 'Livre',
-      texto: 'Livre',
+      texto: 'Livre na agenda local',
     });
     c.alocacoes.push({ ...c.alocacoes[0], id: 2, horaInicio: '16:00', horaFim: '17:00' });
     expect(
@@ -207,7 +207,7 @@ describe('Salas locais: equipamentos e ocupação temporários', () => {
     ).toBe('Em uso');
   });
 
-  it('respeita feriados, reposições por turno e vigência no status local', () => {
+  it('respeita feriados e reposições por turno no status local', () => {
     const c = catalogo();
     c.calendario = {
       semAula: [{ inicio: '2026-10-05', fim: '2026-10-05', motivo: 'Feriado' }],
@@ -225,8 +225,20 @@ describe('Salas locais: equipamentos e ocupação temporários', () => {
     expect(
       disponibilidadeLocalDaSala(c, sala(), new Date('2026-10-06T13:20:00-03:00'))?.status,
     ).toBe('Livre');
-    c.vigenciaFim = '2026-09-30';
-    expect(disponibilidadeLocalDaSala(c, sala(), agora)?.status).toBe('Livre');
+  });
+
+  it('confirma a ocupação somente entre as datas da vigência, inclusive nos limites', () => {
+    const c = catalogo();
+    c.vigenciaInicio = '2026-10-05';
+    c.vigenciaFim = '2026-10-05';
+    expect(disponibilidadeLocalDaSala(c, sala(), agora)?.status).toBe('Em uso');
+    const indisponivel = { texto: 'A agenda local não cobre a data de hoje.' };
+    expect(disponibilidadeLocalDaSala(c, sala(), new Date('2026-10-05T02:59:59Z'))).toEqual(
+      indisponivel,
+    );
+    expect(disponibilidadeLocalDaSala(c, sala(), new Date('2026-10-06T03:00:00Z'))).toEqual(
+      indisponivel,
+    );
   });
 
   it('não confunde catálogo ausente, código ambíguo ou horário inválido com sala Livre', () => {

@@ -137,7 +137,7 @@ export class RecursosSalaService {
       });
   }
 
-  /** null indica informação indisponível; [] confirma uma sala sem recursos. */
+  /** null indica informação indisponível; [] indica ausência de recursos cadastrados. */
   daSala(salaId: number): Equipamento[] | null {
     return this.carregado() ? (this.porSala().get(salaId) ?? []) : null;
   }

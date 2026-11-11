@@ -20,7 +20,9 @@ export function aulasProfessoresLocais(c: CatalogoLocal, hoje: string): AulaProf
       'A agenda dos professores deste navegador está sem vigência confirmada.',
     );
   }
-  if (hoje < c.vigenciaInicio || hoje > c.vigenciaFim) return [];
+  if (hoje < c.vigenciaInicio || hoje > c.vigenciaFim) {
+    throw new DadosLocaisError('A agenda local dos professores não cobre a data de hoje.');
+  }
   return c.alocacoes.flatMap((a) => {
     if (a.professorId === null) return [];
     const oferta = c.ofertas.find((o) => o.id === a.ofertaId)!;

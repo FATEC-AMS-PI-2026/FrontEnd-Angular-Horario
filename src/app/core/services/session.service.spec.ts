@@ -132,6 +132,7 @@ describe('SessionService: encerramento sincronizado entre abas (#164)', () => {
     const recebidas: unknown[] = [];
     outraAba.onmessage = (evento) => recebidas.push(evento.data);
     const service = TestBed.inject(SessionService);
+    spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
     service.iniciar('token-ana', usuario, false);
     const id = sessionStorage.getItem('gini_sessao');
     service.logout();
