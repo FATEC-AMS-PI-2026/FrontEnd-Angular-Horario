@@ -5,12 +5,7 @@
  * Projetor multimídia incluído com o ícone fornecido pelo usuário.
  */
 export type TipoEquipamento =
-  | 'Wi-Fi'
-  | 'Televisão'
-  | 'Cadeira'
-  | 'Computador'
-  | 'Ar-condicionado'
-  | 'Projetor multimidia';
+  'Wi-Fi' | 'Televisão' | 'Cadeira' | 'Computador' | 'Ar-condicionado' | 'Projetor multimidia';
 
 /**
  * Nível de disponibilidade de um equipamento, usado para destacar o card com

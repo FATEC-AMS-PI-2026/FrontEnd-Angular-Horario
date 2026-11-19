@@ -1,78 +1,111 @@
 <div class="period-selection-container" [attr.aria-busy]="loading() || saving()">
-    @if (saving()) { <p role="status">Salvando seu {{ setupService.nomePeriodo() }}...</p> }
+  @if (saving()) {
+    <p role="status">Salvando seu {{ setupService.nomePeriodo() }}...</p>
+  }
 
-    <div class="page-header">
-        <h2>Selecione o {{ setupService.nomePeriodo() }} desejado</h2>
-    </div>
+  <div class="page-header">
+    <h2>Selecione o {{ setupService.nomePeriodo() }} desejado</h2>
+  </div>
 
-    @if (loading()) {
+  @if (loading()) {
     <p role="status">Carregando {{ setupService.nomePeriodos() }}...</p>
-    }
-    @if (errorMessage()) {
+  }
+  @if (errorMessage()) {
     <p role="alert">{{ errorMessage() }}</p>
     @if (!curso()) {
-    <button type="button" (click)="carregar()">Tentar novamente</button>
+      <button type="button" (click)="carregar()">Tentar novamente</button>
     }
-    }
-    <div class="period-grid">
-        @for (periodo of curso()?.periodos ?? []; track periodo) {
-        <button type="button" class="period-card" [class.active]="setupService.selectedPeriod() === periodo"
-            [attr.aria-label]="periodo" [attr.aria-pressed]="setupService.selectedPeriod() === periodo"
-            [disabled]="saving()" (click)="selecionar(periodo)">
-            {{ periodo }}
-        </button>
-        } @empty {
-        @if (!loading() && !errorMessage()) {
+  }
+  <div class="period-grid">
+    @for (periodo of curso()?.periodos ?? []; track periodo) {
+      <button
+        type="button"
+        class="period-card"
+        [class.active]="setupService.selectedPeriod() === periodo"
+        [attr.aria-label]="periodo"
+        [attr.aria-pressed]="setupService.selectedPeriod() === periodo"
+        [disabled]="saving()"
+        (click)="selecionar(periodo)"
+      >
+        {{ periodo }}
+      </button>
+    } @empty {
+      @if (!loading() && !errorMessage()) {
         <p role="status">Nenhum {{ setupService.nomePeriodo() }} disponível para este curso.</p>
-        }
-        }
-    </div>
+      }
+    }
+  </div>
 
-    @if (curso(); as detalhes) {
+  @if (curso(); as detalhes) {
     <!-- Course Information Card -->
     <div class="course-info-card">
-        <div class="info-header">
-            Sobre o curso &mdash; <strong>{{ setupService.selectedCourse() }}</strong>
-        </div>
+      <div class="info-header">
+        Sobre o curso &mdash; <strong>{{ setupService.selectedCourse() }}</strong>
+      </div>
 
-        <ul class="info-list">
-            <li>
-                <app-figma-icon name="clock" />
-                <span>Carga horária: {{ detalhes.cargaHoraria === null ? 'Não informada' : detalhes.cargaHoraria + 'h'
-                    }}</span>
-            </li>
-            <li>
-                <app-figma-icon name="calendar-nav" />
-                <span>Duração: {{ detalhes.duracaoAnos ? detalhes.duracaoAnos + ' anos' : detalhes.duracaoSemestres + '
-                    semestres' }}</span>
-            </li>
-            <li>
-                <app-figma-icon name="location" />
-                <span>Local: {{ detalhes.unit }}</span>
-            </li>
-            <li>
-                <app-figma-icon name="person" />
-                <span>Coordenador(a): {{ detalhes.coordenador || 'Não informado' }}</span>
-            </li>
-        </ul>
+      <ul class="info-list">
+        <li>
+          <app-figma-icon name="clock" />
+          <span
+            >Carga horária:
+            {{
+              detalhes.cargaHoraria === null ? 'Não informada' : detalhes.cargaHoraria + 'h'
+            }}</span
+          >
+        </li>
+        <li>
+          <app-figma-icon name="calendar-nav" />
+          <span
+            >Duração:
+            {{
+              detalhes.duracaoAnos
+                ? detalhes.duracaoAnos + ' anos'
+                : detalhes.duracaoSemestres +
+                  '
+                    semestres'
+            }}</span
+          >
+        </li>
+        <li>
+          <app-figma-icon name="location" />
+          <span>Local: {{ detalhes.unit }}</span>
+        </li>
+        <li>
+          <app-figma-icon name="person" />
+          <span>Coordenador(a): {{ detalhes.coordenador || 'Não informado' }}</span>
+        </li>
+      </ul>
     </div>
-
+  }
+  <!-- Footer Actions -->
+  <div class="footer-actions">
+    @if (!setupService.returningUser()) {
+      <button class="btn-back" [disabled]="saving()" (click)="voltar()">Voltar</button>
+    } @else if (setupService.periodoConfirmado()) {
+      <button class="btn-back" [disabled]="saving()" (click)="cancelar()">Cancelar</button>
     }
-    <!-- Footer Actions -->
-    <div class="footer-actions">
-        @if (!setupService.returningUser()) {
-        <button class="btn-back" [disabled]="saving()" (click)="voltar()">Voltar</button>
-        } @else if (setupService.periodoConfirmado()) {
-        <button class="btn-back" [disabled]="saving()" (click)="cancelar()">Cancelar</button>
-        }
 
-        @if (setupService.returningUser()) {
-        <button class="btn-back" [disabled]="!setupService.isSetupComplete() || loading() || saving() || !curso()"
-            (click)="concluir(true)">Alterar disciplinas</button>
-        }
-        <button class="btn-primary" [disabled]="!setupService.isSetupComplete() || loading() || saving() || !curso()"
-            (click)="concluir()">
-            {{ saving() ? 'Salvando...' : setupService.returningUser() ? 'Entrar no sistema' : 'Escolher disciplinas' }}
-        </button>
-    </div>
+    @if (setupService.returningUser()) {
+      <button
+        class="btn-back"
+        [disabled]="!setupService.isSetupComplete() || loading() || saving() || !curso()"
+        (click)="concluir(true)"
+      >
+        Alterar disciplinas
+      </button>
+    }
+    <button
+      class="btn-primary"
+      [disabled]="!setupService.isSetupComplete() || loading() || saving() || !curso()"
+      (click)="concluir()"
+    >
+      {{
+        saving()
+          ? 'Salvando...'
+          : setupService.returningUser()
+            ? 'Entrar no sistema'
+            : 'Escolher disciplinas'
+      }}
+    </button>
+  </div>
 </div>

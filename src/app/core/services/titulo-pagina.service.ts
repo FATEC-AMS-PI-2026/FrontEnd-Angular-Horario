@@ -15,34 +15,34 @@ export const TITULO_PADRAO = 'GINI — Gestão de Horários Acadêmicos';
  */
 @Injectable({ providedIn: 'root' })
 export class TituloPaginaService extends TitleStrategy {
-    private readonly title = inject(Title);
-    private readonly contexto = inject(TopbarContextService);
-    private readonly daRota = signal<string | null>(null);
-    private readonly sobrescrito = signal<string | null>(null);
+  private readonly title = inject(Title);
+  private readonly contexto = inject(TopbarContextService);
+  private readonly daRota = signal<string | null>(null);
+  private readonly sobrescrito = signal<string | null>(null);
 
-    /** Título exibido no Topbar; `null` quando a rota não define nenhum. */
-    readonly atual = computed(() => this.sobrescrito() ?? this.daRota());
+  /** Título exibido no Topbar; `null` quando a rota não define nenhum. */
+  readonly atual = computed(() => this.sobrescrito() ?? this.daRota());
 
-    constructor() {
-        super();
-        // Nos detalhes da sala o código entra antes da seção, como no breadcrumb.
-        effect(() => this.title.setTitle(formatarTituloAba(this.atual(), this.contexto.sala())));
-    }
+  constructor() {
+    super();
+    // Nos detalhes da sala o código entra antes da seção, como no breadcrumb.
+    effect(() => this.title.setTitle(formatarTituloAba(this.atual(), this.contexto.sala())));
+  }
 
-    override updateTitle(snapshot: RouterStateSnapshot): void {
-        this.daRota.set(this.buildTitle(snapshot) ?? null);
-    }
+  override updateTitle(snapshot: RouterStateSnapshot): void {
+    this.daRota.set(this.buildTitle(snapshot) ?? null);
+  }
 
-    sobrescrever(titulo: string): void {
-        this.sobrescrito.set(titulo);
-    }
+  sobrescrever(titulo: string): void {
+    this.sobrescrito.set(titulo);
+  }
 
-    limparSobrescrita(): void {
-        this.sobrescrito.set(null);
-    }
+  limparSobrescrita(): void {
+    this.sobrescrito.set(null);
+  }
 }
 
 export function formatarTituloAba(titulo: string | null, detalhe: string | null = null): string {
-    if (!titulo) return TITULO_PADRAO;
-    return [detalhe, titulo, NOME_APLICACAO].filter(Boolean).join(' · ');
+  if (!titulo) return TITULO_PADRAO;
+  return [detalhe, titulo, NOME_APLICACAO].filter(Boolean).join(' · ');
 }

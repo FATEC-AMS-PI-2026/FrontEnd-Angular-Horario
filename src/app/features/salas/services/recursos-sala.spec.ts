@@ -5,15 +5,28 @@ import { BACKEND_CONFIG } from '../../../core/services/backend-config';
 import { RecursosSalaService, equipamentoDoRecurso } from './recursos-sala';
 import { RecursoSalaApi } from '../models/recurso-sala';
 
-const recurso = (id = 1, sala = 7): RecursoSalaApi => ({ id, sala: { id: sala },
-  recurso: { id, nome: 'Computador desktop', tipo: { id: 1, nome: 'Equipamento' } }, quantidade: 40 });
+const recurso = (id = 1, sala = 7): RecursoSalaApi => ({
+  id,
+  sala: { id: sala },
+  recurso: { id, nome: 'Computador desktop', tipo: { id: 1, nome: 'Equipamento' } },
+  quantidade: 40,
+});
 
 describe('RecursosSalaService', () => {
   let service: RecursosSalaService;
   let http: HttpTestingController;
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [RecursosSalaService, provideHttpClient(), provideHttpClientTesting(),
-      { provide: BACKEND_CONFIG, useValue: { url: 'http://backend/', modulos: ['recursos-salas'] } }] });
+    TestBed.configureTestingModule({
+      providers: [
+        RecursosSalaService,
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        {
+          provide: BACKEND_CONFIG,
+          useValue: { url: 'http://backend/', modulos: ['recurso-sala'] },
+        },
+      ],
+    });
     service = TestBed.inject(RecursosSalaService);
     http = TestBed.inject(HttpTestingController);
   });
@@ -21,36 +34,48 @@ describe('RecursosSalaService', () => {
 
   it('lê todas as páginas, agrupa por sala e não inventa quantidade disponível', () => {
     service.carregar();
-    const primeira = http.expectOne(r => r.params.get('page') === '0');
-    expect(primeira.request.url).toBe('http://backend/recursos-salas');
+    const primeira = http.expectOne((r) => r.params.get('page') === '0');
+    expect(primeira.request.url).toBe('http://backend/recurso-sala');
+    expect(primeira.request.params.has('salaId')).toBeFalse();
     expect(primeira.request.params.has('id_sala')).toBeFalse();
     primeira.flush({ content: [recurso()], page: 0, totalPages: 2 });
     expect(service.porSala().size).toBe(0);
     expect(service.daSala(7)).toBeNull();
-    http.expectOne(r => r.params.get('page') === '1').flush({ content: [recurso(2, 8)], page: 1, totalPages: 2 });
+    http
+      .expectOne((r) => r.params.get('page') === '1')
+      .flush({ content: [recurso(2, 8)], page: 1, totalPages: 2 });
     expect(service.porSala().size).toBe(2);
     expect(service.porSala().get(7)![0].quantidadeTotal).toBe(40);
     expect(service.porSala().get(7)![0].quantidadeDisponivel).toBeUndefined();
     expect(service.carregando()).toBeFalse();
   });
 
-  it('usa id_sala no filtro e rejeita uma consulta que retorna itens de outra sala', () => {
+  it('usa salaId no filtro e rejeita uma consulta que retorna itens de outra sala', () => {
     service.carregar(7);
-    http.expectOne(r => r.params.get('id_sala') === '7').flush({ content: [recurso(), recurso(2, 8)], page: 0, totalPages: 1 });
+    http
+      .expectOne((r) => r.params.get('salaId') === '7')
+      .flush({ content: [recurso(), recurso(2, 8)], page: 0, totalPages: 1 });
     expect(service.erro()).toBeTruthy();
     expect(service.daSala(7)).toBeNull();
     service.carregar(7);
-    http.expectOne(r => r.params.get('id_sala') === '7').flush({ content: [recurso()], page: 0, total_pages: 1 });
+    http
+      .expectOne((r) => r.params.get('salaId') === '7')
+      .flush({ content: [recurso()], page: 0, total_pages: 1 });
     expect([...service.porSala().keys()]).toEqual([7]);
     expect(service.erro()).toBeNull();
   });
 
-  it('consulta recursos-salas com paginação snake_case sem publicar itens parciais', () => {
+  it('consulta recurso-sala com paginação snake_case sem publicar itens parciais', () => {
     service.carregar(7);
-    http.expectOne(r => r.url === 'http://backend/recursos-salas' && r.params.get('id_sala') === '7')
-      .flush({ content: [recurso()], page: 0, total_pages: 2, total_elements: 1 });
+    const primeira = http.expectOne(
+      (r) => r.url === 'http://backend/recurso-sala' && r.params.get('salaId') === '7',
+    );
+    expect(primeira.request.method).toBe('GET');
+    expect(primeira.request.params.has('id_sala')).toBeFalse();
+    primeira.flush({ content: [recurso()], page: 0, total_pages: 2, total_elements: 1 });
     expect(service.daSala(7)).toBeNull();
-    http.expectOne(r => r.params.get('page') === '1' && r.params.get('id_sala') === '7')
+    http
+      .expectOne((r) => r.params.get('page') === '1' && r.params.get('salaId') === '7')
       .flush({ content: [recurso(2)], page: 1, total_pages: 2, total_elements: 1 });
     expect(service.erro()).toBeNull();
     expect(service.daSala(7)?.length).toBe(2);
@@ -58,25 +83,37 @@ describe('RecursosSalaService', () => {
 
   it('rejeita total de páginas alterado durante a consulta e zero páginas com recursos', () => {
     service.carregar();
-    http.expectOne(r => r.params.get('page') === '0').flush({ content: [recurso()], page: 0, total_pages: 2 });
-    http.expectOne(r => r.params.get('page') === '1').flush({ content: [], page: 1, total_pages: 1 });
+    http
+      .expectOne((r) => r.params.get('page') === '0')
+      .flush({ content: [recurso()], page: 0, total_pages: 2 });
+    http
+      .expectOne((r) => r.params.get('page') === '1')
+      .flush({ content: [], page: 1, total_pages: 1 });
     expect(service.erro()).toBeTruthy();
     expect(service.daSala(7)).toBeNull();
     service.carregar();
-    http.expectOne(r => r.params.get('page') === '0').flush({ content: [recurso()], page: 0, total_pages: 0 });
+    http
+      .expectOne((r) => r.params.get('page') === '0')
+      .flush({ content: [recurso()], page: 0, total_pages: 0 });
     expect(service.erro()).toBeTruthy();
     expect(service.daSala(7)).toBeNull();
   });
 
   it('descarta resultado parcial e permite nova tentativa após erro', () => {
     service.carregar(7);
-    http.expectOne(r => r.params.get('page') === '0').flush({ content: [recurso()], page: 0, totalPages: 2 });
-    http.expectOne(r => r.params.get('page') === '1').flush({}, { status: 500, statusText: 'Error' });
+    http
+      .expectOne((r) => r.params.get('page') === '0')
+      .flush({ content: [recurso()], page: 0, totalPages: 2 });
+    http
+      .expectOne((r) => r.params.get('page') === '1')
+      .flush({}, { status: 500, statusText: 'Error' });
     expect(service.porSala().size).toBe(0);
     expect(service.erro()).toBeTruthy();
     expect(service.daSala(7)).toBeNull();
     service.carregar(7);
-    http.expectOne(r => r.params.get('page') === '0').flush({ content: [], page: 0, totalPages: 0 });
+    http
+      .expectOne((r) => r.params.get('page') === '0')
+      .flush({ content: [], page: 0, totalPages: 0 });
     expect(service.erro()).toBeNull();
     expect(service.carregando()).toBeFalse();
     expect(service.daSala(7)).toEqual([]);
@@ -84,10 +121,10 @@ describe('RecursosSalaService', () => {
 
   it('cancela a consulta anterior ao trocar de sala ou limpar', () => {
     service.carregar(7);
-    const anterior = http.expectOne(r => r.params.get('id_sala') === '7');
+    const anterior = http.expectOne((r) => r.params.get('salaId') === '7');
     service.carregar(8);
     expect(anterior.cancelled).toBeTrue();
-    const atual = http.expectOne(r => r.params.get('id_sala') === '8');
+    const atual = http.expectOne((r) => r.params.get('salaId') === '8');
     service.limpar();
     expect(atual.cancelled).toBeTrue();
     expect(service.porSala().size).toBe(0);
@@ -95,18 +132,52 @@ describe('RecursosSalaService', () => {
 
   it('rejeita paginação inconsistente e quantidades inválidas', () => {
     service.carregar();
-    http.expectOne(r => r.url.endsWith('/recursos-salas')).flush({ content: [], page: 0, totalPages: 2 });
+    http
+      .expectOne((r) => r.url.endsWith('/recurso-sala'))
+      .flush({ content: [], page: 0, totalPages: 2 });
     expect(service.erro()).toBeTruthy();
     service.carregar();
-    http.expectOne(r => r.url.endsWith('/recursos-salas')).flush({ content: [{ ...recurso(), quantidade: -1 }], page: 0, totalPages: 1 });
+    http
+      .expectOne((r) => r.url.endsWith('/recurso-sala'))
+      .flush({ content: [{ ...recurso(), quantidade: -1 }], page: 0, totalPages: 1 });
     expect(service.erro()).toBeTruthy();
     expect(service.porSala().size).toBe(0);
   });
 
+  it('rejeita identificadores inválidos no recurso e no tipo sem publicar a lista', () => {
+    const semIdRecurso = recurso();
+    semIdRecurso.recurso.id = 0;
+    const idTipoInvalido = recurso();
+    idTipoInvalido.recurso.tipo.id = 1.5;
+    for (const item of [semIdRecurso, idTipoInvalido]) {
+      service.carregar(7);
+      http
+        .expectOne((r) => r.params.get('salaId') === '7')
+        .flush({ content: [item], page: 0, size: 200, totalElements: 1, totalPages: 1 });
+      expect(service.erro()).toBeTruthy();
+      expect(service.daSala(7)).toBeNull();
+    }
+  });
+
+  it('recusa um filtro de sala inválido antes de enviar a requisição', () => {
+    service.carregar(0);
+    http.expectNone((r) => r.url.endsWith('/recurso-sala'));
+    expect(service.erro()).toBeTruthy();
+    expect(service.carregando()).toBeFalse();
+    expect(service.daSala(7)).toBeNull();
+  });
+
   it('preserva nomes, categorias e zero sem transformar projetor em televisão', () => {
     const item = recurso();
-    item.recurso.nome = 'Projetor multimidia'; item.quantidade = 0;
-    expect(equipamentoDoRecurso(item)).toEqual({ id: 1, tipo: 'Projetor multimidia', nome: 'Projetor multimidia', categoria: 'Equipamento', quantidadeTotal: 0 });
+    item.recurso.nome = 'Projetor multimidia';
+    item.quantidade = 0;
+    expect(equipamentoDoRecurso(item)).toEqual({
+      id: 1,
+      tipo: 'Projetor multimidia',
+      nome: 'Projetor multimidia',
+      categoria: 'Equipamento',
+      quantidadeTotal: 0,
+    });
   });
 
   it('reconhece projetores com acento e plural, preservando o nome cadastrado e distinguindo acessórios', () => {
@@ -114,7 +185,11 @@ describe('RecursosSalaService', () => {
     for (const nome of ['Projetor multimídia', 'PROJETORES MULTIMÍDIA', 'Projetor']) {
       item.recurso.nome = nome;
       expect(equipamentoDoRecurso(item)).toEqual({
-        id: 1, tipo: 'Projetor multimidia', nome, categoria: 'Equipamento', quantidadeTotal: item.quantidade,
+        id: 1,
+        tipo: 'Projetor multimidia',
+        nome,
+        categoria: 'Equipamento',
+        quantidadeTotal: item.quantidade,
       });
     }
     item.recurso.nome = 'Suporte para projetor multimídia';
@@ -123,12 +198,21 @@ describe('RecursosSalaService', () => {
 
   it('respeita o módulo desabilitado sem consultar nem declarar ausência de equipamentos', () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [RecursosSalaService, provideHttpClient(), provideHttpClientTesting(),
-      { provide: BACKEND_CONFIG, useValue: { url: 'http://backend/', habilitado: false, modulos: ['salas'] } }] });
+    TestBed.configureTestingModule({
+      providers: [
+        RecursosSalaService,
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        {
+          provide: BACKEND_CONFIG,
+          useValue: { url: 'http://backend/', habilitado: false, modulos: ['salas'] },
+        },
+      ],
+    });
     const desabilitado = TestBed.inject(RecursosSalaService);
     desabilitado.carregar(7);
     expect(desabilitado.daSala(7)).toBeNull();
     expect(desabilitado.carregando()).toBeFalse();
-    TestBed.inject(HttpTestingController).expectNone(r => r.url.endsWith('/recursos-salas'));
+    TestBed.inject(HttpTestingController).expectNone((r) => r.url.endsWith('/recurso-sala'));
   });
 });

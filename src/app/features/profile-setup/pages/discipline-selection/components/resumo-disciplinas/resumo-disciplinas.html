@@ -1,0 +1,38 @@
+<h2 id="titulo-resumo" class="card__titulo">Sua grade</h2>
+<p class="contador" role="status" aria-live="polite">
+  <strong>{{ disciplinas().length }}</strong>
+  {{ disciplinas().length === 1 ? 'disciplina selecionada' : 'disciplinas selecionadas' }}
+</p>
+<div class="totais">
+  <span
+    >Regulares <strong>{{ totais().regular }}</strong></span
+  >
+  <span
+    >DPs <strong>{{ totais().dp }}</strong></span
+  >
+  <span
+    >Adiantamentos <strong>{{ totais().adiantamento }}</strong></span
+  >
+</div>
+<ul class="selecionadas">
+  @for (disciplina of disciplinas(); track disciplina.id) {
+    <li>
+      <div>
+        <strong>{{ disciplina.nome }}</strong
+        ><span>{{ disciplina.periodo }} · {{ disciplina.tipo }}</span>
+      </div>
+      <button
+        type="button"
+        class="remover"
+        [disabled]="salvando()"
+        (click)="remover.emit(disciplina.id)"
+        [attr.aria-label]="'Remover ' + disciplina.nome"
+      >
+        Remover
+      </button>
+    </li>
+  } @empty {
+    <li class="resumo-vazio">Selecione ao menos uma disciplina. Suas escolhas aparecerão aqui.</li>
+  }
+</ul>
+<p class="legenda">As seleções são mantidas ao mudar os filtros.</p>

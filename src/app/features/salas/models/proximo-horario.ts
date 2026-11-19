@@ -9,7 +9,7 @@ export interface ProximoHorario {
   inicio: string;
   /** Horário de término, no formato `HH:mm`. */
   termino: string;
-  /** Nome da aula ou "Sala vazia" para um intervalo sem aula. */
+  /** Nome da aula ou rótulo para um intervalo sem aula. */
   atividade: string;
   /** Professor responsável pela atividade, quando houver. */
   professor?: string;

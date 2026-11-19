@@ -8,15 +8,15 @@ import { obterTokenSessao } from '../../core/services/session.service';
  * Início (o profileGuard ainda leva ao onboarding se o perfil pedir); visitante, ao login.
  */
 @Component({
-    selector: 'app-nao-encontrada',
-    standalone: true,
-    imports: [RouterLink],
-    templateUrl: './nao-encontrada.html',
-    styleUrl: './nao-encontrada.scss',
+  selector: 'app-nao-encontrada',
+  standalone: true,
+  imports: [RouterLink],
+  templateUrl: './nao-encontrada.html',
+  styleUrl: './nao-encontrada.scss',
 })
 export class NaoEncontrada {
-    readonly endereco = inject(Router).url;
-    readonly autenticado = !!obterTokenSessao();
-    readonly destino = this.autenticado ? '/dashboard' : '/login';
-    readonly rotuloDestino = this.autenticado ? 'Voltar ao início' : 'Ir para o login';
+  readonly endereco = inject(Router).url;
+  readonly autenticado = !!obterTokenSessao();
+  readonly destino = this.autenticado ? '/dashboard' : '/login';
+  readonly rotuloDestino = this.autenticado ? 'Voltar ao início' : 'Ir para o login';
 }

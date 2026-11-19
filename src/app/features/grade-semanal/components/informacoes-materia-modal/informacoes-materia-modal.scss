@@ -19,7 +19,9 @@
     gap: var(--space-lg);
   }
 
-  &::backdrop { background: var(--color-overlay); }
+  &::backdrop {
+    background: var(--color-overlay);
+  }
 }
 
 .modal__cabecalho {
@@ -49,7 +51,9 @@
   font: inherit;
   cursor: pointer;
 
-  &:hover { background: var(--color-bg); }
+  &:hover {
+    background: var(--color-bg);
+  }
 
   &:focus-visible {
     outline: 2px solid var(--color-primary);
@@ -70,7 +74,10 @@
   min-width: 0;
   margin: 0;
 
-  div { display: grid; gap: var(--space-3xs); }
+  div {
+    display: grid;
+    gap: var(--space-3xs);
+  }
 
   dt {
     color: var(--color-text-muted);
@@ -87,10 +94,16 @@
   a {
     color: var(--color-primary);
     text-decoration: none;
-    &:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; border-radius: var(--radius-sm); }
+    &:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 3px;
+      border-radius: var(--radius-sm);
+    }
   }
 
-  app-figma-icon { --icon-size: 0.75em; }
+  app-figma-icon {
+    --icon-size: 0.75em;
+  }
 
   small {
     display: block;
@@ -109,5 +122,7 @@
 }
 
 @media (max-width: 400px) {
-  .modal { padding: var(--space-sm); }
+  .modal {
+    padding: var(--space-sm);
+  }
 }

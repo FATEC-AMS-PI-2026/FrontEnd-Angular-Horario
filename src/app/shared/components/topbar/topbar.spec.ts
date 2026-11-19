@@ -11,10 +11,10 @@ import { TopbarContextService } from '../../../core/services/topbar-context.serv
 import { TITULO_PADRAO, TituloPaginaService } from '../../../core/services/titulo-pagina.service';
 
 @Component({ template: '' })
-class PaginaTeste { }
+class PaginaTeste {}
 
 @Component({ imports: [Topbar], template: '<app-topbar />' })
-class ComTopbar { }
+class ComTopbar {}
 
 describe('Topbar: título da rota ativa (#161)', () => {
   let harness: RouterTestingHarness;
@@ -24,7 +24,9 @@ describe('Topbar: título da rota ativa (#161)', () => {
       providers: [
         provideRouter([
           {
-            path: '', component: ComTopbar, children: [
+            path: '',
+            component: ComTopbar,
+            children: [
               { path: 'dashboard', title: 'Início', component: PaginaTeste },
               { path: 'configuracoes', title: 'Configurações', component: PaginaTeste },
               { path: 'salas', title: 'Salas', component: PaginaTeste },
@@ -33,7 +35,9 @@ describe('Topbar: título da rota ativa (#161)', () => {
             ],
           },
           {
-            path: 'setup', component: ComTopbar, children: [
+            path: 'setup',
+            component: ComTopbar,
+            children: [
               { path: 'period-selection', title: 'Escolha seu período', component: PaginaTeste },
             ],
           },
@@ -78,26 +82,33 @@ describe('Topbar: título da rota ativa (#161)', () => {
     await abrir('/configuracoes');
     expect(harness.fixture.nativeElement.querySelector('.topbar__busca')).not.toBeNull();
     const location = TestBed.inject(Location);
-    const fimDaNavegacao = () => firstValueFrom(TestBed.inject(Router).events.pipe(filter(e => e instanceof NavigationEnd)));
+    const fimDaNavegacao = () =>
+      firstValueFrom(TestBed.inject(Router).events.pipe(filter((e) => e instanceof NavigationEnd)));
     let fim = fimDaNavegacao();
     location.back();
-    await fim; harness.detectChanges();
+    await fim;
+    harness.detectChanges();
     expect(h1()).toBe('Início');
     expect(aba()).toBe('Início · GINI');
     fim = fimDaNavegacao();
     location.forward();
-    await fim; harness.detectChanges();
+    await fim;
+    harness.detectChanges();
     expect(h1()).toBe('Configurações');
   });
 
   it('preserva o breadcrumb de Salas/código nos detalhes e põe o código na aba', async () => {
     await abrir('/salas/1');
     const contexto = TestBed.inject(TopbarContextService);
-    contexto.sala.set('LAB 01'); harness.detectChanges();
+    contexto.sala.set('LAB 01');
+    harness.detectChanges();
     expect(h1()).toContain('Salas / LAB 01');
-    expect(harness.fixture.nativeElement.querySelector('nav a').getAttribute('href')).toBe('/salas');
+    expect(harness.fixture.nativeElement.querySelector('nav a').getAttribute('href')).toBe(
+      '/salas',
+    );
     expect(aba()).toBe('LAB 01 · Salas · GINI');
-    contexto.sala.set(null); harness.detectChanges();
+    contexto.sala.set(null);
+    harness.detectChanges();
     expect(harness.fixture.nativeElement.querySelector('nav')).toBeNull();
     expect(h1()).toBe('Salas');
   });
@@ -105,10 +116,12 @@ describe('Topbar: título da rota ativa (#161)', () => {
   it('aceita um título que a página só conhece depois de carregar dados', async () => {
     await abrir('/setup/period-selection');
     const titulos = TestBed.inject(TituloPaginaService);
-    titulos.sobrescrever('Escolha seu ano'); harness.detectChanges();
+    titulos.sobrescrever('Escolha seu ano');
+    harness.detectChanges();
     expect(h1()).toBe('Escolha seu ano');
     expect(aba()).toBe('Escolha seu ano · GINI');
-    titulos.limparSobrescrita(); harness.detectChanges();
+    titulos.limparSobrescrita();
+    harness.detectChanges();
     expect(h1()).toBe('Escolha seu período');
   });
 });

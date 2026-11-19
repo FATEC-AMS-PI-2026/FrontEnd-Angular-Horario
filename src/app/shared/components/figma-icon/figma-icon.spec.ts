@@ -6,26 +6,38 @@ describe('Ícones compartilhados', () => {
   afterEach(() => document.documentElement.removeAttribute('data-theme'));
 
   it('carrega todos os arquivos locais, incluindo SVGs, PNGs e o favicon', async () => {
-    const paths = [...new Set(Object.values(ICON_ASSETS).map(path => '/icons/' + path)), '/icons/favicon.ico'];
-    await Promise.all(paths.map(async path => {
-      const image = new Image();
-      image.src = path;
-      await image.decode().catch(() => fail('Ícone não carregou: ' + path));
-      expect(image.naturalWidth).withContext(path).toBeGreaterThan(0);
-      expect(image.naturalHeight).withContext(path).toBeGreaterThan(0);
-    }));
+    const paths = [
+      ...new Set(Object.values(ICON_ASSETS).map((path) => '/icons/' + path)),
+      '/icons/favicon.ico',
+    ];
+    await Promise.all(
+      paths.map(async (path) => {
+        const image = new Image();
+        image.src = path;
+        await image.decode().catch(() => fail('Ícone não carregou: ' + path));
+        expect(image.naturalWidth).withContext(path).toBeGreaterThan(0);
+        expect(image.naturalHeight).withContext(path).toBeGreaterThan(0);
+      }),
+    );
   });
 
   it('preserva o arquivo PNG original, atualiza a máscara e oculta os ícones decorativos', () => {
     const fixture = TestBed.createComponent(FigmaIcon);
-    fixture.componentRef.setInput('name', 'step-completed'); fixture.detectChanges();
+    fixture.componentRef.setInput('name', 'step-completed');
+    fixture.detectChanges();
     const host: HTMLElement = fixture.nativeElement;
     expect(host.getAttribute('aria-hidden')).toBe('true');
-    expect(host.querySelector<HTMLElement>('.icone__mascara')?.style.maskImage).toContain('/icons/onboarding/completed.png');
-    fixture.componentRef.setInput('name', 'home'); fixture.detectChanges();
+    expect(host.querySelector<HTMLElement>('.icone__mascara')?.style.maskImage).toContain(
+      '/icons/onboarding/completed.png',
+    );
+    fixture.componentRef.setInput('name', 'home');
+    fixture.detectChanges();
     expect(host.querySelector('img')).toBeNull();
-    expect(host.querySelector<HTMLElement>('.icone__mascara')?.style.maskImage).toContain('/icons/interface/home.svg');
-    fixture.componentRef.setInput('name', 'arrow-left'); fixture.detectChanges();
+    expect(host.querySelector<HTMLElement>('.icone__mascara')?.style.maskImage).toContain(
+      '/icons/interface/home.svg',
+    );
+    fixture.componentRef.setInput('name', 'arrow-left');
+    fixture.detectChanges();
     expect(host.querySelector('.icone__mascara--invertida')).not.toBeNull();
   });
 

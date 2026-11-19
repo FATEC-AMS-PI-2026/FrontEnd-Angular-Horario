@@ -1,5 +1,4 @@
 <aside class="sidebar">
-
   <!-- LOGO CPS -->
   <div class="sidebar__header">
     <div class="logo-box">
@@ -21,25 +20,33 @@
   <!-- NAVEGAÇÃO -->
   <nav class="sidebar__nav">
     @for (link of links; track link.path) {
-    <a class="sidebar__link" [routerLink]="link.path" [attr.aria-label]="link.label" routerLinkActive="sidebar__link--active">
-
-      <!-- Ícones dinâmicos -->
-      <span class="icon">
-        <app-figma-icon [name]="link.icon" />
-      </span>
-      <span class="sidebar__label">{{ link.label }}</span>
-    </a>
+      <a
+        class="sidebar__link"
+        [routerLink]="link.path"
+        [attr.aria-label]="link.label"
+        routerLinkActive="sidebar__link--active"
+      >
+        <!-- Ícones dinâmicos -->
+        <span class="icon">
+          <app-figma-icon [name]="link.icon" />
+        </span>
+        <span class="sidebar__label">{{ link.label }}</span>
+      </a>
     }
   </nav>
 
   <!-- RODAPÉ (SAIR) -->
   <div class="sidebar__footer">
-    <button type="button" class="sidebar__link sidebar__link--logout" aria-label="Sair" (click)="logout()">
+    <button
+      type="button"
+      class="sidebar__link sidebar__link--logout"
+      aria-label="Sair"
+      (click)="logout()"
+    >
       <span class="icon">
         <app-figma-icon name="logout-nav" />
       </span>
       <span class="sidebar__label">Sair</span>
     </button>
   </div>
-
 </aside>

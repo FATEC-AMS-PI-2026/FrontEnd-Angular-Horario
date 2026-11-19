@@ -13,26 +13,49 @@
           <span>Alterar senha</span>
           <app-figma-icon class="configuracoes__indicador" name="chevron" />
         </a>
-        <a class="configuracoes__opcao" [href]="links.suporte" target="_blank" rel="noopener noreferrer">
+        <a
+          class="configuracoes__opcao"
+          [href]="links.suporte"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <app-figma-icon name="alert" />
-          <span>Relatar problema<span class="configuracoes__sr-only"> (abre em nova aba)</span></span>
+          <span
+            >Relatar problema<span class="configuracoes__sr-only"> (abre em nova aba)</span></span
+          >
           <app-figma-icon class="configuracoes__indicador" name="chevron" />
         </a>
         <label class="configuracoes__opcao" for="notificacoes">
           <app-figma-icon name="bell" />
           <span>Notificações</span>
-          <input #notificacoes id="notificacoes" class="configuracoes__switch" type="checkbox" role="switch"
+          <input
+            #notificacoes
+            id="notificacoes"
+            class="configuracoes__switch"
+            type="checkbox"
+            role="switch"
             [checked]="preferences.notificacoes()"
-            (change)="preferences.definirNotificacoes(notificacoes.checked)" />
+            (change)="preferences.definirNotificacoes(notificacoes.checked)"
+          />
         </label>
         <label class="configuracoes__opcao" for="modo-escuro">
           <app-figma-icon name="moon" />
           <span>Modo Escuro</span>
-          <input #modoEscuro id="modo-escuro" class="configuracoes__switch" type="checkbox" role="switch"
+          <input
+            #modoEscuro
+            id="modo-escuro"
+            class="configuracoes__switch"
+            type="checkbox"
+            role="switch"
             [checked]="preferences.modoEscuro()"
-            (change)="preferences.definirModoEscuro(modoEscuro.checked)" />
+            (change)="preferences.definirModoEscuro(modoEscuro.checked)"
+          />
         </label>
-        <button class="configuracoes__opcao configuracoes__opcao--sair" type="button" (click)="session.logout()">
+        <button
+          class="configuracoes__opcao configuracoes__opcao--sair"
+          type="button"
+          (click)="session.logout()"
+        >
           <app-figma-icon name="logout" />
           <span>Sair da Conta</span>
           <app-figma-icon class="configuracoes__indicador" name="chevron" />
@@ -63,31 +86,58 @@
   @if (sobreVisivel()) {
     <section class="card configuracoes__sobre" aria-labelledby="titulo-sobre">
       <h2 id="titulo-sobre" class="configuracoes__titulo">Sobre o sistema</h2>
-      <a class="configuracoes__opcao" [href]="links.sobre" target="_blank" rel="noopener noreferrer">
+      <a
+        class="configuracoes__opcao"
+        [href]="links.sobre"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         <app-figma-icon name="info" />
         <span>Sobre<span class="configuracoes__sr-only"> (abre em nova aba)</span></span>
         <app-figma-icon class="configuracoes__indicador" name="external" />
       </a>
       @if (links.privacidade) {
-        <a class="configuracoes__opcao" [href]="links.privacidade" target="_blank" rel="noopener noreferrer">
+        <a
+          class="configuracoes__opcao"
+          [href]="links.privacidade"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <app-figma-icon name="shield" />
-          <span>Privacidade e Segurança<span class="configuracoes__sr-only"> (abre em nova aba)</span></span>
+          <span
+            >Privacidade e Segurança<span class="configuracoes__sr-only">
+              (abre em nova aba)</span
+            ></span
+          >
           <app-figma-icon class="configuracoes__indicador" name="external" />
         </a>
       } @else {
-        <button class="configuracoes__opcao" type="button" (click)="mostrarDocumentoPendente('Privacidade e Segurança')">
+        <button
+          class="configuracoes__opcao"
+          type="button"
+          (click)="mostrarDocumentoPendente('Privacidade e Segurança')"
+        >
           <app-figma-icon name="shield" /><span>Privacidade e Segurança</span>
           <app-figma-icon class="configuracoes__indicador" name="external" />
         </button>
       }
       @if (links.termos) {
-        <a class="configuracoes__opcao" [href]="links.termos" target="_blank" rel="noopener noreferrer">
+        <a
+          class="configuracoes__opcao"
+          [href]="links.termos"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <app-figma-icon name="file" />
           <span>Termos de uso<span class="configuracoes__sr-only"> (abre em nova aba)</span></span>
           <app-figma-icon class="configuracoes__indicador" name="external" />
         </a>
       } @else {
-        <button class="configuracoes__opcao" type="button" (click)="mostrarDocumentoPendente('Termos de uso')">
+        <button
+          class="configuracoes__opcao"
+          type="button"
+          (click)="mostrarDocumentoPendente('Termos de uso')"
+        >
           <app-figma-icon name="file" /><span>Termos de uso</span>
           <app-figma-icon class="configuracoes__indicador" name="external" />
         </button>
@@ -96,14 +146,21 @@
   }
 
   @if (!geraisVisiveis() && !contaVisivel() && !sobreVisivel()) {
-    <p class="configuracoes__mensagem" role="status">Nenhuma configuração encontrada para “{{ busca.termo() }}”.</p>
+    <p class="configuracoes__mensagem" role="status">
+      Nenhuma configuração encontrada para “{{ busca.termo() }}”.
+    </p>
   }
   @if (preferences.erroPersistencia()) {
     <p class="configuracoes__mensagem" role="alert">{{ preferences.erroPersistencia() }}</p>
   }
 </section>
 
-<dialog #dialogo class="card configuracoes__dialogo" aria-labelledby="titulo-documento" aria-describedby="aviso-documento">
+<dialog
+  #dialogo
+  class="card configuracoes__dialogo"
+  aria-labelledby="titulo-documento"
+  aria-describedby="aviso-documento"
+>
   <h2 id="titulo-documento" class="card__titulo">{{ documento() }}</h2>
   <p id="aviso-documento">Este documento ainda não foi disponibilizado pela equipe do GINI.</p>
   <form method="dialog"><button class="configuracoes__fechar" autofocus>Entendi</button></form>

@@ -24,21 +24,41 @@ export class PerfilRemotoService {
   }
 
   curso(id: string | null): Observable<CursoDetalhes> {
-    return this.http.get<CursoDetalhes>(`${this.baseUrl}/cursos/${encodeURIComponent(id ?? '')}`, this.options());
+    return this.http.get<CursoDetalhes>(
+      `${this.baseUrl}/cursos/${encodeURIComponent(id ?? '')}`,
+      this.options(),
+    );
   }
 
   disciplinas(cursoId: string | null): Observable<Disciplina[]> {
-    return this.http.get<Disciplina[]>(`${this.baseUrl}/cursos/${encodeURIComponent(cursoId ?? '')}/disciplinas`, this.options());
+    return this.http.get<Disciplina[]>(
+      `${this.baseUrl}/cursos/${encodeURIComponent(cursoId ?? '')}/disciplinas`,
+      this.options(),
+    );
   }
 
   confirmarPeriodo(periodo: string | null): Observable<PerfilResponse> {
-    return this.http.patch<PerfilResponse>(`${this.baseUrl}/usuarios/me/perfil/periodo`, { periodo }, this.options());
+    return this.http.patch<PerfilResponse>(
+      `${this.baseUrl}/usuarios/me/perfil/periodo`,
+      { periodo },
+      this.options(),
+    );
   }
 
-  salvar(cursoId: string | null, periodo: string | null, disciplinasIds: string[]): Observable<PerfilResponse> {
-    return this.http.put<PerfilResponse>(`${this.baseUrl}/usuarios/me/perfil`, {
-      cursoId, periodo, disciplinasIds,
-    }, this.options());
+  salvar(
+    cursoId: string | null,
+    periodo: string | null,
+    disciplinasIds: string[],
+  ): Observable<PerfilResponse> {
+    return this.http.put<PerfilResponse>(
+      `${this.baseUrl}/usuarios/me/perfil`,
+      {
+        cursoId,
+        periodo,
+        disciplinasIds,
+      },
+      this.options(),
+    );
   }
 
   private options(token = obterTokenSessao() ?? ''): { headers: HttpHeaders } {

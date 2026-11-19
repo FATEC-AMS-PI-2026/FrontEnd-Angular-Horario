@@ -1,71 +1,82 @@
 <aside class="setup-sidebar">
-    <div class="setup-sidebar__circle setup-sidebar__circle--top"></div>
-    <div class="setup-sidebar__circle setup-sidebar__circle--middle"></div>
-    <div class="setup-sidebar__circle setup-sidebar__circle--bottom"></div>
+  <div class="setup-sidebar__circle setup-sidebar__circle--top"></div>
+  <div class="setup-sidebar__circle setup-sidebar__circle--middle"></div>
+  <div class="setup-sidebar__circle setup-sidebar__circle--bottom"></div>
 
-    <div class="setup-sidebar__content">
-        <div class="setup-sidebar__brand">
-            <div class="logo-box">
-                <img src="/auth/cps-logo.png" alt="CPS" />
-            </div>
-        </div>
-
-        <div class="setup-sidebar__header">
-            <h1>Configure seu perfil</h1>
-            <p>
-                @if (setupService.currentStep() === 2) {
-                Escolha seu curso e períodos para personalizar seus horários
-                } @else if (setupService.currentStep() === 4) {
-                Monte sua grade com disciplinas regulares, DPs e adiantamentos.
-                } @else if (setupService.currentStep() === 3) {
-                Escolha seu {{ setupService.nomePeriodo() }} para consultar as disciplinas disponíveis.
-                } @else {
-                Selecione suas disciplinas para concluir a configuração.
-                }
-            </p>
-        </div>
-
-        <div class="setup-sidebar__steps">
-            <!-- Step 1 -->
-            <div class="setup-sidebar__step setup-sidebar__step--completed">
-                <div class="setup-sidebar__step-icon">
-                    <app-figma-icon name="step-completed" />
-                </div>
-                <span class="setup-sidebar__step-label">Perfil de acesso</span>
-            </div>
-
-            <!-- Step 2 -->
-            <div class="setup-sidebar__step" [class.setup-sidebar__step--active]="setupService.currentStep() === 2"
-                [class.setup-sidebar__step--completed]="setupService.currentStep() > 2">
-                <div class="setup-sidebar__step-icon">
-                    @if (setupService.currentStep() > 2) {
-                    <app-figma-icon name="step-completed" />
-                    } @else {
-                    2
-                    }
-                </div>
-                <span class="setup-sidebar__step-label">Escolher curso</span>
-            </div>
-
-            <!-- Step 3 -->
-            <div class="setup-sidebar__step" [class.setup-sidebar__step--active]="setupService.currentStep() === 3"
-                [class.setup-sidebar__step--completed]="setupService.currentStep() > 3"
-                [class.setup-sidebar__step--disabled]="setupService.currentStep() < 3">
-                <div class="setup-sidebar__step-icon"
-                    [class.setup-sidebar__step-icon--outline]="setupService.currentStep() <= 3">
-                    @if (setupService.currentStep() > 3) {
-                    <app-figma-icon name="step-completed" />
-                    } @else {
-                    3
-                    }
-                </div>
-                <span class="setup-sidebar__step-label">Escolher {{ setupService.nomePeriodo() }}</span>
-            </div>
-            <div class="setup-sidebar__step" [class.setup-sidebar__step--active]="setupService.currentStep() === 4"
-                [class.setup-sidebar__step--disabled]="setupService.currentStep() < 4">
-                <div class="setup-sidebar__step-icon">4</div>
-                <span class="setup-sidebar__step-label">Escolher disciplinas</span>
-            </div>
-        </div>
+  <div class="setup-sidebar__content">
+    <div class="setup-sidebar__brand">
+      <div class="logo-box">
+        <img src="/auth/cps-logo.png" alt="CPS" />
+      </div>
     </div>
+
+    <div class="setup-sidebar__header">
+      <h1>Configure seu perfil</h1>
+      <p>
+        @if (setupService.currentStep() === 2) {
+          Escolha seu curso e períodos para personalizar seus horários
+        } @else if (setupService.currentStep() === 4) {
+          Monte sua grade com disciplinas regulares, DPs e adiantamentos.
+        } @else if (setupService.currentStep() === 3) {
+          Escolha seu {{ setupService.nomePeriodo() }} para consultar as disciplinas disponíveis.
+        } @else {
+          Selecione suas disciplinas para concluir a configuração.
+        }
+      </p>
+    </div>
+
+    <div class="setup-sidebar__steps">
+      <!-- Step 1 -->
+      <div class="setup-sidebar__step setup-sidebar__step--completed">
+        <div class="setup-sidebar__step-icon">
+          <app-figma-icon name="step-completed" />
+        </div>
+        <span class="setup-sidebar__step-label">Perfil de acesso</span>
+      </div>
+
+      <!-- Step 2 -->
+      <div
+        class="setup-sidebar__step"
+        [class.setup-sidebar__step--active]="setupService.currentStep() === 2"
+        [class.setup-sidebar__step--completed]="setupService.currentStep() > 2"
+      >
+        <div class="setup-sidebar__step-icon">
+          @if (setupService.currentStep() > 2) {
+            <app-figma-icon name="step-completed" />
+          } @else {
+            2
+          }
+        </div>
+        <span class="setup-sidebar__step-label">Escolher curso</span>
+      </div>
+
+      <!-- Step 3 -->
+      <div
+        class="setup-sidebar__step"
+        [class.setup-sidebar__step--active]="setupService.currentStep() === 3"
+        [class.setup-sidebar__step--completed]="setupService.currentStep() > 3"
+        [class.setup-sidebar__step--disabled]="setupService.currentStep() < 3"
+      >
+        <div
+          class="setup-sidebar__step-icon"
+          [class.setup-sidebar__step-icon--outline]="setupService.currentStep() <= 3"
+        >
+          @if (setupService.currentStep() > 3) {
+            <app-figma-icon name="step-completed" />
+          } @else {
+            3
+          }
+        </div>
+        <span class="setup-sidebar__step-label">Escolher {{ setupService.nomePeriodo() }}</span>
+      </div>
+      <div
+        class="setup-sidebar__step"
+        [class.setup-sidebar__step--active]="setupService.currentStep() === 4"
+        [class.setup-sidebar__step--disabled]="setupService.currentStep() < 4"
+      >
+        <div class="setup-sidebar__step-icon">4</div>
+        <span class="setup-sidebar__step-label">Escolher disciplinas</span>
+      </div>
+    </div>
+  </div>
 </aside>

@@ -12,5 +12,13 @@ import { Tecnico } from '../../models/tecnico';
 })
 export class TecnicoCard {
   readonly tecnico = input<Tecnico>();
-  protected readonly iniciais = computed(() => this.tecnico()?.nome.split(/\s+/).filter(Boolean).slice(0, 2).map(n => n[0]).join('') ?? '');
+  protected readonly iniciais = computed(
+    () =>
+      this.tecnico()
+        ?.nome.split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((n) => n[0])
+        .join('') ?? '',
+  );
 }

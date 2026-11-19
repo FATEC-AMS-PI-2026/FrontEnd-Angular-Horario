@@ -1,0 +1,22 @@
+<h3 class="dia-aulas__titulo">{{ dia().diaSemana }}</h3>
+<ul class="dia-aulas__lista">
+  @for (item of dia().itens; track $index) {
+    @if (item.tipo === 'aula') {
+      <li class="aula-card" [class]="'aula-card--' + item.aula.cor">
+        <span class="aula-card__horario">
+          <span>{{ item.aula.inicio }}</span>
+          <span>{{ item.aula.termino }}</span>
+        </span>
+        <span class="aula-card__info">
+          <strong>{{ item.aula.disciplina }}</strong>
+          @if (item.aula.local) {
+            <span>{{ item.aula.local }}</span>
+          }
+          <span>Turma {{ item.aula.turma }}</span>
+        </span>
+      </li>
+    } @else {
+      <li class="intervalo-bar">Intervalo</li>
+    }
+  }
+</ul>

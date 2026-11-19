@@ -24,6 +24,9 @@ export class AlertasEquipamentos {
 
   /** Equipamentos sem nenhuma unidade disponível (indisponíveis). */
   protected readonly equipamentosComProblema = computed(() =>
-    this.equipamentos().filter((equipamento) => equipamento.quantidadeDisponivel !== undefined && equipamento.quantidadeDisponivel <= 0),
+    this.equipamentos().filter(
+      (equipamento) =>
+        equipamento.quantidadeDisponivel !== undefined && equipamento.quantidadeDisponivel <= 0,
+    ),
   );
 }
