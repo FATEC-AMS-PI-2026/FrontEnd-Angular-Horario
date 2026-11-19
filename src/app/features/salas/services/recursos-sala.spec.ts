@@ -23,7 +23,7 @@ describe('RecursosSalaService', () => {
         provideHttpClientTesting(),
         {
           provide: BACKEND_CONFIG,
-          useValue: { url: 'http://backend/', modulos: ['recurso-sala'] },
+          useValue: { url: 'http://backend/', modulos: ['recursos-salas'] },
         },
       ],
     });
@@ -35,7 +35,7 @@ describe('RecursosSalaService', () => {
   it('lê todas as páginas, agrupa por sala e não inventa quantidade disponível', () => {
     service.carregar();
     const primeira = http.expectOne((r) => r.params.get('page') === '0');
-    expect(primeira.request.url).toBe('http://backend/recurso-sala');
+    expect(primeira.request.url).toBe('http://backend/recursos-salas');
     expect(primeira.request.params.has('salaId')).toBeFalse();
     expect(primeira.request.params.has('id_sala')).toBeFalse();
     primeira.flush({ content: [recurso()], page: 0, totalPages: 2 });
@@ -50,32 +50,32 @@ describe('RecursosSalaService', () => {
     expect(service.carregando()).toBeFalse();
   });
 
-  it('usa salaId no filtro e rejeita uma consulta que retorna itens de outra sala', () => {
+  it('usa id_sala no filtro e rejeita uma consulta que retorna itens de outra sala', () => {
     service.carregar(7);
     http
-      .expectOne((r) => r.params.get('salaId') === '7')
+      .expectOne((r) => r.params.get('id_sala') === '7')
       .flush({ content: [recurso(), recurso(2, 8)], page: 0, totalPages: 1 });
     expect(service.erro()).toBeTruthy();
     expect(service.daSala(7)).toBeNull();
     service.carregar(7);
     http
-      .expectOne((r) => r.params.get('salaId') === '7')
+      .expectOne((r) => r.params.get('id_sala') === '7')
       .flush({ content: [recurso()], page: 0, total_pages: 1 });
     expect([...service.porSala().keys()]).toEqual([7]);
     expect(service.erro()).toBeNull();
   });
 
-  it('consulta recurso-sala com paginação snake_case sem publicar itens parciais', () => {
+  it('consulta recursos-salas com paginação snake_case sem publicar itens parciais', () => {
     service.carregar(7);
     const primeira = http.expectOne(
-      (r) => r.url === 'http://backend/recurso-sala' && r.params.get('salaId') === '7',
+      (r) => r.url === 'http://backend/recursos-salas' && r.params.get('id_sala') === '7',
     );
     expect(primeira.request.method).toBe('GET');
-    expect(primeira.request.params.has('id_sala')).toBeFalse();
+    expect(primeira.request.params.has('salaId')).toBeFalse();
     primeira.flush({ content: [recurso()], page: 0, total_pages: 2, total_elements: 1 });
     expect(service.daSala(7)).toBeNull();
     http
-      .expectOne((r) => r.params.get('page') === '1' && r.params.get('salaId') === '7')
+      .expectOne((r) => r.params.get('page') === '1' && r.params.get('id_sala') === '7')
       .flush({ content: [recurso(2)], page: 1, total_pages: 2, total_elements: 1 });
     expect(service.erro()).toBeNull();
     expect(service.daSala(7)?.length).toBe(2);
@@ -121,10 +121,10 @@ describe('RecursosSalaService', () => {
 
   it('cancela a consulta anterior ao trocar de sala ou limpar', () => {
     service.carregar(7);
-    const anterior = http.expectOne((r) => r.params.get('salaId') === '7');
+    const anterior = http.expectOne((r) => r.params.get('id_sala') === '7');
     service.carregar(8);
     expect(anterior.cancelled).toBeTrue();
-    const atual = http.expectOne((r) => r.params.get('salaId') === '8');
+    const atual = http.expectOne((r) => r.params.get('id_sala') === '8');
     service.limpar();
     expect(atual.cancelled).toBeTrue();
     expect(service.porSala().size).toBe(0);
@@ -133,12 +133,12 @@ describe('RecursosSalaService', () => {
   it('rejeita paginação inconsistente e quantidades inválidas', () => {
     service.carregar();
     http
-      .expectOne((r) => r.url.endsWith('/recurso-sala'))
+      .expectOne((r) => r.url.endsWith('/recursos-salas'))
       .flush({ content: [], page: 0, totalPages: 2 });
     expect(service.erro()).toBeTruthy();
     service.carregar();
     http
-      .expectOne((r) => r.url.endsWith('/recurso-sala'))
+      .expectOne((r) => r.url.endsWith('/recursos-salas'))
       .flush({ content: [{ ...recurso(), quantidade: -1 }], page: 0, totalPages: 1 });
     expect(service.erro()).toBeTruthy();
     expect(service.porSala().size).toBe(0);
@@ -152,7 +152,7 @@ describe('RecursosSalaService', () => {
     for (const item of [semIdRecurso, idTipoInvalido]) {
       service.carregar(7);
       http
-        .expectOne((r) => r.params.get('salaId') === '7')
+        .expectOne((r) => r.params.get('id_sala') === '7')
         .flush({ content: [item], page: 0, size: 200, totalElements: 1, totalPages: 1 });
       expect(service.erro()).toBeTruthy();
       expect(service.daSala(7)).toBeNull();
@@ -161,7 +161,7 @@ describe('RecursosSalaService', () => {
 
   it('recusa um filtro de sala inválido antes de enviar a requisição', () => {
     service.carregar(0);
-    http.expectNone((r) => r.url.endsWith('/recurso-sala'));
+    http.expectNone((r) => r.url.endsWith('/recursos-salas'));
     expect(service.erro()).toBeTruthy();
     expect(service.carregando()).toBeFalse();
     expect(service.daSala(7)).toBeNull();
@@ -213,6 +213,6 @@ describe('RecursosSalaService', () => {
     desabilitado.carregar(7);
     expect(desabilitado.daSala(7)).toBeNull();
     expect(desabilitado.carregando()).toBeFalse();
-    TestBed.inject(HttpTestingController).expectNone((r) => r.url.endsWith('/recurso-sala'));
+    TestBed.inject(HttpTestingController).expectNone((r) => r.url.endsWith('/recursos-salas'));
   });
 });

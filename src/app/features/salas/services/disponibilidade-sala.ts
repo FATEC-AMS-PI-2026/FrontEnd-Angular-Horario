@@ -205,7 +205,7 @@ export class DisponibilidadeSalaService {
       const pagina = (page: number) =>
         this.http
           .get<unknown>(`${this.config.url.replace(/\/+$/, '')}/alocacoes`, {
-            params: { ...(salaId === undefined ? {} : { sala: salaId }), page, size: 200 },
+            params: { ...(salaId === undefined ? {} : { id_sala: salaId }), page, size: 200 },
           })
           .pipe(
             map((resposta) => {

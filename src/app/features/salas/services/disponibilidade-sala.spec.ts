@@ -106,13 +106,13 @@ describe('DisponibilidadeSalaService', () => {
     const primeira = http.expectOne(
       (r) => r.url.endsWith('/alocacoes') && r.params.get('page') === '0',
     );
-    expect(primeira.request.params.get('sala')).toBe('7');
-    expect(primeira.request.params.has('id_sala')).toBeFalse();
-    expect(primeira.request.params.has('usuario')).toBeFalse();
+    expect(primeira.request.params.get('id_sala')).toBe('7');
+    expect(primeira.request.params.has('sala')).toBeFalse();
+    expect(primeira.request.params.has('id_usuario')).toBeFalse();
     primeira.flush({ content: [aula()], page: 0, totalPages: 2 });
     expect(recebido).not.toHaveBeenCalled();
     http
-      .expectOne((r) => r.params.get('page') === '1' && r.params.get('sala') === '7')
+      .expectOne((r) => r.params.get('page') === '1' && r.params.get('id_sala') === '7')
       .flush({ content: [{ ...aula('17:00', '18:00'), id: 2 }], page: 1, totalPages: 2 });
     expect(recebido.calls.mostRecent().args[0].length).toBe(2);
   });
@@ -160,11 +160,11 @@ describe('DisponibilidadeSalaService', () => {
     const recebido = jasmine.createSpy();
     service.carregar(7).subscribe(recebido);
     http
-      .expectOne((r) => r.params.get('page') === '0' && r.params.get('sala') === '7')
+      .expectOne((r) => r.params.get('page') === '0' && r.params.get('id_sala') === '7')
       .flush({ content: [registro(1, 'TERÇA')], page: 0, total_pages: 2, total_elements: 1 });
     expect(recebido).not.toHaveBeenCalled();
     http
-      .expectOne((r) => r.params.get('page') === '1' && r.params.get('sala') === '7')
+      .expectOne((r) => r.params.get('page') === '1' && r.params.get('id_sala') === '7')
       .flush({ content: [registro(2, 'SÁBADO')], page: 1, total_pages: 2, total_elements: 1 });
     const agenda = recebido.calls.mostRecent().args[0] as AlocacaoSalaApi[];
     expect(agenda.map((a) => a.diaSemana)).toEqual(['TERCA', 'SABADO']);

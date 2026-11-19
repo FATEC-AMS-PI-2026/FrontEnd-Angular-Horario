@@ -102,8 +102,8 @@ export class ExemploTurmasBackend extends HttpBackend {
         if (status !== 200)
           return throwError(() => new HttpErrorResponse({ status, url: req.url }));
 
-        const curso = req.params.get('curso');
-        const turma = req.params.get('turma');
+        const curso = req.params.get('id_curso');
+        const turma = req.params.get('id_turma');
         const registros =
           rota === 'turmas'
             ? TURMAS.filter((item) => !curso || item.curso.id === Number(curso))

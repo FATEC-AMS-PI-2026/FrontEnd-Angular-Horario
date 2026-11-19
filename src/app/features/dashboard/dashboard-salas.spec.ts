@@ -113,8 +113,8 @@ describe('Dashboard: salas integradas', () => {
   }
   function agenda(alocacoes = [global()]) {
     const req = http.expectOne((r) => r.url === `${BASE}/alocacoes`);
-    expect(req.request.params.has('usuario')).toBeFalse();
-    expect(req.request.params.has('sala')).toBeFalse();
+    expect(req.request.params.has('id_usuario')).toBeFalse();
+    expect(req.request.params.has('id_sala')).toBeFalse();
     req.flush({ content: alocacoes, page: 0, totalPages: alocacoes.length ? 1 : 0 });
   }
   const tela = (): HTMLElement => fixture.nativeElement;

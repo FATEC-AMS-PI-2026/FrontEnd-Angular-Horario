@@ -17,10 +17,10 @@ import {
 /** Limite por requisição; todas as páginas são lidas antes de publicar o resultado. */
 const TAMANHO_PAGINA = 200;
 
-/** Rotas e filtros do contrato Java da branch Correção-para-infra. */
+/** Rotas e filtros do contrato Java atual (`dev` do backend, depois da motor-grade). */
 const CONTRATO = {
-  turmas: { rota: 'turmas', filtroCurso: 'curso' },
-  alocacoes: { rota: 'alocacoes', filtroTurma: 'turma' },
+  turmas: { rota: 'turmas', filtroCurso: 'id_curso' },
+  alocacoes: { rota: 'alocacoes', filtroTurma: 'id_turma' },
 } as const;
 
 interface PaginaApi {

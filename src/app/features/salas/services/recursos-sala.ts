@@ -45,7 +45,7 @@ export class RecursosSalaService {
   private consulta?: Subscription;
   private readonly carregado = signal(false);
   readonly habilitado =
-    this.config.habilitado || (this.config.modulos ?? []).includes('recurso-sala');
+    this.config.habilitado || (this.config.modulos ?? []).includes('recursos-salas');
   readonly porSala = signal<ReadonlyMap<number, Equipamento[]>>(new Map());
   readonly carregando = signal(false);
   readonly erro = signal<string | null>(null);
@@ -73,8 +73,8 @@ export class RecursosSalaService {
     let totalEsperado: number | undefined;
     const pagina = (page: number) =>
       this.http
-        .get<unknown>(`${this.base}/recurso-sala`, {
-          params: { page, size: 200, ...(salaId === undefined ? {} : { salaId: salaId }) },
+        .get<unknown>(`${this.base}/recursos-salas`, {
+          params: { page, size: 200, ...(salaId === undefined ? {} : { id_sala: salaId }) },
         })
         .pipe(
           map((resposta) => {
