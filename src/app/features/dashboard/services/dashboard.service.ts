@@ -4,7 +4,7 @@ import { AlocacaoResponse, DIAS_SEMANA, diaSemana } from '../models/grade-dia.mo
 
 /** O adaptador deverá retornar todas as alocações vigentes do aluno autenticado
  * para a data solicitada, já resolvendo turma, versão do quadro e paginação.
- * Não usar /alocacoes?usuario=aluno: o Java filtra professor nesse parâmetro.
+ * Não usar /alocacoes?id_usuario=aluno: o Java filtra professor nesse parâmetro.
  */
 export type CarregarGradeDia = (data: string) => Observable<AlocacaoResponse[]>;
 export const CARREGAR_GRADE_DIA = new InjectionToken<CarregarGradeDia>('CARREGAR_GRADE_DIA');

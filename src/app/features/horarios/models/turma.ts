@@ -1,5 +1,5 @@
 /**
- * Turma ativa de um curso, como vem do backend Java (`GET /turmas?curso=`), #150.
+ * Turma ativa de um curso, como vem do backend Java (`GET /turmas?id_curso=`), #150.
  * O backend não tem turno na turma e a mantém única por curso + ano + período.
  */
 export interface Turma {

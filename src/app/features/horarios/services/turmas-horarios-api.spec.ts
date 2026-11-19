@@ -38,7 +38,7 @@ describe('TurmasHorariosApiService (#150)', () => {
     let turmas: Turma[] = [];
     service.listarTurmasDoCurso(1).subscribe((t) => (turmas = t));
     const req = http.expectOne((r) => r.url === `${BASE}/turmas`);
-    expect(req.request.params.get('curso')).toBe('1');
+    expect(req.request.params.get('id_curso')).toBe('1');
     expect(req.request.params.get('size')).toBe('200');
     expect(req.request.params.has('ano')).toBeFalse();
     // Resposta real de GET /turmas?curso=1 (ADS) do seed.
@@ -86,7 +86,7 @@ describe('TurmasHorariosApiService (#150)', () => {
     let itens: ItemHorario[] = [];
     service.listarHorariosDaTurma(2).subscribe((i) => (itens = i));
     const req = http.expectOne((r) => r.url === `${BASE}/alocacoes`);
-    expect(req.request.params.get('turma')).toBe('2');
+    expect(req.request.params.get('id_turma')).toBe('2');
     req.flush(
       pagina([
         {
@@ -147,7 +147,7 @@ describe('TurmasHorariosApiService (#150)', () => {
       .flush(pagina([{ ...ALOCACAO_REAL.turma, id: 4, periodo: 2, codigo: '2/2026' }], 0, 2));
     expect(turmas).toBeUndefined();
     const segunda = http.expectOne((r) => r.params.get('page') === '1');
-    expect(segunda.request.params.get('curso')).toBe('1');
+    expect(segunda.request.params.get('id_curso')).toBe('1');
     expect(segunda.request.params.get('ano')).toBe('2026');
     segunda.flush(pagina([ALOCACAO_REAL.turma], 1, 2));
     expect(turmas!.map((t) => t.id)).toEqual([2, 4]);
@@ -159,7 +159,7 @@ describe('TurmasHorariosApiService (#150)', () => {
     http.expectOne((r) => r.params.get('page') === '0').flush(pagina([ALOCACAO_REAL], 0, 2));
     expect(itens).toBeUndefined();
     const segunda = http.expectOne((r) => r.params.get('page') === '1');
-    expect(segunda.request.params.get('turma')).toBe('2');
+    expect(segunda.request.params.get('id_turma')).toBe('2');
     segunda.flush(
       pagina(
         [
@@ -304,7 +304,7 @@ describe('TurmasHorariosApiService (#150)', () => {
         { status: 500, statusText: 'Erro' },
       );
     const req = http.expectOne((r) => r.url === `${BASE}/alocacoes`);
-    expect(req.request.params.has('turma')).toBeFalse();
+    expect(req.request.params.has('id_turma')).toBeFalse();
     expect(req.request.params.get('size')).toBe('200');
     req.flush(
       pagina([

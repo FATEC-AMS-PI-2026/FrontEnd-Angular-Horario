@@ -15,10 +15,10 @@ describe('ProfessoresService', () => {
   let config: BackendConfig;
   const lista = [professorApi(1, 'Ana'), professorApi(2, 'Zélia'), professorApi(3, 'Sem aulas')];
   const grade = (id = 1) =>
-    http.expectOne((r) => r.url === '/api/alocacoes' && r.params.get('usuario') === String(id));
+    http.expectOne((r) => r.url === '/api/alocacoes' && r.params.get('id_usuario') === String(id));
   const cursos = () =>
     http.expectOne(
-      (r) => r.url === '/api/alocacoes' && !r.params.has('usuario') && !r.params.has('id_usuario'),
+      (r) => r.url === '/api/alocacoes' && !r.params.has('id_usuario') && !r.params.has('usuario'),
     );
   const cadastro = (page = 0) =>
     http.expectOne((r) => r.url === '/api/professores' && r.params.get('page') === String(page));
@@ -56,7 +56,7 @@ describe('ProfessoresService', () => {
     expect(service.professoresFiltrados().every((p) => p.cargo === null)).toBeTrue();
     expect(service.professorSelecionado()?.id).toBe(1);
     const req = grade();
-    expect(req.request.params.has('id_usuario')).toBeFalse();
+    expect(req.request.params.has('usuario')).toBeFalse();
     expect(req.request.headers.has('Authorization')).toBeFalse();
     req.flush(paginaApi([]));
     expect(service.diasAgrupados()).toEqual([]);
@@ -214,7 +214,7 @@ describe('ProfessoresService', () => {
     http.expectOne((r) => r.url === '/api/cursos').flush(paginaApi([]));
     cadastro().flush(paginaApi(lista));
     grade().flush(paginaApi([]));
-    http.expectNone((r) => r.url === '/api/alocacoes' && !r.params.has('usuario'));
+    http.expectNone((r) => r.url === '/api/alocacoes' && !r.params.has('id_usuario'));
     expect(service.agendaCompleta).toBeFalse();
     expect(service.cursos()).toEqual([]);
     expect(service.professoresFiltrados().length).toBe(3);
